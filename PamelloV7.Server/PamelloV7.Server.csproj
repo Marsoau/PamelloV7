@@ -10,4 +10,14 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Config\config.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
