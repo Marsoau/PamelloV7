@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+    <ProjectReference Include="..\PamelloV7.DAL\PamelloV7.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

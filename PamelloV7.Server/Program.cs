@@ -1,5 +1,6 @@
 using Discord;
 using Discord.WebSocket;
+using PamelloV7.DAL;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Services;
 
@@ -12,6 +13,8 @@ namespace PamelloV7.Server
 
             builder.Services.AddSingleton<PamelloServerConfig>();
 
+            ConfigureDatabaseServices(builder.Services);
+            ConfigurePamelloServices(builder.Services);
             ConfigureDiscordServices(builder.Services);
             ConfigureAPIServices(builder.Services);
 
@@ -19,6 +22,14 @@ namespace PamelloV7.Server
 
             await StartupDiscordServices(app.Services);
             await StartupAPIServices(app);
+        }
+
+        private static void ConfigureDatabaseServices(IServiceCollection services) {
+            services.AddSingleton<DatabaseContext>();
+        }
+
+        private static void ConfigurePamelloServices(IServiceCollection services) {
+
         }
 
         private static void ConfigureDiscordServices(IServiceCollection services) {
