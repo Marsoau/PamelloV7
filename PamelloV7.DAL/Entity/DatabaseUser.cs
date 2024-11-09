@@ -1,8 +1,7 @@
 ﻿namespace PamelloV7.DAL.Entity
 {
-    public class UserEntity
+    public class DatabaseUser : DatabaseEntity
 	{
-        public int Id { get; set; }
         public ulong DiscordId { get; set; }
         public Guid Token { get; set; }
 
@@ -11,7 +10,7 @@
 
         public bool IsAdministrator { get; set; }
 
-        public List<SongEntity> AddedSongs { get; set; }
-        public List<PlaylistEntity> OwnedPlaylists { get; set; }
+        public List<DatabaseSong> AddedSongs { get; set; }
+        public List<DatabasePlaylist> OwnedPlaylists { get; set; }
 	}
 }

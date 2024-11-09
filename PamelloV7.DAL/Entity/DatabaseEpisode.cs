@@ -1,9 +1,8 @@
 ﻿namespace PamelloV7.DAL.Entity
 {
-    public class EpisodeEntity
+    public class DatabaseEpisode : DatabaseEntity
 	{
-        public int Id { get; set; }
-        public SongEntity Song { get; set; }
+        public DatabaseSong Song { get; set; }
         public string Name { get; set; }
 		public int Start { get; set; }
 		public bool Skip { get; set; }

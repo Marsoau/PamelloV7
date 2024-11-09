@@ -7,7 +7,7 @@ namespace PamelloV7.Server.Services
     {
 		public DiscordSocketClient[] DiscordClients;
 
-		public DiscordSocketClient MainDiscordClient {
+		public DiscordSocketClient MainClient {
 			get => DiscordClients[0];
 		}
 

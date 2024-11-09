@@ -5,10 +5,10 @@ namespace PamelloV7.DAL
 {
     public class DatabaseContext : DbContext
     {
-        public DbSet<UserEntity> Users { get; set; }
-        public DbSet<SongEntity> Songs { get; set; }
-        public DbSet<EpisodeEntity> Episodes { get; set; }
-        public DbSet<PlaylistEntity> Playlists { get; set; }
+        public DbSet<DatabaseUser> Users { get; set; }
+        public DbSet<DatabaseSong> Songs { get; set; }
+        public DbSet<DatabaseEpisode> Episodes { get; set; }
+        public DbSet<DatabasePlaylist> Playlists { get; set; }
 
         public DatabaseContext() {
             if (!Directory.Exists("Data")) {

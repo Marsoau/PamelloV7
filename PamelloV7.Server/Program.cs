@@ -2,6 +2,7 @@ using Discord;
 using Discord.WebSocket;
 using PamelloV7.DAL;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server
@@ -31,7 +32,7 @@ namespace PamelloV7.Server
         }
 
         private static void ConfigurePamelloServices(IServiceCollection services) {
-
+            services.AddSingleton<PamelloUserRepository>();
         }
 
         private static void ConfigureDiscordServices(IServiceCollection services) {
@@ -54,7 +55,6 @@ namespace PamelloV7.Server
         }
 
         private static async Task StartupPamelloServices(IServiceProvider services) {
-
         }
 
         private static async Task StartupDiscordServices(IServiceProvider services) {
@@ -63,16 +63,16 @@ namespace PamelloV7.Server
 
             var discordReady = new TaskCompletionSource();
 
-            discordClients.MainDiscordClient.Log += async (message) => {
+            discordClients.MainClient.Log += async (message) => {
                 Console.WriteLine(message);
             };
 
-            discordClients.MainDiscordClient.Ready += async () => {
+            discordClients.MainClient.Ready += async () => {
                 discordReady.SetResult();
             };
 
-            await discordClients.MainDiscordClient.LoginAsync(TokenType.Bot, config.MainBotToken);
-            await discordClients.MainDiscordClient.StartAsync();
+            await discordClients.MainClient.LoginAsync(TokenType.Bot, config.MainBotToken);
+            await discordClients.MainClient.StartAsync();
 
             await discordReady.Task;
         }
