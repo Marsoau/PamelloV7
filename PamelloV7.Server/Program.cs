@@ -15,24 +15,20 @@ namespace PamelloV7.Server
             builder.Services.AddSingleton<PamelloServerConfig>();
 
             ConfigureDatabaseServices(builder.Services);
-            ConfigurePamelloServices(builder.Services);
             ConfigureDiscordServices(builder.Services);
+            ConfigurePamelloServices(builder.Services);
             ConfigureAPIServices(builder.Services);
 
             var app = builder.Build();
 
             await StartupDatabaseServices(app.Services);
-            await StartupPamelloServices(app.Services);
             await StartupDiscordServices(app.Services);
+            await StartupPamelloServices(app.Services);
             await StartupAPIServices(app);
         }
 
         private static void ConfigureDatabaseServices(IServiceCollection services) {
             services.AddSingleton<DatabaseContext>();
-        }
-
-        private static void ConfigurePamelloServices(IServiceCollection services) {
-            services.AddSingleton<PamelloUserRepository>();
         }
 
         private static void ConfigureDiscordServices(IServiceCollection services) {
@@ -46,15 +42,16 @@ namespace PamelloV7.Server
             services.AddSingleton<DiscordClientService>();
         }
 
+        private static void ConfigurePamelloServices(IServiceCollection services) {
+            services.AddSingleton<PamelloUserRepository>();
+        }
+
         private static void ConfigureAPIServices(IServiceCollection services) {
             services.AddControllers();
         }
 
         private static async Task StartupDatabaseServices(IServiceProvider services) {
             services.GetRequiredService<DatabaseContext>();
-        }
-
-        private static async Task StartupPamelloServices(IServiceProvider services) {
         }
 
         private static async Task StartupDiscordServices(IServiceProvider services) {
@@ -75,6 +72,10 @@ namespace PamelloV7.Server
             await discordClients.MainClient.StartAsync();
 
             await discordReady.Task;
+        }
+
+        private static async Task StartupPamelloServices(IServiceProvider services) {
+            var users = services.GetRequiredService<PamelloUserRepository>();
         }
 
         private static async Task StartupAPIServices(WebApplication app) {

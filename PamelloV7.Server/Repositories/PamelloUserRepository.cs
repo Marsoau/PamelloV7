@@ -15,7 +15,7 @@ namespace PamelloV7.Server.Repositories
             _discordClients = discordClients;
         }
 
-        public PamelloUser? Get(Guid token) {
+        public PamelloUser? GetByToken(Guid token) {
             var pamelloEntity = _loaded.FirstOrDefault(e => e.Token == token);
             if (pamelloEntity is not null) return pamelloEntity;
 
@@ -25,7 +25,7 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseEntity);
         }
 
-        public PamelloUser? Get(ulong discordId) {
+        public PamelloUser? GetByDiscord(ulong discordId) {
             var pamelloUser = _loaded.FirstOrDefault(e => e.DiscordUser.Id == discordId);
             if (pamelloUser is not null) return pamelloUser;
 
