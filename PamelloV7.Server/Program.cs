@@ -20,6 +20,8 @@ namespace PamelloV7.Server
 
             var app = builder.Build();
 
+            await StartupDatabaseServices(app.Services);
+            await StartupPamelloServices(app.Services);
             await StartupDiscordServices(app.Services);
             await StartupAPIServices(app);
         }
@@ -45,6 +47,14 @@ namespace PamelloV7.Server
 
         private static void ConfigureAPIServices(IServiceCollection services) {
             services.AddControllers();
+        }
+
+        private static async Task StartupDatabaseServices(IServiceProvider services) {
+            services.GetRequiredService<DatabaseContext>();
+        }
+
+        private static async Task StartupPamelloServices(IServiceProvider services) {
+
         }
 
         private static async Task StartupDiscordServices(IServiceProvider services) {

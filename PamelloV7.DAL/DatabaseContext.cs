@@ -19,7 +19,7 @@ namespace PamelloV7.DAL
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlite(@"Data Source=Data\data.db");
+            optionsBuilder.UseSqlite(@$"Data Source={AppContext.BaseDirectory}Data\data.db");
         }
     }
 }
