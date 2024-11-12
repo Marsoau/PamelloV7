@@ -10,6 +10,8 @@ namespace PamelloV7.DAL
         public DbSet<DatabaseEpisode> Episodes { get; set; }
         public DbSet<DatabasePlaylist> Playlists { get; set; }
 
+        public DbSet<DatabaseAssociacion> Associacions { get; set; }
+
         public DatabaseContext() {
             if (!Directory.Exists("Data")) {
                 Directory.CreateDirectory("Data");
@@ -20,6 +22,46 @@ namespace PamelloV7.DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             optionsBuilder.UseSqlite(@$"Data Source={AppContext.BaseDirectory}Data\data.db");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<DatabaseUser>(userBuilder => {
+                userBuilder.HasMany(user => user.AddedSongs)
+                    .WithOne(song => song.AddedBy);
+                userBuilder.HasMany(user => user.FavoriteSongs)
+                    .WithMany(song => song.FavoritedBy)
+                    .UsingEntity(entity => {
+                        entity.Property("FavoritedById").HasColumnName("UserId");
+                        entity.Property("FavoriteSongsId").HasColumnName("SongId");
+                        entity.ToTable("UsersFavoriteSongs");
+                    });
+
+                userBuilder.HasMany(user => user.OwnedPlaylists)
+                    .WithOne(playlist => playlist.Owner);
+                userBuilder.HasMany(user => user.FavoritePlaylists)
+                    .WithMany(playlist => playlist.FavoritedBy)
+                    .UsingEntity(entity => {
+                        entity.Property("FavoritedById").HasColumnName("UserId");
+                        entity.Property("FavoritePlaylistsId").HasColumnName("PlaylistId");
+                        entity.ToTable("UsersFavoritePlaylists");
+                    });
+            });
+            modelBuilder.Entity<DatabaseSong>(songBuilder => {
+                songBuilder.HasMany(song => song.Episodes)
+                    .WithOne(episode => episode.Song);
+                songBuilder.HasMany(song => song.Associacions)
+                    .WithOne(associacion => associacion.Song);
+                songBuilder.HasMany(song => song.Playlists)
+                    .WithMany(playlist => playlist.Songs)
+                    .UsingEntity(entity => {
+                        entity.Property("PlaylistsId").HasColumnName("PlaylistId");
+                        entity.Property("SongsId").HasColumnName("SongId");
+                        entity.ToTable("PlaylistsSongs");
+                    });
+            });
+            modelBuilder.Entity<DatabaseAssociacion>(associacionBuilder => {
+                associacionBuilder.HasKey(ascn => ascn.Associacion);
+            });
         }
     }
 }

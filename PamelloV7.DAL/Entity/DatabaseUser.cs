@@ -10,6 +10,8 @@
 
         public bool IsAdministrator { get; set; }
 
+        public List<DatabaseSong> FavoriteSongs { get; set; }
+        public List<DatabasePlaylist> FavoritePlaylists { get; set; }
         public List<DatabaseSong> AddedSongs { get; set; }
         public List<DatabasePlaylist> OwnedPlaylists { get; set; }
 	}

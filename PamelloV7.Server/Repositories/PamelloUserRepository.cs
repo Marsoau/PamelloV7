@@ -26,10 +26,10 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloUser? GetByDiscord(ulong discordId) {
-            var pamelloUser = _loaded.FirstOrDefault(e => e.DiscordUser.Id == discordId);
+            var pamelloUser = _loaded.FirstOrDefault(user => user.DiscordUser.Id == discordId);
             if (pamelloUser is not null) return pamelloUser;
 
-            var databaseUser = _nonloaded.FirstOrDefault(e => e.DiscordId == discordId);
+            var databaseUser = _nonloaded.FirstOrDefault(user => user.DiscordId == discordId);
             if (databaseUser is not null) return Load(databaseUser);
 
             var discordUser = _discordClients.MainClient.GetUser(discordId);
@@ -41,7 +41,8 @@ namespace PamelloV7.Server.Repositories
                 SongsPlayed = 0,
                 JoinedAt = DateTime.UtcNow,
                 IsAdministrator = false,
-                AddedSongs = [],
+                FavoriteSongs = [],
+                FavoritePlaylists = [],
                 OwnedPlaylists = [],
             };
             _database.Users.Add(databaseUser);
@@ -50,21 +51,31 @@ namespace PamelloV7.Server.Repositories
             pamelloUser = new PamelloUser(_services, databaseUser, discordUser);
             _loaded.Add(pamelloUser);
 
+            //_events.UserCreated(pamelloUser);
+            //_events.UserLoaded(pamelloUser);
+
             return pamelloUser;
         }
 
         public override PamelloUser? Load(DatabaseUser databaseUser) {
+            var pamelloUser = _loaded.FirstOrDefault(user => user.Id == databaseUser.Id);
+            if (pamelloUser is not null) return pamelloUser;
+
             var discordUser = _discordClients.MainClient.GetUser(databaseUser.DiscordId);
             if (discordUser is null) return null;
 
-            var pamelloUser = new PamelloUser(_services, databaseUser, discordUser);
+            pamelloUser = new PamelloUser(_services, databaseUser, discordUser);
             _loaded.Add(pamelloUser);
+
+            //_events.UserLoaded(pamelloUser);
 
             return pamelloUser;
         }
 
         public override List<DatabaseUser> LoadDatabaseEntities() {
             return _database.Users
+                .Include(databaseUser => databaseUser.FavoriteSongs)
+                .Include(databaseUser => databaseUser.FavoritePlaylists)
                 .Include(databaseUser => databaseUser.AddedSongs)
                 .Include(databaseUser => databaseUser.OwnedPlaylists)
                 .ToList();

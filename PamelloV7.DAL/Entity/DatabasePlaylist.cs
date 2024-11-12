@@ -7,5 +7,6 @@
         public bool IsProtected { get; set; }
 
         public List<DatabaseSong> Songs { get; set; }
+        public List<DatabaseUser> FavoritedBy { get; set; }
 	}
 }

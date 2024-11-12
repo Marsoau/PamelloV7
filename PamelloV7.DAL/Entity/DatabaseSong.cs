@@ -7,9 +7,11 @@
         public string YoutubeId { get; set; }
         public int PlayCount { get; set; }
 
-        public DatabaseUser UserAdded { get; set; }
+        public DatabaseUser AddedBy { get; set; }
+        public List<DatabaseUser> FavoritedBy { get; set; }
+
         public List<DatabaseEpisode> Episodes { get; set; }
         public List<DatabasePlaylist> Playlists { get; set; }
-        public List<string> Associacions { get; set; }
+        public List<DatabaseAssociacion> Associacions { get; set; }
 	}
 }

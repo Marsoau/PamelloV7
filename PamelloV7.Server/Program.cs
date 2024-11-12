@@ -43,7 +43,12 @@ namespace PamelloV7.Server
         }
 
         private static void ConfigurePamelloServices(IServiceCollection services) {
+            services.AddSingleton<PamelloEventsService>();
+
             services.AddSingleton<PamelloUserRepository>();
+            services.AddSingleton<PamelloSongRepository>();
+            services.AddSingleton<PamelloEpisodeRepository>();
+            services.AddSingleton<PamelloPlaylistRepository>();
         }
 
         private static void ConfigureAPIServices(IServiceCollection services) {
@@ -75,7 +80,21 @@ namespace PamelloV7.Server
         }
 
         private static async Task StartupPamelloServices(IServiceProvider services) {
+            var events = services.GetRequiredService<PamelloEventsService>();
+
+            events.OnUserCreated += async (user) => {
+                Console.WriteLine($"Created new user {user.Id}");
+            };
+            events.OnUserLoaded += async (user) => {
+                Console.WriteLine($"Loaded {user}");
+            };
+
             var users = services.GetRequiredService<PamelloUserRepository>();
+
+            var user = users.GetByDiscord(544933092503060509);
+            if (user is null) return;
+
+            Console.WriteLine(user);
         }
 
         private static async Task StartupAPIServices(WebApplication app) {

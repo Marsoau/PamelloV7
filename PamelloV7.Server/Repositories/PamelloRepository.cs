@@ -2,6 +2,7 @@
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Exceptions;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
@@ -11,6 +12,8 @@ namespace PamelloV7.Server.Repositories
     {
         protected readonly IServiceProvider _services;
 
+        protected readonly PamelloEventsService _events;
+
         protected readonly DatabaseContext _database;
 
         protected readonly List<TPamelloEntity> _loaded;
@@ -18,6 +21,8 @@ namespace PamelloV7.Server.Repositories
 
         public PamelloRepository(IServiceProvider services) {
             _services = services;
+
+            _events = services.GetRequiredService<PamelloEventsService>();
 
             _database = services.GetRequiredService<DatabaseContext>();
 

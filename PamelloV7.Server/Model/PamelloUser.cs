@@ -8,39 +8,60 @@ namespace PamelloV7.Server.Model
         public readonly SocketUser DiscordUser;
 
         public override int Id {
-            get => Entity.Id;
+            get => _entity.Id;
         }
         public Guid Token {
-            get => Entity.Token;
+            get => _entity.Token;
         }
         public DateTime JoinedAt {
-            get => Entity.JoinedAt;
+            get => _entity.JoinedAt;
         }
 
         public int SongsPlayed {
-            get => Entity.SongsPlayed;
-            private set => Entity.SongsPlayed = value;
+            get => _entity.SongsPlayed;
+            private set  {
+                if (_entity.SongsPlayed == value) return;
+
+                _entity.SongsPlayed = value;
+
+                //_events.UserEdited(this);
+            }
         }
 
         public override string Name {
             get => DiscordUser.GlobalName;
-            set => throw new Exception("Unable to change username");
+            set => throw new Exception("Unable to change user name");
         }
 
         public bool IsAdministrator {
-            get => Entity.IsAdministrator;
+            get => _entity.IsAdministrator;
             set {
-                if (Entity.IsAdministrator == value) return;
+                if (_entity.IsAdministrator == value) return;
 
-                Entity.IsAdministrator = value;
+                _entity.IsAdministrator = value;
                 Save();
+
+                //_events.UserEdited(this);
             }
         }
 
+        public IReadOnlyList<PamelloSong> AddedSongs {
+            get => _entity.AddedSongs.Select(song => _songs.GetRequired(song.Id)).ToList();
+        }
+        public IReadOnlyList<PamelloPlaylist> OwnedPlaylist {
+            get => _entity.OwnedPlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+        }
+        public IReadOnlyList<PamelloSong> FavoriteSongs {
+            get => _entity.FavoriteSongs.Select(song => _songs.GetRequired(song.Id)).ToList();
+        }
+        public IReadOnlyList<PamelloPlaylist> FavoritePlaylists {
+            get => _entity.FavoritePlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+        }
+
         public PamelloUser(IServiceProvider services,
-            DatabaseUser databaseEntity,
+            DatabaseUser databaseUser,
             SocketUser discordUser
-        ) : base(databaseEntity, services) {
+        ) : base(databaseUser, services) {
             DiscordUser = discordUser;
         }
 
