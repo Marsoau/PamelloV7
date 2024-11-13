@@ -1,7 +1,9 @@
 using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using PamelloV7.DAL;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Handlers;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 
@@ -37,7 +39,13 @@ namespace PamelloV7.Server
                 AlwaysDownloadUsers = true
             };
 
-            services.AddSingleton(s => new DiscordSocketClient(discordConfig));
+            services.AddSingleton(services => new DiscordSocketClient(discordConfig));
+            
+            services.AddSingleton(services => new InteractionService(
+                services.GetRequiredService<DiscordClientService>().MainClient,
+                new InteractionServiceConfig()
+            ));
+            services.AddSingleton<InteractionHandler>();
 
             services.AddSingleton<DiscordClientService>();
         }
@@ -49,6 +57,8 @@ namespace PamelloV7.Server
             services.AddSingleton<PamelloSongRepository>();
             services.AddSingleton<PamelloEpisodeRepository>();
             services.AddSingleton<PamelloPlaylistRepository>();
+
+            services.AddSingleton<UserAuthorizationService>();
         }
 
         private static void ConfigureAPIServices(IServiceCollection services) {
@@ -63,6 +73,11 @@ namespace PamelloV7.Server
             var discordClients = services.GetRequiredService<DiscordClientService>();
             var config = services.GetRequiredService<PamelloServerConfig>();
 
+            var interactionService = services.GetRequiredService<InteractionService>();
+            var interactionHandler = services.GetRequiredService<InteractionHandler>();
+
+            await interactionHandler.InitializeAsync();
+
             var discordReady = new TaskCompletionSource();
 
             discordClients.MainClient.Log += async (message) => {
@@ -70,6 +85,8 @@ namespace PamelloV7.Server
             };
 
             discordClients.MainClient.Ready += async () => {
+                await interactionService.RegisterCommandsToGuildAsync(1304142495453548646);
+
                 discordReady.SetResult();
             };
 

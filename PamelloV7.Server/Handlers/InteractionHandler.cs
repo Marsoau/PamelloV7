@@ -1,24 +1,34 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
 using System.Reflection;
-using Discord;
+using PamelloV7.Server.Model.Interactions;
+using PamelloV7.Server.Repositories;
+using PamelloV7.Server.Extensions;
+using PamelloV7.Server.Model.Interactions.Builders;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Handlers
 {
 	public class InteractionHandler {
-		private readonly DiscordSocketClient _client;
+		private readonly DiscordClientService _clients;
 		private readonly InteractionService _commands;
+
+		private readonly PamelloUserRepository _users;
 
 		private readonly IServiceProvider _services;
 
 		public InteractionHandler(
-			DiscordSocketClient client,
+			DiscordClientService clients,
 			InteractionService discordCommands,
+
+			PamelloUserRepository users,
 
 			IServiceProvider services
 		) {
-			_client = client;
+			_clients = clients;
 			_commands = discordCommands;
+
+			_users = users;
 
 			_services = services;
 		}
@@ -26,7 +36,7 @@ namespace PamelloV7.Server.Handlers
 		public async Task InitializeAsync() {
 			await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
-			_client.InteractionCreated += InteractionCreated;
+			_clients.MainClient.InteractionCreated += InteractionCreated;
         }
 
         private async Task InteractionCreated(SocketInteraction interaction) {
@@ -42,8 +52,17 @@ namespace PamelloV7.Server.Handlers
 		}
 
 		private async Task HandleInteraction(SocketInteraction interaction) {
-			var context = new SocketInteractionContext(_client, interaction);
-			await _commands.ExecuteCommandAsync(context, _services);
+			await interaction.DeferAsync(true);
+
+			var pamelloUser = _users.GetByDiscord(interaction.User.Id);
+			if (pamelloUser is null) {
+				await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Unexpected user error ocured"), true);
+				throw new Exception("Unexpected user error ocured");
+			}
+
+			var pamelloContext = new PamelloSocketInteractionContext(_services, interaction, pamelloUser);
+
+			await _commands.ExecuteCommandAsync(pamelloContext, _services);
         }
     }
 }

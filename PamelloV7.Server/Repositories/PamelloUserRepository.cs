@@ -44,6 +44,7 @@ namespace PamelloV7.Server.Repositories
                 FavoriteSongs = [],
                 FavoritePlaylists = [],
                 OwnedPlaylists = [],
+                AddedSongs = [],
             };
             _database.Users.Add(databaseUser);
             _database.SaveChanges();
