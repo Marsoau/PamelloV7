@@ -12,12 +12,8 @@ namespace PamelloV7.Server.Modules
         public async Task PindHadnler()
             => await Ping();
 
-        [SlashCommand("add", "Add song to the queue")]
+        [SlashCommand("add", "Add song/playlist to the queue")]
         public async Task AddHandler()
-            => await Ping();
-
-        [SlashCommand("add-playlist", "Add playlist songs to the queue")]
-        public async Task AddPlaylistHandler()
             => await Ping();
 
         [SlashCommand("connect", "Connect speaker to your voice channel")]

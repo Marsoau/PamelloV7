@@ -85,6 +85,7 @@ namespace PamelloV7.Server
             };
 
             discordClients.MainClient.Ready += async () => {
+                await (await discordClients.MainClient.GetGlobalApplicationCommandAsync(1306295188490293311)).DeleteAsync();
                 await interactionService.RegisterCommandsToGuildAsync(1304142495453548646);
 
                 discordReady.SetResult();
