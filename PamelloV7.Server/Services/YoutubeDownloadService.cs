@@ -9,28 +9,33 @@ namespace PamelloV7.Server.Services
     {
 		private readonly PamelloEventsService _events;
 
-		private readonly HashSet<PamelloSong> _downloadingSongs;
+		private readonly Dictionary<int, Task<EDownloadResult>> _downloadingSongs;
 
 		public YoutubeDownloadService(
 			PamelloEventsService events
 		) {
 			_events = events;
 
-			_downloadingSongs = new HashSet<PamelloSong>();
+			_downloadingSongs = new Dictionary<int, Task<EDownloadResult>>();
 		}
 
-		public bool IsDownloads(PamelloSong song) {
-			return _downloadingSongs.Contains(song);
+		public bool IsDownloading(PamelloSong song) {
+			return _downloadingSongs.ContainsKey(song.Id);
 		}
 
 		public async Task<EDownloadResult> DownloadFromYoutubeAsync(PamelloSong song, bool forceDownload = false) {
+			if (IsDownloading(song)) {
+				return await _downloadingSongs[song.Id];
+			}
 			if (song.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
 				File.Delete($@"{AppContext.BaseDirectory}Data\Music\{song.Id}.opus");
 			}
 
-			_downloadingSongs.Add(song);
+			var downloadTask = new TaskCompletionSource<EDownloadResult>();
+
+			_downloadingSongs.Add(song.Id, downloadTask.Task);
 			_events.DownloadStart(song);
 
 			using var process = new Process();
@@ -64,7 +69,9 @@ namespace PamelloV7.Server.Services
 
 			var finalResult = process.ExitCode == 0 ? EDownloadResult.Success : EDownloadResult.UnknownError;
 
-			_downloadingSongs.Remove(song);
+			downloadTask.SetResult(finalResult);
+
+			_downloadingSongs.Remove(song.Id);
 			_events.DownloadEnd(song, finalResult);
 
 			return finalResult;

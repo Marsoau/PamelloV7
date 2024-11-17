@@ -64,6 +64,10 @@
             TotalSeconds = seconds + minutes * 60 + hours * 3600;
         }
 
+        public static AudioTime operator *(AudioTime time, int scalar) {
+            return new AudioTime(time.TimeValue * scalar);
+        }
+
 
         public override string ToString()
         {

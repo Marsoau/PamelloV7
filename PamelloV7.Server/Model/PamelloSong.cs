@@ -1,9 +1,12 @@
 ﻿using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
     public class PamelloSong : PamelloEntity<DatabaseSong>
     {
+        private readonly YoutubeDownloadService _downloader;
+
         public override int Id {
             get => Entity.Id;
         }
@@ -39,9 +42,11 @@ namespace PamelloV7.Server.Model
         public bool IsDownloaded {
             get {
                 var file = new FileInfo($@"{AppContext.BaseDirectory}Data\Music\{Id}.opus");
-                if (!file.Exists) return false;
 
+                if (!file.Exists) return false;
+                if (_downloader.IsDownloading(this)) return false;
                 if (file.Length == 0) return false;
+
                 return true;
             }
         }
@@ -51,15 +56,15 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<PamelloUser> FavoritedBy {
-            get => throw new NotImplementedException();
+            get => Entity.FavoritedBy.Select(user => _users.GetRequired(user.Id)).ToList();
         }
 
         public IReadOnlyList<PamelloEpisode> Episodes {
-            get => throw new NotImplementedException();
+            get => Entity.Episodes.Select(episode => _episodes.GetRequired(episode.Id)).ToList();
         }
 
         public IReadOnlyList<PamelloPlaylist> Playlists {
-            get => throw new NotImplementedException();
+            get => Entity.Playlists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
         }
 
         public IReadOnlyList<string> Associacions {
@@ -69,7 +74,7 @@ namespace PamelloV7.Server.Model
         public PamelloSong(IServiceProvider services,
             DatabaseSong databaseSong
         ) : base(databaseSong, services) {
-
+            _downloader = services.GetRequiredService<YoutubeDownloadService>();
         }
 
         public override object GetDTO() => throw new NotImplementedException();

@@ -1,17 +1,23 @@
 using Discord;
+using Discord.Audio;
 using Discord.Interactions;
 using Discord.WebSocket;
 using PamelloV7.DAL;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Handlers;
+using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
+using System.Diagnostics;
+using System.Text;
 
 namespace PamelloV7.Server
 {
     public class Program
     {
         public static async Task Main(string[] args) {
+            Console.OutputEncoding = Encoding.Unicode;
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddSingleton<PamelloServerConfig>();
@@ -73,6 +79,34 @@ namespace PamelloV7.Server
             services.GetRequiredService<DatabaseContext>();
         }
 
+        private static async Task<MemoryStream> LoadStream() {
+			var ffmpegProcess = Process.Start(new ProcessStartInfo {
+				FileName = "ffmpeg",
+				//Arguments = $@"-hide_banner -loglevel panic -i ""{AppContext.BaseDirectory}Data\Music\2.opus"" -ac 2 -f s16le -ar 48000 pipe:1",
+				Arguments = $@"-hide_banner -loglevel panic -i ""D:\DiscordMusic\47JI4G-qYmc.mp4"" -ac 2 -f s16le -ar 48000 pipe:1",
+				UseShellExecute = false,
+				RedirectStandardOutput = true
+			});
+
+			if (ffmpegProcess is null) throw new Exception("Couldnt start a ffmpeg process");
+
+            var ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
+
+			if (ffmpegStream is null) {
+				return null;
+			}
+
+			var memoryStream = new MemoryStream();
+            await ffmpegStream.CopyToAsync(memoryStream);
+
+            memoryStream.Position = 0;
+
+            ffmpegStream.Close();
+            ffmpegProcess.Close();
+
+			return memoryStream;
+        }
+
         private static async Task StartupDiscordServices(IServiceProvider services) {
             var discordClients = services.GetRequiredService<DiscordClientService>();
             var config = services.GetRequiredService<PamelloServerConfig>();
@@ -95,16 +129,32 @@ namespace PamelloV7.Server
             };
 
             discordClients.MainClient.Ready += async () => {
-                await interactionService.RegisterCommandsToGuildAsync(1304142495453548646);
+                var guild = discordClients.MainClient.GetGuild(1304142495453548646);
+                await interactionService.RegisterCommandsToGuildAsync(guild.Id);
 
-                var song = songs.Get(2);
+                var song = await songs.AddAsync("VdLnOoBYpuo", users.GetRequired(1));
                 if (song is not null) {
-                    Console.WriteLine("download started");
-                    var downloadResult = await downloader.DownloadFromYoutubeAsync(song);
-                    Console.WriteLine($"download ended with result: {downloadResult}");
-                }
+                    var audio = new PamelloAudio(services, song);
+                    var vc = guild.GetVoiceChannel(1304142495453548650);
+                    var ac = await vc.ConnectAsync();
 
-                Console.WriteLine(song?.ToString() ?? "No song");
+                    var outputStream = ac.CreatePCMStream(AudioApplication.Music);
+
+                    if (await audio.TryInitialize()) {
+                        Console.WriteLine("sta");
+                        byte[] bytes = new byte[2];
+                        while (await audio.NextBytes(bytes)) {
+                            outputStream.Write(bytes);
+                        }
+                        Console.WriteLine("endsta");
+                    }
+                    else {
+                        Console.WriteLine("bugagagaga");
+                    }
+                }
+                else {
+                    Console.WriteLine("no songa");
+                }
 
                 discordReady.SetResult();
             };

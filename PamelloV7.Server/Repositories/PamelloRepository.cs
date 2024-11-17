@@ -17,7 +17,8 @@ namespace PamelloV7.Server.Repositories
         protected readonly DatabaseContext _database;
 
         protected readonly List<TPamelloEntity> _loaded;
-        protected readonly List<TDatabaseEntity> _nonloaded;
+        protected List<TDatabaseEntity> _nonloaded
+            => LoadDatabaseEntities();
 
         public PamelloRepository(IServiceProvider services) {
             _services = services;
@@ -27,7 +28,6 @@ namespace PamelloV7.Server.Repositories
             _database = services.GetRequiredService<DatabaseContext>();
 
             _loaded = new List<TPamelloEntity>();
-            _nonloaded = LoadDatabaseEntities();
         }
 
         public abstract List<TDatabaseEntity> LoadDatabaseEntities();
