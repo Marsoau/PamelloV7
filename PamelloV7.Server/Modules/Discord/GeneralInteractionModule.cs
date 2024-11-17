@@ -1,12 +1,10 @@
 ﻿using Discord.Interactions;
 
-namespace PamelloV7.Server.Modules
+namespace PamelloV7.Server.Modules.Discord
 {
     public class GeneralInteractionModule : PamelloInteractionModuleBase
     {
-        public GeneralInteractionModule(IServiceProvider serviceProvider) : base(serviceProvider) {
-
-        }
+        public GeneralInteractionModule(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [SlashCommand("ping", "Ping da bot")]
         public async Task PindHadnler()

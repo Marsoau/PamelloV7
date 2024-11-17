@@ -24,8 +24,8 @@ namespace PamelloV7.Server
             var app = builder.Build();
 
             await StartupDatabaseServices(app.Services);
-            await StartupDiscordServices(app.Services);
             await StartupPamelloServices(app.Services);
+            await StartupDiscordServices(app.Services);
             await StartupAPIServices(app);
         }
 
@@ -53,6 +53,9 @@ namespace PamelloV7.Server
         private static void ConfigurePamelloServices(IServiceCollection services) {
             services.AddSingleton<PamelloEventsService>();
 
+            services.AddSingleton<YoutubeInfoService>();
+            services.AddSingleton<YoutubeDownloadService>();
+
             services.AddSingleton<PamelloUserRepository>();
             services.AddSingleton<PamelloSongRepository>();
             services.AddSingleton<PamelloEpisodeRepository>();
@@ -63,6 +66,7 @@ namespace PamelloV7.Server
 
         private static void ConfigureAPIServices(IServiceCollection services) {
             services.AddControllers();
+            services.AddHttpClient();
         }
 
         private static async Task StartupDatabaseServices(IServiceProvider services) {
@@ -73,8 +77,14 @@ namespace PamelloV7.Server
             var discordClients = services.GetRequiredService<DiscordClientService>();
             var config = services.GetRequiredService<PamelloServerConfig>();
 
+            var users = services.GetRequiredService<PamelloUserRepository>();
+            var songs = services.GetRequiredService<PamelloSongRepository>();
+            var downloader = services.GetRequiredService<YoutubeDownloadService>();
+
             var interactionService = services.GetRequiredService<InteractionService>();
             var interactionHandler = services.GetRequiredService<InteractionHandler>();
+
+            var youtube = services.GetRequiredService<YoutubeInfoService>();
 
             await interactionHandler.InitializeAsync();
 
@@ -85,8 +95,16 @@ namespace PamelloV7.Server
             };
 
             discordClients.MainClient.Ready += async () => {
-                await (await discordClients.MainClient.GetGlobalApplicationCommandAsync(1306295188490293311)).DeleteAsync();
                 await interactionService.RegisterCommandsToGuildAsync(1304142495453548646);
+
+                var song = songs.Get(2);
+                if (song is not null) {
+                    Console.WriteLine("download started");
+                    var downloadResult = await downloader.DownloadFromYoutubeAsync(song);
+                    Console.WriteLine($"download ended with result: {downloadResult}");
+                }
+
+                Console.WriteLine(song?.ToString() ?? "No song");
 
                 discordReady.SetResult();
             };
@@ -105,6 +123,13 @@ namespace PamelloV7.Server
             };
             events.OnUserLoaded += async (user) => {
                 Console.WriteLine($"Loaded {user}");
+            };
+
+            events.OnDownloadStart += (song) => {
+                Console.WriteLine($"Started download of \"{song}\"");
+            };
+            events.OnDownloadEnd += (song, result) => {
+                Console.WriteLine($"Ended download of \"{song}\" with result \"{result}\"");
             };
 
             var users = services.GetRequiredService<PamelloUserRepository>();

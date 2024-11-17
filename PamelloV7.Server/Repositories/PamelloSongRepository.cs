@@ -1,20 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model;
+using PamelloV7.Server.Model.Youtube;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
     public class PamelloSongRepository : PamelloRepository<PamelloSong, DatabaseSong>
     {
-        public PamelloSongRepository(IServiceProvider services) : base(services) {
+        private readonly YoutubeInfoService _youtube;
 
+        public PamelloSongRepository(IServiceProvider services,
+            YoutubeInfoService youtube
+        ) : base(services) {
+            _youtube = youtube;
+        }
+
+        public PamelloSong? GetByName(string name) {
+            var pamelloSong = _loaded.FirstOrDefault(song => song.Name == name);
+            if (pamelloSong is not null) return pamelloSong;
+
+            var databaseSong = _nonloaded.FirstOrDefault(song => song.Name == name);
+            if (databaseSong is null) return null;
+
+            return Load(databaseSong);
         }
 
         public PamelloSong? GetByAssociacion(string ascn) {
             var databaseAssociacion = _database.Associacions.Find(ascn);
             if (databaseAssociacion is null) return null;
 
-            return Load(databaseAssociacion.Song);
+            return Get(databaseAssociacion.Song.Id);
         }
 
         public PamelloSong? GetByYoutubeId(string youtubeId) {
@@ -26,6 +43,66 @@ namespace PamelloV7.Server.Repositories
 
             return Load(databaseSong);
         }
+
+        public async Task<PamelloSong?> GetByValue(string value, PamelloUser? adder = null) {
+            PamelloSong? song = null;
+
+            if (int.TryParse(value, out var songId)) {
+                song = Get(songId);
+            }
+            else if (value.StartsWith("http")) {
+                var youtubeId = _youtube.GetVideoIdFromUrl(value);
+                song = GetByYoutubeId(youtubeId);
+
+                if (song is null && adder is not null) {
+                    song = await AddAsync(youtubeId, adder);
+                }
+            }
+            else {
+                song = GetByAssociacion(value);
+
+                if (song is null) {
+                    song = GetByName(value);
+                }
+            }
+
+            return song;
+        }
+
+        public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {
+            var pamelloSong = GetByYoutubeId(youtubeId);
+            if (pamelloSong is not null) return pamelloSong;
+
+			var youtubeInfo = await _youtube.GetVideoInfoAsync(youtubeId);
+            if (youtubeInfo is null) return null;
+
+			var databaseSong = new DatabaseSong() {
+				Name = youtubeInfo.Name,
+				CoverUrl = $"https://img.youtube.com/vi/{youtubeId}/maxresdefault.jpg",
+				YoutubeId = youtubeId,
+				PlayCount = 0,
+                AddedBy = adder.Entity,
+                Associacions = [],
+				FavoritedBy = [],
+				Playlists = []
+			};
+
+			databaseSong.Episodes = youtubeInfo.Episodes.Select(episodeInfo => new DatabaseEpisode() {
+				Name = episodeInfo.Name,
+				Start = episodeInfo.Start,
+				Song = databaseSong,
+                Skip = false
+			}).ToList();
+
+			_database.Songs.Add(databaseSong);
+			_database.SaveChanges();
+
+            pamelloSong = Load(databaseSong);
+
+            //event
+
+            return pamelloSong;
+		}
 
         public override void Delete(int id) => throw new NotImplementedException();
         public override PamelloSong Load(DatabaseSong databaseSong) {

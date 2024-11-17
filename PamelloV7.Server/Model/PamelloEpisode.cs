@@ -5,34 +5,34 @@ namespace PamelloV7.Server.Model
     public class PamelloEpisode : PamelloEntity<DatabaseEpisode>
     {
         public override int Id {
-            get => _entity.Id;
+            get => Entity.Id;
         }
         public override string Name {
-            get => _entity.Name;
+            get => Entity.Name;
             set {
-                _entity.Name = value;
+                Entity.Name = value;
                 Save();
 
                 //updated
             }
         }
         public int Start {
-            get => _entity.Start;
+            get => Entity.Start;
             set {
-                if (_entity.Start == value) return;
+                if (Entity.Start == value) return;
 
-                _entity.Start = value;
+                Entity.Start = value;
                 Save();
 
                 //updated
             }
         }
         public bool Skip {
-            get => _entity.Skip;
+            get => Entity.Skip;
             set {
-                if (_entity.Skip == value) return;
+                if (Entity.Skip == value) return;
 
-                _entity.Skip = value;
+                Entity.Skip = value;
                 Save();
 
                 //updated
@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Model
         }
 
         public PamelloSong Song {
-            get => _songs.GetRequired(_entity.Song.Id);
+            get => _songs.GetRequired(Entity.Song.Id);
         }
 
         public PamelloEpisode(IServiceProvider services,

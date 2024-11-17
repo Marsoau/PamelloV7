@@ -7,7 +7,7 @@ namespace PamelloV7.Server.Model
 {
     public abstract class PamelloEntity<T> where T : DatabaseEntity
     {
-        protected readonly T _entity;
+        protected internal readonly T Entity;
 
         protected readonly PamelloEventsService _events;
 
@@ -30,7 +30,7 @@ namespace PamelloV7.Server.Model
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
             _users = services.GetRequiredService<PamelloUserRepository>();
 
-            _entity = databaseEntity;
+            Entity = databaseEntity;
         }
 
         protected void Save() => _database.SaveChanges();

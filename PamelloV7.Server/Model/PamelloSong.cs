@@ -5,39 +5,49 @@ namespace PamelloV7.Server.Model
     public class PamelloSong : PamelloEntity<DatabaseSong>
     {
         public override int Id {
-            get => _entity.Id;
+            get => Entity.Id;
         }
         public override string Name {
-            get => _entity.Name;
+            get => Entity.Name;
             set {
-                if (_entity.Name == value) return;
+                if (Entity.Name == value) return;
 
-                _entity.Name = value;
+                Entity.Name = value;
 
                 //updated
             }
         }
         public string YoutubeId {
-            get => _entity.YoutubeId;
+            get => Entity.YoutubeId;
             set {
-                _entity.YoutubeId = value;
+                Entity.YoutubeId = value;
 
                 //updated
             }
         }
         public int PlayCount {
-            get => _entity.PlayCount;
+            get => Entity.PlayCount;
             set {
-                if (_entity.PlayCount == value) return;
+                if (Entity.PlayCount == value) return;
 
-                _entity.PlayCount = value;
+                Entity.PlayCount = value;
 
                 //updated
             }
         }
 
+        public bool IsDownloaded {
+            get {
+                var file = new FileInfo($@"{AppContext.BaseDirectory}Data\Music\{Id}.opus");
+                if (!file.Exists) return false;
+
+                if (file.Length == 0) return false;
+                return true;
+            }
+        }
+
         public PamelloUser AddedBy {
-            get => _users.GetRequired(_entity.AddedBy.Id);
+            get => _users.GetRequired(Entity.AddedBy.Id);
         }
 
         public IReadOnlyList<PamelloUser> FavoritedBy {
@@ -53,7 +63,7 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<string> Associacions {
-            get => _entity.Associacions.Select(associacion => associacion.Associacion).ToList();
+            get => Entity.Associacions.Select(associacion => associacion.Associacion).ToList();
         }
 
         public PamelloSong(IServiceProvider services,
