@@ -91,7 +91,7 @@ namespace PamelloV7.Server.Model.Audio
 
         }
         private void Current_Position_OnSecondTick() {
-
+            Console.WriteLine($"tick {Current?.Position}");
         }
 
 

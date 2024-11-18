@@ -38,13 +38,12 @@ namespace PamelloV7.Server.Model.Audio
             get => throw new NotImplementedException();
         }
 
-        private Stream tempAudioStream;
+        public PamelloSpeaker TestSpeaker;
 
         private static int _idCounter = 1;
 
         public PamelloPlayer(IServiceProvider services,
-            string name,
-            Stream audio
+            string name
         ) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
 
@@ -54,7 +53,7 @@ namespace PamelloV7.Server.Model.Audio
 
             Queue = new PamelloQueue(services, this);
 
-            tempAudioStream = audio;
+            TestSpeaker = new PamelloSpeaker(services, services.GetRequiredService<DiscordClientService>().MainClient, 1304142495453548646);
 
             Task.Run(MusicRestartingLoop);
         }
@@ -89,7 +88,7 @@ namespace PamelloV7.Server.Model.Audio
                     await Task.Delay(250);
                     continue;
                 }
-                if (false) {
+                if (!TestSpeaker.IsActive) {
                     Status = EPlayerStatus.AwaitingSpeaker;
 
                     await Task.Delay(250);
@@ -107,7 +106,7 @@ namespace PamelloV7.Server.Model.Audio
                 success = await Queue.Current.NextBytes(audio);
 
                 try {
-                    if (success) tempAudioStream.Write(audio);
+                    if (success) await TestSpeaker.PlayBytesAsync(audio);
                     else {
                         Console.WriteLine($"{Queue.Current.Song} ended");
                     
