@@ -129,34 +129,20 @@ namespace PamelloV7.Server
             };
 
             discordClients.MainClient.Ready += async () => {
-                var guild = discordClients.MainClient.GetGuild(1304142495453548646);
-                await interactionService.RegisterCommandsToGuildAsync(guild.Id);
-
-                var song = await songs.AddAsync("VdLnOoBYpuo", users.GetRequired(1));
-                if (song is not null) {
-                    var audio = new PamelloAudio(services, song);
-                    var vc = guild.GetVoiceChannel(1304142495453548650);
-                    var ac = await vc.ConnectAsync();
-
-                    var outputStream = ac.CreatePCMStream(AudioApplication.Music);
-
-                    if (await audio.TryInitialize()) {
-                        Console.WriteLine("sta");
-                        byte[] bytes = new byte[2];
-                        while (await audio.NextBytes(bytes)) {
-                            outputStream.Write(bytes);
-                        }
-                        Console.WriteLine("endsta");
-                    }
-                    else {
-                        Console.WriteLine("bugagagaga");
-                    }
-                }
-                else {
-                    Console.WriteLine("no songa");
-                }
-
                 discordReady.SetResult();
+
+                var guild = discordClients.MainClient.GetGuild(1304142495453548646);
+                //await interactionService.RegisterCommandsToGuildAsync(guild.Id);
+
+                var vc = guild.GetVoiceChannel(1304142495453548650);
+                var ac = await vc.ConnectAsync();
+                var outputStream = ac.CreatePCMStream(AudioApplication.Music);
+
+                var player = new PamelloPlayer(services, "test", outputStream);
+                Console.WriteLine("player created");
+
+                var user = users.GetRequired(1);
+                player.Queue.AddSong(await songs.AddAsync("M_TXx1lNQjg", user));
             };
 
             await discordClients.MainClient.LoginAsync(TokenType.Bot, config.MainBotToken);

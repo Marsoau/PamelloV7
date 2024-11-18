@@ -1,6 +1,122 @@
-﻿namespace PamelloV7.Server.Model.Audio
+﻿using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Services;
+
+namespace PamelloV7.Server.Model.Audio
 {
     public class PamelloPlayer
     {
+        private readonly YoutubeDownloadService _downloader;
+
+        public int Id { get; }
+
+        private string _name;
+        public string Name {
+            get => _name;
+        }
+
+        private EPlayerStatus _status;
+        public EPlayerStatus Status {
+            get => _status;
+            set {
+                if (_status == value) return;
+
+                _status = value;
+
+                Console.WriteLine($"status changed to {_status}");
+                //event
+            }
+        }
+
+        private bool _isPaused;
+        public bool IsPaused {
+            get => _isPaused;
+            set => _isPaused = value;
+        }
+
+        public readonly PamelloQueue Queue;
+        public IReadOnlyList<PamelloUser> Users {
+            get => throw new NotImplementedException();
+        }
+
+        private Stream tempAudioStream;
+
+        private static int _idCounter = 1;
+
+        public PamelloPlayer(IServiceProvider services,
+            string name,
+            Stream audio
+        ) {
+            _downloader = services.GetRequiredService<YoutubeDownloadService>();
+
+            Id = _idCounter++;
+            _name = name;
+            _status = EPlayerStatus.AwaitingSong;
+
+            Queue = new PamelloQueue(services, this);
+
+            tempAudioStream = audio;
+
+            Task.Run(MusicRestartingLoop);
+        }
+
+        public async Task MusicRestartingLoop() {
+            while (true) {
+                try {
+                    await MusicLoop();
+                }
+                catch (Exception x) {
+                    Console.WriteLine($"Exceprion occured in music loop: {x.Message}");
+                    Console.WriteLine(x);
+                }
+            }
+            Console.WriteLine("MusicLoop ended");
+        }
+        public async Task MusicLoop() {
+            byte[] audio = new byte[2];
+            bool success = false;
+
+            if (Queue.Current is null) return;
+            if (!await Queue.Current.TryInitialize()) return;
+
+            while (true) {
+                if (IsPaused) {
+                    await Task.Delay(250);
+                    continue;
+                }
+                if (Queue.Current is null) {
+                    Status = EPlayerStatus.AwaitingSong;
+                    
+                    await Task.Delay(250);
+                    continue;
+                }
+                if (false) {
+                    Status = EPlayerStatus.AwaitingSpeaker;
+
+                    await Task.Delay(250);
+                    continue;
+                }
+                if (!Queue.Current.IsInitialized) {
+                    Status = EPlayerStatus.AwaitingSongInitialization;
+                    if (!await Queue.Current.TryInitialize()) {
+                        Queue.GoToNextSong(true);
+                    }
+                }
+
+                Status = EPlayerStatus.Active;
+
+                success = await Queue.Current.NextBytes(audio);
+
+                try {
+                    if (success) tempAudioStream.Write(audio);
+                    else {
+                        Console.WriteLine($"{Queue.Current.Song} ended");
+                    
+                        Queue.GoToNextSong();
+                    }
+                } catch (Exception x) {
+                    Console.WriteLine($"Play bytes exception: {x}");
+                }
+            }
+        }
     }
 }

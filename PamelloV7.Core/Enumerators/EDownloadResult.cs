@@ -1,4 +1,4 @@
-﻿namespace PamelloV7.Server.Enumerators
+﻿namespace PamelloV7.Core.Enumerators
 {
     public enum EDownloadResult
     {

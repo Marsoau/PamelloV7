@@ -1,6 +1,5 @@
 ﻿using PamelloV7.Server.Model;
-using System.Reflection;
-using PamelloV7.Server.Enumerators;
+using PamelloV7.Core.Enumerators;
 
 namespace PamelloV7.Server.Services
 {

@@ -70,6 +70,8 @@ namespace PamelloV7.Server.Repositories
         }
 
         public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {
+            if (adder is null) return null;
+
             var pamelloSong = GetByYoutubeId(youtubeId);
             if (pamelloSong is not null) return pamelloSong;
 

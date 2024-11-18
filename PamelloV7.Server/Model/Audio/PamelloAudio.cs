@@ -1,5 +1,5 @@
 ﻿using PamelloV7.Core.Audio;
-using PamelloV7.Server.Enumerators;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 
@@ -18,11 +18,13 @@ namespace PamelloV7.Server.Model.Audio
         public readonly AudioTime Position;
         public readonly AudioTime Duration;
 
-        private int? nextBreakPoint;
-        private int? nextJumpPoint;
+        private int? _nextBreakPoint;
+        private int? _nextJumpPoint;
+
+        private Task? _rewinding;
 
         public bool IsInitialized {
-			get => Song.IsDownloaded && _currentChunk is not null;
+			get => _currentChunk is not null;
 		}
 
         public static AudioTime ChunkSize = new AudioTime(0, 8);
@@ -39,8 +41,13 @@ namespace PamelloV7.Server.Model.Audio
         }
 
 		public void Clean() {
-            //nextBreakPoint = null;
-            //nextJumpPoint = null;
+            _currentChunk?.Dispose();
+            _currentChunk = null;
+            _nextChunk?.Dispose();
+            _nextChunk = null;
+
+            _nextBreakPoint = null;
+            _nextJumpPoint = null;
 
             Position.TimeValue = 0;
 			Duration.TimeValue = 0;
@@ -62,25 +69,26 @@ namespace PamelloV7.Server.Model.Audio
             Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
 
             _currentChunkPosition = -2;
-            await RewindTo(new AudioTime(0), true);
+            await RewindTo(new AudioTime(0), false);
 
             return true;
         }
 
 		public async Task<bool> NextBytes(byte[] result) {
+            if (_rewinding is not null) await _rewinding;
 			if (_currentChunk is null) return false;
 
             if (Position.TimeValue >= Duration.TimeValue) {
                 return false;
             }
 
-			if (Position.TotalSeconds == nextBreakPoint) {
-                if (nextJumpPoint is null) {
+			if (Position.TotalSeconds == _nextBreakPoint) {
+                if (_nextJumpPoint is null) {
                     await RewindTo(Duration);
                     return false;
                 }
 
-				await RewindTo(new AudioTime(nextJumpPoint.Value));
+				await RewindTo(new AudioTime(_nextJumpPoint.Value));
             }
             
             if (Position.TimeValue / ChunkSize.TimeValue > _currentChunkPosition) {
@@ -102,7 +110,6 @@ namespace PamelloV7.Server.Model.Audio
             int? closestJumpPoint = null;
 
             foreach (var episode in Song.Episodes) {
-                Console.WriteLine($"checkng episode {episode}");
 				if (
 					(excludeCurrent) ?
 					(episode.Start > Position.TotalSeconds) :
@@ -121,13 +128,20 @@ namespace PamelloV7.Server.Model.Audio
 				}
 			}
 
-            nextBreakPoint = closestBreakPoint;
-            nextJumpPoint = closestJumpPoint;
+            _nextBreakPoint = closestBreakPoint;
+            _nextJumpPoint = closestJumpPoint;
 
-            Console.WriteLine($"Updated playback points: [{nextBreakPoint}] | [{nextJumpPoint}]");
+            //Console.WriteLine($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
         }
 
         public async Task RewindTo(AudioTime time, bool forceEpisodePlayback = true) {
+            var rewindCompletion = new TaskCompletionSource();
+            while (_rewinding is not null) {
+                await _rewinding;
+            }
+
+            _rewinding = rewindCompletion.Task;
+
             if (_currentChunk is null) return;
 
             long timePosition = time.TimeValue / ChunkSize.TimeValue;
@@ -142,22 +156,19 @@ namespace PamelloV7.Server.Model.Audio
 
             Position.TimeValue = time.TimeValue;
 
-            UpdatePlaybackPoints(!forceEpisodePlayback);
+            UpdatePlaybackPoints(forceEpisodePlayback);
+
+            rewindCompletion.SetResult();
+            _rewinding = null;
         }
 
         public async Task LoadChunksAtAsync(int position) {
             _currentChunkPosition = position;
-
-            _currentChunk?.Dispose();
             _currentChunk = await LoadChunkAsync(position);
-
-            _nextChunk?.Dispose();
             _nextChunk = await LoadChunkAsync(position + 1);
         }
         private async Task MoveForwardAsync() {
-            _currentChunk?.Dispose();
             _currentChunk = _nextChunk;
-
             _nextChunk = await LoadChunkAsync(++_currentChunkPosition + 1);
         }
 
