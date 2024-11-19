@@ -4,7 +4,7 @@ using PamelloV7.Server.Model;
 
 namespace PamelloV7.Server.Repositories
 {
-    public class PamelloPlaylistRepository : PamelloRepository<PamelloPlaylist, DatabasePlaylist>
+    public class PamelloPlaylistRepository : PamelloDatabaseRepository<PamelloPlaylist, DatabasePlaylist>
     {
         public PamelloPlaylistRepository(IServiceProvider services) : base(services) {
 

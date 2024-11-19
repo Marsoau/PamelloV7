@@ -4,7 +4,7 @@ using PamelloV7.Server.Model;
 
 namespace PamelloV7.Server.Repositories
 {
-    public class PamelloEpisodeRepository : PamelloRepository<PamelloEpisode, DatabaseEpisode>
+    public class PamelloEpisodeRepository : PamelloDatabaseRepository<PamelloEpisode, DatabaseEpisode>
     {
         public PamelloEpisodeRepository(IServiceProvider services            
 

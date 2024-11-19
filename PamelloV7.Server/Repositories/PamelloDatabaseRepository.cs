@@ -6,7 +6,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
-    public abstract class PamelloRepository<TPamelloEntity, TDatabaseEntity>
+    public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : IPamelloRepository<TPamelloEntity>
         where TPamelloEntity : PamelloEntity<TDatabaseEntity>
         where TDatabaseEntity : DatabaseEntity
     {
@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Repositories
         protected List<TDatabaseEntity> _nonloaded
             => LoadDatabaseEntities();
 
-        public PamelloRepository(IServiceProvider services) {
+        public PamelloDatabaseRepository(IServiceProvider services) {
             _services = services;
 
             _events = services.GetRequiredService<PamelloEventsService>();

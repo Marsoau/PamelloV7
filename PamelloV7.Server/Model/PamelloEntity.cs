@@ -5,7 +5,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
-    public abstract class PamelloEntity<T> where T : DatabaseEntity
+    public abstract class PamelloEntity<T> : IDTOEntity where T : DatabaseEntity
     {
         protected internal readonly T Entity;
 
@@ -34,7 +34,8 @@ namespace PamelloV7.Server.Model
         }
 
         protected void Save() => _database.SaveChanges();
-        public abstract object GetDTO();
+
+        public abstract object? DTO { get; }
 
         public override string ToString() {
             return $"[{Id}] {Name}";

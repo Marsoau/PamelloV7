@@ -78,10 +78,6 @@ namespace PamelloV7.Server.Model
             DiscordUser = discordUser;
         }
 
-        public override object GetDTO() {
-            return new {
-
-            };
-        }
+        public override object DTO => new { };
     }
 }

@@ -49,7 +49,7 @@ namespace PamelloV7.Server.Model
 
         }
 
-        public override object GetDTO() => throw new NotImplementedException();
+        public override object? DTO => new { };
 
         public override string ToString() {
             return $"{base.ToString()} ({(Skip ? "Skip" : "Play")})";

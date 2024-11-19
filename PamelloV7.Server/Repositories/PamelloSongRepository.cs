@@ -7,7 +7,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
-    public class PamelloSongRepository : PamelloRepository<PamelloSong, DatabaseSong>
+    public class PamelloSongRepository : PamelloDatabaseRepository<PamelloSong, DatabaseSong>
     {
         private readonly YoutubeInfoService _youtube;
 

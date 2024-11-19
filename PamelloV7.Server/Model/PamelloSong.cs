@@ -77,6 +77,8 @@ namespace PamelloV7.Server.Model
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
         }
 
-        public override object GetDTO() => throw new NotImplementedException();
+        public override object DTO => new {
+            Name = "gay"
+        };
     }
 }

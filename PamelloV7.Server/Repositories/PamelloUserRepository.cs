@@ -5,7 +5,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
-    public class PamelloUserRepository : PamelloRepository<PamelloUser, DatabaseUser>
+    public class PamelloUserRepository : PamelloDatabaseRepository<PamelloUser, DatabaseUser>
     {
         private readonly DiscordClientService _discordClients;
 
