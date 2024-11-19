@@ -13,21 +13,28 @@ namespace PamelloV7.Server.Model.Audio
 
         private AudioOutStream? _audioOutput;
 
+        public int Channel { get; }
+
         public bool IsActive {
             get => _audioOutput is not null;
         }
 
         public PamelloSpeaker(IServiceProvider services,
             DiscordSocketClient client,
-            ulong guildId
+            ulong guildId,
+            int channel
         ) {
             Client = client;
             Guild = client.GetGuild(guildId);
+
+            Channel = channel;
 
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
         }
 
         private async Task Client_VoiceServerUpdated(SocketVoiceServer voiceServer) {
+            if (voiceServer.Guild.Id != Guild.Id) return;
+
             //Console.WriteLine($"voice server changed, audio client: {Guild.AudioClient?.ConnectionState.ToString() ?? "No audio client"}; Audio stream is not null: {_audioOutput is not null};");
             if (Guild.AudioClient is not null) {
                 Guild.AudioClient.Connected += AudioClient_Connected;

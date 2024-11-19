@@ -1,0 +1,35 @@
+﻿using PamelloV7.Server.Model.Audio;
+
+namespace PamelloV7.Server.Repositories
+{
+    public class PamelloPlayerRepository
+    {
+        private readonly IServiceProvider _services;
+
+        private readonly List<PamelloPlayer> _players;
+
+        public PamelloPlayerRepository(IServiceProvider services
+
+        ) {
+            _services = services;
+            
+            _players = new List<PamelloPlayer>();
+        }
+
+        public PamelloPlayer Create(string name = "Player") {
+			string oldName = name;
+			for (int i = 1; _players.Any(player => player.Name == name); i++) {
+				name = $"{oldName}-{i}";
+			}
+
+            var player = new PamelloPlayer(_services, name);
+            _players.Add(player);
+
+            return player;
+        }
+
+        public PamelloPlayer? Get(int id) {
+            return _players.FirstOrDefault(player => player.Id == id);
+        }
+    }
+}

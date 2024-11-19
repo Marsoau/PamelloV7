@@ -45,10 +45,11 @@ namespace PamelloV7.Server
                 AlwaysDownloadUsers = true
             };
 
-            services.AddSingleton(services => new DiscordSocketClient(discordConfig));
+            services.AddSingleton(new DiscordSocketClient(discordConfig));
+            services.AddKeyedSingleton("Speaker-1", new DiscordSocketClient(discordConfig));
             
             services.AddSingleton(services => new InteractionService(
-                services.GetRequiredService<DiscordClientService>().MainClient,
+                services.GetRequiredService<DiscordSocketClient>(),
                 new InteractionServiceConfig()
             ));
             services.AddSingleton<InteractionHandler>();
@@ -66,7 +67,9 @@ namespace PamelloV7.Server
             services.AddSingleton<PamelloSongRepository>();
             services.AddSingleton<PamelloEpisodeRepository>();
             services.AddSingleton<PamelloPlaylistRepository>();
+            services.AddSingleton<PamelloPlayerRepository>();
 
+            services.AddSingleton<PamelloSpeakerService>();
             services.AddSingleton<UserAuthorizationService>();
         }
 
@@ -113,6 +116,8 @@ namespace PamelloV7.Server
 
             var users = services.GetRequiredService<PamelloUserRepository>();
             var songs = services.GetRequiredService<PamelloSongRepository>();
+            var players = services.GetRequiredService<PamelloPlayerRepository>();
+            var speakers = services.GetRequiredService<PamelloSpeakerService>();
             var downloader = services.GetRequiredService<YoutubeDownloadService>();
 
             var interactionService = services.GetRequiredService<InteractionService>();
@@ -134,16 +139,28 @@ namespace PamelloV7.Server
                 var guild = discordClients.MainClient.GetGuild(1304142495453548646);
                 //await interactionService.RegisterCommandsToGuildAsync(guild.Id);
 
-                var player = new PamelloPlayer(services, "test");
-                await player.TestSpeaker.InitialConnect(1304142495453548650);
+                var player = players.Create();
+                var player2 = players.Create();
                 Console.WriteLine("player");
 
                 var user = users.GetRequired(1);
-                player.Queue.AddSong(await songs.AddAsync("pLBX9vdrtn4", user));
+                player.Queue.AddSong(await songs.AddAsync("O9eHRiaTuL4", user));
+                player2.Queue.AddSong(await songs.AddAsync("x1UsJ2Znjk0", user));
+
+                await speakers.ConnectSpeaker(player, guild.Id, 1304142495453548650);
+                await speakers.ConnectSpeaker(player2, guild.Id, 1308149222893293709);
+            };
+            discordClients.DiscordClients[1].Log += async (message) => {
+                Console.WriteLine($">speaker<: {message}");
+            };
+            discordClients.DiscordClients[1].Ready += async () => {
+                Console.WriteLine("speaker ready");
             };
 
             await discordClients.MainClient.LoginAsync(TokenType.Bot, config.MainBotToken);
             await discordClients.MainClient.StartAsync();
+            await discordClients.DiscordClients[1].LoginAsync(TokenType.Bot, config.Speaker1Token);
+            await discordClients.DiscordClients[1].StartAsync();
 
             await discordReady.Task;
         }

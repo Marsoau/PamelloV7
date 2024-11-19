@@ -6,6 +6,7 @@ namespace PamelloV7.Server.Model.Audio
     public class PamelloPlayer
     {
         private readonly YoutubeDownloadService _downloader;
+        private readonly PamelloSpeakerService _speakers;
 
         public int Id { get; }
 
@@ -38,22 +39,19 @@ namespace PamelloV7.Server.Model.Audio
             get => throw new NotImplementedException();
         }
 
-        public PamelloSpeaker TestSpeaker;
-
         private static int _idCounter = 1;
 
         public PamelloPlayer(IServiceProvider services,
             string name
         ) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
+            _speakers = services.GetRequiredService<PamelloSpeakerService>();
 
             Id = _idCounter++;
             _name = name;
             _status = EPlayerStatus.AwaitingSong;
 
             Queue = new PamelloQueue(services, this);
-
-            TestSpeaker = new PamelloSpeaker(services, services.GetRequiredService<DiscordClientService>().MainClient, 1304142495453548646);
 
             Task.Run(MusicRestartingLoop);
         }
@@ -88,7 +86,7 @@ namespace PamelloV7.Server.Model.Audio
                     await Task.Delay(250);
                     continue;
                 }
-                if (!TestSpeaker.IsActive) {
+                if (!_speakers.IsChannelActive(Id)) {
                     Status = EPlayerStatus.AwaitingSpeaker;
 
                     await Task.Delay(250);
@@ -106,7 +104,7 @@ namespace PamelloV7.Server.Model.Audio
                 success = await Queue.Current.NextBytes(audio);
 
                 try {
-                    if (success) await TestSpeaker.PlayBytesAsync(audio);
+                    if (success) await _speakers.BroadcastBytes(Id, audio);
                     else {
                         Console.WriteLine($"{Queue.Current.Song} ended");
                     

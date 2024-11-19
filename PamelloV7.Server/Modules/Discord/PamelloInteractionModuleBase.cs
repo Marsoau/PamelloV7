@@ -45,6 +45,10 @@ namespace PamelloV7.Server.Modules.Discord
             throw new NotImplementedException();
         }
 
+        public async Task PlayerSkip()
+        {
+            throw new NotImplementedException();
+        }
         public async Task PlayerGoTo()
         {
             throw new NotImplementedException();
@@ -57,7 +61,19 @@ namespace PamelloV7.Server.Modules.Discord
         {
             throw new NotImplementedException();
         }
-        public async Task PlayerSkip()
+        public async Task PlayerGoToEpisode()
+        {
+            throw new NotImplementedException();
+        }
+        public async Task PlayerPrevEpisode()
+        {
+            throw new NotImplementedException();
+        }
+        public async Task PlayerNextEpisode()
+        {
+            throw new NotImplementedException();
+        }
+        public async Task PlayerRewind()
         {
             throw new NotImplementedException();
         }
