@@ -1,4 +1,5 @@
-﻿using PamelloV7.Server.Model.Audio;
+﻿using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Model.Audio;
 
 namespace PamelloV7.Server.Repositories
 {
@@ -28,6 +29,8 @@ namespace PamelloV7.Server.Repositories
             return player;
         }
 
+        public PamelloPlayer GetRequired(int id)
+            => Get(id) ?? throw new PamelloException($"Cant find required played wuth id {id}");
         public PamelloPlayer? Get(int id) {
             return _players.FirstOrDefault(player => player.Id == id);
         }

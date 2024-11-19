@@ -18,12 +18,27 @@ namespace PamelloV7.Server.Model.Audio
 
         public bool IsRandom {
             get => _isRandom;
+            set {
+                if (_isRandom == value) return;
+
+                _isRandom = value;
+            }
         }
         public bool IsReversed {
             get => _isReversed;
+            set {
+                if (_isReversed == value) return;
+
+                _isReversed = value;
+            }
         }
         public bool IsNoLeftovers{
             get => _isNoLeftovers;
+            set {
+                if (_isNoLeftovers == value) return;
+
+                _isNoLeftovers = value;
+            }
         }
 
         private int? _nextPositionRequest;
@@ -215,7 +230,7 @@ namespace PamelloV7.Server.Model.Audio
 
             return true;
 		}
-		public void GoToSong(int songPosition, bool returnBack = false) {
+		public PamelloSong GoToSong(int songPosition, bool returnBack = false) {
 			if (_audios.Count == 0) throw new PamelloException("Queue is empty");
 
 			var nextPosition = NormalizeQueuePosition(songPosition);
@@ -223,6 +238,8 @@ namespace PamelloV7.Server.Model.Audio
 
             Position = nextPosition;
 			Current = _audios[Position];
+
+            return Current.Song;
 		}
 		public PamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
 			if (_audios.Count == 0) return null;

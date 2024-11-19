@@ -144,8 +144,8 @@ namespace PamelloV7.Server
                 Console.WriteLine("player");
 
                 var user = users.GetRequired(1);
-                player.Queue.AddSong(await songs.AddAsync("O9eHRiaTuL4", user));
-                player2.Queue.AddSong(await songs.AddAsync("x1UsJ2Znjk0", user));
+                player.Queue.AddSong(await songs.AddAsync("aOIrxUTBRgs", user));
+                player2.Queue.AddSong(await songs.AddAsync("6uR_UxqGoug", user));
 
                 await speakers.ConnectSpeaker(player, guild.Id, 1304142495453548650);
                 await speakers.ConnectSpeaker(player2, guild.Id, 1308149222893293709);

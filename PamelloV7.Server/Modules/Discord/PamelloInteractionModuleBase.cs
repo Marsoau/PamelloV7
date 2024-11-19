@@ -45,6 +45,13 @@ namespace PamelloV7.Server.Modules.Discord
             throw new NotImplementedException();
         }
 
+        public async Task PlayerResume() {
+            throw new NotImplementedException();
+        }
+        public async Task PlayerPause() {
+            throw new NotImplementedException();
+        }
+
         public async Task PlayerSkip()
         {
             throw new NotImplementedException();

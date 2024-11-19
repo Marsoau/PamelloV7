@@ -15,8 +15,8 @@ namespace PamelloV7.Server.Model.Audio
         private MemoryStream? _currentChunk;
         private MemoryStream? _nextChunk;
 
-        public readonly AudioTime Position;
-        public readonly AudioTime Duration;
+        public AudioTime Position;
+        public AudioTime Duration;
 
         private int? _nextBreakPoint;
         private int? _nextJumpPoint;
@@ -160,6 +160,35 @@ namespace PamelloV7.Server.Model.Audio
 
             rewindCompletion.SetResult();
             _rewinding = null;
+        }
+        public async Task RewindToEpisode(int episodePosition) {
+            if (episodePosition >= Song.Episodes.Count) {
+                await RewindTo(Duration);
+                return;
+            }
+
+            var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) return;
+
+            await RewindTo(new AudioTime(episode.Start));
+        }
+
+        public int? GetCurrentEpisodePosition() {
+            int? closestLeft = null;
+
+            for (int i = 0; i < Song.Episodes.Count; i++) {
+                if (Song.Episodes[i].Start < Position.Seconds && Song.Episodes[i].Start > (closestLeft ?? int.MinValue)) {
+                    closestLeft = Song.Episodes[i].Start;
+                }
+            }
+
+            return closestLeft;
+        }
+        public PamelloEpisode? GetCurrentEpisode() {
+            var currentPosition = GetCurrentEpisodePosition();
+            if (currentPosition is null) return null;
+
+            return Song.Episodes.ElementAtOrDefault(currentPosition.Value);
         }
 
         public async Task LoadChunksAtAsync(int position) {

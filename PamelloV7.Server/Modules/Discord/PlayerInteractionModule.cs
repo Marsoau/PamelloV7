@@ -15,6 +15,11 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task PlayerDeleteHandler()
             => await PlayerDelete();
 
+        public async Task PlayerResumeHandler()
+            => await PlayerResume();
+        public async Task PlayerPauseHandler()
+            => await PlayerPause();
+
         public async Task PlayerSkipHandler()
             => await PlayerSkip();
         public async Task PlayerGoToHandler()

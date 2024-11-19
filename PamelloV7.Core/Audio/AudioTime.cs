@@ -1,6 +1,6 @@
 ﻿namespace PamelloV7.Core.Audio
 {
-    public class AudioTime
+    public struct AudioTime
     {
         public static long FrequencyMultiplier = 192000;
 

@@ -1,84 +1,179 @@
 ﻿using PamelloV7.Server.Attributes;
+using PamelloV7.Server.Model;
+using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Repositories;
+using PamelloV7.Core.Audio;
 
 namespace PamelloV7.Server.Modules
 {
     public class PamelloCommandsModule
     {
+        private readonly IServiceProvider _services;
+
+        private readonly PamelloPlayerRepository _players;
+
+        private readonly PamelloUserRepository _users;
+        private readonly PamelloSongRepository _songs;
+        private readonly PamelloEpisodeRepository _episodes;
+        private readonly PamelloPlaylistRepository _playlists;
+
+        private PamelloUser? _user;
+        public PamelloUser User {
+            get => _user ?? throw new PamelloException("Pamello user required");
+        }
+        public PamelloPlayer Player {
+            get => Player ?? throw new PamelloException("Selected player required");
+        }
+
+        public PamelloCommandsModule(IServiceProvider services) {
+            _services = services;
+
+            _players = services.GetRequiredService<PamelloPlayerRepository>();
+
+            _users = services.GetRequiredService<PamelloUserRepository>();
+            _songs = services.GetRequiredService<PamelloSongRepository>();
+            _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
+            _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+        }
+
+        public void Initialize(PamelloUser user) {
+            _user = user;
+        }
+
+        public void RequireUser() {
+            if (_user is null) throw new PamelloException("Pamello user required");
+        }
+
         //player
         [PamelloCommand]
-        public async Task PlayerSelect() {
-            throw new NotImplementedException();
+        public async Task<int> PlayerCreate(string playerName) {
+            RequireUser();
+
+            return _players.Create(playerName).Id;
         }
         [PamelloCommand]
-        public async Task PlayerCreate() {
-            throw new NotImplementedException();
+        public async Task PlayerSelect(int? playerId) {
+            RequireUser();
+
+            if (playerId is null) {
+                User.SelectedPlayer = null;
+                return;
+            }
+
+            User.SelectedPlayer = _players.GetRequired(playerId.Value);
         }
         [PamelloCommand]
         public async Task PlayerDelete() {
             throw new NotImplementedException();
         }
-
+        
         [PamelloCommand]
-        public async Task PlayerGoTo() {
-            throw new NotImplementedException();
+        public async Task PlayerResume() {
+            Player.IsPaused = false;
         }
         [PamelloCommand]
-        public async Task PlayerPrev() {
-            throw new NotImplementedException();
-        }
-        [PamelloCommand]
-        public async Task PlayerNext() {
-            throw new NotImplementedException();
-        }
-        [PamelloCommand]
-        public async Task PlayerSkip() {
-            throw new NotImplementedException();
+        public async Task PlayerPause() {
+            Player.IsPaused = true;
         }
 
         [PamelloCommand]
-        public async Task PlayerQueueSongAdd() {
-            throw new NotImplementedException();
+        public async Task<int?> PlayerSkip() {
+            return Player.Queue.GoToNextSong()?.Id;
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongInsert() {
-            throw new NotImplementedException();
+        public async Task<int> PlayerGoTo(int songPosition, bool returnBack) {
+            return Player.Queue.GoToSong(songPosition, returnBack).Id;
         }
         [PamelloCommand]
-        public async Task PlayerQueuePlaylistAdd() {
-            throw new NotImplementedException();
+        public async Task<int> PlayerPrev() {
+            return Player.Queue.GoToSong(Player.Queue.Position - 1).Id;
         }
         [PamelloCommand]
-        public async Task PlayerQueuePlaylistInsert() {
-            throw new NotImplementedException();
+        public async Task<int> PlayerNext() {
+            return Player.Queue.GoToSong(Player.Queue.Position + 1).Id;
+        }
+        public async Task PlayerGoToEpisode(int episodePosition) {
+            Player.Queue.Current?.RewindToEpisode(episodePosition);
+        }
+        public async Task PlayerPrevEpisode() {
+            var currentEpisode = Player.Queue.Current?.GetCurrentEpisodePosition();
+            if (currentEpisode is null || Player.Queue.Current is null) return;
+
+            await Player.Queue.Current.RewindToEpisode(currentEpisode.Value - 1);
+        }
+        public async Task PlayerNextEpisode() {
+            var currentEpisode = Player.Queue.Current?.GetCurrentEpisodePosition();
+            if (currentEpisode is null || Player.Queue.Current is null) return;
+
+            await Player.Queue.Current.RewindToEpisode(currentEpisode.Value + 1);
+        }
+        public async Task PlayerRewind(int seconds) {
+            Player.Queue.Current?.RewindTo(new AudioTime(seconds));
+        }
+
+        [PamelloCommand]
+        public async Task PlayerQueueSongAdd(int songId) {
+            var song = _songs.GetRequired(songId);
+            Player.Queue.AddSong(song);
+        }
+        [PamelloCommand]
+        public async Task PlayerQueueSongInsert(int queuePosition, int songId) {
+            var song = _songs.GetRequired(songId);
+            Player.Queue.InsertSong(queuePosition, song);
+        }
+        [PamelloCommand]
+        public async Task PlayerQueueSongYoutubeAdd(string youtubeId) {
+            var song = await _songs.AddAsync(youtubeId, User);
+            if (song is null) return;
+
+            Player.Queue.AddSong(song);
+        }
+        [PamelloCommand]
+        public async Task PlayerQueueSongYoutubeInsert(int queuePosition, string youtubeId) {
+            var song = await _songs.AddAsync(youtubeId, User);
+            if (song is null) return;
+
+            Player.Queue.InsertSong(queuePosition, song);
+        }
+        [PamelloCommand]
+        public async Task PlayerQueuePlaylistAdd(int playlistId) {
+            var playlist = _playlists.GetRequired(playlistId);
+            Player.Queue.AddPlaylist(playlist);
+        }
+        [PamelloCommand]
+        public async Task PlayerQueuePlaylistInsert(int queuePosition, int playlistId) {
+            var playlist = _playlists.GetRequired(playlistId);
+            Player.Queue.InsertPlaylist(queuePosition, playlist);
         }
         [PamelloCommand]
         public async Task PlayerQueueSongRemove() {
             throw new NotImplementedException();
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongMove() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueSongSwap(int inPosition, int withPosition) {
+            Player.Queue.SwapSongs(inPosition, withPosition);
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongSwap() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueSongMove(int fromPosition, int toPosition) {
+            Player.Queue.MoveSong(fromPosition, toPosition);
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongRequestNext() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueSongRequestNext(int? position) {
+            Player.Queue.NextPositionRequest = position;
         }
 
         [PamelloCommand]
-        public async Task PlayerQueueRandom() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueRandom(bool value) {
+            Player.Queue.IsRandom = value;
         }
         [PamelloCommand]
-        public async Task PlayerQueueReversed() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueReversed(bool value) {
+            Player.Queue.IsReversed = value;
         }
         [PamelloCommand]
-        public async Task PlayerQueueNoLeftovers() {
-            throw new NotImplementedException();
+        public async Task PlayerQueueNoLeftovers(bool value) {
+            Player.Queue.IsNoLeftovers = value;
         }
 
         [PamelloCommand]
@@ -87,25 +182,18 @@ namespace PamelloV7.Server.Modules
         }
         [PamelloCommand]
         public async Task PlayerQueueClear() {
-            throw new NotImplementedException();
+            Player.Queue.Clear();
         }
 
         //song
         [PamelloCommand]
-        public async Task SongAdd() {
-            throw new NotImplementedException();
+        public async Task<int> SongAdd(string youtubeId) {
+            return (await _songs.AddAsync(youtubeId, User))?.Id ?? throw new PamelloException($"Cant add youtube song with id \"{youtubeId}\"");
         }
         [PamelloCommand]
-        public async Task SongSearch() {
-            throw new NotImplementedException();
-        }
-        [PamelloCommand]
-        public async Task SongInfo() {
-            throw new NotImplementedException();
-        }
-        [PamelloCommand]
-        public async Task SongRename() {
-            throw new NotImplementedException();
+        public async Task SongRename(int songId, string newName) {
+            var song = _songs.GetRequired(songId);
+            song.Name = newName;
         }
 
         [PamelloCommand]

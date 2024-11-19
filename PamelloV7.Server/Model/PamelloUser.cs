@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Audio;
 
 namespace PamelloV7.Server.Model
 {
@@ -56,6 +57,18 @@ namespace PamelloV7.Server.Model
         }
         public IReadOnlyList<PamelloPlaylist> FavoritePlaylists {
             get => Entity.FavoritePlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+        }
+
+        private PamelloPlayer? _selectedPlayer;
+        public PamelloPlayer? SelectedPlayer {
+            get => _selectedPlayer;
+            set {
+                if (_selectedPlayer == value) return;
+
+                _selectedPlayer = value;
+
+                //event
+            }
         }
 
         public PamelloUser(IServiceProvider services,
