@@ -1,12 +1,21 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Modules;
+using PamelloV7.Server.Repositories;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
     public class PamelloUser : PamelloEntity<DatabaseUser>
     {
+        private readonly DiscordClientService _clients;
+        private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloPlayerRepository _players;
+
         public readonly SocketUser DiscordUser;
+        public readonly PamelloCommandsModule Commands;
 
         public override int Id {
             get => Entity.Id;
@@ -70,12 +79,46 @@ namespace PamelloV7.Server.Model
                 //event
             }
         }
+        public PamelloPlayer RequiredSelectedPlayer {
+            get => EnsurePlayerExist();
+        }
 
         public PamelloUser(IServiceProvider services,
             DatabaseUser databaseUser,
             SocketUser discordUser
         ) : base(databaseUser, services) {
             DiscordUser = discordUser;
+            Commands = new PamelloCommandsModule(services, this);
+
+            _clients = services.GetRequiredService<DiscordClientService>();
+            _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _players = services.GetRequiredService<PamelloPlayerRepository>();
+        }
+
+        private PamelloPlayer EnsurePlayerExist() {
+            if (SelectedPlayer is not null) return SelectedPlayer;
+
+            PamelloPlayer? player = null;
+
+            var vc = _clients.GetUserVoiceChannel(this);
+            if (vc is not null) {
+                var vcPlayers = _speakers.GetVoicePlayers(vc.Id);
+
+                if (vcPlayers.Count == 1) {
+                    player = vcPlayers.First();
+                }
+                if (vcPlayers.Count > 1) {
+                    throw new PamelloException("Cant automaticly select a player");
+                }
+            }
+
+            if (player is null) {
+                var playerId = Commands.PlayerCreate("Player").Result;
+                player = _players.GetRequired(playerId);
+            }
+
+            SelectedPlayer = player;
+            return player;
         }
 
         public override object DTO => new { };

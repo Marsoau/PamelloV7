@@ -115,5 +115,9 @@ namespace PamelloV7.Server.Model.Audio
                 }
             }
         }
+
+        public override string ToString() {
+            return $"[{Id}] {Name}";
+        }
     }
 }

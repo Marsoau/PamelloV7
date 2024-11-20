@@ -1,5 +1,6 @@
 ﻿using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 
@@ -21,13 +22,16 @@ namespace PamelloV7.Server.Model.Audio
         private int? _nextBreakPoint;
         private int? _nextJumpPoint;
 
+        private Process? _ffmpeg;
+        private long _ffmpegPosition;
+
         private Task? _rewinding;
 
         public bool IsInitialized {
 			get => _currentChunk is not null;
 		}
 
-        public static AudioTime ChunkSize = new AudioTime(0, 8);
+        private AudioTime _chunkSize;
 
         public PamelloAudio(IServiceProvider services,
             PamelloSong song
@@ -38,6 +42,8 @@ namespace PamelloV7.Server.Model.Audio
 
             Position = new AudioTime(0);
             Duration = new AudioTime(0);
+
+            _chunkSize = new AudioTime(8);
         }
 
 		public void Clean() {
@@ -63,13 +69,12 @@ namespace PamelloV7.Server.Model.Audio
                 }
             }
 
+            Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
+
             await LoadChunksAtAsync(0);
             if (_currentChunk is null) return false;
 
-            Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
-
-            _currentChunkPosition = -2;
-            await RewindTo(new AudioTime(0), false);
+            _currentChunkPosition = 0;
 
             return true;
         }
@@ -91,11 +96,11 @@ namespace PamelloV7.Server.Model.Audio
 				await RewindTo(new AudioTime(_nextJumpPoint.Value));
             }
             
-            if (Position.TimeValue / ChunkSize.TimeValue > _currentChunkPosition) {
+            if (Position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
                 await MoveForwardAsync();
             }
 
-            _currentChunk.Position = Position.TimeValue % ChunkSize.TimeValue;
+            _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
 			if (_currentChunk.Read(result, 0, 2) == 2) {
 				Position.TimeValue += 2;
 
@@ -144,8 +149,8 @@ namespace PamelloV7.Server.Model.Audio
 
             if (_currentChunk is null) return;
 
-            long timePosition = time.TimeValue / ChunkSize.TimeValue;
-            long timeDifferece = time.TimeValue % ChunkSize.TimeValue;
+            long timePosition = time.TimeValue / _chunkSize.TimeValue;
+            long timeDifferece = time.TimeValue % _chunkSize.TimeValue;
 
             if (timePosition == _currentChunkPosition + 1) {
                 await MoveForwardAsync();
@@ -201,29 +206,75 @@ namespace PamelloV7.Server.Model.Audio
             _nextChunk = await LoadChunkAsync(++_currentChunkPosition + 1);
         }
 
-        private async Task<MemoryStream?> LoadChunkAsync(int position) {
-            if (!Song.IsDownloaded) {
-                return null;
-			}
+        private void CreateFFMpeg() {
+            if (_ffmpeg is not null) {
+                _ffmpeg.Dispose();
+                _ffmpeg = null;
+                _ffmpegPosition = 0;
+            }
 
-			using var ffmpegProcess = Process.Start(new ProcessStartInfo {
+			_ffmpeg = Process.Start(new ProcessStartInfo {
 				FileName = "ffmpeg",
-				Arguments = $@"-hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ss {ChunkSize * position} -to {ChunkSize * (position + 1)} -ac 2 -f s16le -ar 48000 pipe:1",
+				Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				UseShellExecute = false,
 				RedirectStandardOutput = true
 			});
+        }
 
-            var ffmpegStream = ffmpegProcess?.StandardOutput.BaseStream;
-            if (ffmpegStream is null) return null;
+        private async Task<MemoryStream?> LoadChunkAsync(int position) {
+            Console.WriteLine($"->\n-> loading chunk at {position}\n->");
 
-            var chuckStream = new MemoryStream();
 
-            await ffmpegStream.CopyToAsync(chuckStream);
-            chuckStream.Position = 0;
+            if (_ffmpeg is null) {
+                Console.WriteLine("ffmpeg creating 1");
+                CreateFFMpeg();
+            }
+            else {
+                _ffmpeg.Resume();
+            }
 
-            if (chuckStream.Length == 0) return null;
+            if (_ffmpeg is null) return null;
 
-            return chuckStream;
+            long startPos = _chunkSize.TimeValue * position;
+            long endPos = _chunkSize.TimeValue * (position + 1);
+
+            byte[] buffer = new byte[2];
+
+            if (_ffmpegPosition > startPos) {
+                Console.WriteLine("ffmpeg creating 2");
+                CreateFFMpeg();
+            }
+
+            Console.WriteLine($"seeking to the start from {_ffmpegPosition} to {startPos}");
+            while (_ffmpegPosition < startPos) {
+                if (_ffmpeg.StandardOutput.EndOfStream) return null;
+
+                _ffmpeg.StandardOutput.BaseStream.ReadByte();
+                _ffmpeg.StandardOutput.BaseStream.ReadByte();
+                _ffmpegPosition += 2;
+            }
+
+            var chunkStream = new MemoryStream();
+
+            Console.WriteLine($"seeking to the end from {_ffmpegPosition} to {endPos}");
+            while (_ffmpegPosition < endPos) {
+                if (_ffmpeg.StandardOutput.EndOfStream) {
+                    if (chunkStream.Length > 0) {
+                        Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
+                        return chunkStream;
+                    }
+                    else return null;
+                }
+
+                _ffmpeg.StandardOutput.BaseStream.Read(buffer);
+                chunkStream.Write(buffer);
+                _ffmpegPosition += 2;
+            }
+
+            _ffmpeg.Suspend();
+
+            Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
+            return chunkStream;
         }
 
         public static string GetSongAudioPath(PamelloSong song)

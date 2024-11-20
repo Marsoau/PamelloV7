@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using PamelloV7.Server.Attributes;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -7,69 +8,126 @@ namespace PamelloV7.Server.Modules.Discord
     {
         public PlayerInteractionModule(IServiceProvider services) : base(services) { }
 
-        //Player
-        public async Task PlayerSelectHandler()
-            => await PlayerSelect();
-        public async Task PlayerCreateHandler()
-            => await PlayerCreate();
-        public async Task PlayerDeleteHandler()
-            => await PlayerDelete();
+        [SlashCommand("select", "Select a working player")]
+        public async Task PlayerSelectHandler(
+            [Summary("player", "Player id or name")] string playerValue
+        ) => await PlayerSelect(playerValue);
 
-        public async Task PlayerResumeHandler()
-            => await PlayerResume();
-        public async Task PlayerPauseHandler()
-            => await PlayerPause();
+        [SlashCommand("create", "Create new player")]
+        public async Task PlayerCreateHandler(
+            [Summary("name", "New player name")] string name
+        ) => await PlayerCreate(name);
 
-        public async Task PlayerSkipHandler()
-            => await PlayerSkip();
-        public async Task PlayerGoToHandler()
-            => await PlayerGoTo();
-        public async Task PlayerPrevHandler()
-            => await PlayerPrev();
-        public async Task PlayerNextHandler()
-            => await PlayerNext();
-        public async Task PlayerGoToEpisodeHandler()
-            => await PlayerGoToEpisode();
-        public async Task PlayerPrevEpisodeHandler()
-            => await PlayerPrevEpisode();
-        public async Task PlayerNextEpisodeHandler()
-            => await PlayerNextEpisode();
-        public async Task PlayerRewindHandler()
-            => await PlayerRewind();
+        [SlashCommand("delete", "Delete player")]
+        public async Task PlayerDeleteHandler(
+            [Summary("player", "Player id or name")] string playerValue
+        ) => await PlayerDelete(playerValue);
+
+        [SlashCommand("resume", "Resume music playback")]
+        public async Task PlayerResumeHandler() => await PlayerResume();
+
+        [SlashCommand("pause", "Pause music playback")]
+        public async Task PlayerPauseHandler() => await PlayerPause();
+
+        [SlashCommand("skip", "Skip current song")]
+        public async Task PlayerSkipHandler() => await PlayerSkip();
+
+        [SlashCommand("go-to", "Go to song in the queue")]
+        public async Task PlayerGoToHandler(
+            [Summary("song-position", "Song position in queue")] int songPosition,
+			[Summary("return-back", "Return back after song ends")] bool returnBack = false
+        ) => await PlayerGoTo(songPosition, returnBack);
+
+        [SlashCommand("prev", "Go to previous song in queue")]
+        public async Task PlayerPrevHandler() => await PlayerPrev();
+
+        [SlashCommand("next", "Go to next song in queue")]
+        public async Task PlayerNextHandler() => await PlayerNext();
+
+        [SlashCommand("go-to-episode", "Rewind song to episode")]
+        public async Task PlayerGoToEpisodeHandler(
+            [Summary("episode-position", "Episode position in song")] int episodePosition
+        ) => await PlayerGoToEpisode(episodePosition);
+
+        [SlashCommand("next-episode", "Rewind song to previous episode")]
+        public async Task PlayerNextEpisodeHandler() => await PlayerNextEpisode();
+
+        [SlashCommand("prev-episode", "Rewind song to next episode")]
+        public async Task PlayerPrevEpisodeHandler() => await PlayerPrevEpisode();
+
+        [SlashCommand("rewind", "Rewind song", runMode: RunMode.Async)]
+        public async Task PlayerRewindHandler(
+            [Summary("time", "Time in format HH:MM:SS")] string time
+        ) => await PlayerRewind(time);
 
         [Group("queue", "Commands to interact with selected player queue")]
-        public class PlayerQueueInteractionModule : PamelloInteractionModuleBase
-        {
-            public PlayerQueueInteractionModule(IServiceProvider services) : base(services) { }
+        public class PlayerQueueInteractionModule : PamelloInteractionModuleBase {
+            public PlayerQueueInteractionModule(IServiceProvider services) : base(services) { } 
 
-            public async Task PlayerQueueSongAddHandler()
-                => await PlayerQueueSongAdd();
-            public async Task PlayerQueueSongInsertHandler()
-                => await PlayerQueueSongInsert();
-            public async Task PlayerQueuePlaylistAddHandler()
-                => await PlayerQueuePlaylistAdd();
-            public async Task PlayerQueuePlaylistInsertHandler()
-                => await PlayerQueuePlaylistInsert();
-            public async Task PlayerQueueSongRemoveHandler()
-                => await PlayerQueueSongRemove();
-            public async Task PlayerQueueSongMoveHandler()
-                => await PlayerQueueSongMove();
-            public async Task PlayerQueueSongSwapHandler()
-                => await PlayerQueueSongSwap();
-            public async Task PlayerQueueSongRequestNextHandler()
-                => await PlayerQueueSongRequestNext();
+            [SlashCommand("add-song", "Add song to the queue")]
+            public async Task PlayerQueueSongAddHandler(
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+            ) => await PlayerQueueSongAdd(songValue);
 
-            public async Task PlayerQueueRandomHandler()
-                => await PlayerQueueRandom();
-            public async Task PlayerQueueReversedHandler()
-                => await PlayerQueueReversed();
-            public async Task PlayerQueueNoLeftoversHandler()
-                => await PlayerQueueNoLeftovers();
+            [SlashCommand("instert-song", "Add playlist to the queue")]
+            public async Task PlayerQueueSongInsertHandler(
+                [Summary("position", "Where song should be inserted")] int position,
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+            ) => await PlayerQueueSongInsert(position, songValue);
 
-            public async Task PlayerQueueSuffleHandler()
-                => await PlayerQueueSuffle();
-            public async Task PlayerQueueClearHandler()
-                => await PlayerQueueClear();
+            [SlashCommand("add-playlist", "Add playlist to the queue")]
+            public async Task PlayerQueuePlaylistAddHandler(
+                [Summary("playlist", "Playlist id or name")] string playlistValue
+            ) => await PlayerQueuePlaylistAdd(playlistValue);
+            
+            [SlashCommand("insert-playlist", "Insert playlist to the queue")]
+            public async Task PlayerQueuePlaylistInsertHandler(
+                [Summary("position", "Where song should be inserted")] int position,
+                [Summary("playlist", "Playlist id or name")] string playlistValue
+            ) => await PlayerQueuePlaylistInsert(position, playlistValue);
+
+            [SlashCommand("remove", "Remove song from the queue")]
+            public async Task PlayerQueueSongRemoveHandler(
+                [Summary("position", "Position of song that should be removed")] int position
+            ) => await PlayerQueueSongRemove(position);
+
+            [SlashCommand("song-move", "Move song from one place to another")]
+            public async Task PlayerQueueSongMoveHandler(
+                [Summary("from-position", "Position of the song that should be moved")] int fromPosition,
+                [Summary("to-position", "Position to which the song should be moved")] int toPosition
+            ) => await PlayerQueueSongMove(fromPosition, toPosition);
+
+            [SlashCommand("song-swap", "Swap one song with another")]
+            public async Task PlayerQueueSongSwapHandler(
+                [Summary("in-position", "Position of song that should be swaped with another song")] int inPosition,
+				[Summary("with-position", "Position of another song")] int withPosition
+            ) => await PlayerQueueSongSwap(inPosition, withPosition);
+
+            [SlashCommand("song-request-next", "Request the song to be played next")]
+            public async Task PlayerQueueSongRequestNextHandler(
+                [Summary("position", "Position of the song")] int position
+            ) => await PlayerQueueSongRequestNext(position);
+
+            [SlashCommand("random", "Toggle random playback of queue songs")]
+            public async Task PlayerQueueRandomHandler() => await PlayerQueueRandom();
+
+            [SlashCommand("reversed", "Toggle reversed playback of queue songs")]
+            public async Task PlayerQueueReversedHandler() => await PlayerQueueReversed();
+
+            [SlashCommand("no-leftovers", "Toggle deletion of played songs from queue")]
+            public async Task PlayerQueueNoLeftoversHandler() => await PlayerQueueNoLeftovers();
+
+            [SlashCommand("list", "Get queue songs list")]
+            public async Task PlayerQueueSuffleHandler(
+                [Summary("page", "Page of the songs list")] int page
+            ) => await PlayerQueueList(page);
+
+            public async Task PlayerQueueSuffleHandler(
+                
+            ) => await PlayerQueueSuffle();
+
+            [SlashCommand("clear", "Clear queue")]
+            public async Task PlayerQueueClearHandler() => await PlayerQueueClear();
         }
     }
 }

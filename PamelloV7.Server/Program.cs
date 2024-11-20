@@ -137,18 +137,7 @@ namespace PamelloV7.Server
                 discordReady.SetResult();
 
                 var guild = discordClients.MainClient.GetGuild(1304142495453548646);
-                //await interactionService.RegisterCommandsToGuildAsync(guild.Id);
-
-                var player = players.Create();
-                var player2 = players.Create();
-                Console.WriteLine("player");
-
-                var user = users.GetRequired(1);
-                player.Queue.AddSong(await songs.AddAsync("aOIrxUTBRgs", user));
-                player2.Queue.AddSong(await songs.AddAsync("6uR_UxqGoug", user));
-
-                await speakers.ConnectSpeaker(player, guild.Id, 1304142495453548650);
-                await speakers.ConnectSpeaker(player2, guild.Id, 1308149222893293709);
+                await interactionService.RegisterCommandsToGuildAsync(guild.Id);
             };
             discordClients.DiscordClients[1].Log += async (message) => {
                 Console.WriteLine($">speaker<: {message}");

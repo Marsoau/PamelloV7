@@ -34,5 +34,21 @@ namespace PamelloV7.Server.Repositories
         public PamelloPlayer? Get(int id) {
             return _players.FirstOrDefault(player => player.Id == id);
         }
+
+        public PamelloPlayer? GetByName(string name) {
+            return _players.FirstOrDefault(player => player.Name == name);
+        }
+
+        public PamelloPlayer? GetByValue(string value) {
+            PamelloPlayer? player = null;
+
+            if (int.TryParse(value, out int id)) {
+                player = Get(id);
+            }
+
+            player ??= GetByName(value);
+
+            return player;
+        }
     }
 }

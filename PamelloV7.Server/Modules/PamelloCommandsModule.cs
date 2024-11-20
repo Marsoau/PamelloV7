@@ -4,6 +4,7 @@ using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Modules
 {
@@ -11,51 +12,56 @@ namespace PamelloV7.Server.Modules
     {
         private readonly IServiceProvider _services;
 
+        private readonly DiscordClientService _discordClients;
+
         private readonly PamelloPlayerRepository _players;
+        private readonly PamelloSpeakerService _speakers;
 
         private readonly PamelloUserRepository _users;
         private readonly PamelloSongRepository _songs;
         private readonly PamelloEpisodeRepository _episodes;
         private readonly PamelloPlaylistRepository _playlists;
 
-        private PamelloUser? _user;
-        public PamelloUser User {
-            get => _user ?? throw new PamelloException("Pamello user required");
-        }
-        public PamelloPlayer Player {
-            get => Player ?? throw new PamelloException("Selected player required");
+        public PamelloUser User { get; }
+        private PamelloPlayer Player {
+            get => User.RequiredSelectedPlayer;
         }
 
-        public PamelloCommandsModule(IServiceProvider services) {
+        public PamelloCommandsModule(IServiceProvider services, PamelloUser user) {
             _services = services;
 
+            _discordClients = services.GetRequiredService<DiscordClientService>();
+
             _players = services.GetRequiredService<PamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<PamelloSpeakerService>();
 
             _users = services.GetRequiredService<PamelloUserRepository>();
             _songs = services.GetRequiredService<PamelloSongRepository>();
             _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+
+            User = user;
         }
 
-        public void Initialize(PamelloUser user) {
-            _user = user;
-        }
+        [PamelloCommand]
+        public async Task<bool> SpeakerConnect() {
+            var vc = _discordClients.GetUserVoiceChannel(User);
+            if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
 
-        public void RequireUser() {
-            if (_user is null) throw new PamelloException("Pamello user required");
+            return await _speakers.ConnectSpeaker(Player, vc.Guild.Id, vc.Id);
+        }
+        [PamelloCommand]
+        public async Task SpeakerDisconnect() {
+
         }
 
         //player
         [PamelloCommand]
         public async Task<int> PlayerCreate(string playerName) {
-            RequireUser();
-
             return _players.Create(playerName).Id;
         }
         [PamelloCommand]
         public async Task PlayerSelect(int? playerId) {
-            RequireUser();
-
             if (playerId is null) {
                 User.SelectedPlayer = null;
                 return;
@@ -79,7 +85,11 @@ namespace PamelloV7.Server.Modules
 
         [PamelloCommand]
         public async Task<int?> PlayerSkip() {
-            return Player.Queue.GoToNextSong()?.Id;
+            var song = Player.Queue.Current?.Song;
+
+            Player.Queue.GoToNextSong();
+
+            return song?.Id;
         }
         [PamelloCommand]
         public async Task<int> PlayerGoTo(int songPosition, bool returnBack) {
@@ -147,8 +157,8 @@ namespace PamelloV7.Server.Modules
             Player.Queue.InsertPlaylist(queuePosition, playlist);
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongRemove() {
-            throw new NotImplementedException();
+        public async Task<int> PlayerQueueSongRemove(int position) {
+            return Player.Queue.RemoveSong(position).Id;
         }
         [PamelloCommand]
         public async Task PlayerQueueSongSwap(int inPosition, int withPosition) {

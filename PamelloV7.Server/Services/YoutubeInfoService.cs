@@ -24,7 +24,7 @@ namespace PamelloV7.Server.Services
             var query = HttpUtility.ParseQueryString(uri.Query);
 
             string? youtubeId = null;
-            if (uri.Host == "youtube.com") {
+            if (uri.Host == "www.youtube.com") {
                 youtubeId = query["v"];
             }
             else if (uri.Host == "youtu.be") {
@@ -32,7 +32,7 @@ namespace PamelloV7.Server.Services
             }
 
             if (youtubeId is null || youtubeId.Length != 11) {
-                throw new PamelloException($"cant find youtube id in url \"{url}\"");
+                throw new PamelloException($"Cant find youtube id in url \"{url}\"");
             }
 
             return youtubeId;

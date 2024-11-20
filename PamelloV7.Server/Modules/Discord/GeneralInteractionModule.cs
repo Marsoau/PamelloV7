@@ -10,13 +10,19 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task PindHadnler()
             => await Ping();
 
-        [SlashCommand("add", "Add song/playlist to the queue")]
-        public async Task AddHandler()
-            => await Ping();
+        [SlashCommand("add", "Add song to the queue")]
+        public async Task AddHandler(
+            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+        ) => await PlayerQueueSongAdd(songValue);
+
+        [SlashCommand("add-playlist", "Add playlist to the queue")]
+        public async Task AddPlaylistHandler(
+            [Summary("playlist", "Playlist id or name")] string playlistValue
+        ) => await PlayerQueuePlaylistAdd(playlistValue);
 
         [SlashCommand("connect", "Connect speaker to your voice channel")]
         public async Task ConnectHandler()
-            => await Ping();
+            => await Connect();
 
         [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
         public async Task DisconnectHandler()

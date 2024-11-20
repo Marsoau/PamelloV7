@@ -10,6 +10,28 @@ namespace PamelloV7.Server.Repositories
 
         }
 
+        public PamelloPlaylist? GetByName(string name) {
+            var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);
+            if (pamelloPlaylist is not null) return pamelloPlaylist;
+
+            var databasePlaylist = _nonloaded.FirstOrDefault(playlist => playlist.Name == name);
+            if (databasePlaylist is null) return null;
+
+            return Load(databasePlaylist);
+        }
+
+        public PamelloPlaylist? GetByValue(string value) {
+            PamelloPlaylist? playlist = null;
+
+            if (int.TryParse(value, out int id)) {
+                playlist = Get(id);
+            }
+
+            playlist ??= GetByName(value);
+
+            return playlist;
+        }
+
         public override PamelloPlaylist Load(DatabasePlaylist databasePlaylist) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Id == databasePlaylist.Id);
             if (pamelloPlaylist is not null) return pamelloPlaylist;

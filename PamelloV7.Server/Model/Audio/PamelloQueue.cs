@@ -1,5 +1,6 @@
 ﻿using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Repositories;
+using System.Text;
 
 namespace PamelloV7.Server.Model.Audio
 {
@@ -10,7 +11,7 @@ namespace PamelloV7.Server.Model.Audio
         private readonly PamelloPlayer _player;
 
         private readonly PamelloSongRepository _songs;
-        private readonly List<PamelloAudio> _audios;
+        private readonly List<PamelloSong> _audios;
 
         private bool _isRandom;
         private bool _isReversed;
@@ -56,23 +57,34 @@ namespace PamelloV7.Server.Model.Audio
         private PamelloAudio? _current;
         public PamelloAudio? Current {
             get => _current;
-            private set {
-                if (_current is not null) {
-                    UnsubscribeCurrentAudioEvents();
-                }
+        }
 
-                _current?.Clean();
-                _current = value;
+        public int Count {
+            get => _audios.Count;
+        }
 
-                //event
-
-                if (_current is not null) {
-                    SubscribeCurrentAudioEvents();
-                }
-
-                Current_Position_OnSecondTick();
-                Current_Duration_OnSecondTick();
+        public void SetCurrent(PamelloSong? song) {
+            if (_current is not null) {
+                UnsubscribeCurrentAudioEvents();
             }
+
+            _current?.Clean();
+            if (song is null) {
+                _current = null;
+            }
+            else {
+                var audio = new PamelloAudio(_services, song);
+                _current = audio;
+            }
+
+            //event
+
+            if (_current is not null) {
+                SubscribeCurrentAudioEvents();
+            }
+
+            Current_Position_OnSecondTick();
+            Current_Duration_OnSecondTick();
         }
 
         public PamelloQueue(IServiceProvider services, PamelloPlayer parrentPlayer) {
@@ -85,7 +97,7 @@ namespace PamelloV7.Server.Model.Audio
             _isReversed = false;
             _isNoLeftovers = true;
 
-            _audios = new List<PamelloAudio>();
+            _audios = new List<PamelloSong>();
         }
 
         public void SubscribeCurrentAudioEvents() {
@@ -106,7 +118,7 @@ namespace PamelloV7.Server.Model.Audio
 
         }
         private void Current_Position_OnSecondTick() {
-            //Console.WriteLine($"tick {Current?.Position}");
+
         }
 
 
@@ -124,16 +136,17 @@ namespace PamelloV7.Server.Model.Audio
         public void AddPlaylist(PamelloPlaylist playlist)
             => InsertPlaylist(_audios.Count, playlist);
 
+        public PamelloSong? At(int position)
+            => _audios.ElementAtOrDefault(position);
+
         public void InsertSong(int position, PamelloSong song) {
             if (song is null) return;
 
-			var songAudio = new PamelloAudio(_services, song);
-
             var insertPosition = NormalizeQueuePosition(position, true);
-            _audios.Insert(insertPosition, songAudio);
+            _audios.Insert(insertPosition, song);
 
 			if (_audios.Count == 1) {
-				Current = _audios.FirstOrDefault();
+				SetCurrent(_audios.FirstOrDefault());
                 Position = 0;
 			}
 			else if (insertPosition <= Position) Position++;
@@ -151,11 +164,11 @@ namespace PamelloV7.Server.Model.Audio
 
             var playlistSongs = playlist.Songs;
             foreach (var song in playlistSongs) {
-				_audios.Insert(insertPosition++, new PamelloAudio(_services, song));
+				_audios.Insert(insertPosition++, song);
             }
 
 			if (queueWasEmpty) {
-				Current = _audios.FirstOrDefault();
+				SetCurrent(_audios.FirstOrDefault());
             }
 			else if (positionMustBeMoved) {
 				Position += playlistSongs.Count;
@@ -169,13 +182,13 @@ namespace PamelloV7.Server.Model.Audio
 
             PamelloSong? song;
 			if (_audios.Count == 1) {
-				song = _audios.First().Song;
+				song = _audios.First();
 				Clear();
                 return song;
 			}
 
 			songPosition = NormalizeQueuePosition(songPosition);
-			song = _audios[songPosition].Song;
+			song = _audios[songPosition];
 			
 			if (Position == songPosition) GoToNextSong(true);
 			else {
@@ -237,9 +250,11 @@ namespace PamelloV7.Server.Model.Audio
 			if (returnBack && Position != nextPosition) NextPositionRequest = Position;
 
             Position = nextPosition;
-			Current = _audios[Position];
+            var song = _audios[Position];
 
-            return Current.Song;
+            SetCurrent(song);
+
+            return song;
 		}
 		public PamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
 			if (_audios.Count == 0) return null;
@@ -266,20 +281,43 @@ namespace PamelloV7.Server.Model.Audio
             nextPosition = NormalizeQueuePosition(nextPosition);
 
 			if (_audios.Count == 0) {
-				Current = null;
+                SetCurrent(null);
 				return null;
 			}
 
 			Position = nextPosition;
-			Current = _audios[Position];
+            var song = _audios[Position];
 
-			return Current.Song;
+            SetCurrent(song);
+
+			return song;
 		}
+
+        public string GetQueuePage(int page, int elementCount) {
+            var sb = new StringBuilder();
+
+            var start = page * elementCount;
+            var end = (page + 1) * elementCount;
+
+            if (end > _audios.Count) {
+                end = _audios.Count;
+            }
+
+            var pageSongs = _audios.Slice(start, end - start);
+            var pos = page * elementCount;
+
+            foreach (var song in pageSongs) {
+                sb.AppendLine($"`{pos}` {(Position == pos ? "**now >**" : "-")} [{song.Name}](https://www.youtube.com/watch?v={song.YoutubeId})");
+                pos++;
+            }
+
+            return sb.ToString();
+        }
 
 		public void Clear() {
 			_audios.Clear();
 
-			Current = null;
+            SetCurrent(null);
             Position = 0;
 
             //event

@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Repositories;
 
 namespace PamelloV7.Server.Services
 {
@@ -9,12 +10,16 @@ namespace PamelloV7.Server.Services
 
         private readonly DiscordClientService _discordClients;
 
+        private readonly PamelloPlayerRepository _players;
+
         private readonly List<PamelloSpeaker> _speakers;
 
         public PamelloSpeakerService(IServiceProvider services) {
             _services = services;
 
             _discordClients = services.GetRequiredService<DiscordClientService>();
+
+            _players = services.GetRequiredService<PamelloPlayerRepository>();
 
             _speakers = new List<PamelloSpeaker>();
         }
@@ -26,8 +31,14 @@ namespace PamelloV7.Server.Services
             var speaker = new PamelloSpeaker(_services, client, guild.Id, channel);
             await speaker.InitialConnect(vcId);
 
+            speaker.Terminated += Speaker_Terminated;
             _speakers.Add(speaker);
+
             return true;
+        }
+
+        private void Speaker_Terminated(PamelloSpeaker speaker) {
+            _speakers.Remove(speaker);
         }
 
         public async Task<bool> ConnectSpeaker(PamelloPlayer player, ulong guildId, ulong vcId) {
@@ -66,6 +77,18 @@ namespace PamelloV7.Server.Services
                     await speaker.PlayBytesAsync(audio);
                 }
             }
+        }
+
+        public List<PamelloPlayer> GetVoicePlayers(ulong vcId) {
+            HashSet<int> channels = new HashSet<int>();
+
+            foreach (var speaker in _speakers) {
+                if (speaker.Voice.Id == vcId) {
+                    channels.Add(speaker.Channel);
+                }
+            }
+
+            return channels.Select(_players.GetRequired).ToList();
         }
     }
 }

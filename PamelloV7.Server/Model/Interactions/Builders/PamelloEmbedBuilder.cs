@@ -22,7 +22,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 Title = header,
                 Description = message,
             }
-            .WithColor(0x007272FF);
+            .WithColor(0x00A795AC);
         }
         public static EmbedBuilder Page(string header, string content, int? page = null, int? totalPages = null) {
             return Info(header, content)

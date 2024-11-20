@@ -19,6 +19,8 @@ namespace PamelloV7.Server.Model.Audio
             get => _audioOutput is not null;
         }
 
+        public event Action<PamelloSpeaker>? Terminated;
+
         public PamelloSpeaker(IServiceProvider services,
             DiscordSocketClient client,
             ulong guildId,
@@ -30,10 +32,22 @@ namespace PamelloV7.Server.Model.Audio
             Channel = channel;
 
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
+            Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
+        }
+
+        private async Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState fromVc, SocketVoiceState toVc) {
+            if (user.Id != Client.CurrentUser.Id) return;
+            Console.WriteLine("> UVSU <");
+
+            if (toVc.VoiceChannel is null) {
+                _audioOutput = null;
+                Terminated?.Invoke(this);
+            }
         }
 
         private async Task Client_VoiceServerUpdated(SocketVoiceServer voiceServer) {
             if (voiceServer.Guild.Id != Guild.Id) return;
+            Console.WriteLine("> VSU <");
 
             //Console.WriteLine($"voice server changed, audio client: {Guild.AudioClient?.ConnectionState.ToString() ?? "No audio client"}; Audio stream is not null: {_audioOutput is not null};");
             if (Guild.AudioClient is not null) {
@@ -43,6 +57,8 @@ namespace PamelloV7.Server.Model.Audio
 
             if (Voice is not null) await Voice.DisconnectAsync();
             _audioOutput = null;
+
+            Terminated?.Invoke(this);
         }
 
         private Task AudioClient_Connected() {
@@ -67,6 +83,8 @@ namespace PamelloV7.Server.Model.Audio
 
                 if (Voice is not null) await Voice.DisconnectAsync();
                 _audioOutput = null;
+
+                Terminated?.Invoke(this);
             }
         }
     }

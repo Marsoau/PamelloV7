@@ -68,6 +68,27 @@
             return new AudioTime(time.TimeValue * scalar);
         }
 
+        public static AudioTime? FromStrTime(string strTime) {
+            var segments = strTime.Split(':').Reverse().ToArray();
+            var seconds = 0;
+
+            try {
+                if (segments.Length >= 1) {
+                    seconds += int.Parse(segments[0]);
+                }
+                if (segments.Count() >= 2) {
+                    seconds += int.Parse(segments[1]) * 60;
+                }
+                if (segments.Count() == 3) {
+                    seconds += int.Parse(segments[2]) * 3600;
+                }
+            }
+            catch {
+                return null;
+            }
+
+            return new AudioTime(seconds);
+        }
 
         public override string ToString()
         {

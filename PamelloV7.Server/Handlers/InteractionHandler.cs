@@ -6,6 +6,8 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Services;
+using Discord;
+using PamelloV7.Server.Exceptions;
 
 namespace PamelloV7.Server.Handlers
 {
@@ -37,6 +39,7 @@ namespace PamelloV7.Server.Handlers
 			await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
 			_clients.MainClient.InteractionCreated += InteractionCreated;
+            _commands.SlashCommandExecuted += SlashCommandExecuted;
         }
 
         private async Task InteractionCreated(SocketInteraction interaction) {
@@ -64,5 +67,19 @@ namespace PamelloV7.Server.Handlers
 
 			await _commands.ExecuteCommandAsync(pamelloContext, _services);
         }
+
+        private async Task SlashCommandExecuted(SlashCommandInfo commandInfo, IInteractionContext context, Discord.Interactions.IResult result) {
+			SocketInteraction interaction = context.Interaction as SocketInteraction ?? throw new Exception("tf");
+
+			if (!result.IsSuccess && result is ExecuteResult executionResult) {
+                if (executionResult.Exception?.InnerException is PamelloException pamelloException) {
+                    await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildError(pamelloException.Message));
+                }
+                else {
+                    await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Exception occured"));
+                    Console.WriteLine(executionResult.Exception?.InnerException);
+                }
+            }
+		}
     }
 }
