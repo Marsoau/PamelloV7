@@ -1,4 +1,5 @@
 ﻿using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
@@ -80,5 +81,9 @@ namespace PamelloV7.Server.Model
         public override object DTO => new {
             Name = "gay"
         };
+
+        public override DiscordString ToDiscordString() {
+            return DiscordString.Url(Name, $"https://www.youtube.com/watch?v={YoutubeId}") + " " + DiscordString.Code($"[{Id}]");
+        }
     }
 }

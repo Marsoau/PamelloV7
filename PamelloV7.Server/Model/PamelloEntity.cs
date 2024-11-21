@@ -1,11 +1,12 @@
 ﻿using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
-    public abstract class PamelloEntity<T> : IDTOEntity where T : DatabaseEntity
+    public abstract class PamelloEntity<T> : IEntity where T : DatabaseEntity
     {
         protected internal readonly T Entity;
 
@@ -36,6 +37,10 @@ namespace PamelloV7.Server.Model
         protected void Save() => _database.SaveChanges();
 
         public abstract object? DTO { get; }
+
+        public virtual DiscordString ToDiscordString() {
+            return DiscordString.Bold(Name) + " " + DiscordString.Code($"[{Id}]");
+        }
 
         public override string ToString() {
             return $"[{Id}] {Name}";

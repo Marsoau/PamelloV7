@@ -4,8 +4,8 @@ namespace PamelloV7.Server.Model.Interactions.Builders
 {
     public static class PamelloEmbedBuilder
     {
-        public static Embed BuildInfo(string header, string message = "") {
-            return Info(header, message).Build();
+        public static Embed BuildInfo(string header, string message = "", string description = "") {
+            return Info(header, message, description).Build();
         }
         public static Embed BuildPage(string header, string message = "", int? page = null, int? totalPages = null) {
             return Page(header, message, page, totalPages).Build();
@@ -17,10 +17,13 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             return Exception(message).Build();
         }
 
-        public static EmbedBuilder Info(string header, string message) {
+        public static EmbedBuilder Info(string header, string message, string description = "") {
             return new EmbedBuilder() {
                 Title = header,
                 Description = message,
+                Footer = new EmbedFooterBuilder() {
+                    Text = description,
+                }
             }
             .WithColor(0x00A795AC);
         }

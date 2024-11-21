@@ -1,9 +1,10 @@
 ﻿using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
 {
-    public class PamelloPlayer
+    public class PamelloPlayer : IEntity
     {
         private readonly YoutubeDownloadService _downloader;
         private readonly PamelloSpeakerService _speakers;
@@ -38,6 +39,8 @@ namespace PamelloV7.Server.Model.Audio
         public IReadOnlyList<PamelloUser> Users {
             get => throw new NotImplementedException();
         }
+
+        public object? DTO => throw new NotImplementedException();
 
         private static int _idCounter = 1;
 
@@ -118,6 +121,10 @@ namespace PamelloV7.Server.Model.Audio
 
         public override string ToString() {
             return $"[{Id}] {Name}";
+        }
+
+        public DiscordString ToDiscordString() {
+            return DiscordString.Bold(Name) + " " + DiscordString.Code($"[{Id}]");
         }
     }
 }

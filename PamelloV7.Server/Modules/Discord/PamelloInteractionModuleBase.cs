@@ -8,6 +8,8 @@ using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Model;
+using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -48,9 +50,19 @@ namespace PamelloV7.Server.Modules.Discord
         protected async Task Respond(Embed embed) {
             await ModifyOriginalResponseAsync(message => message.Embed = embed);
         }
-        protected async Task RespondInfo(string message, bool bold = false) {
+        protected async Task RespondPlayerInfo(object message, bool bold = true) {
+            if (bold) await RespondPlayerInfo(message, "");
+            else await RespondPlayerInfo("", message);
+        }
+        protected async Task RespondPlayerInfo(object header, object message) {
+            await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? "", $"Selected player: {Player.Name} [{Player.Id}]"));
+        }
+        protected async Task RespondInfo(object message, bool bold = false) {
             if (bold) await RespondInfo(message, "");
             else await RespondInfo("", message);
+        }
+        protected async Task RespondInfo(object header, object message) {
+            await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? ""));
         }
         protected async Task RespondPage(string header, string content, int? page, int? totalPages) {
             await Respond(
@@ -63,9 +75,6 @@ namespace PamelloV7.Server.Modules.Discord
                 .Build()
             );
         }
-        protected async Task RespondInfo(string header, string message) {
-            await Respond(PamelloEmbedBuilder.BuildInfo(header, message));
-        }
 
         //general
         public async Task Ping()
@@ -74,12 +83,14 @@ namespace PamelloV7.Server.Modules.Discord
         }
 
         public async Task Connect() {
+            Context.User.TryLoadLastPlayer();
+
             if (!await Commands.SpeakerConnect()) {
-                await RespondInfo("Cant connect");
+                await RespondPlayerInfo("Cant connect");
                 return;
             }
 
-            await RespondInfo("Connected");
+            await RespondPlayerInfo("Connected");
         }
 
         public async Task GetCode()
@@ -101,7 +112,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             await Commands.PlayerSelect(player?.Id);
 
-            await RespondInfo("Select Player", $"Player `{player}` selected");
+            await RespondInfo("Select Player", $"Player {player?.ToDiscordString()} selected");
         }
         public async Task PlayerCreate(string name)
         {
@@ -109,7 +120,7 @@ namespace PamelloV7.Server.Modules.Discord
             await Commands.PlayerSelect(playerId);
 
             var player = _players.GetRequired(playerId);
-            await RespondInfo("Select Player", $"Player `{player}` created and selected");
+            await RespondInfo("Select Player", $"Player {player?.ToDiscordString()} created and selected");
         }
         public async Task PlayerDelete(string playerValue)
         {
@@ -118,11 +129,11 @@ namespace PamelloV7.Server.Modules.Discord
 
         public async Task PlayerResume() {
             await Commands.PlayerResume();
-            await RespondInfo("Resumed");
+            await RespondPlayerInfo("Resumed");
         }
         public async Task PlayerPause() {
             await Commands.PlayerPause();
-            await RespondInfo("Paused");
+            await RespondPlayerInfo("Paused");
         }
 
         public async Task PlayerSkip()
@@ -132,28 +143,28 @@ namespace PamelloV7.Server.Modules.Discord
 
             var song = _songs.GetRequired(songId.Value);
 
-            await RespondInfo("Skip", $"Song `{song}` skipped");
+            await RespondPlayerInfo("Skip", $"Song {song.ToDiscordString()} skipped");
         }
         public async Task PlayerGoTo(int songPosition, bool returnBack)
         {
             var songId = await Commands.PlayerGoTo(songPosition, returnBack);
             var song = _songs.GetRequired(songId);
 
-            await RespondInfo("Go To", $"Playing `{song}`");
+            await RespondPlayerInfo("Go To", $"Playing {song.ToDiscordString()}");
         }
         public async Task PlayerNext()
         {
             var songId = await Commands.PlayerNext();
             var song = _songs.GetRequired(songId);
 
-            await RespondInfo("Next", $"Playing `{song}`");
+            await RespondPlayerInfo("Next", $"Playing {song.ToDiscordString()}");
         }
         public async Task PlayerPrev()
         {
             var songId = await Commands.PlayerPrev();
             var song = _songs.GetRequired(songId);
 
-            await RespondInfo("Previous", $"Playing `{song}`");
+            await RespondPlayerInfo("Previous", $"Playing {song.ToDiscordString()}");
         }
         public async Task PlayerGoToEpisode(int episodePosition)
         {
@@ -161,7 +172,7 @@ namespace PamelloV7.Server.Modules.Discord
             var episode = Player.Queue.Current?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
-            await RespondInfo("Go To Episode", $"Playing `{episode}`");
+            await RespondPlayerInfo("Go To Episode", $"Playing {episode.ToDiscordString()}");
         }
         public async Task PlayerNextEpisode()
         {
@@ -169,7 +180,7 @@ namespace PamelloV7.Server.Modules.Discord
             var episode = Player.Queue.Current?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
-            await RespondInfo("Next Episode", $"Playing `{episode}`");
+            await RespondPlayerInfo("Next Episode", $"Playing {episode.ToDiscordString()}");
         }
         public async Task PlayerPrevEpisode()
         {
@@ -177,7 +188,7 @@ namespace PamelloV7.Server.Modules.Discord
             var episode = Player.Queue.Current?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
-            await RespondInfo("Previous Episode", $"Playing `{episode}`");
+            await RespondPlayerInfo("Previous Episode", $"Playing {episode.ToDiscordString()}");
         }
         public async Task PlayerRewind(string strTime)
         {
@@ -186,7 +197,7 @@ namespace PamelloV7.Server.Modules.Discord
             
             await Commands.PlayerRewind(time.Value.TotalSeconds);
 
-            await RespondInfo("Player Rewind", $"Rewinded to `{time}`");
+            await RespondPlayerInfo("Player Rewind", $"Rewinded to {DiscordString.Code(time)}");
         }
 
         public async Task PlayerQueueSongAdd(string songValue)
@@ -196,7 +207,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             await Commands.PlayerQueueSongAdd(song.Id);
 
-            await RespondInfo("Add song to the queue", $"Added `{song}`");
+            await RespondPlayerInfo("Add song to the queue", $"Added {song.ToDiscordString()}");
         }
         public async Task PlayerQueueSongInsert(int position, string songValue)
         {
@@ -205,7 +216,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             await Commands.PlayerQueueSongInsert(position, song.Id);
 
-            await RespondInfo("Insert song to the queue", $"Added `{song}`");
+            await RespondPlayerInfo("Insert song to the queue", $"Added {song.ToDiscordString()}");
         }
         public async Task PlayerQueuePlaylistAdd(string playlistValue)
         {
@@ -214,7 +225,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             await Commands.PlayerQueueSongAdd(playlist.Id);
 
-            await RespondInfo("Add song to the queue", $"Added `{playlist}`");
+            await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
         public async Task PlayerQueuePlaylistInsert(int position, string playlistValue)
         {
@@ -223,44 +234,44 @@ namespace PamelloV7.Server.Modules.Discord
 
             await Commands.PlayerQueuePlaylistInsert(position, playlist.Id);
 
-            await RespondInfo("Add song to the queue", $"Added `{playlist}`");
+            await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
         public async Task PlayerQueueSongRemove(int position)
         {
             var songId = await Commands.PlayerQueueSongRemove(position);
 
             var song = _songs.GetRequired(songId);
-            await RespondInfo("Remove song from queue", $"Removed `{song}`");
+            await RespondPlayerInfo("Remove song from queue", $"Removed {song.ToDiscordString()}");
         }
         public async Task PlayerQueueSongMove(int fromPosition, int toPosition)
         {
             await Commands.PlayerQueueSongMove(fromPosition, toPosition);
 
-            await RespondInfo("Move songs", $"Moved song from position `{fromPosition}` to `{toPosition}`");
+            await RespondPlayerInfo("Move songs", $"Moved song from position `{fromPosition}` to `{toPosition}`");
         }
         public async Task PlayerQueueSongSwap(int inPosition, int withPosition)
         {
             await Commands.PlayerQueueSongMove(inPosition, withPosition);
 
-            await RespondInfo("Swap songs", $"Swaped song in position `{inPosition}` with `{withPosition}`");
+            await RespondPlayerInfo("Swap songs", $"Swaped song in position `{inPosition}` with `{withPosition}`");
         }
         public async Task PlayerQueueSongRequestNext(int? position)
         {
             await Commands.PlayerQueueSongRequestNext(position);
 
             if (Player.Queue.NextPositionRequest is null) {
-                await RespondInfo("Next song request", "Next song will be played according to queue mode");
+                await RespondPlayerInfo("Next song request", "Next song will be played according to queue mode");
             }
             else {
-                await RespondInfo("Next song request", $"`{Player.Queue.At(Player.Queue.NextPositionRequest.Value)}` will be played next");
+                await RespondPlayerInfo("Next song request", $"{Player.Queue.At(Player.Queue.NextPositionRequest.Value)?.ToDiscordString()} will be played next");
             }
         }
 
         public async Task RespondQueueMode() {
-            await RespondInfo("Queue modes", $@"Random: {(Player.Queue.IsRandom ? "Enabled" : "Disabled")}
-Reversed: {(Player.Queue.IsReversed ? "Enabled" : "Disabled")}
-No Leftoves: {(Player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
-Feed Random: {(Player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}");
+            await RespondPlayerInfo("Queue modes", $@"Random: {DiscordString.Code(Player.Queue.IsRandom ? "Enabled" : "Disabled")}
+Reversed: {DiscordString.Code(Player.Queue.IsReversed ? "Enabled" : "Disabled")}
+No Leftoves: {DiscordString.Code(Player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
+Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}");
         }
         public async Task PlayerQueueRandom(EBoolState state)
         {
@@ -292,13 +303,13 @@ Feed Random: {(Player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}");
         {
             await Commands.PlayerQueueSuffle();
 
-            await RespondInfo("Queue suffled");
+            await RespondPlayerInfo("Queue suffled");
         }
         public async Task PlayerQueueClear()
         {
             await Commands.PlayerQueueClear();
 
-            await RespondInfo("Queue cleared");
+            await RespondPlayerInfo("Queue cleared");
         }
 
         //song

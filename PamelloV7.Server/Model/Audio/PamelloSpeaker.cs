@@ -1,5 +1,6 @@
 ﻿using Discord.Audio;
 using Discord.WebSocket;
+using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio
 {
@@ -86,6 +87,10 @@ namespace PamelloV7.Server.Model.Audio
 
                 Terminated?.Invoke(this);
             }
+        }
+
+        public string ToDiscordString() {
+            return "";
         }
     }
 }

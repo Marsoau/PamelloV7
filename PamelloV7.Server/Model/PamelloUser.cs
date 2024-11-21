@@ -68,11 +68,16 @@ namespace PamelloV7.Server.Model
             get => Entity.FavoritePlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
         }
 
+        private PamelloPlayer? _previousPlayer;
         private PamelloPlayer? _selectedPlayer;
         public PamelloPlayer? SelectedPlayer {
             get => _selectedPlayer;
             set {
                 if (_selectedPlayer == value) return;
+
+                if (value is null && _selectedPlayer is not null) {
+                    _previousPlayer = _selectedPlayer;
+                }
 
                 _selectedPlayer = value;
 
@@ -95,6 +100,11 @@ namespace PamelloV7.Server.Model
             _players = services.GetRequiredService<PamelloPlayerRepository>();
         }
 
+        public void TryLoadLastPlayer() {
+            if (SelectedPlayer is null && _previousPlayer is not null) {
+                SelectedPlayer = _previousPlayer;
+            }
+        }
         private PamelloPlayer EnsurePlayerExist() {
             if (SelectedPlayer is not null) return SelectedPlayer;
 

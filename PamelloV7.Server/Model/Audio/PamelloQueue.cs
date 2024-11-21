@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Repositories;
 using System.Text;
 
@@ -348,7 +349,18 @@ namespace PamelloV7.Server.Model.Audio
             var pos = page * elementCount;
 
             foreach (var song in pageSongs) {
-                sb.AppendLine($"`{pos}` {(Position == pos ? "**now >**" : "-")} [{song.Name}](https://www.youtube.com/watch?v={song.YoutubeId})");
+                sb.Append(DiscordString.Code(pos));
+                if (Position == pos) {
+                    sb.Append(
+                        (" now > " + song.ToDiscordString()).Bold()
+                    );
+                }
+                else {
+                    sb.Append(" - ");
+                    sb.Append(song.ToDiscordString());
+                }
+
+                sb.AppendLine();
                 pos++;
             }
 

@@ -26,7 +26,7 @@ namespace PamelloV7.Server.Controllers
         }
 
         private IActionResult HandleGetByIdRequest<T>(IPamelloRepository<T> repository)
-            where T : IDTOEntity
+            where T : IEntity
         {
 			var qId = Request.Query["id"].FirstOrDefault();
 			if (qId is null) {
