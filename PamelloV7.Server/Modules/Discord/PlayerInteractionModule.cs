@@ -19,6 +19,12 @@ namespace PamelloV7.Server.Modules.Discord
             [Summary("name", "New player name")] string name
         ) => await PlayerCreate(name);
 
+        [SlashCommand("list", "Create new player")]
+        public async Task PlayerListHandler(
+            [Summary("querry", "Player list search querry")] string querry = "",
+            [Summary("page", "Page of the players list")] int page = 0
+        ) => await PlayerList(querry, page);
+
         [SlashCommand("delete", "Delete player")]
         public async Task PlayerDeleteHandler(
             [Summary("player", "Player id or name")] string playerValue
@@ -131,7 +137,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             [SlashCommand("list", "Get queue songs list")]
             public async Task PlayerQueueSuffleHandler(
-                [Summary("page", "Page of the songs list")] int page
+                [Summary("page", "Page of the songs list")] int? page
             ) => await PlayerQueueList(page);
 
             public async Task PlayerQueueSuffleHandler(

@@ -10,6 +10,7 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Discord;
+using System.Text;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -64,16 +65,8 @@ namespace PamelloV7.Server.Modules.Discord
         protected async Task RespondInfo(object header, object message) {
             await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? ""));
         }
-        protected async Task RespondPage(string header, string content, int? page, int? totalPages) {
-            await Respond(
-                PamelloEmbedBuilder.Info(header, content)
-                .WithFooter($"{
-					(page is not null ? $"page {page}" : "")
-				}{
-					(totalPages is not null ? $" / {totalPages}" : "")
-				}")
-                .Build()
-            );
+        protected async Task RespondPage<T>(string header, List<T> content, Action<StringBuilder, int, T> tostr, int page = 0, int count = 20) {
+            await Respond(PamelloEmbedBuilder.BuildPage(header, content, tostr, count, page));
         }
 
         //general
@@ -121,6 +114,17 @@ namespace PamelloV7.Server.Modules.Discord
 
             var player = _players.GetRequired(playerId);
             await RespondInfo("Select Player", $"Player {player?.ToDiscordString()} created and selected");
+        }
+        public async Task PlayerList(string querry, int page)
+        {
+            var results = _players.Search(querry, Context.User);
+
+            await RespondPage(
+                "Players",
+                results,
+                (sb, pos, player) => sb.AppendLine(player.ToDiscordString().ToString()),
+                page - 1
+            );
         }
         public async Task PlayerDelete(string playerValue)
         {
@@ -294,10 +298,10 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondQueueMode();
         }
 
-        public async Task PlayerQueueList(int page) {
-            var pageContent = Player.Queue.GetQueuePage(page, 20);
+        public async Task PlayerQueueList(int? page) {
+            var pageBuilder = Player.Queue.QueuePageBuilder(page ?? 0, 20);
 
-            await RespondPage("Queue", pageContent, page, Player.Queue.Count / 20 + (Player.Queue.Count % 20 != 0 ? 1 : 0));
+            await Respond(pageBuilder.Build());
         }
         public async Task PlayerQueueSuffle()
         {

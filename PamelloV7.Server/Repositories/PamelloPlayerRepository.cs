@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Repositories
             return _players.FirstOrDefault(player => player.Name == name);
         }
 
-        protected List<PamelloPlayer> Search(string querry, PamelloUser scopeUser) {
+        public List<PamelloPlayer> Search(string querry, PamelloUser scopeUser) {
             var results = new List<PamelloPlayer>();
             querry = querry.ToLower();
 

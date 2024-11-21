@@ -1,5 +1,7 @@
-﻿using PamelloV7.Server.Exceptions;
+﻿using Discord;
+using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model.Discord;
+using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Repositories;
 using System.Text;
 
@@ -335,36 +337,28 @@ namespace PamelloV7.Server.Model.Audio
 			return song;
 		}
 
-        public string GetQueuePage(int page, int elementCount) {
-            var sb = new StringBuilder();
+        public EmbedBuilder QueuePageBuilder(int page, int elementCount) {
+            var embedBuilder = PamelloEmbedBuilder.Page(
+                "Queue",
+                _audios,
+                (sb, pos, song) => {
+                    sb.Append(DiscordString.Code(pos));
+                    if (Position == pos) {
+                        sb.Append(
+                            (" now > " + song.ToDiscordString()).Bold()
+                        );
+                    }
+                    else {
+                        sb.Append(" - ");
+                        sb.Append(song.ToDiscordString());
+                    }
 
-            var start = page * elementCount;
-            var end = (page + 1) * elementCount;
-
-            if (end > _audios.Count) {
-                end = _audios.Count;
-            }
-
-            var pageSongs = _audios.Slice(start, end - start);
-            var pos = page * elementCount;
-
-            foreach (var song in pageSongs) {
-                sb.Append(DiscordString.Code(pos));
-                if (Position == pos) {
-                    sb.Append(
-                        (" now > " + song.ToDiscordString()).Bold()
-                    );
+                    sb.AppendLine();
                 }
-                else {
-                    sb.Append(" - ");
-                    sb.Append(song.ToDiscordString());
-                }
+            );
+            embedBuilder.Footer.Text += $" | Player: {_player.Name} [{_player.Id}]";
 
-                sb.AppendLine();
-                pos++;
-            }
-
-            return sb.ToString();
+            return embedBuilder;
         }
 
 		public void Clear() {
