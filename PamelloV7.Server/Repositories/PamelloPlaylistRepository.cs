@@ -31,6 +31,20 @@ namespace PamelloV7.Server.Repositories
 
             return playlist;
         }
+        public List<PamelloPlaylist> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null) {
+            LoadAll();
+
+            IEnumerable<PamelloPlaylist> list = _loaded;
+
+            if (ownedBy is not null) {
+                list = list.Where(playlist => playlist.OwnedBy.Id == ownedBy.Id);
+            }
+            if (favoriteBy is not null) {
+                list = list.Where(playlist => playlist.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
+            }
+
+            return Search(list, querry);
+        }
 
         public override PamelloPlaylist Load(DatabasePlaylist databasePlaylist) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Id == databasePlaylist.Id);

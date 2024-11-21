@@ -46,18 +46,17 @@ namespace PamelloV7.Server.Services
 
         private async Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState fromVc, SocketVoiceState toVc) {
 			if (_speakers is null) return;
+			if (toVc.VoiceChannel is null) return;
 
 			var pamelloUser = _users.GetByDiscord(user.Id);
 			if (pamelloUser is null) return;
 
 			PamelloPlayer? player = null;
 
-			if (toVc.VoiceChannel is not null) {
-                var vcPlayers = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
-                if (vcPlayers.Count == 1) player = vcPlayers.First();
-			}
+            var vcPlayers = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
+            if (vcPlayers.Count == 1) player = vcPlayers.First();
 
-            Console.WriteLine($"VC Auto selected player {player?.ToString() ?? "NULL"} for {pamelloUser}");
+            Console.WriteLine($"VCC Auto selected player {player?.ToString() ?? "NULL"} for {pamelloUser}");
 			pamelloUser.SelectedPlayer = player;
 		}
 

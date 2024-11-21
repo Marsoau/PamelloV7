@@ -44,6 +44,32 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseEntity);
         }
 
+        protected List<TPamelloEntity> Search(IEnumerable<TPamelloEntity> list, string querry) {
+            var results = new List<TPamelloEntity>();
+            querry = querry.ToLower();
+
+            foreach (var pamelloEntity in list) {
+                if (pamelloEntity is null) continue;
+
+                if (pamelloEntity.Name.ToLower().Contains(querry)) {
+                    results.Add(pamelloEntity);
+                }
+            }
+
+            return results;
+        }
+        public virtual List<TPamelloEntity> Search(string querry) {
+            LoadAll();
+
+            return Search(_loaded, querry);
+        }
+
+        protected void LoadAll() {
+            foreach (var databaseEntity in _nonloaded) {
+                Load(databaseEntity);
+            }
+        }
+
         public abstract TPamelloEntity? Load(TDatabaseEntity databaseEntity);
 
         public abstract void Delete(int id);

@@ -112,6 +112,22 @@ namespace PamelloV7.Server.Repositories
 		}
 
         public override void Delete(int id) => throw new NotImplementedException();
+
+        public List<PamelloSong> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null) {
+            LoadAll();
+
+            IEnumerable<PamelloSong> list = _loaded;
+
+            if (addedBy is not null) {
+                list = list.Where(song => song.AddedBy.Id == addedBy.Id);
+            }
+            if (favoriteBy is not null) {
+                list = list.Where(song => song.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
+            }
+
+            return Search(list, querry);
+        }
+
         public override PamelloSong Load(DatabaseSong databaseSong) {
             var pamelloSong = _loaded.FirstOrDefault(song => song.Id == databaseSong.Id);
             if (pamelloSong is not null) return pamelloSong;

@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 
 namespace PamelloV7.Server.Repositories
@@ -37,6 +38,21 @@ namespace PamelloV7.Server.Repositories
 
         public PamelloPlayer? GetByName(string name) {
             return _players.FirstOrDefault(player => player.Name == name);
+        }
+
+        protected List<PamelloPlayer> Search(string querry, PamelloUser scopeUser) {
+            var results = new List<PamelloPlayer>();
+            querry = querry.ToLower();
+
+            foreach (var pamelloEntity in _players) {
+                if (pamelloEntity is null) continue;
+
+                if (pamelloEntity.Name.ToLower().Contains(querry)) {
+                    results.Add(pamelloEntity);
+                }
+            }
+
+            return results;
         }
 
         public PamelloPlayer? GetByValue(string value) {
