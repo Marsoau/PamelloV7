@@ -185,6 +185,10 @@ namespace PamelloV7.Server.Modules
         public async Task PlayerQueueNoLeftovers(bool value) {
             Player.Queue.IsNoLeftovers = value;
         }
+        [PamelloCommand]
+        public async Task PlayerQueueFeedRandom(bool value) {
+            Player.Queue.IsFeedRandom = value;
+        }
 
         [PamelloCommand]
         public async Task PlayerQueueSuffle() {

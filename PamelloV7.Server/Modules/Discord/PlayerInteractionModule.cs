@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Attributes;
 
 namespace PamelloV7.Server.Modules.Discord
@@ -109,13 +110,24 @@ namespace PamelloV7.Server.Modules.Discord
             ) => await PlayerQueueSongRequestNext(position);
 
             [SlashCommand("random", "Toggle random playback of queue songs")]
-            public async Task PlayerQueueRandomHandler() => await PlayerQueueRandom();
+            public async Task PlayerQueueRandomHandler(
+                [Summary("state", "Enable or disable mode")] EBoolState state
+            ) => await PlayerQueueRandom(state);
 
             [SlashCommand("reversed", "Toggle reversed playback of queue songs")]
-            public async Task PlayerQueueReversedHandler() => await PlayerQueueReversed();
+            public async Task PlayerQueueReversedHandler(
+                [Summary("state", "Enable or disable mode")] EBoolState state
+            ) => await PlayerQueueReversed(state);
 
             [SlashCommand("no-leftovers", "Toggle deletion of played songs from queue")]
-            public async Task PlayerQueueNoLeftoversHandler() => await PlayerQueueNoLeftovers();
+            public async Task PlayerQueueNoLeftoversHandler(
+                [Summary("state", "Enable or disable mode")] EBoolState state
+            ) => await PlayerQueueNoLeftovers(state);
+
+            [SlashCommand("feed-random", "Toggle deletion of played songs from queue")]
+            public async Task PlayerQueueFeedRandomHandler(
+                [Summary("state", "Enable or disable mode")] EBoolState state
+            ) => await PlayerQueueFeedRandom(state);
 
             [SlashCommand("list", "Get queue songs list")]
             public async Task PlayerQueueSuffleHandler(

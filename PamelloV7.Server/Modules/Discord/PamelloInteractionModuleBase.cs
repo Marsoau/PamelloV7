@@ -7,6 +7,7 @@ using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Enumerators;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -255,23 +256,31 @@ namespace PamelloV7.Server.Modules.Discord
             }
         }
 
-        public async Task PlayerQueueRandom()
-        {
-            await Commands.PlayerQueueRandom(!Player.Queue.IsRandom);
-
-            await RespondInfo("Random", (Player.Queue.IsRandom ? "Enabled" : "Disabled"));
+        public async Task RespondQueueMode() {
+            await RespondInfo("Queue modes", $@"Random: {(Player.Queue.IsRandom ? "Enabled" : "Disabled")}
+Reversed: {(Player.Queue.IsReversed ? "Enabled" : "Disabled")}
+No Leftoves: {(Player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
+Feed Random: {(Player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}");
         }
-        public async Task PlayerQueueReversed()
+        public async Task PlayerQueueRandom(EBoolState state)
         {
-            await Commands.PlayerQueueReversed(!Player.Queue.IsReversed);
-
-            await RespondInfo("Reversed", (Player.Queue.IsReversed ? "Enabled" : "Disabled"));
+            await Commands.PlayerQueueRandom(state == EBoolState.Enabled);
+            await RespondQueueMode();
         }
-        public async Task PlayerQueueNoLeftovers()
+        public async Task PlayerQueueReversed(EBoolState state)
         {
-            await Commands.PlayerQueueNoLeftovers(!Player.Queue.IsNoLeftovers);
-
-            await RespondInfo("No Leftovers", (Player.Queue.IsNoLeftovers ? "Enabled" : "Disabled"));
+            await Commands.PlayerQueueReversed(state == EBoolState.Enabled);
+            await RespondQueueMode();
+        }
+        public async Task PlayerQueueNoLeftovers(EBoolState state)
+        {
+            await Commands.PlayerQueueNoLeftovers(state == EBoolState.Enabled);
+            await RespondQueueMode();
+        }
+        public async Task PlayerQueueFeedRandom(EBoolState state)
+        {
+            await Commands.PlayerQueueFeedRandom(state == EBoolState.Enabled);
+            await RespondQueueMode();
         }
 
         public async Task PlayerQueueList(int page) {

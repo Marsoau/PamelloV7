@@ -69,6 +69,11 @@ namespace PamelloV7.Server.Repositories
             return song;
         }
 
+        public PamelloSong? GetRandom() {
+            var randomPosition = Random.Shared.Next(0, _nonloaded.Count);
+            return Load(_nonloaded[randomPosition]);
+        }
+
         public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {
             if (adder is null) return null;
 

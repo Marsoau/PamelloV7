@@ -16,6 +16,7 @@ namespace PamelloV7.Server.Model.Audio
         private bool _isRandom;
         private bool _isReversed;
         private bool _isNoLeftovers;
+        private bool _isFeedRandom;
 
         public bool IsRandom {
             get => _isRandom;
@@ -23,6 +24,11 @@ namespace PamelloV7.Server.Model.Audio
                 if (_isRandom == value) return;
 
                 _isRandom = value;
+
+                if (IsRandom) {
+                    IsReversed = false;
+                    IsFeedRandom = false;
+                }
             }
         }
         public bool IsReversed {
@@ -31,14 +37,39 @@ namespace PamelloV7.Server.Model.Audio
                 if (_isReversed == value) return;
 
                 _isReversed = value;
+
+                if (IsReversed) {
+                    IsRandom = false;
+                    IsFeedRandom = false;
+                }
             }
         }
-        public bool IsNoLeftovers{
+        public bool IsNoLeftovers {
             get => _isNoLeftovers;
             set {
                 if (_isNoLeftovers == value) return;
 
                 _isNoLeftovers = value;
+
+                if (!IsNoLeftovers) {
+                    IsFeedRandom = false;
+                }
+            }
+        }
+        public bool IsFeedRandom {
+            get => _isFeedRandom;
+            set {
+                if (_isFeedRandom == value) return;
+
+                _isFeedRandom = value;
+
+                if (IsFeedRandom) {
+                    IsNoLeftovers = true;
+
+                    if (_audios.Count == 0) {
+                        GoToNextSong();
+                    }
+                }
             }
         }
 
@@ -131,16 +162,16 @@ namespace PamelloV7.Server.Model.Audio
 			return position;
 		}
 
-        public void AddSong(PamelloSong song)
+        public PamelloSong AddSong(PamelloSong song)
             => InsertSong(_audios.Count, song);
-        public void AddPlaylist(PamelloPlaylist playlist)
+        public PamelloPlaylist AddPlaylist(PamelloPlaylist playlist)
             => InsertPlaylist(_audios.Count, playlist);
 
         public PamelloSong? At(int position)
             => _audios.ElementAtOrDefault(position);
 
-        public void InsertSong(int position, PamelloSong song) {
-            if (song is null) return;
+        public PamelloSong InsertSong(int position, PamelloSong song) {
+            if (song is null) return null;
 
             var insertPosition = NormalizeQueuePosition(position, true);
             _audios.Insert(insertPosition, song);
@@ -151,11 +182,11 @@ namespace PamelloV7.Server.Model.Audio
 			}
 			else if (insertPosition <= Position) Position++;
 
-            //event
+            return song;
 		}
 
-        public void InsertPlaylist(int position, PamelloPlaylist playlist) {
-            if (playlist is null) return;
+        public PamelloPlaylist InsertPlaylist(int position, PamelloPlaylist playlist) {
+            if (playlist is null) return null;
 
 			var insertPosition = NormalizeQueuePosition(position, true);
 
@@ -174,7 +205,7 @@ namespace PamelloV7.Server.Model.Audio
 				Position += playlistSongs.Count;
             }
 
-            //event
+            return playlist;
         }
 
         public PamelloSong RemoveSong(int songPosition) {
@@ -257,7 +288,14 @@ namespace PamelloV7.Server.Model.Audio
             return song;
 		}
 		public PamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
-			if (_audios.Count == 0) return null;
+            PamelloSong? song = null;
+
+			if (_audios.Count == 0) {
+                if (IsFeedRandom) {
+                    return AddSong(_songs.GetRandom());
+                }
+                else return null;
+            }
 
             int nextPosition;
 
@@ -278,16 +316,19 @@ namespace PamelloV7.Server.Model.Audio
                 //event
             }
 
-            nextPosition = NormalizeQueuePosition(nextPosition);
+			Position = NormalizeQueuePosition(nextPosition);
 
 			if (_audios.Count == 0) {
-                SetCurrent(null);
-				return null;
+                if (IsFeedRandom) {
+                    return AddSong(_songs.GetRandom());
+                }
+                else {
+                    SetCurrent(null);
+                    return null;
+                }
 			}
 
-			Position = nextPosition;
-            var song = _audios[Position];
-
+            song = _audios[Position];
             SetCurrent(song);
 
 			return song;
