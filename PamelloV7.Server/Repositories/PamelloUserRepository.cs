@@ -32,6 +32,8 @@ namespace PamelloV7.Server.Repositories
             var databaseUser = _nonloaded.FirstOrDefault(user => user.DiscordId == discordId);
             if (databaseUser is not null) return Load(databaseUser);
 
+            if (_discordClients.IsClientUser(discordId)) return null;
+
             var discordUser = _discordClients.MainClient.GetUser(discordId);
             if (discordUser is null) return null;
 

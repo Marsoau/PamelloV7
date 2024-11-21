@@ -114,6 +114,8 @@ namespace PamelloV7.Server
             var discordClients = services.GetRequiredService<DiscordClientService>();
             var config = services.GetRequiredService<PamelloServerConfig>();
 
+            discordClients.SubscriveToEvents();
+
             var users = services.GetRequiredService<PamelloUserRepository>();
             var songs = services.GetRequiredService<PamelloSongRepository>();
             var players = services.GetRequiredService<PamelloPlayerRepository>();
