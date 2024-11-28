@@ -114,6 +114,11 @@ namespace PamelloV7.Server.Modules.Discord
 
             await RespondInfo($"Player protection {DiscordString.Code(state)}");
         }
+
+        public async Task PlayerInfo() {
+            await Respond(PamelloEmbedBuilder.BuildPlayerInfo(Player));
+        }
+
         public async Task PlayerList(string querry, int page)
         {
             var results = _players.Search(querry, Context.User);

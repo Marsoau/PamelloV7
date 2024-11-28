@@ -46,9 +46,9 @@
             return obj?.ToString()
                 ?.Replace("_", @"\_")
                 ?.Replace("`", @"\`")
-                ?.Replace("~", @"\~")
+                ?.Replace("~~", @"\~\~")
                 ?.Replace("*", @"\*")
-                ?.Replace("|", @"\|")
+                ?.Replace("||", @"\|\|")
                 ?? "";
         }
 
@@ -79,10 +79,10 @@
             return _str;
         }
 
-        public static DiscordString operator +(DiscordString discordStr, string str) {
+        public static DiscordString operator +(DiscordString discordStr, string? str) {
             return new DiscordString(discordStr._str + str, true);
         }
-        public static DiscordString operator +(string str, DiscordString discordStr) {
+        public static DiscordString operator +(string? str, DiscordString discordStr) {
             return new DiscordString(str + discordStr._str, true);
         }
         public static DiscordString operator +(DiscordString strA, DiscordString strB) {

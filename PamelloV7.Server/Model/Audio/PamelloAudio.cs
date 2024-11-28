@@ -52,6 +52,11 @@ namespace PamelloV7.Server.Model.Audio
             _nextChunk?.Dispose();
             _nextChunk = null;
 
+            _ffmpeg?.Dispose();
+            _ffmpeg = null;
+
+            _ffmpegPosition = 0;
+
             _nextBreakPoint = null;
             _nextJumpPoint = null;
 

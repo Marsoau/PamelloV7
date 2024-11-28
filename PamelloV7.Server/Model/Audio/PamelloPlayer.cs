@@ -97,19 +97,9 @@ namespace PamelloV7.Server.Model.Audio
             if (!await Queue.Current.TryInitialize()) return;
 
             while (true) {
-                if (IsPaused) {
-                    await Task.Delay(250);
-                    continue;
-                }
                 if (Queue.Current is null) {
                     Status = EPlayerStatus.AwaitingSong;
                     
-                    await Task.Delay(250);
-                    continue;
-                }
-                if (!_speakers.IsChannelActive(Id)) {
-                    Status = EPlayerStatus.AwaitingSpeaker;
-
                     await Task.Delay(250);
                     continue;
                 }
@@ -118,6 +108,16 @@ namespace PamelloV7.Server.Model.Audio
                     if (!await Queue.Current.TryInitialize()) {
                         Queue.GoToNextSong(true);
                     }
+                }
+                if (!_speakers.IsChannelActive(Id)) {
+                    Status = EPlayerStatus.AwaitingSpeaker;
+
+                    await Task.Delay(250);
+                    continue;
+                }
+                if (IsPaused) {
+                    await Task.Delay(250);
+                    continue;
                 }
 
                 Status = EPlayerStatus.Active;

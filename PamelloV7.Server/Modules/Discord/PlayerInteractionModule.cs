@@ -24,6 +24,9 @@ namespace PamelloV7.Server.Modules.Discord
             [Summary("state", "Enable or disable protection")] EBoolState state
         ) => await PlayerProtection(state);
 
+        [SlashCommand("info", "Get current player info")]
+        public async Task PlayerInfoHandler() => await PlayerInfo();
+
         [SlashCommand("list", "Create new player")]
         public async Task PlayerListHandler(
             [Summary("querry", "Player list search querry")] string querry = "",

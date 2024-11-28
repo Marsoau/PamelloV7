@@ -1,4 +1,5 @@
 ﻿using Discord;
+using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
 
@@ -20,6 +21,9 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         }
         public static Embed BuildSongInfo(PamelloSong song) {
             return SongInfo(song).Build();
+        }
+        public static Embed BuildPlayerInfo(PamelloPlayer player) {
+            return PlayerInfo(player).Build();
         }
 
         public static EmbedBuilder Info(string header, string message, string description = "") {
@@ -88,6 +92,76 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                         IsInline = true,
                     }
                 }
+            }
+            .WithColor(0x00A795AC);
+        }
+
+        public static EmbedBuilder PlayerInfo(PamelloPlayer player) {
+            var fields = new List<EmbedFieldBuilder>();
+
+            var currentAudio = player.Queue.Current;
+
+            if (currentAudio is not null) {
+                var positionSb = new StringBuilder();
+
+                var length = 20;
+                var lineLength = currentAudio.Position.TotalSeconds / (currentAudio.Duration.TotalSeconds / length);
+
+                positionSb.Append($"`{currentAudio.Position.ToShortString()}`");
+
+                positionSb.Append(" `[");
+                for (int i = 0; i < lineLength - 1; i++) {
+                    positionSb.Append('-');
+                }
+                if (lineLength > 0) positionSb.Append('|');
+                for (int i = lineLength; i < length; i++) {
+                    positionSb.Append(' ');
+                }
+                positionSb.Append("]` ");
+
+                positionSb.Append($"`{currentAudio.Duration.ToShortString()}`");
+
+                fields.Add(new EmbedFieldBuilder() {
+                    Name = "Position",
+                    Value = positionSb
+                });
+                fields.Add(new EmbedFieldBuilder() {
+                    Name = "Song",
+                    Value = currentAudio.Song.ToDiscordString(),
+                });
+                var episode = currentAudio.GetCurrentEpisode();
+                if (episode is not null) {
+                    fields.Add(new EmbedFieldBuilder() {
+                        Name = "Episode",
+                        Value = DiscordString.Code(currentAudio.GetCurrentEpisodePosition() ?? -1) + " " + episode.ToDiscordString()
+                    });
+                }
+            }
+            fields.Add(new EmbedFieldBuilder() {
+                Name = "Queue Modes",
+                Value = $@"Random: {DiscordString.Code(player.Queue.IsRandom ? "Enabled" : "Disabled")}
+Reversed: {DiscordString.Code(player.Queue.IsReversed ? "Enabled" : "Disabled")}
+No Leftovers: {DiscordString.Code(player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
+Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}"
+            });
+            fields.Add(new EmbedFieldBuilder() {
+                Name = "Status",
+                Value = player.Status.ToString(),
+                IsInline = true,
+            });
+            fields.Add(new EmbedFieldBuilder() {
+                Name = "Paused",
+                Value = player.IsPaused ? "Yes" : "No",
+                IsInline = true,
+            });
+            fields.Add(new EmbedFieldBuilder() {
+                Name = "Private",
+                Value = player.IsProtected ? "Yes" : "No",
+                IsInline = true,
+            });
+            return new EmbedBuilder() {
+                Title = player.Name,
+                Fields = fields
             }
             .WithColor(0x00A795AC);
         }
