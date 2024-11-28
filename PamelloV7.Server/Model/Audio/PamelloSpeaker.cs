@@ -41,8 +41,7 @@ namespace PamelloV7.Server.Model.Audio
             Console.WriteLine("> UVSU <");
 
             if (toVc.VoiceChannel is null) {
-                _audioOutput = null;
-                Terminated?.Invoke(this);
+                await Terminate();
             }
         }
 
@@ -51,15 +50,12 @@ namespace PamelloV7.Server.Model.Audio
             Console.WriteLine("> VSU <");
 
             //Console.WriteLine($"voice server changed, audio client: {Guild.AudioClient?.ConnectionState.ToString() ?? "No audio client"}; Audio stream is not null: {_audioOutput is not null};");
-            if (Guild.AudioClient is not null) {
-                Guild.AudioClient.Connected += AudioClient_Connected;
+            if (Guild.AudioClient is null) {
+                await Terminate();
                 return;
             }
 
-            if (Voice is not null) await Voice.DisconnectAsync();
-            _audioOutput = null;
-
-            Terminated?.Invoke(this);
+            Guild.AudioClient.Connected += AudioClient_Connected;
         }
 
         private Task AudioClient_Connected() {
@@ -82,11 +78,15 @@ namespace PamelloV7.Server.Model.Audio
             } catch {
                 Console.WriteLine("async x");
 
-                if (Voice is not null) await Voice.DisconnectAsync();
-                _audioOutput = null;
-
-                Terminated?.Invoke(this);
+                await Terminate();
             }
+        }
+
+        public async Task Terminate() {
+            if (Voice is not null) await Voice.DisconnectAsync();
+            _audioOutput = null;
+
+            Terminated?.Invoke(this);
         }
 
         public string ToDiscordString() {

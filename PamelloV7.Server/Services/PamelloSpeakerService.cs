@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
+using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Server.Services
 {
@@ -41,7 +42,7 @@ namespace PamelloV7.Server.Services
             _speakers.Remove(speaker);
         }
 
-        public async Task<bool> ConnectSpeaker(PamelloPlayer player, ulong guildId, ulong vcId) {
+        public async Task ConnectSpeaker(PamelloPlayer player, ulong guildId, ulong vcId) {
             bool clientAvailable;
             foreach (var speakerClient in _discordClients.DiscordClients) {
                 clientAvailable = true;
@@ -54,11 +55,19 @@ namespace PamelloV7.Server.Services
                 }
 
                 if (clientAvailable) {
-                    if (await AddSpeaker(speakerClient, player.Id, guildId, vcId)) return true;
+                    if (await AddSpeaker(speakerClient, player.Id, guildId, vcId)) return;
                 }
             }
 
-            return false;
+            throw new PamelloException("No available speakers left");
+        }
+        public async Task DisconnectSpeaker(PamelloPlayer player, ulong vcId) {
+            foreach (var speaker in _speakers) {
+                if (speaker.Channel == player.Id && speaker.Voice.Id == vcId) {
+                    await speaker.Terminate();
+                    return;
+                }
+            }
         }
 
         public bool IsChannelActive(int channel) {

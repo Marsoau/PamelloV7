@@ -80,17 +80,6 @@ namespace PamelloV7.Server.Modules.Discord
             await RespondInfo("Pong");
         }
 
-        public async Task Connect() {
-            Context.User.TryLoadLastPlayer();
-
-            if (!await Commands.SpeakerConnect()) {
-                await RespondPlayerInfo("Cant connect");
-                return;
-            }
-
-            await RespondPlayerInfo("Connected");
-        }
-
         public async Task GetCode()
         {
             await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User.DiscordUser.Id).ToString());
@@ -599,6 +588,24 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task PlaylistDelete()
         {
             throw new NotImplementedException();
+        }
+
+        //speakers
+        public async Task SpeakerConnect() {
+            Context.User.TryLoadLastPlayer();
+
+            await Commands.SpeakerConnect();
+
+            await RespondPlayerInfo("Connected");
+        }
+
+        public async Task SpeakerDisconnect() {
+            await Commands.SpeakerDisconnect();
+
+            await RespondPlayerInfo("Disconnected");
+        }
+
+        public async Task SpeakerList() {
         }
     }
 }

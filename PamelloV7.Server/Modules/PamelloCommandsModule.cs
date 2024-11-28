@@ -5,6 +5,7 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
 using PamelloV7.Server.Services;
+using Discord.WebSocket;
 
 namespace PamelloV7.Server.Modules
 {
@@ -41,18 +42,6 @@ namespace PamelloV7.Server.Modules
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
 
             User = user;
-        }
-
-        [PamelloCommand]
-        public async Task<bool> SpeakerConnect() {
-            var vc = _discordClients.GetUserVoiceChannel(User);
-            if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
-
-            return await _speakers.ConnectSpeaker(Player, vc.Guild.Id, vc.Id);
-        }
-        [PamelloCommand]
-        public async Task SpeakerDisconnect() {
-
         }
 
         //player
@@ -341,6 +330,22 @@ namespace PamelloV7.Server.Modules
         [PamelloCommand]
         public async Task PlaylistDelete() {
             throw new NotImplementedException();
+        }
+
+        //speakers
+        [PamelloCommand]
+        public async Task SpeakerConnect() {
+            var vc = _discordClients.GetUserVoiceChannel(User);
+            if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
+
+            await _speakers.ConnectSpeaker(Player, vc.Guild.Id, vc.Id);
+        }
+        [PamelloCommand]
+        public async Task SpeakerDisconnect() {
+            var vc = _discordClients.GetUserVoiceChannel(User);
+            if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
+
+            await _speakers.DisconnectSpeaker(Player, vc.Id);
         }
     }
 }

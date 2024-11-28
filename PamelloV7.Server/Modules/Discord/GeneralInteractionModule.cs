@@ -22,11 +22,11 @@ namespace PamelloV7.Server.Modules.Discord
 
         [SlashCommand("connect", "Connect speaker to your voice channel")]
         public async Task ConnectHandler()
-            => await Connect();
+            => await SpeakerConnect();
 
         [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
         public async Task DisconnectHandler()
-            => await Ping();
+            => await SpeakerDisconnect();
 
         [SlashCommand("get-code", "Get authorization code")]
         public async Task GetCodeHandler()
