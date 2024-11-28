@@ -20,8 +20,6 @@ namespace PamelloV7.Server
 
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddSingleton<PamelloServerConfig>();
-
             ConfigureDatabaseServices(builder.Services);
             ConfigureDiscordServices(builder.Services);
             ConfigurePamelloServices(builder.Services);
@@ -46,7 +44,9 @@ namespace PamelloV7.Server
             };
 
             services.AddSingleton(new DiscordSocketClient(discordConfig));
-            services.AddKeyedSingleton("Speaker-1", new DiscordSocketClient(discordConfig));
+            for (int i = 0; i < PamelloServerConfig.SpeakerTokens.Length; i++) {
+                services.AddKeyedSingleton($"Speaker-{i + 1}", new DiscordSocketClient(discordConfig));
+            }
             
             services.AddSingleton(services => new InteractionService(
                 services.GetRequiredService<DiscordSocketClient>(),
@@ -82,37 +82,8 @@ namespace PamelloV7.Server
             services.GetRequiredService<DatabaseContext>();
         }
 
-        private static async Task<MemoryStream> LoadStream() {
-			var ffmpegProcess = Process.Start(new ProcessStartInfo {
-				FileName = "ffmpeg",
-				//Arguments = $@"-hide_banner -loglevel panic -i ""{AppContext.BaseDirectory}Data\Music\2.opus"" -ac 2 -f s16le -ar 48000 pipe:1",
-				Arguments = $@"-hide_banner -loglevel panic -i ""D:\DiscordMusic\47JI4G-qYmc.mp4"" -ac 2 -f s16le -ar 48000 pipe:1",
-				UseShellExecute = false,
-				RedirectStandardOutput = true
-			});
-
-			if (ffmpegProcess is null) throw new Exception("Couldnt start a ffmpeg process");
-
-            var ffmpegStream = ffmpegProcess.StandardOutput.BaseStream;
-
-			if (ffmpegStream is null) {
-				return null;
-			}
-
-			var memoryStream = new MemoryStream();
-            await ffmpegStream.CopyToAsync(memoryStream);
-
-            memoryStream.Position = 0;
-
-            ffmpegStream.Close();
-            ffmpegProcess.Close();
-
-			return memoryStream;
-        }
-
         private static async Task StartupDiscordServices(IServiceProvider services) {
             var discordClients = services.GetRequiredService<DiscordClientService>();
-            var config = services.GetRequiredService<PamelloServerConfig>();
 
             discordClients.SubscriveToEvents();
 
@@ -129,14 +100,14 @@ namespace PamelloV7.Server
 
             await interactionHandler.InitializeAsync();
 
-            var discordReady = new TaskCompletionSource();
+            var mainDiscordReady = new TaskCompletionSource();
 
             discordClients.MainClient.Log += async (message) => {
                 Console.WriteLine($">discord<: {message}");
             };
 
             discordClients.MainClient.Ready += async () => {
-                discordReady.SetResult();
+                mainDiscordReady.SetResult();
 
                 var guild = discordClients.MainClient.GetGuild(1304142495453548646);
                 await interactionService.RegisterCommandsToGuildAsync(guild.Id);
@@ -148,12 +119,15 @@ namespace PamelloV7.Server
                 Console.WriteLine("speaker ready");
             };
 
-            await discordClients.MainClient.LoginAsync(TokenType.Bot, config.MainBotToken);
+            await discordClients.MainClient.LoginAsync(TokenType.Bot, PamelloServerConfig.MainBotToken);
             await discordClients.MainClient.StartAsync();
-            await discordClients.DiscordClients[1].LoginAsync(TokenType.Bot, config.Speaker1Token);
-            await discordClients.DiscordClients[1].StartAsync();
 
-            await discordReady.Task;
+            await mainDiscordReady.Task;
+
+            for (int i = 0; i < PamelloServerConfig.SpeakerTokens.Length; i++) {
+                await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot, PamelloServerConfig.SpeakerTokens[i]);
+                await discordClients.DiscordClients[i + 1].StartAsync();
+            }
         }
 
         private static async Task StartupPamelloServices(IServiceProvider services) {

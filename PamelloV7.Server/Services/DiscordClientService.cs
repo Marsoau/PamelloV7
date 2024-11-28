@@ -23,13 +23,11 @@ namespace PamelloV7.Server.Services
 		public DiscordClientService(IServiceProvider services) {
 			_services = services;
 
-			var config = services.GetRequiredService<PamelloServerConfig>();
-
-			DiscordClients = new DiscordSocketClient[/* config.SpeakersTokens.Length + */ 2];
+			DiscordClients = new DiscordSocketClient[PamelloServerConfig.SpeakerTokens.Length + 1];
 
             DiscordClients[0] = services.GetRequiredService<DiscordSocketClient>();
-			for (int i = 1; i < DiscordClients.Length; i++) {
-				DiscordClients[i] = services.GetRequiredKeyedService<DiscordSocketClient>($"Speaker-{i}");
+			for (int i = 0; i < PamelloServerConfig.SpeakerTokens.Length; i++) {
+				DiscordClients[i + 1] = services.GetRequiredKeyedService<DiscordSocketClient>($"Speaker-{i + 1}");
 			}
         }
 
