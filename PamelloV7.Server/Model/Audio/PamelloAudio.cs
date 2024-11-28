@@ -188,8 +188,8 @@ namespace PamelloV7.Server.Model.Audio
             int? closestLeft = null;
 
             for (int i = 0; i < Song.Episodes.Count; i++) {
-                if (Song.Episodes[i].Start < Position.Seconds && Song.Episodes[i].Start > (closestLeft ?? int.MinValue)) {
-                    closestLeft = Song.Episodes[i].Start;
+                if (Song.Episodes[i].Start < Position.TotalSeconds && Song.Episodes[i].Start > (closestLeft is not null ? Song.Episodes[closestLeft.Value].Start : int.MinValue)) {
+                    closestLeft = i;
                 }
             }
 

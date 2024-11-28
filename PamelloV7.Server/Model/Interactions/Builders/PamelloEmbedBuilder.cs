@@ -110,11 +110,11 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 positionSb.Append($"`{currentAudio.Position.ToShortString()}`");
 
                 positionSb.Append(" `[");
-                for (int i = 0; i < lineLength - 1; i++) {
+                for (int i = 0; i < lineLength; i++) {
                     positionSb.Append('-');
                 }
-                if (lineLength > 0) positionSb.Append('|');
-                for (int i = lineLength; i < length; i++) {
+                positionSb.Append('|');
+                for (int i = lineLength; i < length - 1; i++) {
                     positionSb.Append(' ');
                 }
                 positionSb.Append("]` ");
