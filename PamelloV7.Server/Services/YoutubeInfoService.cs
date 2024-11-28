@@ -1,4 +1,4 @@
-﻿using PamelloV7.Server.Exceptions;
+﻿using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Youtube;
 using System.Web;
 using AngleSharp;

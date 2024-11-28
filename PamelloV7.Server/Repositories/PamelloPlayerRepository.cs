@@ -1,12 +1,16 @@
-﻿using PamelloV7.Server.Exceptions;
+﻿using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
     public class PamelloPlayerRepository
     {
         private readonly IServiceProvider _services;
+
+        private DiscordClientService _discordClients;
+        private PamelloSpeakerService _speakers;
 
         private readonly List<PamelloPlayer> _players;
 
@@ -18,20 +22,25 @@ namespace PamelloV7.Server.Repositories
             _players = new List<PamelloPlayer>();
         }
 
-        public PamelloPlayer Create(string name = "Player") {
+        public void InitServices() {
+            _discordClients = _services.GetRequiredService<DiscordClientService>();
+            _speakers = _services.GetRequiredService<PamelloSpeakerService>();
+        }
+
+        public PamelloPlayer Create(PamelloUser creator, string name = "Player") {
 			string oldName = name;
 			for (int i = 1; _players.Any(player => player.Name == name); i++) {
 				name = $"{oldName}-{i}";
 			}
 
-            var player = new PamelloPlayer(_services, name);
+            var player = new PamelloPlayer(_services, name, creator);
             _players.Add(player);
 
             return player;
         }
 
         public PamelloPlayer GetRequired(int id)
-            => Get(id) ?? throw new PamelloException($"Cant find required played wuth id {id}");
+            => Get(id) ?? throw new PamelloException($"Cant find required player wuth id {id}");
         public PamelloPlayer? Get(int id) {
             return _players.FirstOrDefault(player => player.Id == id);
         }
@@ -44,11 +53,24 @@ namespace PamelloV7.Server.Repositories
             var results = new List<PamelloPlayer>();
             querry = querry.ToLower();
 
-            foreach (var pamelloEntity in _players) {
-                if (pamelloEntity is null) continue;
+            List<PamelloPlayer> vcPlayers = null;
 
-                if (pamelloEntity.Name.ToLower().Contains(querry)) {
-                    results.Add(pamelloEntity);
+            var vc = _discordClients.GetUserVoiceChannel(scopeUser);
+            if (vc is not null) vcPlayers = _speakers.GetVoicePlayers(vc.Id);
+            else vcPlayers = new List<PamelloPlayer>();
+
+            foreach (var pamelloPlayer in _players) {
+                if (pamelloPlayer is null) continue;
+
+                if (pamelloPlayer.Name.ToLower().Contains(querry)) {
+                    if (pamelloPlayer.IsProtected) {
+                        if (pamelloPlayer.Creator != scopeUser) {
+                            if (!vcPlayers.Contains(pamelloPlayer)) {
+                                continue;
+                            }
+                        }
+                    }
+                    results.Add(pamelloPlayer);
                 }
             }
 
@@ -56,6 +78,8 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloPlayer? GetByValue(string value) {
+            if (value == "0") return null;
+
             PamelloPlayer? player = null;
 
             if (int.TryParse(value, out int id)) {

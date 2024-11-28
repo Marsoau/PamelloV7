@@ -8,9 +8,9 @@ namespace PamelloV7.Server.Modules.Discord
         public PlaylistInteractionModule(IServiceProvider services) : base(services) { }
 
         public async Task PlaylistCreateHandler()
-            => await PlaylistCreate();
+            => await PlaylistCreate("", false);
         public async Task PlaylistAddSongHandler()
-            => await PlaylistAddSong();
+            => await PlaylistAddSong("", "");
         public async Task PlaylistAddPlaylistSongsHandler()
             => await PlaylistAddPlaylistSongs();
         public async Task PlaylistSearchHandler()
@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task PlaylistRenameHandler()
             => await PlaylistRename();
 
-        [Group("playlist", "Commands to interact with playlists")]
+        [Group("favorite", "Commands to interact with playlists")]
         public class PlaylistFavoriteInteractionModule : PamelloInteractionModuleBase
         {
             public PlaylistFavoriteInteractionModule(IServiceProvider services) : base(services) { }

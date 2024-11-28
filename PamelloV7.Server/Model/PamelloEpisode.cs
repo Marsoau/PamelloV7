@@ -1,4 +1,6 @@
-﻿using PamelloV7.DAL.Entity;
+﻿using PamelloV7.Core.Audio;
+using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model
 {
@@ -47,6 +49,10 @@ namespace PamelloV7.Server.Model
             DatabaseEpisode databaseEpisode
         ) : base(databaseEpisode, services) {
 
+        }
+
+        public override DiscordString ToDiscordString() {
+            return DiscordString.Code(new AudioTime(Start).ToShortString()) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}");
         }
 
         public override object? DTO => new { };

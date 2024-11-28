@@ -1,6 +1,6 @@
 ﻿using PamelloV7.Server.Attributes;
 using PamelloV7.Server.Model;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
@@ -58,7 +58,10 @@ namespace PamelloV7.Server.Modules
         //player
         [PamelloCommand]
         public async Task<int> PlayerCreate(string playerName) {
-            return _players.Create(playerName).Id;
+            var player = _players.Create(User, playerName);
+            User.SelectedPlayer = player;
+
+            return player.Id;
         }
         [PamelloCommand]
         public async Task PlayerSelect(int? playerId) {
@@ -67,7 +70,35 @@ namespace PamelloV7.Server.Modules
                 return;
             }
 
-            User.SelectedPlayer = _players.GetRequired(playerId.Value);
+            var player = _players.GetRequired(playerId.Value);
+
+            if (player.IsProtected) {
+                var vc = _discordClients.GetUserVoiceChannel(User);
+                if (player.Creator.Id == User.Id) {
+                    User.SelectedPlayer = player;
+                    return;
+                }
+                if (vc is not null) {
+                    var vcPlayers = _speakers.GetVoicePlayers(vc.Id);
+                    if (vcPlayers.Contains(player)) {
+                        User.SelectedPlayer = player;
+                        return;
+                    }
+                }
+
+                throw new PamelloException("Cant select protected player");
+            }
+            else {
+                User.SelectedPlayer = player;
+            }
+        }
+        [PamelloCommand]
+        public async Task PlayerProtection(bool state) {
+            if (Player.Creator != User) {
+                throw new PamelloException("Only creator of the player can set it protection");
+            }
+
+            Player.IsProtected = state;
         }
         [PamelloCommand]
         public async Task PlayerDelete() {
@@ -211,38 +242,67 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task SongFavoriteAdd() {
-            throw new NotImplementedException();
+        public async Task SongFavoriteAdd(int songId) {
+            var song = _songs.GetRequired(songId);
+
+            User.AddFavoriteSong(song);
         }
         [PamelloCommand]
-        public async Task SongFavoriteRemove() {
-            throw new NotImplementedException();
+        public async Task SongFavoriteRemove(int songId) {
+            var song = _songs.GetRequired(songId);
+
+            User.RemoveFavoriteSong(song);
         }
 
         [PamelloCommand]
-        public async Task SongAssociacionsAdd() {
-            throw new NotImplementedException();
+        public async Task SongAssociacionsAdd(int songId, string associacion) {
+            var song = _songs.GetRequired(songId);
+            song.AddAssociacion(associacion);
         }
         [PamelloCommand]
-        public async Task SongAssociacionsRemove() {
-            throw new NotImplementedException();
+        public async Task SongAssociacionsRemove(int songId, string associacion) {
+            var song = _songs.GetRequired(songId);
+            song.RemoveAssociacion(associacion);
         }
 
         [PamelloCommand]
-        public async Task SongEpisodesAdd() {
-            throw new NotImplementedException();
+        public async Task<int> SongEpisodesAdd(int songId, int episodeStart, string episodeName) {
+            var song = _songs.GetRequired(songId);
+            return song.AddEpisode(new AudioTime(episodeStart), episodeName).Id;
         }
         [PamelloCommand]
-        public async Task SongEpisodesRemove() {
-            throw new NotImplementedException();
+        public async Task SongEpisodesRemove(int songId, int episodePosition) {
+            var song = _songs.GetRequired(songId);
+            song.RemoveEpisode(episodePosition);
         }
         [PamelloCommand]
-        public async Task SongEpisodesRename() {
-            throw new NotImplementedException();
+        public async Task SongEpisodesRename(int songId, int episodePosition, string newName) {
+            var song = _songs.GetRequired(songId);
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
+
+            episode.Name = newName;
         }
         [PamelloCommand]
-        public async Task SongEpisodesClear() {
-            throw new NotImplementedException();
+        public async Task SongEpisodesSkipSet(int songId, int episodePosition, bool newState) {
+            var song = _songs.GetRequired(songId);
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
+
+            episode.Skip = newState;
+        }
+        [PamelloCommand]
+        public async Task SongEpisodesEditTime(int songId, int episodePosition, int newTime) {
+            var song = _songs.GetRequired(songId);
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
+
+            episode.Start = newTime;
+        }
+        [PamelloCommand]
+        public async Task SongEpisodesClear(int songId) {
+            var song = _songs.GetRequired(songId);
+            _episodes.DeleteAllFrom(song);
         }
     
         //playlist

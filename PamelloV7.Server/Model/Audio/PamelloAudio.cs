@@ -75,6 +75,7 @@ namespace PamelloV7.Server.Model.Audio
             if (_currentChunk is null) return false;
 
             _currentChunkPosition = 0;
+            Song.PlayCount++;
 
             return true;
         }

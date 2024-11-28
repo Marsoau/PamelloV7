@@ -4,13 +4,14 @@ using PamelloV7.Server.Model.Interactions;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
+using Discord.WebSocket;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -26,6 +27,8 @@ namespace PamelloV7.Server.Modules.Discord
         private readonly PamelloSongRepository _songs;
         private readonly PamelloEpisodeRepository _episodes;
         private readonly PamelloPlaylistRepository _playlists;
+
+        private readonly YoutubeInfoService _youtubeInfo;
 
         private PamelloCommandsModule Commands {
             get => Context.User.Commands;
@@ -46,6 +49,8 @@ namespace PamelloV7.Server.Modules.Discord
             _songs = services.GetRequiredService<PamelloSongRepository>();
             _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+
+            _youtubeInfo = services.GetRequiredService<YoutubeInfoService>();
         }
 
         protected async Task Respond(Embed embed) {
@@ -56,7 +61,7 @@ namespace PamelloV7.Server.Modules.Discord
             else await RespondPlayerInfo("", message);
         }
         protected async Task RespondPlayerInfo(object header, object message) {
-            await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? "", $"Selected player: {Player.Name} [{Player.Id}]"));
+            await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? "", Player.ToDiscordFooterString()));
         }
         protected async Task RespondInfo(object message, bool bold = false) {
             if (bold) await RespondInfo(message, "");
@@ -65,8 +70,8 @@ namespace PamelloV7.Server.Modules.Discord
         protected async Task RespondInfo(object header, object message) {
             await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? ""));
         }
-        protected async Task RespondPage<T>(string header, List<T> content, Action<StringBuilder, int, T> tostr, int page = 0, int count = 20) {
-            await Respond(PamelloEmbedBuilder.BuildPage(header, content, tostr, count, page));
+        protected async Task RespondPage<T>(string header, IReadOnlyList<T> content, Action<StringBuilder, int, T> writeElement, int page = 0, int count = 20) {
+            await Respond(PamelloEmbedBuilder.BuildPage(header, content, writeElement, count, page));
         }
 
         //general
@@ -94,18 +99,17 @@ namespace PamelloV7.Server.Modules.Discord
         //Player
         public async Task PlayerSelect(string playerValue)
         {
-            if (playerValue == "0") {
-                await Commands.PlayerSelect(null);
-                await RespondInfo("Select Player", $"Player selection reseted");
-                return;
-            }
-
             var player = _players.GetByValue(playerValue);
             if (player is null) throw new PamelloException($"Cant find a player with value \"{playerValue}\"");
 
             await Commands.PlayerSelect(player?.Id);
 
-            await RespondInfo("Select Player", $"Player {player?.ToDiscordString()} selected");
+            if (Player is null) {
+                await RespondInfo($"Player selection reseted");
+            }
+            else {
+                await RespondInfo($"Player {player?.ToDiscordString()} selected");
+            }
         }
         public async Task PlayerCreate(string name)
         {
@@ -113,16 +117,22 @@ namespace PamelloV7.Server.Modules.Discord
             await Commands.PlayerSelect(playerId);
 
             var player = _players.GetRequired(playerId);
-            await RespondInfo("Select Player", $"Player {player?.ToDiscordString()} created and selected");
+            await RespondInfo($"Player {player?.ToDiscordString()} created and selected");
+        }
+        public async Task PlayerProtection(EBoolState state)
+        {
+            await Commands.PlayerProtection(state == EBoolState.Enabled);
+
+            await RespondInfo($"Player protection {DiscordString.Code(state)}");
         }
         public async Task PlayerList(string querry, int page)
         {
             var results = _players.Search(querry, Context.User);
 
             await RespondPage(
-                "Players",
+                querry.Length == 0 ? "Players" : $"Players search \"{querry}\"",
                 results,
-                (sb, pos, player) => sb.AppendLine(player.ToDiscordString().ToString()),
+                (sb, pos, player) => sb.AppendLine((player.ToDiscordString() + (player.IsProtected ? " " + DiscordString.Italic("(pivate)") : new DiscordString(""))).ToString()),
                 page - 1
             );
         }
@@ -197,9 +207,8 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task PlayerRewind(string strTime)
         {
             var time = AudioTime.FromStrTime(strTime);
-            if (time is null) throw new PamelloException("Wrong time format");
             
-            await Commands.PlayerRewind(time.Value.TotalSeconds);
+            await Commands.PlayerRewind(time.TotalSeconds);
 
             await RespondPlayerInfo("Player Rewind", $"Rewinded to {DiscordString.Code(time)}");
         }
@@ -317,78 +326,247 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         //song
-        public async Task SongAdd()
+        public async Task SongAdd(string youtubeUrl)
         {
-            throw new NotImplementedException();
+            var youtubeId = _youtubeInfo.GetVideoIdFromUrl(youtubeUrl);
+
+            var song = _songs.GetByYoutubeId(youtubeId);
+            if (song is not null) {
+                await RespondInfo("Song is already present in the database");
+                return;
+            }
+
+            song = await _songs.AddAsync(youtubeId, Context.User);
         }
-        public async Task SongSearch()
+        public async Task SongSearch(string querry, int page, SocketUser? addedByDiscordUser)
         {
-            throw new NotImplementedException();
+            PamelloUser? addedBy = null;
+            if (addedByDiscordUser is not null) {
+                addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
+            }
+
+            var results = _songs.Search(querry, addedBy);
+            string title;
+
+            if (querry.Length == 0) {
+                if (addedBy is null) {
+                    title = "Songs";
+                }
+                else {
+                    title = $"Songs added by {addedBy.Name}";
+                }
+            }
+            else {
+                if (addedBy is null) {
+                    title = $"Songs search \"{querry}\"";
+                }
+                else {
+                    title = $"Songs added by {addedBy.Name} search \"{querry}\"";
+                }
+            }
+
+            await RespondPage(
+                title,
+                results,
+                (sb, pos, song) => {
+                    sb.AppendLine(song.ToDiscordString().ToString());
+                },
+                page - 1
+            );
         }
-        public async Task SongInfo()
+        public async Task SongInfo(string songValue)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+            await Respond(PamelloEmbedBuilder.BuildSongInfo(song));
         }
-        public async Task SongRename()
+        public async Task SongRename(string songValue, string newName)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValue(songValue);
+            if (song is null) throw new PamelloException($"Cant find song by value \"{songValue}\"");
+
+            await Commands.SongRename(song.Id, newName);
+
+            await RespondInfo($"{song.ToDiscordString()} renamed");
         }
 
-        public async Task SongFavoriteAdd()
+        public async Task SongFavoriteAdd(string songValue)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongFavoriteAdd(song.Id);
+
+            await RespondInfo($"{song.ToDiscordString()} added to favorites");
         }
-        public async Task SongFavoriteRemove()
+        public async Task SongFavoriteRemove(string songValue)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongFavoriteRemove(song.Id);
+
+            await RespondInfo($"{song.ToDiscordString()} removed from favorites");
         }
-        public async Task SongFavoriteList()
+        public async Task SongFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
-            throw new NotImplementedException();
+            PamelloUser? targetUser = null;
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordUser.Id) {
+                targetUser = _users.GetByDiscord(targetDiscordUser.Id);
+                if (targetUser is null) throw new Exception("Cant find a provided user");
+            }
+            if (targetUser is null) {
+                targetUser = Context.User;
+            }
+
+            var results = _songs.Search(querry, favoriteBy: targetUser);
+
+            await RespondPage(
+                targetUser.Id == Context.User.Id ? "Favorite songs" : $"Favorite songs of {targetUser.Name}",
+                results,
+                (sb, pos, song) => {
+                    sb.AppendLine(song.ToDiscordString().ToString());
+                },
+                page - 1
+            );
         }
 
-        public async Task SongAssociacionsAdd()
+        public async Task SongAssociacionsAdd(string songValue, string associacion)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+            await Commands.SongAssociacionsAdd(song.Id, associacion);
+
+            await RespondInfo($"Associacion \"{associacion}\" added to song {song.ToDiscordString()}");
         }
-        public async Task SongAssociacionsRemove()
+        public async Task SongAssociacionsRemove(string songValue, string associacion)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+            await Commands.SongAssociacionsRemove(song.Id, associacion);
+
+            await RespondInfo($"Associacion \"{associacion}\" removed from song {song.ToDiscordString()}");
         }
-        public async Task SongAssociacionsList()
+        public async Task SongAssociacionsList(string songValue, int page)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await RespondPage(
+                $"Associacions of song [{song.Id}]",
+                song.Associacions,
+                (sb, pos, associacion) => {
+                    sb.AppendLine(DiscordString.Code(associacion).ToString());
+                },
+                page - 1
+            );
         }
 
-        public async Task SongEpisodesAdd()
+        public async Task SongEpisodesAdd(string songValue, string episodeTime, string episodeName)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+            var episodeStart = AudioTime.FromStrTime(episodeTime);
+
+            var episodeId = await Commands.SongEpisodesAdd(song.Id, episodeStart.TotalSeconds, episodeName);
+            var episode = _episodes.GetRequired(episodeId);
+
+            await RespondInfo($"Episode {episode.ToDiscordString()} added");
         }
-        public async Task SongEpisodesRemove()
+        public async Task SongEpisodesRemove(string songValue, int episodePosition)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongEpisodesRemove(song.Id, episodePosition);
+
+            await RespondInfo($"Episode removed");
         }
-        public async Task SongEpisodesRename()
+        public async Task SongEpisodesRename(string songValue, int episodePosition, string newName)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongEpisodesRename(song.Id, episodePosition, newName);
+
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) {
+                await RespondInfo($"Episode renamed");
+                return;
+            }
+
+            await RespondInfo($"Episode {episode.ToDiscordString()} renamed");
         }
-        public async Task SongEpisodesClear()
+        public async Task SongEpisodesSkipSet(string songValue, int episodePosition, EBoolState state)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongEpisodesSkipSet(song.Id, episodePosition, state == EBoolState.Enabled);
+
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) {
+                await RespondInfo($"Episode skip");
+                return;
+            }
+
+            if (episode.Skip) {
+                await RespondInfo($"Episode {episode.ToDiscordString()} will be skipped");
+            }
+            else {
+                await RespondInfo($"Episode {episode.ToDiscordString()} will be played");
+            }
         }
-        public async Task SongEpisodesList()
+        public async Task SongEpisodesChangeStart(string songValue, int episodePosition, string newTime)
         {
-            throw new NotImplementedException();
+            var song = await _songs.GetByValueRequired(songValue);
+            var newStart = AudioTime.FromStrTime(newTime);
+
+            await Commands.SongEpisodesEditTime(song.Id, episodePosition, newStart.TotalSeconds);
+
+            var episode = song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) {
+                await RespondInfo($"Episode renamed");
+                return;
+            }
+
+            await RespondInfo($"Episode {episode.ToDiscordString()} renamed");
+        }
+        public async Task SongEpisodesClear(string songValue)
+        {
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.SongEpisodesClear(song.Id);
+
+            await RespondInfo("Song episodes cleared");
+        }
+        public async Task SongEpisodesList(string songValue, int page)
+        {
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await RespondPage(
+                $"Episodes of song [{song.Id}]",
+                song.Episodes,
+                (sb, pos, episode) => {
+                    sb.AppendLine((DiscordString.Code(pos) + " " + episode.ToDiscordString()).ToString());
+                },
+                page - 1
+            );
         }
 
         //playlist
-        public async Task PlaylistCreate()
+        public async Task PlaylistCreate(string name, bool fillWithQueue)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.Create(name, Context.User);
+
+            if (fillWithQueue) {
+            }
+
+            await RespondAsync($"Playlist {playlist.ToDiscordString()} created");
         }
-        public async Task PlaylistAddSong()
+        public async Task PlaylistAddSong(string playlistValue, string songValue)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            var song = await _songs.GetByValueRequired(songValue);
+
+            var addedSong = playlist.AddSong(song);
+
+            if (addedSong is null) {
+                await RespondAsync("Cant add the song to the playlist");
+            }
+            else {
+                await RespondAsync($"{addedSong.ToDiscordString()} to the playlist");
+            }
         }
         public async Task PlaylistAddPlaylistSongs()
         {

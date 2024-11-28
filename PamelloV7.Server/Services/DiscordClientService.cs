@@ -44,7 +44,35 @@ namespace PamelloV7.Server.Services
 			}
 		}
 
-        private async Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState fromVc, SocketVoiceState toVc) {
+        private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
+			if (_speakers is null) return;
+
+			List<PamelloPlayer>? playersFromVc = null;
+			List<PamelloPlayer>? playersToVc = null;
+
+			var user = _users.GetByDiscord(discordUser.Id);
+			if (user is null) return;
+
+			if (fromVc.VoiceChannel is not null) {
+				playersFromVc = _speakers.GetVoicePlayers(fromVc.VoiceChannel.Id);
+			}
+			if (toVc.VoiceChannel is not null) {
+				playersToVc = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
+			}
+
+			playersFromVc ??= new List<PamelloPlayer>();
+			playersToVc ??= new List<PamelloPlayer>();
+
+			if (playersToVc.Count == 1) {
+				user.SelectedPlayer = playersToVc.First();
+			}
+			else if (user.SelectedPlayer is not null && playersFromVc.Contains(user.SelectedPlayer)) {
+                user.SelectedPlayer = null;
+            }
+
+            Console.WriteLine($"VCC Auto selected player {user.SelectedPlayer?.ToString() ?? "NULL"} for {user}");
+
+			/*
 			if (_speakers is null) return;
 			if (toVc.VoiceChannel is null) return;
 
@@ -58,6 +86,7 @@ namespace PamelloV7.Server.Services
 
             Console.WriteLine($"VCC Auto selected player {player?.ToString() ?? "NULL"} for {pamelloUser}");
 			pamelloUser.SelectedPlayer = player;
+			*/
 		}
 
 		public bool IsClientUser(ulong userId) {

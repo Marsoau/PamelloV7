@@ -1,5 +1,5 @@
 ﻿using Discord;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Repositories;
@@ -13,6 +13,7 @@ namespace PamelloV7.Server.Model.Audio
 
         private readonly PamelloPlayer _player;
 
+        private readonly PamelloUserRepository _users;
         private readonly PamelloSongRepository _songs;
         private readonly List<PamelloSong> _audios;
 
@@ -124,6 +125,7 @@ namespace PamelloV7.Server.Model.Audio
         public PamelloQueue(IServiceProvider services, PamelloPlayer parrentPlayer) {
             _services = services;
 
+            _users = services.GetRequiredService<PamelloUserRepository>();
             _player = parrentPlayer;
             _songs = services.GetRequiredService<PamelloSongRepository>();
 
@@ -295,7 +297,7 @@ namespace PamelloV7.Server.Model.Audio
 
 			if (_audios.Count == 0) {
                 if (IsFeedRandom) {
-                    return AddSong(_songs.GetRandom());
+                    return AddSong(_songs.GetRandomPV5(_users.GetRequired(1)).Result);
                 }
                 else return null;
             }
@@ -323,7 +325,7 @@ namespace PamelloV7.Server.Model.Audio
 
 			if (_audios.Count == 0) {
                 if (IsFeedRandom) {
-                    return AddSong(_songs.GetRandom());
+                    return AddSong(_songs.GetRandomPV5(_users.GetRequired(1)).Result);
                 }
                 else {
                     SetCurrent(null);
@@ -345,7 +347,7 @@ namespace PamelloV7.Server.Model.Audio
                     sb.Append(DiscordString.Code(pos));
                     if (Position == pos) {
                         sb.Append(
-                            (" now > " + song.ToDiscordString()).Bold()
+                            (" > " + song.ToDiscordString()).Bold()
                         );
                     }
                     else {
@@ -356,7 +358,7 @@ namespace PamelloV7.Server.Model.Audio
                     sb.AppendLine();
                 }
             );
-            embedBuilder.Footer.Text += $" | Player: {_player.Name} [{_player.Id}]";
+            embedBuilder.Footer.Text += $" | {_player.ToDiscordFooterString()}";
 
             return embedBuilder;
         }

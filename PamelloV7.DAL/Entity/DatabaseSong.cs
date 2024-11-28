@@ -7,6 +7,8 @@
         public string YoutubeId { get; set; }
         public int PlayCount { get; set; }
 
+        public DateTime AddedAt { get; set; }
+
         public DatabaseUser AddedBy { get; set; }
         public List<DatabaseUser> FavoritedBy { get; set; }
 

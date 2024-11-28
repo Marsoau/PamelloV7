@@ -1,4 +1,6 @@
-﻿namespace PamelloV7.Core.Audio
+﻿using PamelloV7.Core.Exceptions;
+
+namespace PamelloV7.Core.Audio
 {
     public struct AudioTime
     {
@@ -68,7 +70,7 @@
             return new AudioTime(time.TimeValue * scalar);
         }
 
-        public static AudioTime? FromStrTime(string strTime) {
+        public static AudioTime FromStrTime(string strTime) {
             var segments = strTime.Split(':').Reverse().ToArray();
             var seconds = 0;
 
@@ -84,7 +86,7 @@
                 }
             }
             catch {
-                return null;
+                throw new PamelloException("Wrong time format");
             }
 
             return new AudioTime(seconds);

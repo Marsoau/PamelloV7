@@ -12,7 +12,7 @@ namespace PamelloV7.Server.Model
 
         protected readonly PamelloEventsService _events;
 
-        private readonly DatabaseContext _database;
+        protected readonly DatabaseContext _database;
 
         protected readonly PamelloSongRepository _songs;
         protected readonly PamelloEpisodeRepository _episodes;

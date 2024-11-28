@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 
@@ -9,6 +10,29 @@ namespace PamelloV7.Server.Repositories
         public PamelloPlaylistRepository(IServiceProvider services) : base(services) {
 
         }
+        public override void InitServices() {
+
+        }
+
+        public PamelloPlaylist Create(string name, PamelloUser user) {
+            var databasePlaylist = new DatabasePlaylist() {
+                Name = name,
+                Songs = [],
+                Owner = user.Entity,
+                IsProtected = false,
+                FavoritedBy = [],
+            };
+
+            _database.Playlists.Add(databasePlaylist);
+            _database.SaveChanges();
+
+            return Load(databasePlaylist);
+        }
+
+        public PamelloPlaylist GetByNameRequired(string name)
+            => GetByName(name) ?? throw new PamelloException($"Cant find playlist by name \"{name}\"");
+        public PamelloPlaylist GetByValueRequired(string value)
+            => GetByValue(value) ?? throw new PamelloException($"Cant find playlist by value \"{value}\"");
 
         public PamelloPlaylist? GetByName(string name) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);

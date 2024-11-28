@@ -8,7 +8,7 @@ namespace PamelloV7.Core.Enumerators
 {
     public enum EBoolState
     {
-        Enabled,
         Disabled,
+        Enabled,
     }
 }

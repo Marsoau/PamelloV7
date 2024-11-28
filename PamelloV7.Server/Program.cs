@@ -174,11 +174,16 @@ namespace PamelloV7.Server
             };
 
             var users = services.GetRequiredService<PamelloUserRepository>();
+            var songs = services.GetRequiredService<PamelloSongRepository>();
+            var episodes = services.GetRequiredService<PamelloEpisodeRepository>();
+            var playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+            var players = services.GetRequiredService<PamelloPlayerRepository>();
 
-            var user = users.GetByDiscord(544933092503060509);
-            if (user is null) return;
-
-            Console.WriteLine(user);
+            users.InitServices();
+            songs.InitServices();
+            episodes.InitServices();
+            playlists.InitServices();
+            players.InitServices();
         }
 
         private static async Task StartupAPIServices(WebApplication app) {

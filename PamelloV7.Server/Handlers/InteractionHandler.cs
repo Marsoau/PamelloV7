@@ -7,7 +7,7 @@ using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Services;
 using Discord;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Server.Handlers
 {
@@ -75,6 +75,9 @@ namespace PamelloV7.Server.Handlers
                 if (executionResult.Exception?.InnerException is PamelloException pamelloException) {
                     await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildError(pamelloException.Message));
                 }
+				else if (executionResult.Exception?.InnerException is NotImplementedException) {
+                    await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Command is not implemented yet"));
+				}
                 else {
                     await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Exception occured"));
                     Console.WriteLine(executionResult.Exception?.InnerException);

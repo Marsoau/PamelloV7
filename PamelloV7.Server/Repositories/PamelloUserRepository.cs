@@ -14,6 +14,9 @@ namespace PamelloV7.Server.Repositories
         ) : base(services) {
             _discordClients = discordClients;
         }
+        public override void InitServices() {
+
+        }
 
         public PamelloUser? GetByToken(Guid token) {
             var pamelloEntity = _loaded.FirstOrDefault(e => e.Token == token);

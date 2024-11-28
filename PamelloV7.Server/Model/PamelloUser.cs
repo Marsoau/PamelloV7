@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.DAL.Entity;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Modules;
 using PamelloV7.Server.Repositories;
@@ -33,6 +33,8 @@ namespace PamelloV7.Server.Model
                 if (Entity.SongsPlayed == value) return;
 
                 Entity.SongsPlayed = value;
+
+                Save();
 
                 //_events.UserEdited(this);
             }
@@ -129,6 +131,28 @@ namespace PamelloV7.Server.Model
 
             SelectedPlayer = player;
             return player;
+        }
+
+        public void AddFavoriteSong(PamelloSong song) {
+            Entity.FavoriteSongs.Add(song.Entity);
+            Save();
+        }
+        public void RemoveFavoriteSong(PamelloSong song) {
+            Entity.FavoriteSongs.Remove(song.Entity);
+            Save();
+        }
+
+        public void AddFavoritePlaylist(PamelloPlaylist playlist) {
+            Entity.FavoritePlaylists.Add(playlist.Entity);
+            Save();
+        }
+        public void RemoveFavoritePlaylist(PamelloPlaylist playlist) {
+            Entity.FavoritePlaylists.Remove(playlist.Entity);
+            Save();
+        }
+
+        public PamelloPlaylist CreatePlaylist(string name) {
+            return _playlists.Create(name, this);
         }
 
         public override object DTO => new { };

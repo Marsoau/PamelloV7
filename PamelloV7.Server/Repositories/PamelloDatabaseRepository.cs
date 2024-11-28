@@ -1,8 +1,9 @@
 ﻿using PamelloV7.DAL;
 using PamelloV7.Server.Model;
-using PamelloV7.Server.Exceptions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Services;
+using PamelloV7.Core.Audio;
 
 namespace PamelloV7.Server.Repositories
 {
@@ -29,6 +30,8 @@ namespace PamelloV7.Server.Repositories
 
             _loaded = new List<TPamelloEntity>();
         }
+
+        public abstract void InitServices();
 
         public abstract List<TDatabaseEntity> LoadDatabaseEntities();
 

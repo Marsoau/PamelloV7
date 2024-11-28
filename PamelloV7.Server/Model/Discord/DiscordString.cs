@@ -13,6 +13,9 @@
             }
             else _str = Ecranate(obj);
         }
+        public DiscordString(PamelloUser user) {
+            _str = $"<@{user.DiscordUser.Id}>";
+        }
 
         public DiscordString Bold() {
             _str = $"**{_str}**";

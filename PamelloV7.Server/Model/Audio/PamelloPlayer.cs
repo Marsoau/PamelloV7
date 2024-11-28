@@ -9,6 +9,8 @@ namespace PamelloV7.Server.Model.Audio
         private readonly YoutubeDownloadService _downloader;
         private readonly PamelloSpeakerService _speakers;
 
+        public readonly PamelloUser Creator;
+
         public int Id { get; }
 
         private string _name;
@@ -29,6 +31,17 @@ namespace PamelloV7.Server.Model.Audio
             }
         }
 
+        private bool _isProtected;
+        public bool IsProtected {
+            get => _isProtected;
+            set {
+                if (_isProtected == value) return;
+
+                _isProtected = value;
+                //event
+            }
+        }
+
         private bool _isPaused;
         public bool IsPaused {
             get => _isPaused;
@@ -45,7 +58,8 @@ namespace PamelloV7.Server.Model.Audio
         private static int _idCounter = 1;
 
         public PamelloPlayer(IServiceProvider services,
-            string name
+            string name,
+            PamelloUser creator
         ) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
             _speakers = services.GetRequiredService<PamelloSpeakerService>();
@@ -53,6 +67,10 @@ namespace PamelloV7.Server.Model.Audio
             Id = _idCounter++;
             _name = name;
             _status = EPlayerStatus.AwaitingSong;
+
+            _isProtected = true;
+
+            Creator = creator;
 
             Queue = new PamelloQueue(services, this);
 
@@ -125,6 +143,9 @@ namespace PamelloV7.Server.Model.Audio
 
         public DiscordString ToDiscordString() {
             return DiscordString.Bold(Name) + " " + DiscordString.Code($"[{Id}]");
+        }
+        public string ToDiscordFooterString() {
+            return $"{Name} [{Id}] {(IsProtected ? " (private)" : "")}";
         }
     }
 }

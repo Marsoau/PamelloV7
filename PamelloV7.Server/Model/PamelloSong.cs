@@ -1,6 +1,8 @@
 ﻿using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
+using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Audio;
 
 namespace PamelloV7.Server.Model
 {
@@ -29,6 +31,12 @@ namespace PamelloV7.Server.Model
                 //updated
             }
         }
+        public string CoverUrl {
+            get => Entity.CoverUrl;
+            set {
+                Entity.CoverUrl = value;
+            }
+        }
         public int PlayCount {
             get => Entity.PlayCount;
             set {
@@ -38,6 +46,9 @@ namespace PamelloV7.Server.Model
 
                 //updated
             }
+        }
+        public DateTime AddedAt {
+            get => Entity.AddedAt;
         }
 
         public bool IsDownloaded {
@@ -61,7 +72,19 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<PamelloEpisode> Episodes {
-            get => Entity.Episodes.Select(episode => _episodes.GetRequired(episode.Id)).ToList();
+            get {
+                var list = Entity.Episodes.Select(episode => _episodes.GetRequired(episode.Id)).ToList();
+                list.Sort((a, b) => {
+                    if (a == null && b == null) return 0;
+                    if (a == null) return -1;
+                    if (b == null) return 1;
+
+                    if (a.Start > b.Start) return 1;
+                    if (a.Start < b.Start) return -1;
+                    return 0;
+                });
+                return list;
+            }
         }
 
         public IReadOnlyList<PamelloPlaylist> Playlists {
@@ -76,6 +99,46 @@ namespace PamelloV7.Server.Model
             DatabaseSong databaseSong
         ) : base(databaseSong, services) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
+        }
+
+        public void AddAssociacion(string associacion) {
+            var databaseAssociacion = _database.Associacions.Find(associacion);
+            if (databaseAssociacion is not null) {
+                if (databaseAssociacion.Song.Id == Entity.Id)
+                    throw new PamelloException("Associacion already exist this song");
+
+                throw new PamelloException("Associacion already exist for another song");
+            }
+
+            databaseAssociacion = new DatabaseAssociacion() {
+                Associacion = associacion,
+                Song = Entity
+            };
+
+            _database.Associacions.Add(databaseAssociacion);
+            Save();
+        }
+
+        public void RemoveAssociacion(string associacion, bool removeGlobaly = false) {
+            var databaseAssociacion = _database.Associacions.Find(associacion);
+
+            if (databaseAssociacion is null || (!removeGlobaly && databaseAssociacion.Song.Id != Entity.Id)) {
+                throw new PamelloException("This song doesnt contain");
+            }
+
+            _database.Associacions.Remove(databaseAssociacion);
+            Save();
+        }
+
+        public PamelloEpisode AddEpisode(AudioTime start, string name) {
+            var episode = _episodes.Create(this, start, name, false);
+            return episode;
+        }
+        public void RemoveEpisode(int position) {
+            var episode = Episodes.ElementAtOrDefault(position);
+            if (episode is null) throw new PamelloException($"Episode in position {position} was not found");
+
+            _episodes.Delete(episode.Id);
         }
 
         public override object DTO => new {

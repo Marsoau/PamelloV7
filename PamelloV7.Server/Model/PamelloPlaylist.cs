@@ -34,6 +34,17 @@ namespace PamelloV7.Server.Model
 
         }
 
+        public PamelloSong? AddSong(PamelloSong song) {
+            if (Entity.Songs.Any(databaseSong => databaseSong.Id == song.Id)) {
+                return null;
+            }
+
+            Entity.Songs.Add(song.Entity);
+            Save();
+
+            return song;
+        }
+
         public override object? DTO => new { };
     }
 }
