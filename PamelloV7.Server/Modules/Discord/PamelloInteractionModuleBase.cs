@@ -230,7 +230,7 @@ namespace PamelloV7.Server.Modules.Discord
             var playlist = _playlists.GetByValue(playlistValue);
             if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
 
-            await Commands.PlayerQueueSongAdd(playlist.Id);
+            await Commands.PlayerQueuePlaylistAdd(playlist.Id);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
@@ -331,6 +331,9 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             }
 
             song = await _songs.AddAsync(youtubeId, Context.User);
+            if (song is null) throw new PamelloException("Cant add this song");
+
+            await RespondPlayerInfo($"{song.ToDiscordString()} added to database");
         }
         public async Task SongSearch(string querry, int page, SocketUser? addedByDiscordUser)
         {
@@ -514,7 +517,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 return;
             }
 
-            await RespondInfo($"Episode {episode.ToDiscordString()} renamed");
+            await RespondInfo($"Episode {episode.ToDiscordString()} start position changed");
         }
         public async Task SongEpisodesClear(string songValue)
         {
@@ -541,58 +544,139 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         //playlist
         public async Task PlaylistCreate(string name, bool fillWithQueue)
         {
-            var playlist = _playlists.Create(name, Context.User);
+            var playlistId = await Commands.PlaylistCreate(name, fillWithQueue);
+            var playlist = _playlists.GetRequired(playlistId);
 
-            if (fillWithQueue) {
-            }
-
-            await RespondAsync($"Playlist {playlist.ToDiscordString()} created");
+            await RespondInfo($"Playlist {playlist.ToDiscordString()} created");
         }
+
         public async Task PlaylistAddSong(string playlistValue, string songValue)
         {
             var playlist = _playlists.GetByValueRequired(playlistValue);
             var song = await _songs.GetByValueRequired(songValue);
 
-            var addedSong = playlist.AddSong(song);
+            await Commands.PlaylistAddSong(playlist.Id, song.Id);
 
-            if (addedSong is null) {
-                await RespondAsync("Cant add the song to the playlist");
+            await RespondInfo($"Added {song.ToDiscordString()} to the {playlist.ToDiscordString()}");
+        }
+        public async Task PlaylistAddPlaylistSongs(string toPlaylistValue, string fromPlaylistValue)
+        {
+            var fromPlaylist = _playlists.GetByValueRequired(fromPlaylistValue);
+            var toPlaylist = _playlists.GetByValueRequired(toPlaylistValue);
+
+            int count = await Commands.PlaylistAddPlaylistSongs(toPlaylist.Id, fromPlaylist.Id);
+
+            await RespondInfo($"{count} songs added to the {toPlaylist.ToDiscordString()}");
+        }
+
+        public async Task PlaylistRemoveSong(string playlistValue, string songValue) {
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            var song = await _songs.GetByValueRequired(songValue);
+
+            await Commands.PlaylistRemoveSong(playlist.Id, song.Id);
+
+            await RespondInfo($"{song.ToDiscordString()} removed from {playlist.ToDiscordString()}");
+        }
+
+        public async Task PlaylistSearch(string querry, int page, SocketUser? addedByDiscordUser)
+        {
+            PamelloUser? addedBy = null;
+            if (addedByDiscordUser is not null) {
+                addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
+            }
+
+            var results = _playlists.Search(querry, addedBy);
+            string title;
+
+            if (querry.Length == 0) {
+                if (addedBy is null) {
+                    title = "Playlists";
+                }
+                else {
+                    title = $"Playlists added by {addedBy.Name}";
+                }
             }
             else {
-                await RespondAsync($"{addedSong.ToDiscordString()} to the playlist");
+                if (addedBy is null) {
+                    title = $"Playlists search \"{querry}\"";
+                }
+                else {
+                    title = $"Playlists added by {addedBy.Name} search \"{querry}\"";
+                }
             }
+
+            await RespondPage(
+                title,
+                results,
+                (sb, pos, playlist) => {
+                    sb.AppendLine(playlist.ToDiscordString().ToString());
+                },
+                page - 1
+            );
         }
-        public async Task PlaylistAddPlaylistSongs()
+        public async Task PlaylistSongsList(string playlistValue, int page)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+
+            await RespondPage(
+                $"Songs of playlist \"{playlist.Name}\"",
+                playlist.Songs,
+                (sb, pos, song) => {
+                    sb.AppendLine(song.ToDiscordString().ToString());
+                },
+                page - 1
+            );
         }
-        public async Task PlaylistSearch()
+        public async Task PlaylistInfo(string playlistValue)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            await Respond(PamelloEmbedBuilder.BuildPlaylistInfo(playlist));
         }
-        public async Task PlaylistInfo()
+        public async Task PlaylistRename(string playlistValue, string newName)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistRename(playlist.Id, newName);
         }
-        public async Task PlaylistRename()
+        public async Task PlaylistFavoriteAdd(string playlistValue)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistFavoriteAdd(playlist.Id);
+
+            await RespondInfo($"{playlist.ToDiscordString()} added to favorites");
         }
-        public async Task PlaylistFavoriteAdd()
+        public async Task PlaylistFavoriteRemove(string playlistValue)
         {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistFavoriteRemove(playlist.Id);
+
+            await RespondInfo($"{playlist.ToDiscordString()} removed from favorites");
         }
-        public async Task PlaylistFavoriteRemove()
+        public async Task PlaylistFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
-            throw new NotImplementedException();
+            PamelloUser? targetUser = null;
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordUser.Id) {
+                targetUser = _users.GetByDiscord(targetDiscordUser.Id);
+                if (targetUser is null) throw new Exception("Cant find a provided user");
+            }
+            if (targetUser is null) {
+                targetUser = Context.User;
+            }
+
+            var results = _playlists.Search(querry, favoriteBy: targetUser);
+
+            await RespondPage(
+                targetUser.Id == Context.User.Id ? "Favorite playlists" : $"Favorite playlists of {targetUser.Name}",
+                results,
+                (sb, pos, playlist) => {
+                    sb.AppendLine(playlist.ToDiscordString().ToString());
+                },
+                page - 1
+            );
         }
-        public async Task PlaylistFavoriteList()
+        public async Task PlaylistDelete(string playlistValue)
         {
-            throw new NotImplementedException();
-        }
-        public async Task PlaylistDelete()
-        {
-            throw new NotImplementedException();
+            var playlist = _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistDelete(playlist.Id);
         }
 
         //speakers

@@ -134,19 +134,31 @@ namespace PamelloV7.Server.Model
         }
 
         public void AddFavoriteSong(PamelloSong song) {
+            if (Entity.FavoriteSongs.Any(databaseSong => databaseSong.Id == song.Id))
+                throw new Exception("this song is already favorite");
+
             Entity.FavoriteSongs.Add(song.Entity);
             Save();
         }
         public void RemoveFavoriteSong(PamelloSong song) {
+            if (!Entity.FavoriteSongs.Any(databaseSong => databaseSong.Id == song.Id))
+                throw new Exception("this song is not favorite");
+
             Entity.FavoriteSongs.Remove(song.Entity);
             Save();
         }
 
         public void AddFavoritePlaylist(PamelloPlaylist playlist) {
+            if (Entity.FavoritePlaylists.Any(databasePlaylist => databasePlaylist.Id == playlist.Id))
+                throw new PamelloException("this playlist is already favorite");
+
             Entity.FavoritePlaylists.Add(playlist.Entity);
             Save();
         }
         public void RemoveFavoritePlaylist(PamelloPlaylist playlist) {
+            if (!Entity.FavoritePlaylists.Any(databasePlaylist => databasePlaylist.Id == playlist.Id))
+                throw new PamelloException("this playlist is not favorite");
+
             Entity.FavoritePlaylists.Remove(playlist.Entity);
             Save();
         }

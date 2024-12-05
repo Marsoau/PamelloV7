@@ -20,20 +20,8 @@ namespace PamelloV7.Server.Modules.Discord
             [Summary("playlist", "Playlist id or name")] string playlistValue
         ) => await PlayerQueuePlaylistAdd(playlistValue);
 
-        [SlashCommand("connect", "Connect speaker to your voice channel")]
-        public async Task ConnectHandler()
-            => await SpeakerConnect();
-
-        [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
-        public async Task DisconnectHandler()
-            => await SpeakerDisconnect();
-
         [SlashCommand("get-code", "Get authorization code")]
         public async Task GetCodeHandler()
             => await GetCode();
-
-        [SlashCommand("report-problem", "Send problem report")]
-        public async Task ReportProblemHandler()
-            => await Ping();
     }
 }

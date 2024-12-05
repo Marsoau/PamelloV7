@@ -80,7 +80,9 @@ namespace PamelloV7.Server.Handlers
 				}
                 else {
                     await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Exception occured"));
+                    Console.WriteLine($"|| EXCEPTION OCCURED IN COMMAND\n|| {commandInfo.Name}\n|| DESCRIPTION:");
                     Console.WriteLine(executionResult.Exception?.InnerException);
+                    Console.WriteLine($"|| DESCRIPTION END\n||\n||");
                 }
             }
 		}

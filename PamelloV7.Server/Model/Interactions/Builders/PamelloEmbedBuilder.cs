@@ -25,6 +25,9 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static Embed BuildPlayerInfo(PamelloPlayer player) {
             return PlayerInfo(player).Build();
         }
+        public static Embed BuildPlaylistInfo(PamelloPlaylist playlist) {
+            return PlaylistInfo(playlist).Build();
+        }
 
         public static EmbedBuilder Info(string header, string message, string description = "") {
             return new EmbedBuilder() {
@@ -164,6 +167,32 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 Fields = fields
             }
             .WithColor(0x00A795AC);
+        }
+        public static EmbedBuilder PlaylistInfo(PamelloPlaylist playlist) {
+            return new EmbedBuilder() {
+                Title = playlist.Name,
+                Footer = new EmbedFooterBuilder() {
+                    Text = $"Id: {playlist.Id}"
+                },
+                Fields = new List<EmbedFieldBuilder>() {
+                    new EmbedFieldBuilder() {
+                        Name = "Songs Count",
+                        Value = playlist.Songs.Count,
+                        IsInline = true,
+                    },
+                    new EmbedFieldBuilder() {
+                        Name = "Protected",
+                        Value = playlist,
+                        IsInline = true,
+                    },
+                    new EmbedFieldBuilder() {
+                        Name = "Added By",
+                        Value = new DiscordString(playlist.OwnedBy),
+                        IsInline = true,
+                    }
+                }
+            }
+            .WithColor(0x00484848);
         }
 
         public static EmbedBuilder Error(string message) {

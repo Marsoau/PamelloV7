@@ -1,5 +1,6 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
+using PamelloV7.Core.Enumerators;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -97,6 +98,13 @@ namespace PamelloV7.Server.Modules.Discord
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
                 [Summary("new-name", "Episode new name")] string newName
             ) => await SongEpisodesRename(songValue, episodePosition, newName);
+
+            [SlashCommand("skip", "Change episode skip state")]
+            public async Task SongEpisodesChangeStartHandler(
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue,
+                [Summary("episode-position", "Episode position in song")] int episodePosition,
+                [Summary("skip", "New episode skip state")] EBoolState state
+            ) => await SongEpisodesSkipSet(songValue, episodePosition, state);
 
             [SlashCommand("change-start", "Chabge episode start time")]
             public async Task SongEpisodesChangeStartHandler(

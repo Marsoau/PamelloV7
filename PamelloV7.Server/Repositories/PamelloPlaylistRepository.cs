@@ -15,6 +15,8 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloPlaylist Create(string name, PamelloUser user) {
+            if (name.Length == 0) throw new PamelloException("Playlist name cant be empty");
+
             var databasePlaylist = new DatabasePlaylist() {
                 Name = name,
                 Songs = [],

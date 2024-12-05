@@ -1,4 +1,5 @@
-﻿using PamelloV7.DAL.Entity;
+﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.DAL.Entity;
 
 namespace PamelloV7.Server.Model
 {
@@ -14,6 +15,15 @@ namespace PamelloV7.Server.Model
                 if (Entity.Name == value) return;
 
                 Entity.Name = value;
+            }
+        }
+
+        public bool IsProtected {
+            get => Entity.IsProtected;
+            set {
+                if (Entity.IsProtected == value) return;
+
+                Entity.IsProtected = value;
             }
         }
 
@@ -34,15 +44,40 @@ namespace PamelloV7.Server.Model
 
         }
 
-        public PamelloSong? AddSong(PamelloSong song) {
+        public void AddSong(PamelloSong song) {
             if (Entity.Songs.Any(databaseSong => databaseSong.Id == song.Id)) {
-                return null;
+                throw new PamelloException("Song is already present in that playlist");
             }
 
             Entity.Songs.Add(song.Entity);
             Save();
+        }
 
-            return song;
+        public int AddList(IReadOnlyList<PamelloSong> list) {
+            int count = 0;
+
+            foreach (var song in list) {
+                if (Entity.Songs.Any(databaseSong => databaseSong.Id == song.Id)) continue;
+
+                Entity.Songs.Add(song.Entity);
+
+                count++;
+            }
+
+            if (count > 0) {
+                Save();
+            }
+
+            return count;
+        }
+
+        public void RemoveSong(PamelloSong song) {
+            if (!Entity.Songs.Any(databaseSong => databaseSong.Id == song.Id)) {
+                throw new PamelloException("There is no that song in that playlist");
+            }
+
+            Entity.Songs.Remove(song.Entity);
+            Save();
         }
 
         public override object? DTO => new { };

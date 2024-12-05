@@ -172,23 +172,27 @@ namespace PamelloV7.Server.Model.Audio
             rewindCompletion.SetResult();
             _rewinding = null;
         }
-        public async Task RewindToEpisode(int episodePosition) {
-            if (episodePosition >= Song.Episodes.Count) {
-                await RewindTo(Duration);
+        public async Task RewindToEpisode(int episodePosition, bool forceEpisodePlayback = true) {
+            var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
+            if (episode is null) {
+                if (episodePosition > 0) {
+                    await RewindTo(Duration, forceEpisodePlayback);
+                }
+                else {
+                    await RewindTo(new AudioTime(0), forceEpisodePlayback);
+                }
+
                 return;
             }
 
-            var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
-            if (episode is null) return;
-
-            await RewindTo(new AudioTime(episode.Start));
+            await RewindTo(new AudioTime(episode.Start), forceEpisodePlayback);
         }
 
         public int? GetCurrentEpisodePosition() {
             int? closestLeft = null;
 
             for (int i = 0; i < Song.Episodes.Count; i++) {
-                if (Song.Episodes[i].Start < Position.TotalSeconds && Song.Episodes[i].Start > (closestLeft is not null ? Song.Episodes[closestLeft.Value].Start : int.MinValue)) {
+                if (Song.Episodes[i].Start <= Position.TotalSeconds && Song.Episodes[i].Start > (closestLeft is not null ? Song.Episodes[closestLeft.Value].Start : int.MinValue)) {
                     closestLeft = i;
                 }
             }

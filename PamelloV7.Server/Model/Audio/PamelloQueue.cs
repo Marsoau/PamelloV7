@@ -97,6 +97,9 @@ namespace PamelloV7.Server.Model.Audio
         public int Count {
             get => _audios.Count;
         }
+        public IReadOnlyList<PamelloSong> Songs {
+            get => _audios;
+        }
 
         public void SetCurrent(PamelloSong? song) {
             if (_current is not null) {
