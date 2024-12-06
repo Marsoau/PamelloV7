@@ -126,8 +126,7 @@ namespace PamelloV7.Server.Model
             }
 
             if (player is null) {
-                var playerId = Commands.PlayerCreate("Player").Result;
-                player = _players.GetRequired(playerId);
+                player = Commands.PlayerCreate("Player").Result;
             }
 
             SelectedPlayer = player;

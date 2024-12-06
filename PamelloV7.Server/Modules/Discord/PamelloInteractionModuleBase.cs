@@ -91,7 +91,7 @@ namespace PamelloV7.Server.Modules.Discord
             var player = await _players.GetByValue(playerValue);
             if (player is null) throw new PamelloException($"Cant find a player with value \"{playerValue}\"");
 
-            await Commands.PlayerSelect(player?.Id);
+            await Commands.PlayerSelect(player);
 
             if (Player is null) {
                 await RespondInfo($"Player selection reseted");
@@ -102,10 +102,9 @@ namespace PamelloV7.Server.Modules.Discord
         }
         public async Task PlayerCreate(string name)
         {
-            var playerId = await Commands.PlayerCreate(name);
-            await Commands.PlayerSelect(playerId);
+            var player = await Commands.PlayerCreate(name);
+            await Commands.PlayerSelect(player);
 
-            var player = _players.GetRequired(playerId);
             await RespondInfo($"Player {player?.ToDiscordString()} created and selected");
         }
         public async Task PlayerProtection(EBoolState state)
@@ -212,7 +211,7 @@ namespace PamelloV7.Server.Modules.Discord
             var song = await _songs.GetByValue(songValue, Context.User);
             if (song is null) throw new PamelloException($"Cant get song by value \"{songValue}\"");
 
-            await Commands.PlayerQueueSongAdd(song.Id);
+            await Commands.PlayerQueueSongAdd(song);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {song.ToDiscordString()}");
         }
@@ -221,7 +220,7 @@ namespace PamelloV7.Server.Modules.Discord
             var song = await _songs.GetByValue(songValue, Context.User);
             if (song is null) throw new PamelloException($"Cant get song by value \"{songValue}\"");
 
-            await Commands.PlayerQueueSongInsert(position, song.Id);
+            await Commands.PlayerQueueSongInsert(position, song);
 
             await RespondPlayerInfo("Insert song to the queue", $"Added {song.ToDiscordString()}");
         }
@@ -230,7 +229,7 @@ namespace PamelloV7.Server.Modules.Discord
             var playlist = await _playlists.GetByValue(playlistValue);
             if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
 
-            await Commands.PlayerQueuePlaylistAdd(playlist.Id);
+            await Commands.PlayerQueuePlaylistAdd(playlist);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
@@ -239,7 +238,7 @@ namespace PamelloV7.Server.Modules.Discord
             var playlist = await _playlists.GetByValue(playlistValue);
             if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
 
-            await Commands.PlayerQueuePlaylistInsert(position, playlist.Id);
+            await Commands.PlayerQueuePlaylistInsert(position, playlist);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
@@ -381,7 +380,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var song = await _songs.GetByValue(songValue, Context.User);
             if (song is null) throw new PamelloException($"Cant find song by value \"{songValue}\"");
 
-            await Commands.SongRename(song.Id, newName);
+            await Commands.SongRename(song, newName);
 
             await RespondInfo($"{song.ToDiscordString()} renamed");
         }
@@ -390,7 +389,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongFavoriteAdd(song.Id);
+            await Commands.SongFavoriteAdd(song);
 
             await RespondInfo($"{song.ToDiscordString()} added to favorites");
         }
@@ -398,7 +397,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongFavoriteRemove(song.Id);
+            await Commands.SongFavoriteRemove(song);
 
             await RespondInfo($"{song.ToDiscordString()} removed from favorites");
         }
@@ -428,14 +427,14 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SongAssociacionsAdd(string songValue, string associacion)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociacionsAdd(song.Id, associacion);
+            await Commands.SongAssociacionsAdd(song, associacion);
 
             await RespondInfo($"Associacion \"{associacion}\" added to song {song.ToDiscordString()}");
         }
         public async Task SongAssociacionsRemove(string songValue, string associacion)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociacionsRemove(song.Id, associacion);
+            await Commands.SongAssociacionsRemove(song, associacion);
 
             await RespondInfo($"Associacion \"{associacion}\" removed from song {song.ToDiscordString()}");
         }
@@ -458,7 +457,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var song = await _songs.GetByValueRequired(songValue, Context.User);
             var episodeStart = AudioTime.FromStrTime(episodeTime);
 
-            var episodeId = await Commands.SongEpisodesAdd(song.Id, episodeStart.TotalSeconds, episodeName);
+            var episodeId = await Commands.SongEpisodesAdd(song, episodeStart.TotalSeconds, episodeName);
             var episode = _episodes.GetRequired(episodeId);
 
             await RespondInfo($"Episode {episode.ToDiscordString()} added");
@@ -467,7 +466,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesRemove(song.Id, episodePosition);
+            await Commands.SongEpisodesRemove(song, episodePosition);
 
             await RespondInfo($"Episode removed");
         }
@@ -475,7 +474,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesRename(song.Id, episodePosition, newName);
+            await Commands.SongEpisodesRename(song, episodePosition, newName);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
@@ -489,7 +488,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesSkipSet(song.Id, episodePosition, state == EBoolState.Enabled);
+            await Commands.SongEpisodesSkipSet(song, episodePosition, state == EBoolState.Enabled);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
@@ -509,7 +508,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var song = await _songs.GetByValueRequired(songValue, Context.User);
             var newStart = AudioTime.FromStrTime(newTime);
 
-            await Commands.SongEpisodesEditTime(song.Id, episodePosition, newStart.TotalSeconds);
+            await Commands.SongEpisodesEditTime(song, episodePosition, newStart.TotalSeconds);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
@@ -523,7 +522,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesClear(song.Id);
+            await Commands.SongEpisodesClear(song);
 
             await RespondInfo("Song episodes cleared");
         }
@@ -555,7 +554,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var playlist = await _playlists.GetByValueRequired(playlistValue);
             var song = await _songs.GetByValueRequired(songValue);
 
-            await Commands.PlaylistAddSong(playlist.Id, song.Id);
+            await Commands.PlaylistAddSong(playlist, song);
 
             await RespondInfo($"Added {song.ToDiscordString()} to the {playlist.ToDiscordString()}");
         }
@@ -573,7 +572,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var playlist = await _playlists.GetByValueRequired(playlistValue);
             var song = await _songs.GetByValueRequired(songValue);
 
-            await Commands.PlaylistRemoveSong(playlist.Id, song.Id);
+            await Commands.PlaylistRemoveSong(playlist, song);
 
             await RespondInfo($"{song.ToDiscordString()} removed from {playlist.ToDiscordString()}");
         }
@@ -634,20 +633,20 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistRename(string playlistValue, string newName)
         {
-            var playlist = _playlists.GetByValueRequired(playlistValue);
-            await Commands.PlaylistRename(playlist.Id, newName);
+            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistRename(playlist, newName);
         }
         public async Task PlaylistFavoriteAdd(string playlistValue)
         {
             var playlist = await _playlists.GetByValueRequired(playlistValue);
-            await Commands.PlaylistFavoriteAdd(playlist.Id);
+            await Commands.PlaylistFavoriteAdd(playlist);
 
             await RespondInfo($"{playlist.ToDiscordString()} added to favorites");
         }
         public async Task PlaylistFavoriteRemove(string playlistValue)
         {
             var playlist = await _playlists.GetByValueRequired(playlistValue);
-            await Commands.PlaylistFavoriteRemove(playlist.Id);
+            await Commands.PlaylistFavoriteRemove(playlist);
 
             await RespondInfo($"{playlist.ToDiscordString()} removed from favorites");
         }
@@ -675,8 +674,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistDelete(string playlistValue)
         {
-            var playlist = _playlists.GetByValueRequired(playlistValue);
-            await Commands.PlaylistDelete(playlist.Id);
+            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            await Commands.PlaylistDelete(playlist);
         }
 
         //speakers

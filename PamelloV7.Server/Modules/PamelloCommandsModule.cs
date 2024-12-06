@@ -45,20 +45,19 @@ namespace PamelloV7.Server.Modules
 
         //player
         [PamelloCommand]
-        public async Task<int> PlayerCreate(string playerName) {
+        public async Task<PamelloPlayer> PlayerCreate(string playerName) {
             var player = _players.Create(User, playerName);
             User.SelectedPlayer = player;
 
-            return player.Id;
+            return player;
         }
+
         [PamelloCommand]
-        public async Task PlayerSelect(int? playerId) {
-            if (playerId is null) {
+        public async Task PlayerSelect(PamelloPlayer? player) {
+            if (player is null) {
                 User.SelectedPlayer = null;
                 return;
             }
-
-            var player = _players.GetRequired(playerId.Value);
 
             if (player.IsProtected) {
                 var vc = _discordClients.GetUserVoiceChannel(User);
@@ -144,13 +143,11 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task PlayerQueueSongAdd(int songId) {
-            var song = _songs.GetRequired(songId);
+        public async Task PlayerQueueSongAdd(PamelloSong song) {
             Player.Queue.AddSong(song);
         }
         [PamelloCommand]
-        public async Task PlayerQueueSongInsert(int queuePosition, int songId) {
-            var song = _songs.GetRequired(songId);
+        public async Task PlayerQueueSongInsert(int queuePosition, PamelloSong song) {
             Player.Queue.InsertSong(queuePosition, song);
         }
         [PamelloCommand]
@@ -168,13 +165,11 @@ namespace PamelloV7.Server.Modules
             Player.Queue.InsertSong(queuePosition, song);
         }
         [PamelloCommand]
-        public async Task PlayerQueuePlaylistAdd(int playlistId) {
-            var playlist = _playlists.GetRequired(playlistId);
+        public async Task PlayerQueuePlaylistAdd(PamelloPlaylist playlist) {
             Player.Queue.AddPlaylist(playlist);
         }
         [PamelloCommand]
-        public async Task PlayerQueuePlaylistInsert(int queuePosition, int playlistId) {
-            var playlist = _playlists.GetRequired(playlistId);
+        public async Task PlayerQueuePlaylistInsert(int queuePosition, PamelloPlaylist playlist) {
             Player.Queue.InsertPlaylist(queuePosition, playlist);
         }
         [PamelloCommand]
@@ -226,70 +221,59 @@ namespace PamelloV7.Server.Modules
             return (await _songs.AddAsync(youtubeId, User))?.Id ?? throw new PamelloException($"Cant add youtube song with id \"{youtubeId}\"");
         }
         [PamelloCommand]
-        public async Task SongRename(int songId, string newName) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongRename(PamelloSong song, string newName) {
             song.Name = newName;
         }
 
         [PamelloCommand]
-        public async Task SongFavoriteAdd(int songId) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongFavoriteAdd(PamelloSong song) {
             User.AddFavoriteSong(song);
         }
         [PamelloCommand]
-        public async Task SongFavoriteRemove(int songId) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongFavoriteRemove(PamelloSong song) {
             User.RemoveFavoriteSong(song);
         }
 
         [PamelloCommand]
-        public async Task SongAssociacionsAdd(int songId, string associacion) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongAssociacionsAdd(PamelloSong song, string associacion) {
             song.AddAssociacion(associacion);
         }
         [PamelloCommand]
-        public async Task SongAssociacionsRemove(int songId, string associacion) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongAssociacionsRemove(PamelloSong song, string associacion) {
             song.RemoveAssociacion(associacion);
         }
 
         [PamelloCommand]
-        public async Task<int> SongEpisodesAdd(int songId, int episodeStart, string episodeName) {
-            var song = _songs.GetRequired(songId);
+        public async Task<int> SongEpisodesAdd(PamelloSong song, int episodeStart, string episodeName) {
             return song.AddEpisode(new AudioTime(episodeStart), episodeName).Id;
         }
         [PamelloCommand]
-        public async Task SongEpisodesRemove(int songId, int episodePosition) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongEpisodesRemove(PamelloSong song, int episodePosition) {
             song.RemoveEpisode(episodePosition);
         }
         [PamelloCommand]
-        public async Task SongEpisodesRename(int songId, int episodePosition, string newName) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongEpisodesRename(PamelloSong song, int episodePosition, string newName) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
             episode.Name = newName;
         }
         [PamelloCommand]
-        public async Task SongEpisodesSkipSet(int songId, int episodePosition, bool newState) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongEpisodesSkipSet(PamelloSong song, int episodePosition, bool newState) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
             episode.Skip = newState;
         }
         [PamelloCommand]
-        public async Task SongEpisodesEditTime(int songId, int episodePosition, int newTime) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongEpisodesEditTime(PamelloSong song, int episodePosition, int newTime) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
             episode.Start = newTime;
         }
         [PamelloCommand]
-        public async Task SongEpisodesClear(int songId) {
-            var song = _songs.GetRequired(songId);
+        public async Task SongEpisodesClear(PamelloSong song) {
             _episodes.DeleteAllFrom(song);
         }
     
@@ -305,10 +289,7 @@ namespace PamelloV7.Server.Modules
             return playlist.Id;
         }
         [PamelloCommand]
-        public async Task PlaylistAddSong(int playlistId, int songId) {
-            var playlist = _playlists.GetRequired(playlistId);
-            var song = _songs.GetRequired(songId);
-
+        public async Task PlaylistAddSong(PamelloPlaylist playlist, PamelloSong song) {
             playlist.AddSong(song);
         }
         [PamelloCommand]
@@ -319,30 +300,24 @@ namespace PamelloV7.Server.Modules
             return toPlaylist.AddList(fromPlaylist.Songs);
         }
         [PamelloCommand]
-        public async Task PlaylistRemoveSong(int playlistId, int songId) {
-            var playlist = _playlists.GetRequired(playlistId);
-            var song = _songs.GetRequired(songId);
-
+        public async Task PlaylistRemoveSong(PamelloPlaylist playlist, PamelloSong song) {
             playlist.RemoveSong(song);
         }
         [PamelloCommand]
-        public async Task PlaylistRename(int playlistId, string newName) {
-            var playlist = _playlists.GetRequired(playlistId);
+        public async Task PlaylistRename(PamelloPlaylist playlist, string newName) {
             playlist.Name = newName;
         }
         [PamelloCommand]
-        public async Task PlaylistFavoriteAdd(int playlistId) {
-            var playlist = _playlists.GetRequired(playlistId);
+        public async Task PlaylistFavoriteAdd(PamelloPlaylist playlist) {
             User.AddFavoritePlaylist(playlist);
         }
         [PamelloCommand]
-        public async Task PlaylistFavoriteRemove(int playlistId) {
-            var playlist = _playlists.GetRequired(playlistId);
+        public async Task PlaylistFavoriteRemove(PamelloPlaylist playlist) {
             User.RemoveFavoritePlaylist(playlist);
         }
         [PamelloCommand]
-        public async Task PlaylistDelete(int playlistId) {
-            _playlists.Delete(playlistId);
+        public async Task PlaylistDelete(PamelloPlaylist playlist) {
+            _playlists.Delete(playlist.Id);
         }
 
         //speakers

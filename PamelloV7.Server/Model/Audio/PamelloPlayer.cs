@@ -50,11 +50,6 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         public readonly PamelloQueue Queue;
-        public IReadOnlyList<PamelloUser> Users {
-            get => throw new NotImplementedException();
-        }
-
-        public object? DTO => throw new NotImplementedException();
 
         private static int _idCounter = 1;
 
