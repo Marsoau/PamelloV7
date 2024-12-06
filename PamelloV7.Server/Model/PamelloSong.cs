@@ -3,6 +3,7 @@ using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.DTO;
 
 namespace PamelloV7.Server.Model
 {
@@ -102,12 +103,16 @@ namespace PamelloV7.Server.Model
         }
 
         public void AddAssociacion(string associacion) {
+            if (DatabaseAssociacion.Reserved.Contains(associacion)) {
+                throw new PamelloException($"Associacion \"{associacion}\" is reserved");
+            }
+
             var databaseAssociacion = _database.Associacions.Find(associacion);
             if (databaseAssociacion is not null) {
                 if (databaseAssociacion.Song.Id == Entity.Id)
-                    throw new PamelloException("Associacion already exist this song");
+                    throw new PamelloException($"Associacion \"{associacion}\" already exist this song");
 
-                throw new PamelloException("Associacion already exist for another song");
+                throw new PamelloException($"Associacion \"{associacion}\" already exist for another song");
             }
 
             databaseAssociacion = new DatabaseAssociacion() {
@@ -141,9 +146,22 @@ namespace PamelloV7.Server.Model
             _episodes.Delete(episode.Id);
         }
 
-        public override object DTO => new {
-            Name = "gay"
-        };
+        public override IPamelloDTO GetDTO() {
+            return new PamelloSongDTO {
+                Id = Id,
+                Name = Name,
+                YoutubeId = YoutubeId,
+                CoverUrl = CoverUrl,
+                PlayCount = PlayCount,
+                AddedById = Entity.AddedBy.Id,
+                AddedAt = AddedAt,
+
+                Associacions = Associacions,
+                FavoriteByIds = FavoritedBy.Select(user => user.Id),
+                PlaylistsIds = Playlists.Select(playlist => playlist.Id),
+                EpisodesIds = Episodes.Select(episode => episode.Id),
+            };
+        }
 
         public override DiscordString ToDiscordString() {
             return DiscordString.Url(Name, $"https://www.youtube.com/watch?v={YoutubeId}") + " " + DiscordString.Code($"[{Id}]");

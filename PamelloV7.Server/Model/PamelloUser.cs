@@ -5,6 +5,7 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Modules;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
+using PamelloV7.Core.DTO;
 
 namespace PamelloV7.Server.Model
 {
@@ -60,7 +61,7 @@ namespace PamelloV7.Server.Model
         public IReadOnlyList<PamelloSong> AddedSongs {
             get => Entity.AddedSongs.Select(song => _songs.GetRequired(song.Id)).ToList();
         }
-        public IReadOnlyList<PamelloPlaylist> OwnedPlaylist {
+        public IReadOnlyList<PamelloPlaylist> AddedPlaylists {
             get => Entity.OwnedPlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
         }
         public IReadOnlyList<PamelloSong> FavoriteSongs {
@@ -167,6 +168,20 @@ namespace PamelloV7.Server.Model
             return _playlists.Create(name, this);
         }
 
-        public override object DTO => new { };
+        public override IPamelloDTO GetDTO() {
+            return new PamelloUserDTO() {
+                Id = Id,
+                Name = Name,
+                DiscordId = DiscordUser.Id,
+                AvatarUrl = DiscordUser.GetAvatarUrl(),
+                SelectedPlayerId = SelectedPlayer?.Id,
+                IsAdministrator = IsAdministrator,
+
+                AddedSongsIds = AddedSongs.Select(song => song.Id),
+                AddedPlaylistsIds = AddedPlaylists.Select(playlist => playlist.Id),
+                FavoriteSongsIds = FavoriteSongs.Select(song => song.Id),
+                FavoritePlaylistsIds = FavoritePlaylists.Select(playlist => playlist.Id),
+            };
+        }
     }
 }

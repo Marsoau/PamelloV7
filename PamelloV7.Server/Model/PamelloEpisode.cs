@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Core.Audio;
+using PamelloV7.Core.DTO;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
 
@@ -55,10 +56,18 @@ namespace PamelloV7.Server.Model
             return DiscordString.Code(new AudioTime(Start).ToShortString()) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}") + " " + (Skip ? DiscordString.Italic("skip").ToString() : "");
         }
 
-        public override object? DTO => new { };
-
         public override string ToString() {
-            return $"{base.ToString()} ({(Skip ? "Skip" : "Play")})";
+            return $"[{Id} ({(Skip ? "Skip" : "Play")})] {Name}";
+        }
+
+        public override IPamelloDTO GetDTO() {
+            return new PamelloEpisodeDTO() {
+                Id = Id,
+                Name = Name,
+                Start = Start,
+                Skip = Skip,
+                SongId = Song.Id,
+            };
         }
     }
 }

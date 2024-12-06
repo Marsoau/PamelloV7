@@ -1,4 +1,5 @@
-﻿using PamelloV7.Core.Enumerators;
+﻿using PamelloV7.Core.DTO;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 
@@ -146,6 +147,29 @@ namespace PamelloV7.Server.Model.Audio
         }
         public string ToDiscordFooterString() {
             return $"{Name} [{Id}] {(IsProtected ? " (private)" : "")}";
+        }
+
+        public IPamelloDTO GetDTO() {
+            return new PamelloPlayerDTO {
+                Id = Id,
+                Name = Name,
+                IsPaused = IsPaused,
+                State = Status,
+
+                CurrentSongId = Queue.Current?.Song.Id,
+                QueueSongsIds = Queue.Songs.Select(song => song.Id),
+                QueuePosition = Queue.Position,
+                CurrentEpisodePosition = Queue.Current?.GetCurrentEpisodePosition(),
+                NextPositionRequest = Queue.NextPositionRequest,
+
+                CurrentSongTimePassed = Queue.Current?.Position.TotalSeconds ?? 0,
+                CurrentSongTimeTotal = Queue.Current?.Duration.TotalSeconds ?? 0,
+                
+                QueueIsRandom = Queue.IsRandom,
+                QueueIsReversed = Queue.IsReversed,
+                QueueIsNoLeftovers = Queue.IsNoLeftovers,
+                QueueIsFeedRandom = Queue.IsFeedRandom,
+            };
         }
     }
 }

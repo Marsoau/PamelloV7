@@ -13,5 +13,7 @@ namespace PamelloV7.DAL.Entity
     {
         public string Associacion;
         public DatabaseSong Song { get; set; }
+
+        public static string[] Reserved = ["current", "random"];
     }
 }

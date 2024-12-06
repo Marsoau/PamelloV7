@@ -63,6 +63,22 @@ namespace PamelloV7.Server.Repositories
             return pamelloUser;
         }
 
+        public override Task<PamelloUser?> GetByValue(string value, PamelloUser? scopeUser) {
+            PamelloUser? user = null;
+
+            if (value == "current") {
+                user = scopeUser;
+            }
+            else if (int.TryParse(value, out var id)) {
+                user = Get(id);
+            }
+            else if (Guid.TryParse(value, out var token)) {
+                user = GetByToken(token);
+            }
+
+            return Task.FromResult(user);
+        }
+
         public override PamelloUser? Load(DatabaseUser databaseUser) {
             var pamelloUser = _loaded.FirstOrDefault(user => user.Id == databaseUser.Id);
             if (pamelloUser is not null) return pamelloUser;

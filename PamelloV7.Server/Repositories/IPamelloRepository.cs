@@ -5,7 +5,9 @@ namespace PamelloV7.Server.Repositories
 {
     public interface IPamelloRepository<TEntity> where TEntity : IEntity
     {
+        public TEntity? Get(int id);
+        public Task<TEntity?> GetByValue(string value, PamelloUser? scopeUser = null);
         public TEntity GetRequired(int id);
-        public TEntity Get(int id);
+        public Task<TEntity> GetByValueRequired(string value, PamelloUser? scopeUser = null);
     }
 }

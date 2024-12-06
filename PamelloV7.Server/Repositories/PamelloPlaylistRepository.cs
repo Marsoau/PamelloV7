@@ -33,8 +33,6 @@ namespace PamelloV7.Server.Repositories
 
         public PamelloPlaylist GetByNameRequired(string name)
             => GetByName(name) ?? throw new PamelloException($"Cant find playlist by name \"{name}\"");
-        public PamelloPlaylist GetByValueRequired(string value)
-            => GetByValue(value) ?? throw new PamelloException($"Cant find playlist by value \"{value}\"");
 
         public PamelloPlaylist? GetByName(string name) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);
@@ -46,7 +44,7 @@ namespace PamelloV7.Server.Repositories
             return Load(databasePlaylist);
         }
 
-        public PamelloPlaylist? GetByValue(string value) {
+        public override Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser = null) {
             PamelloPlaylist? playlist = null;
 
             if (int.TryParse(value, out int id)) {
@@ -55,8 +53,9 @@ namespace PamelloV7.Server.Repositories
 
             playlist ??= GetByName(value);
 
-            return playlist;
+            return Task.FromResult(playlist);
         }
+
         public List<PamelloPlaylist> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null) {
             LoadAll();
 

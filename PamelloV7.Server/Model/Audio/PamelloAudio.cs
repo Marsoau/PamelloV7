@@ -232,8 +232,7 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         private async Task<MemoryStream?> LoadChunkAsync(int position) {
-            Console.WriteLine($"->\n-> loading chunk at {position}\n->");
-
+            //Console.WriteLine($"->\n-> loading chunk at {position}\n->");
 
             if (_ffmpeg is null) {
                 Console.WriteLine("ffmpeg creating 1");
@@ -251,11 +250,11 @@ namespace PamelloV7.Server.Model.Audio
             byte[] buffer = new byte[2];
 
             if (_ffmpegPosition > startPos) {
-                Console.WriteLine("ffmpeg creating 2");
+                //Console.WriteLine("ffmpeg creating 2");
                 CreateFFMpeg();
             }
 
-            Console.WriteLine($"seeking to the start from {_ffmpegPosition} to {startPos}");
+            //Console.WriteLine($"seeking to the start from {_ffmpegPosition} to {startPos}");
             while (_ffmpegPosition < startPos) {
                 if (_ffmpeg.StandardOutput.EndOfStream) return null;
 
@@ -266,11 +265,11 @@ namespace PamelloV7.Server.Model.Audio
 
             var chunkStream = new MemoryStream();
 
-            Console.WriteLine($"seeking to the end from {_ffmpegPosition} to {endPos}");
+            //Console.WriteLine($"seeking to the end from {_ffmpegPosition} to {endPos}");
             while (_ffmpegPosition < endPos) {
                 if (_ffmpeg.StandardOutput.EndOfStream) {
                     if (chunkStream.Length > 0) {
-                        Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
+                        //Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
                         return chunkStream;
                     }
                     else return null;
@@ -283,7 +282,7 @@ namespace PamelloV7.Server.Model.Audio
 
             _ffmpeg.Suspend();
 
-            Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
+            //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
             return chunkStream;
         }
 

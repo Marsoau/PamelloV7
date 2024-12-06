@@ -1,4 +1,5 @@
-﻿using PamelloV7.Server.Model.Discord;
+﻿using PamelloV7.Core.DTO;
+using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model
 {
@@ -9,6 +10,6 @@ namespace PamelloV7.Server.Model
 
         public DiscordString ToDiscordString();
 
-        public object? DTO { get; }
+        public IPamelloDTO GetDTO();
     }
 }

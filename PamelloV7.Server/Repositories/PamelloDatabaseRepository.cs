@@ -47,6 +47,10 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseEntity);
         }
 
+        public async Task<TPamelloEntity> GetByValueRequired(string value, PamelloUser? scopeUser = null)
+            => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with value \"{value}\"");
+        public abstract Task<TPamelloEntity?> GetByValue(string value, PamelloUser? scopeUser);
+
         protected List<TPamelloEntity> Search(IEnumerable<TPamelloEntity> list, string querry) {
             var results = new List<TPamelloEntity>();
             querry = querry.ToLower();

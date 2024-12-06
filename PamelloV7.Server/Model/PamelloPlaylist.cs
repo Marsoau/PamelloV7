@@ -1,4 +1,5 @@
-﻿using PamelloV7.Core.Exceptions;
+﻿using PamelloV7.Core.DTO;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL.Entity;
 
 namespace PamelloV7.Server.Model
@@ -80,6 +81,16 @@ namespace PamelloV7.Server.Model
             Save();
         }
 
-        public override object? DTO => new { };
+        public override IPamelloDTO GetDTO() {
+            return new PamelloPlaylistDTO() {
+                Id = Id,
+                Name = Name,
+                AddedById = Entity.Owner.Id,
+                IsProtected = IsProtected,
+
+                FavoriteByIds = FavoritedBy.Select(user => user.Id),
+                SongsIds = Songs.Select(song => song.Id),
+            };
+        }
     }
 }

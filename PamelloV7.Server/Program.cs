@@ -4,6 +4,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using PamelloV7.DAL;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Filters;
 using PamelloV7.Server.Handlers;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
@@ -74,7 +75,7 @@ namespace PamelloV7.Server
         }
 
         private static void ConfigureAPIServices(IServiceCollection services) {
-            services.AddControllers();
+            services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
             services.AddHttpClient();
         }
 
@@ -161,8 +162,7 @@ namespace PamelloV7.Server
         }
 
         private static async Task StartupAPIServices(WebApplication app) {
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
+            //app.UseHttpsRedirection();
 
             app.MapControllers();
 

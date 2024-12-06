@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Extensions
  
         public static void Suspend(this Process process)
         {
-            Console.WriteLine("suspending");
+            //Console.WriteLine("suspending");
             Action<ProcessThread> suspend = pt =>
             {
                 var threadHandle = NativeMethods.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pt.Id);
@@ -54,7 +54,7 @@ namespace PamelloV7.Server.Extensions
  
         public static void Resume(this Process process)
         {
-            Console.WriteLine("resuming");
+            //Console.WriteLine("resuming");
             Action<ProcessThread> resume = pt =>
             {
                 var threadHandle = NativeMethods.OpenThread(ThreadAccess.SUSPEND_RESUME, false, (uint)pt.Id);

@@ -26,8 +26,6 @@ namespace PamelloV7.Server.Repositories
             => GetByAssociacion(associacion) ?? throw new PamelloException($"Cant find song by associacion \"{associacion}\"");
         public PamelloSong GetByYouTubeIdRequired(string youtubeId)
             => GetByYoutubeId(youtubeId) ?? throw new PamelloException($"Cant find song by youtube id \"{youtubeId}\"");
-        public async Task<PamelloSong> GetByValueRequired(string value)
-            => await GetByValue(value) ?? throw new PamelloException($"Cant find song by value \"{value}\"");
 
         public PamelloSong? GetByName(string name) {
             var pamelloSong = _loaded.FirstOrDefault(song => song.Name == name);
@@ -56,18 +54,24 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseSong);
         }
 
-        public async Task<PamelloSong?> GetByValue(string value, PamelloUser? adder = null) {
+        public override async Task<PamelloSong?> GetByValue(string value, PamelloUser? scopeUser = null) {
             PamelloSong? song = null;
 
-            if (int.TryParse(value, out var songId)) {
+            if (value == "current") {
+                song = scopeUser?.SelectedPlayer?.Queue.Current?.Song;
+            }
+            else if (value == "random") {
+                song = GetRandom();
+            }
+            else if (int.TryParse(value, out var songId)) {
                 song = Get(songId);
             }
             else if (value.StartsWith("http")) {
                 var youtubeId = _youtube.GetVideoIdFromUrl(value);
                 song = GetByYoutubeId(youtubeId);
 
-                if (song is null && adder is not null) {
-                    song = await AddAsync(youtubeId, adder);
+                if (song is null && scopeUser is not null) {
+                    song = await AddAsync(youtubeId, scopeUser);
                 }
             }
             else {
@@ -82,6 +86,8 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloSong? GetRandom() {
+            if (_nonloaded.Count == 0) return null;
+
             var randomPosition = Random.Shared.Next(0, _nonloaded.Count);
             return Load(_nonloaded[randomPosition]);
         }
@@ -94,11 +100,12 @@ namespace PamelloV7.Server.Repositories
                 file = pv5files[Random.Shared.Next(0, pv5files.Length)];
             } while (file.Extension != ".mp4");
 
-            return await AddAsync(file.Name, adder);
+            return await AddAsync(file.Name.Substring(0, 11), adder);
         }
 
         public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {
             if (adder is null) return null;
+            if (youtubeId?.Length != 11) return null;
 
             var pamelloSong = GetByYoutubeId(youtubeId);
             if (pamelloSong is not null) return pamelloSong;

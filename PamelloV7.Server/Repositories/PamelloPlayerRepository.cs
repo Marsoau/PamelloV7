@@ -5,7 +5,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories
 {
-    public class PamelloPlayerRepository
+    public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>
     {
         private readonly IServiceProvider _services;
 
@@ -77,18 +77,22 @@ namespace PamelloV7.Server.Repositories
             return results;
         }
 
-        public PamelloPlayer? GetByValue(string value) {
-            if (value == "0") return null;
-
+        public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser = null)
+            => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required player wuth id {value}");
+        public Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser = null) {
             PamelloPlayer? player = null;
 
-            if (int.TryParse(value, out int id)) {
+            if (value == "current") {
+                player = scopeUser?.SelectedPlayer;
+            }
+            else if (int.TryParse(value, out int id)) {
                 player = Get(id);
             }
+            else {
+                player = GetByName(value);
+            }
 
-            player ??= GetByName(value);
-
-            return player;
+            return Task.FromResult(player);
         }
     }
 }
