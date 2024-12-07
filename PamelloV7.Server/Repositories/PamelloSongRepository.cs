@@ -145,7 +145,7 @@ namespace PamelloV7.Server.Repositories
 
         public override void Delete(int id) => throw new NotImplementedException();
 
-        public List<PamelloSong> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null) {
+        public async Task<IEnumerable<PamelloSong>> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null, PamelloUser scopeUser = null) {
             LoadAll();
 
             IEnumerable<PamelloSong> list = _loaded;
@@ -157,7 +157,7 @@ namespace PamelloV7.Server.Repositories
                 list = list.Where(song => song.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
             }
 
-            return Search(list, querry);
+            return await Search(list, querry, scopeUser);
         }
 
         public override PamelloSong Load(DatabaseSong databaseSong) {

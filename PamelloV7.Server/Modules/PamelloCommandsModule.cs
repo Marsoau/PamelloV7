@@ -121,22 +121,30 @@ namespace PamelloV7.Server.Modules
         public async Task<int> PlayerNext() {
             return Player.Queue.GoToSong(Player.Queue.Position + 1).Id;
         }
+
+        [PamelloCommand]
         public async Task PlayerGoToEpisode(int episodePosition) {
             if (Player.Queue.Current is null) throw new PamelloException("There is no song to rewind");
             await Player.Queue.Current.RewindToEpisode(episodePosition);
         }
+
+        [PamelloCommand]
         public async Task PlayerPrevEpisode() {
             if (Player.Queue.Current is null) throw new PamelloException("There is no song to rewind");
 
             var currentEpisode = Player.Queue.Current.GetCurrentEpisodePosition() ?? 0;
             await Player.Queue.Current.RewindToEpisode(currentEpisode - 1, false);
         }
+
+        [PamelloCommand]
         public async Task PlayerNextEpisode() {
             if (Player.Queue.Current is null) throw new PamelloException("There is no song to rewind");
 
             var currentEpisode = Player.Queue.Current.GetCurrentEpisodePosition() ?? 0;
             await Player.Queue.Current.RewindToEpisode(currentEpisode + 1, false);
         }
+
+        [PamelloCommand]
         public async Task PlayerRewind(int seconds) {
             if (Player.Queue.Current is null) throw new PamelloException("There is no song to rewind");
             await Player.Queue.Current.RewindTo(new AudioTime(seconds));

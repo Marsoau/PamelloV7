@@ -56,7 +56,7 @@ namespace PamelloV7.Server.Repositories
             return Task.FromResult(playlist);
         }
 
-        public List<PamelloPlaylist> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null) {
+        public async Task<IEnumerable<PamelloPlaylist>> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null, PamelloUser? scopeUser = null) {
             LoadAll();
 
             IEnumerable<PamelloPlaylist> list = _loaded;
@@ -68,7 +68,7 @@ namespace PamelloV7.Server.Repositories
                 list = list.Where(playlist => playlist.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
             }
 
-            return Search(list, querry);
+            return await Search(list, querry, scopeUser);
         }
 
         public override PamelloPlaylist Load(DatabasePlaylist databasePlaylist) {

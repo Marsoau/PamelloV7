@@ -44,6 +44,59 @@ namespace PamelloV7.Server.Controllers
 		public async Task<IActionResult> GetPlayer()
 			=> await HandleGetEntityRequest(_players);
 
+        [HttpGet("Search/Users")]
+        [HttpGet("Search/Users/{querry}")]
+        public async Task<IActionResult> SearchUsers(string querry = "")
+            => await HandleBasicSearchRequest(querry, _users);
+
+        [HttpGet("Search/Songs")]
+        [HttpGet("Search/Songs/{querry}")]
+        public async Task<IActionResult> SearchSongs(string querry = "", string? addedby = null, string? favoriteby = null) {
+            PamelloUser? addedByUser = null;
+            PamelloUser? favoriteByUser = null;
+
+            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby);
+            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby);
+
+            if (addedByUser is null && favoriteByUser is null) {
+                return await HandleBasicSearchRequest(querry, _songs);
+            }
+
+            var entityResults = await _songs.Search(querry, addedByUser, favoriteByUser, User);
+            var idResults = entityResults.Select(entity => entity.Id);
+
+            return Ok(idResults);
+        }
+
+        [HttpGet("Search/Episodes")]
+        [HttpGet("Search/Episodes/{querry}")]
+        public async Task<IActionResult> SearchEpisodes(string querry = "")
+            => await HandleBasicSearchRequest(querry, _episodes);
+
+        [HttpGet("Search/Playlists")]
+        [HttpGet("Search/Playlists/{querry}")]
+        public async Task<IActionResult> SearchPlaylists(string querry = "", string? addedby = null, string? favoriteby = null) {
+            PamelloUser? addedByUser = null;
+            PamelloUser? favoriteByUser = null;
+
+            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby);
+            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby);
+
+            if (addedByUser is null && favoriteByUser is null) {
+                return await HandleBasicSearchRequest(querry, _songs);
+            }
+
+            var entityResults = await _songs.Search(querry, addedByUser, favoriteByUser, User);
+            var idResults = entityResults.Select(entity => entity.Id);
+
+            return Ok(idResults);
+        }
+
+        [HttpGet("Search/Players")]
+        [HttpGet("Search/Players/{querry}")]
+        public async Task<IActionResult> SearchPlayers(string querry = "")
+            => await HandleBasicSearchRequest(querry, _players);
+
 
         private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository)
             where T : IEntity
@@ -72,6 +125,17 @@ namespace PamelloV7.Server.Controllers
             Console.WriteLine($"[Data Get {entity.GetType().Name}] {User}: {entity}");
 
 			return Ok(entity.GetDTO());
+        }
+
+        private async Task<IActionResult> HandleBasicSearchRequest<T>(string querry, IPamelloRepository<T> repository)
+            where T : IEntity
+        {
+            RequireUser();
+
+            var entityResults = await repository.Search(querry);
+            var idResults = entityResults.Select(entity => entity.Id);
+
+            return Ok(idResults);
         }
     }
 }

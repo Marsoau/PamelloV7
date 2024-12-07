@@ -7,7 +7,7 @@ namespace PamelloV7.Server.Modules.Discord
     [Group("song", "Commands to interact with songs")]
     public class SongInteractionModule : PamelloInteractionModuleBase
     {
-        public SongInteractionModule(IServiceProvider services) : base(services) { Console.WriteLine("created"); }
+        public SongInteractionModule(IServiceProvider services) : base(services) { }
 
         [SlashCommand("add", "Add new song to the database")]
         public async Task SongAddHandler(

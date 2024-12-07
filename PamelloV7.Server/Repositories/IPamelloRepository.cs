@@ -9,5 +9,7 @@ namespace PamelloV7.Server.Repositories
         public Task<TEntity?> GetByValue(string value, PamelloUser? scopeUser = null);
         public TEntity GetRequired(int id);
         public Task<TEntity> GetByValueRequired(string value, PamelloUser? scopeUser = null);
+
+        public Task<IEnumerable<TEntity>> Search(string querry, PamelloUser? scopeUser = null);
     }
 }

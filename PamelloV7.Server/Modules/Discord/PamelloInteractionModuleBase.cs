@@ -70,7 +70,7 @@ namespace PamelloV7.Server.Modules.Discord
         protected async Task RespondInfo(object header, object message) {
             await Respond(PamelloEmbedBuilder.BuildInfo(header.ToString() ?? "", message.ToString() ?? ""));
         }
-        protected async Task RespondPage<T>(string header, IReadOnlyList<T> content, Action<StringBuilder, int, T> writeElement, int page = 0, int count = 20) {
+        protected async Task RespondPage<T>(string header, IEnumerable<T> content, Action<StringBuilder, int, T> writeElement, int page = 0, int count = 20) {
             await Respond(PamelloEmbedBuilder.BuildPage(header, content, writeElement, count, page));
         }
 
@@ -120,7 +120,7 @@ namespace PamelloV7.Server.Modules.Discord
 
         public async Task PlayerList(string querry, int page)
         {
-            var results = _players.Search(querry, Context.User);
+            var results = await _players.Search(querry, Context.User);
 
             await RespondPage(
                 querry.Length == 0 ? "Players" : $"Players search \"{querry}\"",
@@ -341,7 +341,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
             }
 
-            var results = _songs.Search(querry, addedBy);
+            var results = await _songs.Search(querry, addedBy);
             string title;
 
             if (querry.Length == 0) {
@@ -412,7 +412,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 targetUser = Context.User;
             }
 
-            var results = _songs.Search(querry, favoriteBy: targetUser);
+            var results = await _songs.Search(querry, favoriteBy: targetUser);
 
             await RespondPage(
                 targetUser.Id == Context.User.Id ? "Favorite songs" : $"Favorite songs of {targetUser.Name}",
@@ -584,7 +584,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
             }
 
-            var results = _playlists.Search(querry, addedBy);
+            var results = await _playlists.Search(querry, addedBy);
             string title;
 
             if (querry.Length == 0) {
@@ -661,7 +661,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 targetUser = Context.User;
             }
 
-            var results = _playlists.Search(querry, favoriteBy: targetUser);
+            var results = await _playlists.Search(querry, favoriteBy: targetUser);
 
             await RespondPage(
                 targetUser.Id == Context.User.Id ? "Favorite playlists" : $"Favorite playlists of {targetUser.Name}",

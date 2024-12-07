@@ -49,8 +49,10 @@ namespace PamelloV7.Server.Repositories
             return _players.FirstOrDefault(player => player.Name == name);
         }
 
-        public List<PamelloPlayer> Search(string querry, PamelloUser scopeUser) {
+        public Task<IEnumerable<PamelloPlayer>> Search(string querry, PamelloUser? scopeUser) {
             var results = new List<PamelloPlayer>();
+            if (scopeUser is null) return Task.FromResult((IEnumerable<PamelloPlayer>)results);
+
             querry = querry.ToLower();
 
             List<PamelloPlayer> vcPlayers = null;
@@ -74,7 +76,7 @@ namespace PamelloV7.Server.Repositories
                 }
             }
 
-            return results;
+            return Task.FromResult((IEnumerable<PamelloPlayer>)results);
         }
 
         public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser = null)

@@ -51,7 +51,7 @@ namespace PamelloV7.Server.Repositories
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with value \"{value}\"");
         public abstract Task<TPamelloEntity?> GetByValue(string value, PamelloUser? scopeUser);
 
-        protected List<TPamelloEntity> Search(IEnumerable<TPamelloEntity> list, string querry) {
+        protected Task<IEnumerable<TPamelloEntity>> Search(IEnumerable<TPamelloEntity> list, string querry, PamelloUser? scopeUser) {
             var results = new List<TPamelloEntity>();
             querry = querry.ToLower();
 
@@ -63,12 +63,12 @@ namespace PamelloV7.Server.Repositories
                 }
             }
 
-            return results;
+            return Task.FromResult<IEnumerable<TPamelloEntity>>(results);
         }
-        public virtual List<TPamelloEntity> Search(string querry) {
+        public async Task<IEnumerable<TPamelloEntity>> Search(string querry, PamelloUser? scopeUser = null) {
             LoadAll();
 
-            return Search(_loaded, querry);
+            return await Search(_loaded, querry, scopeUser);
         }
 
         protected void LoadAll() {
