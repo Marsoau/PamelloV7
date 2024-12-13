@@ -233,8 +233,8 @@ namespace PamelloV7.Server.Model
             return new PamelloUserDTO() {
                 Id = Id,
                 Name = Name,
-                DiscordId = DiscordUser?.Id ?? 0,
-                AvatarUrl = DiscordUser?.GetAvatarUrl() ?? "",
+                DiscordId = DiscordId,
+                AvatarUrl = DiscordUser?.GetAvatarUrl(),
                 SelectedPlayerId = SelectedPlayer?.Id,
                 SongsPlayed = SongsPlayed,
 

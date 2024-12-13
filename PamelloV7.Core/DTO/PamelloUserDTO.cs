@@ -10,7 +10,7 @@ namespace PamelloV7.Core.DTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
-		public string AvatarUrl { get; set; }
+		public string? AvatarUrl { get; set; }
 		public ulong DiscordId { get; set; }
 		public int? SelectedPlayerId { get; set; }
         public int SongsPlayed { get; set; }

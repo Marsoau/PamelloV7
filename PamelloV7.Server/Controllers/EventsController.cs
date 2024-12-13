@@ -27,8 +27,6 @@ namespace PamelloV7.Server.Controllers
             Console.WriteLine("created events connection");
 
             while (!HttpContext.RequestAborted.IsCancellationRequested) {
-                Console.WriteLine("events tick");
-
                 await Task.Delay(1000);
             }
 
