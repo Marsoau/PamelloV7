@@ -29,7 +29,7 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloUser? GetByDiscord(ulong discordId) {
-            var pamelloUser = _loaded.FirstOrDefault(user => user.DiscordUser.Id == discordId);
+            var pamelloUser = _loaded.FirstOrDefault(user => user.DiscordId == discordId);
             if (pamelloUser is not null) return pamelloUser;
 
             var databaseUser = _nonloaded.FirstOrDefault(user => user.DiscordId == discordId);
@@ -38,7 +38,6 @@ namespace PamelloV7.Server.Repositories
             if (_discordClients.IsClientUser(discordId)) return null;
 
             var discordUser = _discordClients.MainClient.GetUser(discordId);
-            if (discordUser is null) return null;
 
             databaseUser = new DatabaseUser() {
                 DiscordId = discordId,

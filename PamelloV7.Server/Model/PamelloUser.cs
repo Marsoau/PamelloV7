@@ -16,11 +16,14 @@ namespace PamelloV7.Server.Model
         private readonly PamelloSpeakerService _speakers;
         private readonly PamelloPlayerRepository _players;
 
-        public readonly SocketUser DiscordUser;
+        public readonly SocketUser? DiscordUser;
         public readonly PamelloCommandsModule Commands;
 
         public override int Id {
             get => Entity.Id;
+        }
+        public ulong DiscordId {
+            get => Entity.DiscordId;
         }
         public Guid Token {
             get => Entity.Token;
@@ -46,7 +49,7 @@ namespace PamelloV7.Server.Model
         }
 
         public override string Name {
-            get => DiscordUser.GlobalName;
+            get => DiscordUser?.GlobalName ?? "Undefined";
             set => throw new Exception("Unable to change user name");
         }
 
@@ -116,7 +119,7 @@ namespace PamelloV7.Server.Model
 
         public PamelloUser(IServiceProvider services,
             DatabaseUser databaseUser,
-            SocketUser discordUser
+            SocketUser? discordUser
         ) : base(databaseUser, services) {
             DiscordUser = discordUser;
             Commands = new PamelloCommandsModule(services, this);
@@ -230,8 +233,8 @@ namespace PamelloV7.Server.Model
             return new PamelloUserDTO() {
                 Id = Id,
                 Name = Name,
-                DiscordId = DiscordUser.Id,
-                AvatarUrl = DiscordUser.GetAvatarUrl(),
+                DiscordId = DiscordUser?.Id ?? 0,
+                AvatarUrl = DiscordUser?.GetAvatarUrl() ?? "",
                 SelectedPlayerId = SelectedPlayer?.Id,
                 SongsPlayed = SongsPlayed,
 

@@ -95,7 +95,7 @@ namespace PamelloV7.Server.Services
 			SocketVoiceChannel? vc = null;
 			foreach (var client in DiscordClients) {
 				foreach (var guild in client.Guilds) {
-					vc = guild.GetUser(user.DiscordUser.Id)?.VoiceChannel;
+					vc = guild.GetUser(user.DiscordId)?.VoiceChannel;
 					if (vc is not null) return vc;
 				}
 			}

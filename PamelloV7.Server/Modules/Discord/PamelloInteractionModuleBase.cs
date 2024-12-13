@@ -82,7 +82,7 @@ namespace PamelloV7.Server.Modules.Discord
 
         public async Task GetCode()
         {
-            await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User.DiscordUser.Id).ToString());
+            await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User.DiscordId).ToString());
         }
 
         //Player
@@ -404,7 +404,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SongFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
             PamelloUser? targetUser = null;
-            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordUser.Id) {
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
             }
@@ -653,7 +653,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task PlaylistFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
             PamelloUser? targetUser = null;
-            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordUser.Id) {
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
             }
