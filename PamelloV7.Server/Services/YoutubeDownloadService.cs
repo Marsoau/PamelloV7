@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Events;
 using PamelloV7.Server.Model;
 using System.Diagnostics;
 using System.Text;
@@ -36,7 +37,9 @@ namespace PamelloV7.Server.Services
 			var downloadTask = new TaskCompletionSource<EDownloadResult>();
 
 			_downloadingSongs.Add(song.Id, downloadTask.Task);
-			_events.DownloadStart(song);
+			_events.Broadcast(new SongDownloadStarted() {
+				SongId = song.Id,
+			});
 
 			using var process = new Process();
 			process.StartInfo = new ProcessStartInfo() {
@@ -62,7 +65,10 @@ namespace PamelloV7.Server.Services
 				if (!int.TryParse(progress[0], out bytesDownloaded)) bytesDownloaded = 0;
 				if (!int.TryParse(progress[1], out bytesTotal)) bytesTotal = 0;
 
-				_events.DownloadProggress(song, (double)bytesDownloaded / bytesTotal);
+				_events.Broadcast(new SongDownloadProgeressUpdated() {
+					SongId = song.Id,
+					Progress = (double)bytesDownloaded / bytesTotal
+				});
 			}
 
 			await process.WaitForExitAsync();
@@ -72,7 +78,10 @@ namespace PamelloV7.Server.Services
 			downloadTask.SetResult(finalResult);
 
 			_downloadingSongs.Remove(song.Id);
-			_events.DownloadEnd(song, finalResult);
+			_events.Broadcast(new SongDownloadFinished() {
+				SongId = song.Id,
+				Result = finalResult
+			});
 
 			return finalResult;
 		}

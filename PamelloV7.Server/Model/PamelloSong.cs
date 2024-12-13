@@ -4,6 +4,7 @@ using PamelloV7.Server.Services;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.Events;
 
 namespace PamelloV7.Server.Model
 {
@@ -21,21 +22,24 @@ namespace PamelloV7.Server.Model
 
                 Entity.Name = value;
 
-                //updated
+                _events.Broadcast(new SongNameUpdated() {
+                    SongId = Id,
+                    Name = Name,
+                });
             }
         }
         public string YoutubeId {
             get => Entity.YoutubeId;
-            set {
-                Entity.YoutubeId = value;
-
-                //updated
-            }
         }
         public string CoverUrl {
             get => Entity.CoverUrl;
             set {
                 Entity.CoverUrl = value;
+
+                _events.Broadcast(new SongCoverUrlUpdated() {
+                    SongId = Id,
+                    CoverUrl = CoverUrl
+                });
             }
         }
         public int PlayCount {
@@ -45,7 +49,10 @@ namespace PamelloV7.Server.Model
 
                 Entity.PlayCount = value;
 
-                //updated
+                _events.Broadcast(new SongPlayCountUpdated() {
+                    SongId = Id,
+                    PlayCount = PlayCount
+                });
             }
         }
         public DateTime AddedAt {
@@ -73,8 +80,20 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<PamelloEpisode> Episodes {
+            get => EpisodesIds.Select(_episodes.GetRequired).ToList();
+        }
+
+        public IReadOnlyList<PamelloPlaylist> Playlists {
+            get => Entity.Playlists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+        }
+
+        public IReadOnlyList<string> Associacions {
+            get => Entity.Associacions.Select(associacion => associacion.Associacion).ToList();
+        }
+
+        public IEnumerable<int> FavoriteByIds {
             get {
-                var list = Entity.Episodes.Select(episode => _episodes.GetRequired(episode.Id)).ToList();
+                var list = Entity.Episodes.ToList();
                 list.Sort((a, b) => {
                     if (a == null && b == null) return 0;
                     if (a == null) return -1;
@@ -84,16 +103,14 @@ namespace PamelloV7.Server.Model
                     if (a.Start < b.Start) return -1;
                     return 0;
                 });
-                return list;
+                return list.Select(databaseEpisode => databaseEpisode.Id);
             }
         }
-
-        public IReadOnlyList<PamelloPlaylist> Playlists {
-            get => Entity.Playlists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+        public IEnumerable<int> EpisodesIds {
+            get => Entity.Episodes.Select(databaseEpisode => databaseEpisode.Id);
         }
-
-        public IReadOnlyList<string> Associacions {
-            get => Entity.Associacions.Select(associacion => associacion.Associacion).ToList();
+        public IEnumerable<int> PlaylistsIds {
+            get => Entity.Playlists.Select(databasePlaylist => databasePlaylist.Id);
         }
 
         public PamelloSong(IServiceProvider services,
@@ -122,6 +139,11 @@ namespace PamelloV7.Server.Model
 
             _database.Associacions.Add(databaseAssociacion);
             Save();
+
+            _events.Broadcast(new SongAssociacionsUpdated() {
+                SongId = Id,
+                Associacions = Associacions
+            });
         }
 
         public void RemoveAssociacion(string associacion, bool removeGlobaly = false) {
@@ -133,6 +155,11 @@ namespace PamelloV7.Server.Model
 
             _database.Associacions.Remove(databaseAssociacion);
             Save();
+
+            _events.Broadcast(new SongAssociacionsUpdated() {
+                SongId = Id,
+                Associacions = Associacions
+            });
         }
 
         public PamelloEpisode AddEpisode(AudioTime start, string name) {
@@ -157,9 +184,9 @@ namespace PamelloV7.Server.Model
                 AddedAt = AddedAt,
 
                 Associacions = Associacions,
-                FavoriteByIds = FavoritedBy.Select(user => user.Id),
-                PlaylistsIds = Playlists.Select(playlist => playlist.Id),
-                EpisodesIds = Episodes.Select(episode => episode.Id),
+                FavoriteByIds = FavoriteByIds,
+                PlaylistsIds = PlaylistsIds,
+                EpisodesIds = EpisodesIds,
             };
         }
 

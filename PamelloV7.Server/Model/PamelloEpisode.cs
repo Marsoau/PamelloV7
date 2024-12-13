@@ -1,5 +1,6 @@
 ﻿using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.Events;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
 
@@ -16,7 +17,10 @@ namespace PamelloV7.Server.Model
                 Entity.Name = value;
                 Save();
 
-                //updated
+                _events.Broadcast(new EpisodeNameUpdated() {
+                    EpisodeId = Id,
+                    Name = Name
+                });
             }
         }
         public int Start {
@@ -27,7 +31,10 @@ namespace PamelloV7.Server.Model
                 Entity.Start = value;
                 Save();
 
-                //updated
+                _events.Broadcast(new EpisodeStartUpdated() {
+                    EpisodeId = Id,
+                    Start = Start
+                });
             }
         }
         public bool Skip {
@@ -38,7 +45,10 @@ namespace PamelloV7.Server.Model
                 Entity.Skip = value;
                 Save();
 
-                //updated
+                _events.Broadcast(new EpisodeSkipUpdated() {
+                    EpisodeId = Id,
+                    Skip = Skip
+                });
             }
         }
 

@@ -13,7 +13,7 @@ namespace PamelloV7.Core.DTO
         public string Name { get; set; }
 
         public bool IsPaused { get; set; }
-        public EPlayerStatus State { get; set; }
+        public EPlayerState State { get; set; }
 
         public int? CurrentSongId { get; set; }
         public IEnumerable<int> QueueSongsIds { get; set; }

@@ -13,11 +13,13 @@ namespace PamelloV7.Core.DTO
 		public string AvatarUrl { get; set; }
 		public ulong DiscordId { get; set; }
 		public int? SelectedPlayerId { get; set; }
-		public bool IsAdministrator { get; set; }
+        public int SongsPlayed { get; set; }
 
         public IEnumerable<int> AddedSongsIds { get; set; }
         public IEnumerable<int> AddedPlaylistsIds { get; set; }
         public IEnumerable<int> FavoriteSongsIds { get; set; }
         public IEnumerable<int> FavoritePlaylistsIds { get; set; }
+
+		public bool IsAdministrator { get; set; }
     }
 }

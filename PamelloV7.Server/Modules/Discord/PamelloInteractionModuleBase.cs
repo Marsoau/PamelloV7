@@ -269,7 +269,7 @@ namespace PamelloV7.Server.Modules.Discord
                 await RespondPlayerInfo("Next song request", "Next song will be played according to queue mode");
             }
             else {
-                await RespondPlayerInfo("Next song request", $"{Player.Queue.At(Player.Queue.NextPositionRequest.Value)?.ToDiscordString()} will be played next");
+                await RespondPlayerInfo("Next song request", $"{Player.Queue.SongAt(Player.Queue.NextPositionRequest.Value)?.ToDiscordString()} will be played next");
             }
         }
 

@@ -1,44 +1,59 @@
 ﻿using PamelloV7.Server.Model;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Model.Events;
+using PamelloV7.Server.Model.Audio;
+using PamelloV7.Core.Events;
 
 namespace PamelloV7.Server.Services
 {
     public class PamelloEventsService
     {
-        public event Func<PamelloUser, Task>? OnUserCreated;
-        public event Func<PamelloUser, Task>? OnUserLoaded;
-        public event Func<PamelloUser, Task>? OnUserEdited;
+        private readonly List<PamelloEventListener> _listeners;
 
-		public event Action<PamelloSong>? OnDownloadStart;
-		public event Action<PamelloSong, EDownloadResult>? OnDownloadEnd;
-		public event Action<PamelloSong, double>? OnDownloadProggress;
-
-        public void UserCreated(PamelloUser user) {
-            Task.Run(() => UserCreatedAsync(user));
-        }
-        public async Task UserCreatedAsync(PamelloUser user) {
-            if (OnUserCreated is not null) await OnUserCreated.Invoke(user);
+        public PamelloEventsService() {
+            _listeners = new List<PamelloEventListener>();
         }
 
-        public void UserLoaded(PamelloUser user) {
-            Task.Run(() => UserLoadedAsync(user));
-        }
-        public async Task UserLoadedAsync(PamelloUser user) {
-            if (OnUserLoaded is not null) await OnUserLoaded.Invoke(user);
+        public async Task<PamelloEventListener> AddUserListener(PamelloUser user, HttpResponse response) {
+            var listener = new PamelloEventListener(user, response);
+            await listener.InitializeConnecion();
+
+            _listeners.Add(listener);
+            return listener;
         }
 
-        public void UserEdited(PamelloUser user) {
-            Task.Run(() => UserEditedAsync(user));
+        public async Task BroadcastAsync<TEventType>(TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+        {
+            foreach (var listener in _listeners) {
+                await listener.SendEventAsync(pamelloEvent);
+            }
         }
-        public async Task UserEditedAsync(PamelloUser user) {
-            if (OnUserEdited is not null) await OnUserEdited.Invoke(user);
+        public async Task BroadcastToPlayerAsync<TEventType>(PamelloPlayer player, TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+        {
+            foreach (var listener in _listeners) {
+                if (listener.User.SelectedPlayer?.Id != player?.Id) continue;
+                await listener.SendEventAsync(pamelloEvent);
+            }
+        }
+        public async Task BroadcastToUserAsync<TEventType>(PamelloUser user, TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+        {
+            foreach (var listener in _listeners) {
+                if (listener.User.Id != user.Id) continue;
+                await listener.SendEventAsync(pamelloEvent);
+            }
         }
 
-        public void DownloadStart(PamelloSong song)
-            => OnDownloadStart?.Invoke(song);
-        public void DownloadProggress(PamelloSong song, double proggress)
-            => OnDownloadProggress?.Invoke(song, proggress);
-        public void DownloadEnd(PamelloSong song, EDownloadResult result)
-            => OnDownloadEnd?.Invoke(song, result);
+        public void Broadcast<TEventType>(TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+            => Task.Run(() => BroadcastAsync(pamelloEvent));
+        public void BroadcastToPlayer<TEventType>(PamelloPlayer player, TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+            => Task.Run(() => BroadcastToPlayerAsync(player, pamelloEvent));
+        public void BroadcastToUser<TEventType>(PamelloUser user, TEventType pamelloEvent)
+            where TEventType : PamelloEvent
+            => Task.Run(() => BroadcastToUserAsync(user, pamelloEvent));
     }
 }

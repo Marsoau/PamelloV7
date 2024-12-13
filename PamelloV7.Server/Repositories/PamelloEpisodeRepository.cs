@@ -3,6 +3,7 @@ using PamelloV7.Core.Audio;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Events;
 
 namespace PamelloV7.Server.Repositories
 {
@@ -29,6 +30,14 @@ namespace PamelloV7.Server.Repositories
             _database.Episodes.Add(databaseEpisode);
             _database.SaveChanges();
 
+            _events.Broadcast(new EpisodeCreated() { 
+                EpisodeId = databaseEpisode.Id,
+            });
+            _events.Broadcast(new SongEpisodesIdsUpdated() { 
+                SongId = song.Id,
+                EpisodesIds = song.EpisodesIds,
+            });
+
             return Load(databaseEpisode);
         }
 
@@ -38,6 +47,14 @@ namespace PamelloV7.Server.Repositories
             _loaded.Remove(episode);
             _database.Episodes.Remove(episode.Entity);
             _database.SaveChanges();
+
+            _events.Broadcast(new EpisodeDeleted() { 
+                 EpisodeId = episode.Id,
+            });
+            _events.Broadcast(new SongEpisodesIdsUpdated() { 
+                SongId = episode.Song.Id,
+                EpisodesIds = episode.Song.EpisodesIds,
+            });
         }
         public void DeleteAllFrom(PamelloSong song) {
             var deletionList = _database.Episodes.Where(databaseEpisode => databaseEpisode.Song.Id == song.Id);

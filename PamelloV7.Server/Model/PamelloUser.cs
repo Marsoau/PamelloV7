@@ -6,6 +6,7 @@ using PamelloV7.Server.Modules;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.Events;
 
 namespace PamelloV7.Server.Model
 {
@@ -37,7 +38,10 @@ namespace PamelloV7.Server.Model
 
                 Save();
 
-                //_events.UserEdited(this);
+                _events.Broadcast(new UserSongsPlayedUpdated() {
+                    UserId = Id,
+                    SongsPlayed = SongsPlayed
+                });
             }
         }
 
@@ -54,7 +58,10 @@ namespace PamelloV7.Server.Model
                 Entity.IsAdministrator = value;
                 Save();
 
-                //_events.UserEdited(this);
+                _events.Broadcast(new UserIsAdministratorUpdated() {
+                    UserId = Id,
+                    IsAdministrator = IsAdministrator
+                });
             }
         }
 
@@ -71,6 +78,19 @@ namespace PamelloV7.Server.Model
             get => Entity.FavoritePlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
         }
 
+        public IEnumerable<int> AddedSongsIds {
+            get => Entity.AddedSongs.Select(databaseSong => databaseSong.Id);
+        }
+        public IEnumerable<int> AddedPlaylistsIds {
+            get => Entity.OwnedPlaylists.Select(databasePlaylist => databasePlaylist.Id);
+        }
+        public IEnumerable<int> FavoriteSongsIds {
+            get => Entity.FavoriteSongs.Select(databaseSong => databaseSong.Id);
+        }
+        public IEnumerable<int> FavoritePlaylistsIds {
+            get => Entity.FavoritePlaylists.Select(databasePlaylist => databasePlaylist.Id);
+        }
+
         private PamelloPlayer? _previousPlayer;
         private PamelloPlayer? _selectedPlayer;
         public PamelloPlayer? SelectedPlayer {
@@ -84,7 +104,10 @@ namespace PamelloV7.Server.Model
 
                 _selectedPlayer = value;
 
-                //event
+                _events.Broadcast(new UserSelectedPlayerIdUpdated() {
+                    UserId = Id,
+                    SelectedPlayerId = SelectedPlayer?.Id,
+                });
             }
         }
         public PamelloPlayer RequiredSelectedPlayer {
@@ -139,6 +162,15 @@ namespace PamelloV7.Server.Model
 
             Entity.FavoriteSongs.Add(song.Entity);
             Save();
+
+            _events.Broadcast(new UserFavoriteSongsUpdated() {
+                UserId = Id,
+                FavoriteSongsIds = FavoriteSongsIds,
+            });
+            _events.Broadcast(new SongFavoriteByIdsUpdated() {
+                SongId = song.Id,
+                FavoriteByIds = song.FavoriteByIds
+            });
         }
         public void RemoveFavoriteSong(PamelloSong song) {
             if (!Entity.FavoriteSongs.Any(databaseSong => databaseSong.Id == song.Id))
@@ -146,6 +178,15 @@ namespace PamelloV7.Server.Model
 
             Entity.FavoriteSongs.Remove(song.Entity);
             Save();
+
+            _events.Broadcast(new UserFavoriteSongsUpdated() {
+                UserId = Id,
+                FavoriteSongsIds = FavoriteSongsIds,
+            });
+            _events.Broadcast(new SongFavoriteByIdsUpdated() {
+                SongId = song.Id,
+                FavoriteByIds = song.FavoriteByIds
+            });
         }
 
         public void AddFavoritePlaylist(PamelloPlaylist playlist) {
@@ -154,6 +195,15 @@ namespace PamelloV7.Server.Model
 
             Entity.FavoritePlaylists.Add(playlist.Entity);
             Save();
+
+            _events.Broadcast(new UserFavoritePlaylistsUpdated() {
+                UserId = Id,
+                FavoritePlaylistsIds = FavoritePlaylistsIds,
+            });
+            _events.Broadcast(new PlaylistFavoriteByIdsUpdated() {
+                PlaylistId = playlist.Id,
+                FavoriteByIds = playlist.FavoriteByIds
+            });
         }
         public void RemoveFavoritePlaylist(PamelloPlaylist playlist) {
             if (!Entity.FavoritePlaylists.Any(databasePlaylist => databasePlaylist.Id == playlist.Id))
@@ -161,6 +211,15 @@ namespace PamelloV7.Server.Model
 
             Entity.FavoritePlaylists.Remove(playlist.Entity);
             Save();
+
+            _events.Broadcast(new UserFavoritePlaylistsUpdated() {
+                UserId = Id,
+                FavoritePlaylistsIds = FavoritePlaylistsIds,
+            });
+            _events.Broadcast(new PlaylistFavoriteByIdsUpdated() {
+                PlaylistId = playlist.Id,
+                FavoriteByIds = playlist.FavoriteByIds
+            });
         }
 
         public PamelloPlaylist CreatePlaylist(string name) {
@@ -174,12 +233,14 @@ namespace PamelloV7.Server.Model
                 DiscordId = DiscordUser.Id,
                 AvatarUrl = DiscordUser.GetAvatarUrl(),
                 SelectedPlayerId = SelectedPlayer?.Id,
-                IsAdministrator = IsAdministrator,
+                SongsPlayed = SongsPlayed,
 
-                AddedSongsIds = AddedSongs.Select(song => song.Id),
-                AddedPlaylistsIds = AddedPlaylists.Select(playlist => playlist.Id),
-                FavoriteSongsIds = FavoriteSongs.Select(song => song.Id),
-                FavoritePlaylistsIds = FavoritePlaylists.Select(playlist => playlist.Id),
+                AddedSongsIds = AddedSongsIds,
+                AddedPlaylistsIds = AddedPlaylistsIds,
+                FavoriteSongsIds = FavoriteSongsIds,
+                FavoritePlaylistsIds = FavoritePlaylistsIds,
+
+                IsAdministrator = IsAdministrator,
             };
         }
     }

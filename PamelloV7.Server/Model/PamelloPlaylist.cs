@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Core.DTO;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL.Entity;
 
@@ -16,6 +17,11 @@ namespace PamelloV7.Server.Model
                 if (Entity.Name == value) return;
 
                 Entity.Name = value;
+
+                _events.Broadcast(new PlaylistNameUpdated() {
+                    PlaylistId = Id,
+                    Name = Name
+                });
             }
         }
 
@@ -25,6 +31,11 @@ namespace PamelloV7.Server.Model
                 if (Entity.IsProtected == value) return;
 
                 Entity.IsProtected = value;
+
+                _events.Broadcast(new PlaylistProtectionUpdated() {
+                    PlaylistId = Id,
+                    IsProtected = IsProtected
+                });
             }
         }
 
@@ -33,10 +44,17 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<PamelloSong> Songs {
-            get => Entity.Songs.Select(song => _songs.GetRequired(song.Id)).ToList();
+            get => FavoriteByIds.Select(_songs.GetRequired).ToList();
         }
-        public IReadOnlyList<PamelloUser> FavoritedBy {
-            get => Entity.FavoritedBy.Select(user => _users.GetRequired(user.Id)).ToList();
+        public IReadOnlyList<PamelloUser> FavoriteBy {
+            get => FavoriteByIds.Select(_users.GetRequired).ToList();
+        }
+
+        public IEnumerable<int> SongsIds {
+            get => Entity.Songs.Select(song => song.Id);
+        }
+        public IEnumerable<int> FavoriteByIds {
+            get => Entity.FavoritedBy.Select(user => user.Id);
         }
 
         public PamelloPlaylist(IServiceProvider services,
@@ -52,6 +70,15 @@ namespace PamelloV7.Server.Model
 
             Entity.Songs.Add(song.Entity);
             Save();
+
+            _events.Broadcast(new PlaylistSongsUpdated() {
+                PlaylistIds = Id,
+                SongsIds = SongsIds,
+            });
+            _events.Broadcast(new SongPlaylistsIdsUpdated() {
+                SongId = song.Id,
+                PlaylistsIds = song.PlaylistsIds,
+            });
         }
 
         public int AddList(IReadOnlyList<PamelloSong> list) {
@@ -62,12 +89,22 @@ namespace PamelloV7.Server.Model
 
                 Entity.Songs.Add(song.Entity);
 
+                _events.Broadcast(new SongPlaylistsIdsUpdated() {
+                    SongId = song.Id,
+                    PlaylistsIds = song.PlaylistsIds,
+                });
+
                 count++;
             }
 
             if (count > 0) {
                 Save();
             }
+
+            _events.Broadcast(new PlaylistSongsUpdated() {
+                PlaylistIds = Id,
+                SongsIds = SongsIds,
+            });
 
             return count;
         }
@@ -79,6 +116,15 @@ namespace PamelloV7.Server.Model
 
             Entity.Songs.Remove(song.Entity);
             Save();
+
+            _events.Broadcast(new PlaylistSongsUpdated() {
+                PlaylistIds = Id,
+                SongsIds = SongsIds,
+            });
+            _events.Broadcast(new SongPlaylistsIdsUpdated() {
+                SongId = song.Id,
+                PlaylistsIds = song.PlaylistsIds,
+            });
         }
 
         public override IPamelloDTO GetDTO() {
@@ -88,7 +134,7 @@ namespace PamelloV7.Server.Model
                 AddedById = Entity.Owner.Id,
                 IsProtected = IsProtected,
 
-                FavoriteByIds = FavoritedBy.Select(user => user.Id),
+                FavoriteByIds = FavoriteBy.Select(user => user.Id),
                 SongsIds = Songs.Select(song => song.Id),
             };
         }

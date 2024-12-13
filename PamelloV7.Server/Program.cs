@@ -134,6 +134,7 @@ namespace PamelloV7.Server
         private static async Task StartupPamelloServices(IServiceProvider services) {
             var events = services.GetRequiredService<PamelloEventsService>();
 
+            /*
             events.OnUserCreated += async (user) => {
                 Console.WriteLine($"Created new user {user.Id}");
             };
@@ -147,6 +148,7 @@ namespace PamelloV7.Server
             events.OnDownloadEnd += (song, result) => {
                 Console.WriteLine($"Ended download of \"{song}\" with result \"{result}\"");
             };
+            */
 
             var users = services.GetRequiredService<PamelloUserRepository>();
             var songs = services.GetRequiredService<PamelloSongRepository>();

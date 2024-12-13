@@ -1,5 +1,6 @@
 ﻿using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Events;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 
@@ -9,6 +10,7 @@ namespace PamelloV7.Server.Model.Audio
     {
         private readonly YoutubeDownloadService _downloader;
         private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloEventsService _events;
 
         public readonly PamelloUser Creator;
 
@@ -19,16 +21,17 @@ namespace PamelloV7.Server.Model.Audio
             get => _name;
         }
 
-        private EPlayerStatus _status;
-        public EPlayerStatus Status {
+        private EPlayerState _status;
+        public EPlayerState State {
             get => _status;
             set {
                 if (_status == value) return;
 
                 _status = value;
 
-                Console.WriteLine($"status changed to {_status}");
-                //event
+                _events.BroadcastToPlayer(this, new PlayerStateUpdated() {
+                    State = State
+                });
             }
         }
 
@@ -39,14 +42,25 @@ namespace PamelloV7.Server.Model.Audio
                 if (_isProtected == value) return;
 
                 _isProtected = value;
-                //event
+
+                _events.BroadcastToPlayer(this, new PlayerProtectionUpdated() {
+                    IsProtected = IsProtected
+                });
             }
         }
 
         private bool _isPaused;
         public bool IsPaused {
             get => _isPaused;
-            set => _isPaused = value;
+            set {
+                if (_isPaused == value) return;
+
+                _isPaused = value;
+
+                _events.BroadcastToPlayer(this, new PlayerIsPausedUpdated() {
+                    IsPaused = IsPaused
+                });
+            }
         }
 
         public readonly PamelloQueue Queue;
@@ -59,10 +73,11 @@ namespace PamelloV7.Server.Model.Audio
         ) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
             _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _events = services.GetRequiredService<PamelloEventsService>();
 
             Id = _idCounter++;
             _name = name;
-            _status = EPlayerStatus.AwaitingSong;
+            _status = EPlayerState.AwaitingSong;
 
             _isProtected = true;
 
@@ -94,19 +109,19 @@ namespace PamelloV7.Server.Model.Audio
 
             while (true) {
                 if (Queue.Current is null) {
-                    Status = EPlayerStatus.AwaitingSong;
+                    State = EPlayerState.AwaitingSong;
                     
                     await Task.Delay(250);
                     continue;
                 }
                 if (!Queue.Current.IsInitialized) {
-                    Status = EPlayerStatus.AwaitingSongInitialization;
+                    State = EPlayerState.AwaitingSongInitialization;
                     if (!await Queue.Current.TryInitialize()) {
                         Queue.GoToNextSong(true);
                     }
                 }
                 if (!_speakers.IsChannelActive(Id)) {
-                    Status = EPlayerStatus.AwaitingSpeaker;
+                    State = EPlayerState.AwaitingSpeaker;
 
                     await Task.Delay(250);
                     continue;
@@ -116,7 +131,7 @@ namespace PamelloV7.Server.Model.Audio
                     continue;
                 }
 
-                Status = EPlayerStatus.Active;
+                State = EPlayerState.Active;
 
                 success = await Queue.Current.NextBytes(audio);
 
@@ -149,7 +164,7 @@ namespace PamelloV7.Server.Model.Audio
                 Id = Id,
                 Name = Name,
                 IsPaused = IsPaused,
-                State = Status,
+                State = State,
 
                 CurrentSongId = Queue.Current?.Song.Id,
                 QueueSongsIds = Queue.Songs.Select(song => song.Id),

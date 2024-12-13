@@ -149,7 +149,7 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             });
             fields.Add(new EmbedFieldBuilder() {
                 Name = "Status",
-                Value = player.Status.ToString(),
+                Value = player.State.ToString(),
                 IsInline = true,
             });
             fields.Add(new EmbedFieldBuilder() {

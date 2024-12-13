@@ -1,0 +1,40 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Events;
+using PamelloV7.Server.Controllers.Base;
+using PamelloV7.Server.Model.Events;
+using PamelloV7.Server.Services;
+using System.Text.Json;
+
+namespace PamelloV7.Server.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class EventsController : PamelloControllerBase
+    {
+        private PamelloEventsService _events;
+
+        public EventsController(IServiceProvider services) : base(services) {
+            _events = services.GetRequiredService<PamelloEventsService>();
+        }
+
+        [HttpGet()]
+        public async Task Connect() {
+            RequireUser();
+
+            var listener = await _events.AddUserListener(User, Response);
+
+            Console.WriteLine("created events connection");
+
+            while (!HttpContext.RequestAborted.IsCancellationRequested) {
+                Console.WriteLine("events tick");
+
+                await Task.Delay(1000);
+            }
+
+            listener.Close();
+
+            Console.WriteLine("closed events connection");
+        }
+    }
+}

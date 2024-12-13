@@ -65,7 +65,7 @@ namespace PamelloV7.Server.Repositories
                 list = list.Where(playlist => playlist.OwnedBy.Id == ownedBy.Id);
             }
             if (favoriteBy is not null) {
-                list = list.Where(playlist => playlist.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
+                list = list.Where(playlist => playlist.FavoriteBy.Any(user => user.Id == favoriteBy.Id));
             }
 
             return await Search(list, querry, scopeUser);

@@ -1,6 +1,6 @@
 ﻿namespace PamelloV7.Core.Enumerators
 {
-    public enum EPlayerStatus
+    public enum EPlayerState
     {
         Active,
         AwaitingSong,
