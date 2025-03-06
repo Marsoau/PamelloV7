@@ -301,7 +301,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         public async Task PlayerQueueList(int? page) {
-            var pageBuilder = Player.Queue.QueuePageBuilder(page ?? 0, 20);
+            var pageBuilder = Player.Queue.QueuePageBuilder(page - 1 ?? 0, 20);
 
             await Respond(pageBuilder.Build());
         }

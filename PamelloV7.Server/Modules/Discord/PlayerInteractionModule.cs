@@ -145,7 +145,7 @@ namespace PamelloV7.Server.Modules.Discord
 
             [SlashCommand("list", "Get queue songs list")]
             public async Task PlayerQueueSuffleHandler(
-                [Summary("page", "Page of the songs list")] int? page
+                [Summary("page", "Page of the songs list")] int? page = 1
             ) => await PlayerQueueList(page);
 
             public async Task PlayerQueueSuffleHandler(
