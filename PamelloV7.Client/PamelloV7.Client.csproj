@@ -8,4 +8,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PamelloV7.Wrapper\PamelloV7.Wrapper.csproj" />
+  </ItemGroup>
+
 </Project>
