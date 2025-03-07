@@ -15,7 +15,7 @@ namespace PamelloV7.Server.Repositories
             _discordClients = discordClients;
         }
         public override void InitServices() {
-
+            base.InitServices();
         }
 
         public PamelloUser? GetByToken(Guid token) {

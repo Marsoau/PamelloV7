@@ -13,9 +13,9 @@ namespace PamelloV7.Server.Repositories
     {
         protected readonly IServiceProvider _services;
 
-        protected readonly PamelloEventsService _events;
+        protected PamelloEventsService _events { get; private set; }
 
-        protected readonly DatabaseContext _database;
+        protected DatabaseContext _database { get; private set; }
 
         protected readonly List<TPamelloEntity> _loaded;
         protected List<TDatabaseEntity> _nonloaded
@@ -24,14 +24,13 @@ namespace PamelloV7.Server.Repositories
         public PamelloDatabaseRepository(IServiceProvider services) {
             _services = services;
 
-            _events = services.GetRequiredService<PamelloEventsService>();
-
-            _database = services.GetRequiredService<DatabaseContext>();
-
             _loaded = new List<TPamelloEntity>();
         }
 
-        public abstract void InitServices();
+        public virtual void InitServices() {
+            _events = _services.GetRequiredService<PamelloEventsService>();
+            _database = _services.GetRequiredService<DatabaseContext>();
+        }
 
         public abstract List<TDatabaseEntity> LoadDatabaseEntities();
 

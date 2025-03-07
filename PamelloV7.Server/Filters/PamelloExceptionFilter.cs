@@ -13,6 +13,10 @@ namespace PamelloV7.Server.Filters
                 context.Result = exception.Result;
                 context.ExceptionHandled = true;
             }
+            else if (context.Exception is PamelloException x) {
+                context.Result = new BadRequestObjectResult(x.Message);
+                context.ExceptionHandled = true;
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace PamelloV7.Server.Repositories
 
         }
         public override void InitServices() {
-
+            base.InitServices();
         }
 
         public PamelloPlaylist Create(string name, PamelloUser user) {

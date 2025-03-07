@@ -17,7 +17,7 @@ namespace PamelloV7.Server.Repositories
             _youtube = youtube;
         }
         public override void InitServices() {
-
+            base.InitServices();
         }
 
         public PamelloSong GetByNameRequired(string name)

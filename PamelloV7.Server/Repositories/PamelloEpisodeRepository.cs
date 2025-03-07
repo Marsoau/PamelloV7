@@ -18,6 +18,8 @@ namespace PamelloV7.Server.Repositories
         }
         public override void InitServices() {
             _songs = _services.GetRequiredService<PamelloSongRepository>();
+
+            base.InitServices();
         }
         public PamelloEpisode Create(PamelloSong song, AudioTime start, string name, bool skip) {
             var databaseEpisode = new DatabaseEpisode() {

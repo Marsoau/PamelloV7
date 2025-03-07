@@ -18,11 +18,9 @@ namespace PamelloV7.Server.Controllers
             _events = services.GetRequiredService<PamelloEventsService>();
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task Connect() {
-            RequireUser();
-
-            var listener = await _events.AddUserListener(User, Response);
+            var listener = await _events.AddListener(Response);
 
             Console.WriteLine("created events connection");
 

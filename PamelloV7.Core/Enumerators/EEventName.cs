@@ -8,6 +8,8 @@ namespace PamelloV7.Core.Enumerators
 {
     public enum EEventName
     {
+        EventsConnected,
+
         UserCreated,
         UserUpdated,
         UserNameUpdated,
