@@ -11,27 +11,29 @@ namespace PamelloV7.Client
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
-    {
-        private IServiceProvider _services;
+    public partial class App : Application {
+        private PamelloClient _client;
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
-            var client = new PamelloClient();
+            _client = new PamelloClient();
 
-            var user = await client.Users.Get(1);
-            Console.WriteLine($": {user?.Name}");
-            await Task.Delay(2000);
+            _client.Events.OnConnection += Events_OnConnection;
+            _client.OnAuthorized += Client_OnAuthorized;
 
-            user = await client.Users.Get(2);
-            Console.WriteLine($": {user?.Name}");
-            await Task.Delay(2000);
+            await _client.Connect("127.0.0.1:51630");
+        }
 
-            user = await client.Users.Get(5);
-            Console.WriteLine($": {user?.Name}");
-            await Task.Delay(2000);
+        private async Task Events_OnConnection() {
+            try {
+                await _client.Authorize(Guid.Parse("d01e6353-2ec7-469c-81a5-d3084fb17151"));
+            }
+            catch (Exception x) {
+                Console.WriteLine($"error while authorizing: {x.Message}");
+            }
+        }
 
-            user = await client.Users.Get(7);
-            Console.WriteLine($": {user?.Name}");
+        private void Client_OnAuthorized() {
+            Console.WriteLine($"Authorized as \"{_client.Users.CurrentUser.Name}\"");
         }
     }
 }

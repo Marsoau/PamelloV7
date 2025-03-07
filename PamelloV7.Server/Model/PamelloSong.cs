@@ -92,6 +92,9 @@ namespace PamelloV7.Server.Model
         }
 
         public IEnumerable<int> FavoriteByIds {
+            get => Entity.FavoritedBy.Select(databaseUser => databaseUser.Id);
+        }
+        public IEnumerable<int> EpisodesIds {
             get {
                 var list = Entity.Episodes.ToList();
                 list.Sort((a, b) => {
@@ -105,9 +108,6 @@ namespace PamelloV7.Server.Model
                 });
                 return list.Select(databaseEpisode => databaseEpisode.Id);
             }
-        }
-        public IEnumerable<int> EpisodesIds {
-            get => Entity.Episodes.Select(databaseEpisode => databaseEpisode.Id);
         }
         public IEnumerable<int> PlaylistsIds {
             get => Entity.Playlists.Select(databasePlaylist => databasePlaylist.Id);

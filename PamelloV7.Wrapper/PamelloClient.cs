@@ -10,23 +10,24 @@ namespace PamelloV7.Wrapper
         private readonly HttpClient _http;
 
         private readonly PamelloAuthorizationService _authorization;
+        public readonly PamelloEventsService Events;
 
         public readonly RemoteUserRepository Users;
 
-        private string? ServerHost;
+        public string? ServerHost { get; internal set; }
 
         public Guid? EventsToken { get; internal set; }
         public Guid? UserToken { get; private set; }
+
+        public event Action? OnAuthorized;
 
         public PamelloClient() {
             _http = new HttpClient();
 
             _authorization = new PamelloAuthorizationService(this);
+            Events = new PamelloEventsService(this);
 
             Users = new RemoteUserRepository(this);
-
-            ServerHost = "127.0.0.1:51630";
-            UserToken = Guid.Parse("D01E6353-2EC7-469C-81A5-D3084FB17151");
         }
 
         internal async Task<T?> HttpGetAsync<T>(string url) {
@@ -36,9 +37,9 @@ namespace PamelloV7.Wrapper
             }
 
             var responce = await _http.SendAsync(request);
-            //Console.WriteLine(await responce.Content.ReadAsStringAsync());
             if (responce.StatusCode != System.Net.HttpStatusCode.OK) {
-                return default;
+                if (responce.Content is null) throw new Exception("Unknown error ocured");
+                throw new Exception(await responce.Content.ReadAsStringAsync());
             }
 
             var result = JsonSerializer.Deserialize<T>(responce.Content.ReadAsStream());
@@ -47,16 +48,24 @@ namespace PamelloV7.Wrapper
         }
 
         public async Task Connect(string serverHost) {
-
+            await Events.Connect(serverHost);
         }
 
         public async Task Authorize(int code) {
-            var token = await HttpGetAsync<Guid>($"Authorization/{EventsToken}/WithCode/{code}");
+            var token = await HttpGetAsync<Guid?>($"Authorization/{EventsToken}/WithCode/{code}");
 
+            UserToken = token;
+            await Users.UpdateCurrentUser();
 
+            OnAuthorized?.Invoke();
         }
         public async Task Authorize(Guid userToken) {
-            var token = await HttpGetAsync<Guid>($"Authorization/{EventsToken}/WithToken/{userToken}");
+            var token = await HttpGetAsync<Guid?>($"Authorization/{EventsToken}/WithToken/{userToken}");
+
+            UserToken = token;
+            await Users.UpdateCurrentUser();
+
+            OnAuthorized?.Invoke();
         }
     }
 }

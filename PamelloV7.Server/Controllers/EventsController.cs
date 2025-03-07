@@ -22,15 +22,15 @@ namespace PamelloV7.Server.Controllers
         public async Task Connect() {
             var listener = await _events.AddListener(Response);
 
-            Console.WriteLine("created events connection");
+            Console.WriteLine($"created \"{listener.Token}\" events connection");
 
             while (!HttpContext.RequestAborted.IsCancellationRequested) {
-                await Task.Delay(1000);
+                await Task.Delay(5000);
             }
 
             listener.Close();
 
-            Console.WriteLine("closed events connection");
+            Console.WriteLine($"closed \"{listener.Token}\" events connection");
         }
     }
 }
