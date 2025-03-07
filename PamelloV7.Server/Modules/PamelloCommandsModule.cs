@@ -5,6 +5,7 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
 using PamelloV7.Server.Services;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace PamelloV7.Server.Modules
 {
@@ -41,6 +42,38 @@ namespace PamelloV7.Server.Modules
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
 
             User = user;
+
+            WriteAllCommands();
+        }
+
+        private void WriteAllCommands() {
+            var methods = typeof(PamelloCommandsModule).GetMethods();
+
+
+            Console.WriteLine("Commnds:\n");
+            foreach (var method in methods) {
+                if (!method.CustomAttributes.Any(attribure => attribure.AttributeType == typeof(PamelloCommandAttribute))) continue;
+
+                var parameters = method.GetParameters();
+
+                Console.Write($"public async {method.ReturnType.ShortDisplayName()} {method.Name}(");
+
+                foreach (var parameter in parameters) {
+                    Console.Write($"{parameter.ParameterType.ShortDisplayName()} {parameter.Name}");
+                }
+
+                Console.Write($") {{\n\treturn await InvokeCommand<object>($\"{method.Name}&");
+
+                var first = true;
+                foreach (var parameter in parameters) {
+                    if (!first) Console.Write("&");
+                    else first = false;
+
+                    Console.Write($"{parameter.Name}={{{parameter.Name}}}");
+                }
+
+                Console.WriteLine("\");\n}");
+            }
         }
 
         //player

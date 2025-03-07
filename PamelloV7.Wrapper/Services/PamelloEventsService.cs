@@ -39,8 +39,8 @@ namespace PamelloV7.Wrapper.Services
 
         public event Func<PamelloEvent, Task> OnPamelloEvent;
 
-        public PamelloEventsService(PamelloClient pamelloClient) {
-            _pamelloClient = pamelloClient;
+        public PamelloEventsService(PamelloClient client) {
+            _pamelloClient = client;
 
             _http = new HttpClient();
 

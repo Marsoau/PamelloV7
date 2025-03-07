@@ -99,10 +99,13 @@ namespace PamelloV7.Server.Controllers
             try {
                 object? result;
 
+                /*
                 if (typeof(Task).IsAssignableFrom(commandMethod.ReturnType)) {
                     result = await commandMethod.InvokeAsync(User.Commands, args);
                 }
-                else result = commandMethod.Invoke(User.Commands, args);
+                else
+                */
+                result = commandMethod.Invoke(User.Commands, args);
 
                 if (result is IEntity resultEntity) {
                     result = resultEntity.Id;

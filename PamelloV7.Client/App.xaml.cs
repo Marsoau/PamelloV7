@@ -12,28 +12,39 @@ namespace PamelloV7.Client
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application {
-        private PamelloClient _client;
+        private PamelloClient _pamello;
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
-            _client = new PamelloClient();
+            _pamello = new PamelloClient();
 
-            _client.Events.OnConnection += Events_OnConnection;
-            _client.OnAuthorized += Client_OnAuthorized;
+            _pamello.Events.OnConnection += Events_OnConnection;
+            _pamello.OnAuthorized += Client_OnAuthorized;
 
-            await _client.Connect("127.0.0.1:51630");
+            await _pamello.Connect("127.0.0.1:51630");
         }
 
         private async Task Events_OnConnection() {
+            Console.WriteLine($"Connected to \"{_pamello.ServerHost}\"");
+
             try {
-                await _client.Authorize(Guid.Parse("d01e6353-2ec7-469c-81a5-d3084fb17151"));
+                await _pamello.Authorize(Guid.Parse("d01e6353-2ec7-469c-81a5-d3084fb17151"));
             }
             catch (Exception x) {
                 Console.WriteLine($"error while authorizing: {x.Message}");
             }
         }
 
-        private void Client_OnAuthorized() {
-            Console.WriteLine($"Authorized as \"{_client.Users.CurrentUser.Name}\"");
+        private async Task Client_OnAuthorized() {
+            Console.WriteLine($"Authorized as \"{_pamello.Users.Current.Name}\"");
+
+            try {
+                await _pamello.Commands.SpeakerConnect();
+                await _pamello.Commands.PlayerQueueSongAdd("cranes");
+            }
+            catch (Exception x) {
+                Console.WriteLine($"error: {x}");
+            }
+            Console.WriteLine("asd");
         }
     }
 }

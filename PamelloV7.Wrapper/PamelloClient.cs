@@ -10,7 +10,9 @@ namespace PamelloV7.Wrapper
         private readonly HttpClient _http;
 
         private readonly PamelloAuthorizationService _authorization;
+
         public readonly PamelloEventsService Events;
+        public readonly PamelloCommandsService Commands;
 
         public readonly RemoteUserRepository Users;
 
@@ -19,13 +21,15 @@ namespace PamelloV7.Wrapper
         public Guid? EventsToken { get; internal set; }
         public Guid? UserToken { get; private set; }
 
-        public event Action? OnAuthorized;
+        public event Func<Task>? OnAuthorized;
 
         public PamelloClient() {
             _http = new HttpClient();
 
             _authorization = new PamelloAuthorizationService(this);
+
             Events = new PamelloEventsService(this);
+            Commands = new PamelloCommandsService(this);
 
             Users = new RemoteUserRepository(this);
         }

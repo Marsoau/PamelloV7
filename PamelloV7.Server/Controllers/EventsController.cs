@@ -25,7 +25,7 @@ namespace PamelloV7.Server.Controllers
             Console.WriteLine($"created \"{listener.Token}\" events connection");
 
             while (!HttpContext.RequestAborted.IsCancellationRequested) {
-                await Task.Delay(5000);
+                await Task.Delay(1000);
             }
 
             listener.Close();

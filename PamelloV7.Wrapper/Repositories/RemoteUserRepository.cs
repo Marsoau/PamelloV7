@@ -10,10 +10,10 @@ namespace PamelloV7.Wrapper.Repositories
 {
     public class RemoteUserRepository : RemoteRepository<RemoteUser, PamelloUserDTO>
     {
-        public RemoteUser CurrentUser { get; protected set; }
+        public RemoteUser Current { get; protected set; }
 
         public RemoteUserRepository(PamelloClient client) : base(client) {
-            CurrentUser = null;
+            Current = null;
         }
 
         protected override async Task<RemoteUser?> GetNew(int id) {
@@ -33,7 +33,7 @@ namespace PamelloV7.Wrapper.Repositories
             var dto = await _client.HttpGetAsync<PamelloUserDTO>($"Data/User?value={_client.UserToken}");
             if (dto is null) throw new Exception("Cant update curerent user, invalid token");
 
-            CurrentUser = await Get(dto.Id) ?? throw new Exception($"Cant update current user, id \"{dto.Id}\" doesnt exist");
+            Current = await Get(dto.Id) ?? throw new Exception($"Cant update current user, id \"{dto.Id}\" doesnt exist");
         }
     }
 }
