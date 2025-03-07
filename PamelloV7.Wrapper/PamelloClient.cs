@@ -15,7 +15,8 @@ namespace PamelloV7.Wrapper
 
         private string? ServerHost;
 
-        public Guid? CurrentToken { get; set; }
+        public Guid? EventsToken { get; internal set; }
+        public Guid? UserToken { get; private set; }
 
         public PamelloClient() {
             _http = new HttpClient();
@@ -25,13 +26,13 @@ namespace PamelloV7.Wrapper
             Users = new RemoteUserRepository(this);
 
             ServerHost = "127.0.0.1:51630";
-            CurrentToken = Guid.Parse("D01E6353-2EC7-469C-81A5-D3084FB17151");
+            UserToken = Guid.Parse("D01E6353-2EC7-469C-81A5-D3084FB17151");
         }
 
         internal async Task<T?> HttpGetAsync<T>(string url) {
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
-            if (CurrentToken is not null) {
-                request.Headers.Add("user", CurrentToken.Value.ToString());
+            if (UserToken is not null) {
+                request.Headers.Add("user", UserToken.Value.ToString());
             }
 
             var responce = await _http.SendAsync(request);
@@ -45,16 +46,17 @@ namespace PamelloV7.Wrapper
             return result;
         }
 
-        public async Task ConnectWithCodeAsync(int code) {
-            var token = await _authorization.GetTokenWithCodeAsync(code);
-            if (token is null) throw new PamelloException($"cant get token with code \"{code}\"");
+        public async Task Connect(string serverHost) {
 
-            await ConnectWithTokenAsync(token.Value);
         }
-        public async Task ConnectWithTokenAsync(Guid token) {
-            //if (await _events.TryConnectAsync(token)) throw new PamelloException($"cant connect to the events with token \"{token}\"");
 
-            CurrentToken = token;
+        public async Task Authorize(int code) {
+            var token = await HttpGetAsync<Guid>($"Authorization/{EventsToken}/WithCode/{code}");
+
+
+        }
+        public async Task Authorize(Guid userToken) {
+            var token = await HttpGetAsync<Guid>($"Authorization/{EventsToken}/WithToken/{userToken}");
         }
     }
 }
