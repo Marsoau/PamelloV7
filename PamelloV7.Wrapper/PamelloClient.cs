@@ -15,6 +15,10 @@ namespace PamelloV7.Wrapper
         public readonly PamelloCommandsService Commands;
 
         public readonly RemoteUserRepository Users;
+        public readonly RemoteSongRepository Songs;
+        public readonly RemotePlayerRepository Players;
+        public readonly RemoteEpisodeRepository Episodes;
+        public readonly RemotePlaylistRepository Playlists;
 
         public string? ServerHost { get; internal set; }
 
@@ -32,6 +36,10 @@ namespace PamelloV7.Wrapper
             Commands = new PamelloCommandsService(this);
 
             Users = new RemoteUserRepository(this);
+            Songs = new RemoteSongRepository(this);
+            Players = new RemotePlayerRepository(this);
+            Episodes = new RemoteEpisodeRepository(this);
+            Playlists = new RemotePlaylistRepository(this);
         }
 
         internal async Task<T?> HttpGetAsync<T>(string url) {

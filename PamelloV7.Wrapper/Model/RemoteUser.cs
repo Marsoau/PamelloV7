@@ -12,5 +12,38 @@ namespace PamelloV7.Wrapper.Model
         public RemoteUser(PamelloUserDTO userDTO, PamelloClient client) : base(userDTO, client) {
 
         }
+
+		public string? AvatarUrl {
+            get => _dto.AvatarUrl;
+        }
+		public ulong DiscordId {
+            get => _dto.DiscordId;
+        }
+		public int? SelectedPlayerId {
+            get => _dto.SelectedPlayerId;
+        }
+        public int SongsPlayed {
+            get => _dto.SongsPlayed;
+        }
+		public bool IsAdministrator {
+            get => _dto.IsAdministrator;
+        }
+
+        public IEnumerable<int> AddedSongsIds {
+            get => _dto.AddedSongsIds;
+        }
+        public IEnumerable<int> AddedPlaylistsIds {
+            get => _dto.AddedPlaylistsIds;
+        }
+        public IEnumerable<int> FavoriteSongsIds {
+            get => _dto.FavoriteSongsIds;
+        }
+        public IEnumerable<int> FavoritePlaylistsIds {
+            get => _dto.FavoritePlaylistsIds;
+        }
+
+        internal override void FullUpdate(PamelloUserDTO dto) {
+
+        }
     }
 }

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace PamelloV7.Wrapper.Model
 {
-    public abstract class RemoteEntity<TDTO> where TDTO : IPamelloDTO
+    public abstract class RemoteEntity<TPamelloDTO> where TPamelloDTO : IPamelloDTO
     {
         protected readonly PamelloClient _client;
 
-        internal readonly TDTO _dto;
+        internal readonly TPamelloDTO _dto;
 
         public int Id {
             get => _dto.Id;
@@ -21,10 +21,12 @@ namespace PamelloV7.Wrapper.Model
             get => _dto.Name;
         }
 
-        public RemoteEntity(TDTO dto, PamelloClient client) {
+        public RemoteEntity(TPamelloDTO dto, PamelloClient client) {
             _client = client;
 
             _dto = dto;
         }
+
+        internal abstract void FullUpdate(TPamelloDTO dto);
     }
 }

@@ -52,6 +52,10 @@ namespace PamelloV7.Wrapper.Services
                 _pamelloClient.EventsToken = eventsConnected.EventsToken;
                 OnConnection?.Invoke();
             }
+            else if (pamelloEvent is UserSelectedPlayerIdUpdated userEvent) {
+                var user = await _pamelloClient.Users.GetRequired(userEvent.UserId);
+                user._dto.SelectedPlayerId = userEvent.SelectedPlayerId;
+            }
         }
 
         public async Task Connect(string serverHost) {

@@ -15,14 +15,26 @@ namespace PamelloV7.Client
     public partial class App : Application {
         private PamelloClient _pamello;
 
+        private TaskCompletionSource _ready;
+
         private async void Application_Startup(object sender, StartupEventArgs e) {
             _pamello = new PamelloClient();
+            _ready = new TaskCompletionSource();
 
             _pamello.Events.OnPamelloEvent += Events_OnPamelloEvent;
             _pamello.Events.OnConnection += Events_OnConnection;
             _pamello.OnAuthorized += Client_OnAuthorized;
 
             await _pamello.Connect("127.0.0.1:51630");
+            await _ready.Task;
+
+            var song = await _pamello.Songs.GetNewRequired("danceup");
+
+            foreach (var songId in _pamello.Users.Current.AddedSongsIds) {
+                Console.WriteLine(songId);
+            }
+
+            Console.WriteLine($"song name: {song.Name}\nplaycount: {song.PlayCount}");
         }
 
         private async Task Events_OnPamelloEvent(PamelloEvent pamelloEvent) {
@@ -42,6 +54,8 @@ namespace PamelloV7.Client
 
         private async Task Client_OnAuthorized() {
             Console.WriteLine($"Authorized as \"{_pamello.Users.Current.Name}\"");
+
+            _ready.SetResult();
         }
     }
 }
