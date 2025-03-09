@@ -23,6 +23,9 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("state")]
         public EPlayerState State { get; set; }
 
+        [JsonPropertyName("isProtected")]
+        public bool IsProtected { get; set; }
+
 
         [JsonPropertyName("currentSongId")]
         public int? CurrentSongId { get; set; }

@@ -5,6 +5,8 @@ namespace PamelloV7.Core.Events
     public class PlayerNextPositionRequestUpdated : PamelloEvent
     {
         public PlayerNextPositionRequestUpdated() : base(EEventName.PlayerNextPositionRequestUpdated) { }
+
+        public int? NextPositionRequest { get; set; }
     }
 }
 

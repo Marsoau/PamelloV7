@@ -72,7 +72,7 @@ namespace PamelloV7.Server.Model
             Save();
 
             _events.Broadcast(new PlaylistSongsUpdated() {
-                PlaylistIds = Id,
+                PlaylistId = Id,
                 SongsIds = SongsIds,
             });
             _events.Broadcast(new SongPlaylistsIdsUpdated() {
@@ -102,7 +102,7 @@ namespace PamelloV7.Server.Model
             }
 
             _events.Broadcast(new PlaylistSongsUpdated() {
-                PlaylistIds = Id,
+                PlaylistId = Id,
                 SongsIds = SongsIds,
             });
 
@@ -118,7 +118,7 @@ namespace PamelloV7.Server.Model
             Save();
 
             _events.Broadcast(new PlaylistSongsUpdated() {
-                PlaylistIds = Id,
+                PlaylistId = Id,
                 SongsIds = SongsIds,
             });
             _events.Broadcast(new SongPlaylistsIdsUpdated() {

@@ -10,7 +10,29 @@ namespace PamelloV7.Wrapper.Repositories
 {
     public class RemotePlaylistRepository : RemoteRepository<RemotePlaylist, PamelloPlaylistDTO>
     {
+        protected override string ControllerName => "Playlist";
+
         public RemotePlaylistRepository(PamelloClient client) : base(client) {
+            SubscribeToEventsDataUpdates();
+        }
+
+        internal void SubscribeToEventsDataUpdates() {
+            _client.Events.OnPlaylistFavoriteByIdsUpdated += async (e) => {
+                var playlist = await Get(e.PlaylistId, false);
+                if (playlist is not null) playlist._dto.FavoriteByIds = e.FavoriteByIds;
+            };
+            _client.Events.OnPlaylistNameUpdated += async (e) => {
+                var playlist = await Get(e.PlaylistId, false);
+                if (playlist is not null) playlist._dto.Name = e.Name;
+            };
+            _client.Events.OnPlaylistProtectionUpdated += async (e) => {
+                var playlist = await Get(e.PlaylistId, false);
+                if (playlist is not null) playlist._dto.IsProtected = e.IsProtected;
+            };
+            _client.Events.OnPlaylistSongsUpdated += async (e) => {
+                var playlist = await Get(e.PlaylistId, false);
+                if (playlist is not null) playlist._dto.SongsIds = e.SongsIds;
+            };
         }
 
         protected override Task<PamelloPlaylistDTO?> GetDTO(int id)

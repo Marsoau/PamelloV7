@@ -91,7 +91,7 @@ namespace PamelloV7.Server.Model.Audio
                 }
 
                 _events.BroadcastToPlayer(_player, new PlayerQueueIsFeedRandomUpdated() {
-                    IsFeedRandom = IsFeedRandom,
+                    QueueIsFeedRandom = IsFeedRandom,
                 });
             }
         }
@@ -105,7 +105,7 @@ namespace PamelloV7.Server.Model.Audio
                 _nextPositionRequest = value;
 
                 _events.BroadcastToPlayer(_player, new PlayerQueueIsFeedRandomUpdated() {
-                    IsFeedRandom = IsFeedRandom,
+                    QueueIsFeedRandom = IsFeedRandom,
                 });
             }
         }

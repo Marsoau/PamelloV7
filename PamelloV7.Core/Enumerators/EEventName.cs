@@ -26,7 +26,7 @@ namespace PamelloV7.Core.Enumerators
         SongUpdated,
         SongNameUpdated,
         SongCoverUrlUpdated,
-        SongPlaycountUpdated,
+        SongPlayCountUpdated,
         SongAssociacionsUpdated,
         SongFavoriteByIdsUpdated,
         SongEpisodesIdsUpdated,

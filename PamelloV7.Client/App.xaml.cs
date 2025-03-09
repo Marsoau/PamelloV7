@@ -28,13 +28,11 @@ namespace PamelloV7.Client
             await _pamello.Connect("127.0.0.1:51630");
             await _ready.Task;
 
-            var song = await _pamello.Songs.GetNewRequired("danceup");
+            var songsIds = await _pamello.Users.Search("pivo");
 
-            foreach (var songId in _pamello.Users.Current.AddedSongsIds) {
-                Console.WriteLine(songId);
+            foreach (var songId in songsIds) {
+                Console.WriteLine((await _pamello.Users.Get(songId))?.Name);
             }
-
-            Console.WriteLine($"song name: {song.Name}\nplaycount: {song.PlayCount}");
         }
 
         private async Task Events_OnPamelloEvent(PamelloEvent pamelloEvent) {

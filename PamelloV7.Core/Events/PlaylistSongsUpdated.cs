@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Events
     {
         public PlaylistSongsUpdated() : base(EEventName.PlaylistSongsUpdated) { }
 
-        public int PlaylistIds { get; set; }
+        public int PlaylistId { get; set; }
         public IEnumerable<int> SongsIds { get; set; }
     }
 }

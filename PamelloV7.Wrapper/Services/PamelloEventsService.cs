@@ -39,22 +39,251 @@ namespace PamelloV7.Wrapper.Services
 
         public event Func<PamelloEvent, Task> OnPamelloEvent;
 
+        public event Func<EventsConnected, Task> OnEventsConnected;
+
+        public event Func<UserCreated, Task> OnUserCreated;
+        public event Func<UserUpdated, Task> OnUserUpdated;
+        public event Func<UserNameUpdated, Task> OnUserNameUpdated;
+        public event Func<UserAvatarUpdated, Task> OnUserAvatarUpdated;
+        public event Func<UserSelectedPlayerIdUpdated, Task> OnUserSelectedPlayerIdUpdated;
+        public event Func<UserSongsPlayedUpdated, Task> OnUserSongsPlayedUpdated;
+        public event Func<UserAddedSongsUpdated, Task> OnUserAddedSongsUpdated;
+        public event Func<UserAddedPlaylistsUpdated, Task> OnUserAddedPlaylistsUpdated;
+        public event Func<UserFavoriteSongsUpdated, Task> OnUserFavoriteSongsUpdated;
+        public event Func<UserFavoritePlaylistsUpdated, Task> OnUserFavoritePlaylistsUpdated;
+        public event Func<UserIsAdministratorUpdated, Task> OnUserIsAdministratorUpdated;
+
+        public event Func<SongCreated, Task> OnSongCreated;
+        public event Func<SongUpdated, Task> OnSongUpdated;
+        public event Func<SongNameUpdated, Task> OnSongNameUpdated;
+        public event Func<SongCoverUrlUpdated, Task> OnSongCoverUrlUpdated;
+        public event Func<SongPlayCountUpdated, Task> OnSongPlayCountUpdated;
+        public event Func<SongAssociacionsUpdated, Task> OnSongAssociacionsUpdated;
+        public event Func<SongFavoriteByIdsUpdated, Task> OnSongFavoriteByIdsUpdated;
+        public event Func<SongEpisodesIdsUpdated, Task> OnSongEpisodesIdsUpdated;
+        public event Func<SongPlaylistsIdsUpdated, Task> OnSongPlaylistsIdsUpdated;
+        public event Func<SongDownloadStarted, Task> OnSongDownloadStarted;
+        public event Func<SongDownloadProgeressUpdated, Task> OnSongDownloadProgeressUpdated;
+        public event Func<SongDownloadFinished, Task> OnSongDownloadFinished;
+
+        public event Func<EpisodeCreated, Task> OnEpisodeCreated;
+        public event Func<EpisodeUpdated, Task> OnEpisodeUpdated;
+        public event Func<EpisodeDeleted, Task> OnEpisodeDeleted;
+        public event Func<EpisodeNameUpdated, Task> OnEpisodeNameUpdated;
+        public event Func<EpisodeStartUpdated, Task> OnEpisodeStartUpdated;
+        public event Func<EpisodeSkipUpdated, Task> OnEpisodeSkipUpdated;
+
+        public event Func<PlaylistCreated, Task> OnPlaylistCreated;
+        public event Func<PlaylistUpdated, Task> OnPlaylistUpdated;
+        public event Func<PlaylistDeleted, Task> OnPlaylistDeleted;
+        public event Func<PlaylistNameUpdated, Task> OnPlaylistNameUpdated;
+        public event Func<PlaylistProtectionUpdated, Task> OnPlaylistProtectionUpdated;
+        public event Func<PlaylistSongsUpdated, Task> OnPlaylistSongsUpdated;
+        public event Func<PlaylistFavoriteByIdsUpdated, Task> OnPlaylistFavoriteByIdsUpdated;
+
+        public event Func<PlayerAvailable, Task> OnPlayerAvailable;
+        public event Func<PlayerRemoved, Task> OnPlayerRemoved;
+        public event Func<PlayerUpdated, Task> OnPlayerUpdated;
+        public event Func<PlayerNameUpdated, Task> OnPlayerNameUpdated;
+        public event Func<PlayerStateUpdated, Task> OnPlayerStateUpdated;
+        public event Func<PlayerIsPausedUpdated, Task> OnPlayerIsPausedUpdated;
+        public event Func<PlayerProtectionUpdated, Task> OnPlayerProtectionUpdated;
+        public event Func<PlayerCurrentSongIdUpdated, Task> OnPlayerCurrentSongIdUpdated;
+        public event Func<PlayerQueueSongsIdsUpdated, Task> OnPlayerQueueSongsIdsUpdated;
+        public event Func<PlayerQueuePositionUpdated, Task> OnPlayerQueuePositionUpdated;
+        public event Func<PlayerCurrentEpisodePositionUpdated, Task> OnPlayerCurrentEpisodePositionUpdated;
+        public event Func<PlayerNextPositionRequestUpdated, Task> OnPlayerNextPositionRequestUpdated;
+        public event Func<PlayerCurrentSongTimePassedUpdated, Task> OnPlayerCurrentSongTimePassedUpdated;
+        public event Func<PlayerCurrentSongTimeTotalUpdated, Task> OnPlayerCurrentSongTimeTotalUpdated;
+        public event Func<PlayerQueueIsRandomUpdated, Task> OnPlayerQueueIsRandomUpdated;
+        public event Func<PlayerQueueIsReversedUpdated, Task> OnPlayerQueueIsReversedUpdated;
+        public event Func<PlayerQueueIsNoLeftoversUpdated, Task> OnPlayerQueueIsNoLeftoversUpdated;
+        public event Func<PlayerQueueIsFeedRandomUpdated, Task> OnPlayerQueueIsFeedRandomUpdated;
+
         public PamelloEventsService(PamelloClient client) {
             _pamelloClient = client;
 
             _http = new HttpClient();
 
             OnPamelloEvent += PamelloEventsService_OnPamelloEvent;
+
+            OnEventsConnected += PamelloEventsService_OnEventsConnected;
+        }
+
+        private async Task PamelloEventsService_OnEventsConnected(EventsConnected arg) {
+            if (arg.EventsToken == Guid.Empty) return;
+
+            _pamelloClient.EventsToken = arg.EventsToken;
+            if (OnConnection is not null) await OnConnection.Invoke();
         }
 
         private async Task PamelloEventsService_OnPamelloEvent(PamelloEvent pamelloEvent) {
-            if (pamelloEvent is EventsConnected eventsConnected) {
-                _pamelloClient.EventsToken = eventsConnected.EventsToken;
-                OnConnection?.Invoke();
-            }
-            else if (pamelloEvent is UserSelectedPlayerIdUpdated userEvent) {
-                var user = await _pamelloClient.Users.GetRequired(userEvent.UserId);
-                user._dto.SelectedPlayerId = userEvent.SelectedPlayerId;
+            switch (pamelloEvent.EventName) {
+                case EEventName.EventsConnected:
+                    await OnEventsConnected.Invoke((EventsConnected)pamelloEvent);
+                    break;
+                case EEventName.UserCreated:
+                    await OnUserCreated.Invoke((UserCreated)pamelloEvent);
+                    break;
+                case EEventName.UserUpdated:
+                    await OnUserUpdated.Invoke((UserUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserNameUpdated:
+                    await OnUserNameUpdated.Invoke((UserNameUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserAvatarUpdated:
+                    await OnUserAvatarUpdated.Invoke((UserAvatarUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserSelectedPlayerIdUpdated:
+                    await OnUserSelectedPlayerIdUpdated.Invoke((UserSelectedPlayerIdUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserSongsPlayedUpdated:
+                    await OnUserSongsPlayedUpdated.Invoke((UserSongsPlayedUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserAddedSongsUpdated:
+                    await OnUserAddedSongsUpdated.Invoke((UserAddedSongsUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserAddedPlaylistsUpdated:
+                    await OnUserAddedPlaylistsUpdated.Invoke((UserAddedPlaylistsUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserFavoriteSongsUpdated:
+                    await OnUserFavoriteSongsUpdated.Invoke((UserFavoriteSongsUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserFavoritePlaylistsUpdated:
+                    await OnUserFavoritePlaylistsUpdated.Invoke((UserFavoritePlaylistsUpdated)pamelloEvent);
+                    break;
+                case EEventName.UserIsAdministratorUpdated:
+                    await OnUserIsAdministratorUpdated.Invoke((UserIsAdministratorUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongCreated:
+                    await OnSongCreated.Invoke((SongCreated)pamelloEvent);
+                    break;
+                case EEventName.SongUpdated:
+                    await OnSongUpdated.Invoke((SongUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongNameUpdated:
+                    await OnSongNameUpdated.Invoke((SongNameUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongCoverUrlUpdated:
+                    await OnSongCoverUrlUpdated.Invoke((SongCoverUrlUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongPlayCountUpdated:
+                    await OnSongPlayCountUpdated.Invoke((SongPlayCountUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongAssociacionsUpdated:
+                    await OnSongAssociacionsUpdated.Invoke((SongAssociacionsUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongFavoriteByIdsUpdated:
+                    await OnSongFavoriteByIdsUpdated.Invoke((SongFavoriteByIdsUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongEpisodesIdsUpdated:
+                    await OnSongEpisodesIdsUpdated.Invoke((SongEpisodesIdsUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongPlaylistsIdsUpdated:
+                    await OnSongPlaylistsIdsUpdated.Invoke((SongPlaylistsIdsUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongDownloadStarted:
+                    await OnSongDownloadStarted.Invoke((SongDownloadStarted)pamelloEvent);
+                    break;
+                case EEventName.SongDownloadProgeressUpdated:
+                    await OnSongDownloadProgeressUpdated.Invoke((SongDownloadProgeressUpdated)pamelloEvent);
+                    break;
+                case EEventName.SongDownloadFinished:
+                    await OnSongDownloadFinished.Invoke((SongDownloadFinished)pamelloEvent);
+                    break;
+                case EEventName.EpisodeCreated:
+                    await OnEpisodeCreated.Invoke((EpisodeCreated)pamelloEvent);
+                    break;
+                case EEventName.EpisodeUpdated:
+                    await OnEpisodeUpdated.Invoke((EpisodeUpdated)pamelloEvent);
+                    break;
+                case EEventName.EpisodeDeleted:
+                    await OnEpisodeDeleted.Invoke((EpisodeDeleted)pamelloEvent);
+                    break;
+                case EEventName.EpisodeNameUpdated:
+                    await OnEpisodeNameUpdated.Invoke((EpisodeNameUpdated)pamelloEvent);
+                    break;
+                case EEventName.EpisodeStartUpdated:
+                    await OnEpisodeStartUpdated.Invoke((EpisodeStartUpdated)pamelloEvent);
+                    break;
+                case EEventName.EpisodeSkipUpdated:
+                    await OnEpisodeSkipUpdated.Invoke((EpisodeSkipUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistCreated:
+                    await OnPlaylistCreated.Invoke((PlaylistCreated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistUpdated:
+                    await OnPlaylistUpdated.Invoke((PlaylistUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistDeleted:
+                    await OnPlaylistDeleted.Invoke((PlaylistDeleted)pamelloEvent);
+                    break;
+                case EEventName.PlaylistNameUpdated:
+                    await OnPlaylistNameUpdated.Invoke((PlaylistNameUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistProtectionUpdated:
+                    await OnPlaylistProtectionUpdated.Invoke((PlaylistProtectionUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistSongsUpdated:
+                    await OnPlaylistSongsUpdated.Invoke((PlaylistSongsUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlaylistFavoriteByIdsUpdated:
+                    await OnPlaylistFavoriteByIdsUpdated.Invoke((PlaylistFavoriteByIdsUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerAvailable:
+                    await OnPlayerAvailable.Invoke((PlayerAvailable)pamelloEvent);
+                    break;
+                case EEventName.PlayerRemoved:
+                    await OnPlayerRemoved.Invoke((PlayerRemoved)pamelloEvent);
+                    break;
+                case EEventName.PlayerUpdated:
+                    await OnPlayerUpdated.Invoke((PlayerUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerNameUpdated:
+                    await OnPlayerNameUpdated.Invoke((PlayerNameUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerStateUpdated:
+                    await OnPlayerStateUpdated.Invoke((PlayerStateUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerIsPausedUpdated:
+                    await OnPlayerIsPausedUpdated.Invoke((PlayerIsPausedUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerProtectionUpdated:
+                    await OnPlayerProtectionUpdated.Invoke((PlayerProtectionUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerCurrentSongIdUpdated:
+                    await OnPlayerCurrentSongIdUpdated.Invoke((PlayerCurrentSongIdUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueueSongsIdsUpdated:
+                    await OnPlayerQueueSongsIdsUpdated.Invoke((PlayerQueueSongsIdsUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueuePositionUpdated:
+                    await OnPlayerQueuePositionUpdated.Invoke((PlayerQueuePositionUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerCurrentEpisodePositionUpdated:
+                    await OnPlayerCurrentEpisodePositionUpdated.Invoke((PlayerCurrentEpisodePositionUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerNextPositionRequestUpdated:
+                    await OnPlayerNextPositionRequestUpdated.Invoke((PlayerNextPositionRequestUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerCurrentSongTimePassedUpdated:
+                    await OnPlayerCurrentSongTimePassedUpdated.Invoke((PlayerCurrentSongTimePassedUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerCurrentSongTimeTotalUpdated:
+                    await OnPlayerCurrentSongTimeTotalUpdated.Invoke((PlayerCurrentSongTimeTotalUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueueIsRandomUpdated:
+                    await OnPlayerQueueIsRandomUpdated.Invoke((PlayerQueueIsRandomUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueueIsReversedUpdated:
+                    await OnPlayerQueueIsReversedUpdated.Invoke((PlayerQueueIsReversedUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueueIsNoLeftoversUpdated:
+                    await OnPlayerQueueIsNoLeftoversUpdated.Invoke((PlayerQueueIsNoLeftoversUpdated)pamelloEvent);
+                    break;
+                case EEventName.PlayerQueueIsFeedRandomUpdated:
+                    await OnPlayerQueueIsFeedRandomUpdated.Invoke((PlayerQueueIsFeedRandomUpdated)pamelloEvent);
+                    break;
             }
         }
 
@@ -186,7 +415,7 @@ namespace PamelloV7.Wrapper.Services
                 case EEventName.SongCoverUrlUpdated:
                     pamelloEvent = JsonSerializer.Deserialize<SongCoverUrlUpdated>(sseEvent.Data);
                     break;
-                case EEventName.SongPlaycountUpdated:
+                case EEventName.SongPlayCountUpdated:
                     pamelloEvent = JsonSerializer.Deserialize<SongPlayCountUpdated>(sseEvent.Data);
                     break;
                 case EEventName.SongAssociacionsUpdated:

@@ -10,7 +10,48 @@ namespace PamelloV7.Wrapper.Repositories
 {
     public class RemoteSongRepository : RemoteRepository<RemoteSong, PamelloSongDTO>
     {
+        protected override string ControllerName => "Song";
+
         public RemoteSongRepository(PamelloClient client) : base(client) {
+            SubscribeToEventsDataUpdates();
+        }
+
+        internal void SubscribeToEventsDataUpdates() {
+            _client.Events.OnSongDownloadStarted += async (e) => {
+            };
+            _client.Events.OnSongDownloadProgeressUpdated += async (e) => {
+            };
+            _client.Events.OnSongDownloadFinished += async (e) => {
+            };
+
+            _client.Events.OnSongEpisodesIdsUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.EpisodesIds = e.EpisodesIds;
+            };
+            _client.Events.OnSongFavoriteByIdsUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.FavoriteByIds = e.FavoriteByIds;
+            };
+            _client.Events.OnSongNameUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.Name = e.Name;
+            };
+            _client.Events.OnSongPlayCountUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.PlayCount = e.PlayCount;
+            };
+            _client.Events.OnSongPlaylistsIdsUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.PlaylistsIds = e.PlaylistsIds;
+            };
+            _client.Events.OnSongCoverUrlUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.CoverUrl = e.CoverUrl;
+            };
+            _client.Events.OnSongAssociacionsUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.Associacions = e.Associacions;
+            };
         }
 
         protected override Task<PamelloSongDTO?> GetDTO(int id)

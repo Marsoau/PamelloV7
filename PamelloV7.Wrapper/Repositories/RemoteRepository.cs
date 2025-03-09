@@ -18,6 +18,8 @@ namespace PamelloV7.Wrapper.Repositories
 
         public readonly List<TRemoteEntity> _loaded;
 
+        protected abstract string ControllerName { get; }
+
         public RemoteRepository(PamelloClient client) {
             _client = client;
 
@@ -31,9 +33,11 @@ namespace PamelloV7.Wrapper.Repositories
         public async Task<TRemoteEntity> GetNewRequired(string value)
             => await GetNew(value) ?? throw new PamelloException($"Cant get new user by value \"{value}\"");
 
-        public async Task<TRemoteEntity?> Get(int id) {
+        public async Task<TRemoteEntity?> Get(int id, bool requestNewIfNotFound = true) {
             var remoteEntity = _loaded.FirstOrDefault(entity => entity.Id == id);
             if (remoteEntity is not null) return remoteEntity;
+
+            if (!requestNewIfNotFound) return null;
 
             return await GetNew(id);
         }
@@ -68,6 +72,21 @@ namespace PamelloV7.Wrapper.Repositories
             _loaded.Add(remoteEntity);
 
             return remoteEntity;
+        }
+
+        public async Task<IEnumerable<int>> Search(string querry = "", string? addedBy = null, string? favoriteBy = null) {
+            var sb = new StringBuilder();
+
+            sb.Append($"Data/Search/{ControllerName}s/{querry}");
+            if (addedBy is not null) sb.Append($"?addedBy={addedBy}");
+            if (favoriteBy is not null) {
+                if (addedBy is null) sb.Append("?");
+                else sb.Append("&");
+
+                sb.Append($"favoriteBy={favoriteBy}");
+            }
+
+            return await _client.HttpGetAsync<IEnumerable<int>>(sb.ToString()) ?? [];
         }
 
         protected abstract Task<TPamelloDTO?> GetDTO(int id);

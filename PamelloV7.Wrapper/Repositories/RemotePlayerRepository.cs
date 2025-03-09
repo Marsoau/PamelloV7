@@ -10,7 +10,73 @@ namespace PamelloV7.Wrapper.Repositories
 {
     public class RemotePlayerRepository : RemoteRepository<RemotePlayer, PamelloPlayerDTO>
     {
+        protected override string ControllerName => "Player";
+
         public RemotePlayerRepository(PamelloClient client) : base(client) {
+            SubscribeToEventsDataUpdates();
+        }
+
+        internal void SubscribeToEventsDataUpdates() {
+            _client.Events.OnPlayerNameUpdated += async (e) => {
+                var player = await Get(e.PlayerId, false);
+                if (player is not null) player._dto.Name = e.Name;
+            };
+            _client.Events.OnPlayerNextPositionRequestUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.NextPositionRequest = e.NextPositionRequest;
+            };
+            _client.Events.OnPlayerProtectionUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.IsProtected = e.IsProtected;
+            };
+            _client.Events.OnPlayerCurrentSongIdUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.CurrentSongId = e.CurrentSongId;
+            };
+            _client.Events.OnPlayerCurrentSongTimePassedUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.CurrentSongTimePassed = e.CurrentSongTimePassed;
+            };
+            _client.Events.OnPlayerCurrentSongTimeTotalUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.CurrentSongTimeTotal = e.CurrentSongTimeTotal;
+            };
+            _client.Events.OnPlayerIsPausedUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.IsPaused = e.IsPaused;
+            };
+            _client.Events.OnPlayerNextPositionRequestUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.NextPositionRequest = e.NextPositionRequest;
+            };
+            _client.Events.OnPlayerQueueIsFeedRandomUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueueIsFeedRandom = e.QueueIsFeedRandom;
+            };
+            _client.Events.OnPlayerQueueIsNoLeftoversUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueueIsNoLeftovers = e.IsNoLeftovers;
+            };
+            _client.Events.OnPlayerQueueIsRandomUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueueIsRandom = e.IsRandom;
+            };
+            _client.Events.OnPlayerQueueIsReversedUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueueIsReversed = e.IsReversed;
+            };
+            _client.Events.OnPlayerQueuePositionUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueuePosition = e.QueuePosition;
+            };
+            _client.Events.OnPlayerQueueSongsIdsUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.QueueSongsIds = e.QueueSongsIds;
+            };
+            _client.Events.OnPlayerStateUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.State = e.State;
+            };
         }
 
         protected override Task<PamelloPlayerDTO?> GetDTO(int id)

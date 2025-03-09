@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Events
     {
         public PlayerQueueIsFeedRandomUpdated() : base(EEventName.PlayerQueueIsFeedRandomUpdated) { }
 
-        public bool IsFeedRandom { get; set; }
+        public bool QueueIsFeedRandom { get; set; }
     }
 }
 

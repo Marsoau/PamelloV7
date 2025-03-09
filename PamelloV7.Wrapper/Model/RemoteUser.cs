@@ -42,6 +42,11 @@ namespace PamelloV7.Wrapper.Model
             get => _dto.FavoritePlaylistsIds;
         }
 
+        public async Task<RemotePlayer?> GetSelectedPlayer() {
+            if (SelectedPlayerId is null) return null;
+            return await _client.Players.Get(SelectedPlayerId.Value);
+        }
+
         internal override void FullUpdate(PamelloUserDTO dto) {
 
         }
