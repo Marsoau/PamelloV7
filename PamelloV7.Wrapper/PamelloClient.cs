@@ -56,6 +56,8 @@ namespace PamelloV7.Wrapper
         }
 
         public async Task Authorize(int code) {
+            if (EventsToken is null) throw new Exception("You have to connect to the server first");
+
             var token = await HttpGetAsync<Guid?>($"Authorization/{EventsToken}/WithCode/{code}");
 
             UserToken = token;
@@ -64,6 +66,8 @@ namespace PamelloV7.Wrapper
             OnAuthorized?.Invoke();
         }
         public async Task Authorize(Guid userToken) {
+            if (EventsToken is null) throw new Exception("You have to connect to the server first");
+
             var token = await HttpGetAsync<Guid?>($"Authorization/{EventsToken}/WithToken/{userToken}");
 
             UserToken = token;

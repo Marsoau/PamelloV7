@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Model;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace PamelloV7.Wrapper.Repositories
             _loaded = new List<TRemoteEntity>();
         }
 
+        public async Task<TRemoteEntity> GetRequired(int id)
+            => await Get(id) ?? throw new PamelloException($"Cant get user by id \"{id}\"");
         public async Task<TRemoteEntity?> Get(int id) {
             var remoteEntity = _loaded.FirstOrDefault(entity => entity.Id == id);
             if (remoteEntity is not null) return remoteEntity;

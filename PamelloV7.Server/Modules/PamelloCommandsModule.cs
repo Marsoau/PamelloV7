@@ -43,7 +43,7 @@ namespace PamelloV7.Server.Modules
 
             User = user;
 
-            WriteAllCommands();
+            //WriteAllCommands();
         }
 
         private void WriteAllCommands() {

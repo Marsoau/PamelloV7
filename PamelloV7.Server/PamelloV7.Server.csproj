@@ -1,32 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Remove="Config\config.json" />
     <Content Remove="Config\configEXAMPLE.json" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="Config\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Config\configEXAMPLE.json" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.1.2" />
-    <PackageReference Include="Discord.Net" Version="3.16.0" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3596" />
+    <PackageReference Include="AngleSharp" Version="1.2.0" />
+    <PackageReference Include="Discord.Net" Version="3.17.1" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.69.0.3707" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
     <ProjectReference Include="..\PamelloV7.DAL\PamelloV7.DAL.csproj" />
   </ItemGroup>
-
 </Project>

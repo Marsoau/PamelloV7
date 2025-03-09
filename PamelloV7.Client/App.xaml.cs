@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Events;
 using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Services;
 using System.Configuration;
@@ -17,10 +18,15 @@ namespace PamelloV7.Client
         private async void Application_Startup(object sender, StartupEventArgs e) {
             _pamello = new PamelloClient();
 
+            _pamello.Events.OnPamelloEvent += Events_OnPamelloEvent;
             _pamello.Events.OnConnection += Events_OnConnection;
             _pamello.OnAuthorized += Client_OnAuthorized;
 
             await _pamello.Connect("127.0.0.1:51630");
+        }
+
+        private async Task Events_OnPamelloEvent(PamelloEvent pamelloEvent) {
+            Console.WriteLine($"Recieved event {pamelloEvent}");
         }
 
         private async Task Events_OnConnection() {
@@ -36,15 +42,6 @@ namespace PamelloV7.Client
 
         private async Task Client_OnAuthorized() {
             Console.WriteLine($"Authorized as \"{_pamello.Users.Current.Name}\"");
-
-            try {
-                await _pamello.Commands.SpeakerConnect();
-                await _pamello.Commands.PlayerQueueSongAdd("cranes");
-            }
-            catch (Exception x) {
-                Console.WriteLine($"error: {x}");
-            }
-            Console.WriteLine("asd");
         }
     }
 }
