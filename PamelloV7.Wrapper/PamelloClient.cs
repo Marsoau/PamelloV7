@@ -42,10 +42,10 @@ namespace PamelloV7.Wrapper
             Playlists = new RemotePlaylistRepository(this);
         }
 
-        internal async Task<T?> HttpGetAsync<T>(string url) {
+        internal async Task<T?> HttpGetAsync<T>(string url, Guid? customToken = null) {
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
             if (UserToken is not null) {
-                request.Headers.Add("user", UserToken.Value.ToString());
+                request.Headers.Add("user", (customToken ?? UserToken).Value.ToString());
             }
 
             var responce = await _http.SendAsync(request);
@@ -61,6 +61,37 @@ namespace PamelloV7.Wrapper
 
         public async Task Connect(string serverHost) {
             await Events.Connect(serverHost);
+        }
+        public async Task<bool> TryConnect(string serverHost) {
+            try {
+                await Events.Connect(serverHost);
+            }
+            catch {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> TryAuthorize(int code) {
+            try {
+                await Authorize(code);
+            }
+            catch {
+                return false;
+            }
+
+            return true;
+        }
+        public async Task<bool> TryAuthorize(Guid userToken) {
+            try {
+                await Authorize(userToken);
+            }
+            catch {
+                return false;
+            }
+
+            return true;
         }
 
         public async Task Authorize(int code) {

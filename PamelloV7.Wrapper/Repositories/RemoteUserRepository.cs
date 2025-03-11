@@ -60,16 +60,22 @@ namespace PamelloV7.Wrapper.Repositories
         }
 
         internal async Task UpdateCurrentUser() {
-            var dto = await GetDTO(_client.UserToken?.ToString() ?? "");
-            if (dto is null) throw new Exception("Cant update curerent user, invalid token");
+            if (_client.UserToken is null)
+                throw new Exception("Cant update current user, token is null");
 
-            Current = await Get(dto.Id) ?? throw new Exception($"Cant update current user, id \"{dto.Id}\" doesnt exist");
+            Current = await GetNew(_client.UserToken.Value) ?? throw new Exception($"Cant update current user by token \"{_client.UserToken}\"");
+        }
+
+        public async Task<RemoteUser?> GetNew(Guid token) {
+            return GetFromDTO(await GetDTO(token));
         }
 
         protected override Task<PamelloUserDTO?> GetDTO(int id)
             => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?id={id}");
         protected override Task<PamelloUserDTO?> GetDTO(string value)
             => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?value={value}");
+        protected Task<PamelloUserDTO?> GetDTO(Guid token)
+            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?token={token}");
         protected override RemoteUser CreateRemoteEntity(PamelloUserDTO dto)
             => new RemoteUser(dto, _client);
     }

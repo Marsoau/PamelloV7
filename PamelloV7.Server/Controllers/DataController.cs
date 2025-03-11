@@ -99,16 +99,26 @@ namespace PamelloV7.Server.Controllers
 
 
         private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository)
-            where T : IEntity
+            where T : class, IEntity
         {
-            RequireUser();
+			var qToken = Request.Query["token"].FirstOrDefault();
+
+            if (qToken is null) RequireUser();
 
 			var qId = Request.Query["id"].FirstOrDefault();
 			var qValue = Request.Query["value"].FirstOrDefault();
 
-            IEntity entity;
-            if (qId is not null) {
-                if (!int.TryParse(qId, out int id))
+            T entity;
+            if (qToken is not null) {
+                if (typeof(T) != typeof(PamelloUser))
+                    throw new PamelloControllerException(BadRequest("only user can be requested by token"));
+                if (!Guid.TryParse(qToken, out var token))
+                    throw new PamelloControllerException(BadRequest("token must be a guid"));
+
+                entity = await repository.GetByValueRequired(token.ToString());
+            }
+            else if (qId is not null) {
+                if (!int.TryParse(qId, out var id))
                     throw new PamelloControllerException(BadRequest("id must be an integer number"));
 
                 entity = repository.Get(id) ??
@@ -122,7 +132,7 @@ namespace PamelloV7.Server.Controllers
                 throw new PamelloControllerException(BadRequest("id or value required"));
             }
 
-            Console.WriteLine($"[Data Get {entity.GetType().Name}] {User}: {entity}");
+            Console.WriteLine($"[Data Get {entity.GetType().Name}] {User?.ToString() ?? "Unknown User"}: {entity}");
 
 			return Ok(entity.GetDTO());
         }

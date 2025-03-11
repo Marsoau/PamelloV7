@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Client.Model;
+using PamelloV7.Client.Pages;
+using PamelloV7.Client.Services;
+using PamelloV7.Client.Windows;
 using PamelloV7.Core.Events;
 using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Services;
@@ -13,47 +17,42 @@ namespace PamelloV7.Client
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application {
-        private PamelloClient _pamello;
-
-        private TaskCompletionSource _ready;
+        private IServiceProvider _services;
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
-            _pamello = new PamelloClient();
-            _ready = new TaskCompletionSource();
+            var serviceCollection = new ServiceCollection();
 
-            _pamello.Events.OnPamelloEvent += Events_OnPamelloEvent;
-            _pamello.Events.OnConnection += Events_OnConnection;
-            _pamello.OnAuthorized += Client_OnAuthorized;
+            serviceCollection.AddSingleton<MainWindow>();
 
-            await _pamello.Connect("127.0.0.1:51630");
-            await _ready.Task;
+            serviceCollection.AddSingleton<ConnectionPage>();
+            serviceCollection.AddSingleton<AuthorizationPage>();
+            serviceCollection.AddSingleton<MainPage>();
+            serviceCollection.AddSingleton<PlayersPage>();
+            serviceCollection.AddSingleton<SettingsPage>();
+            serviceCollection.AddSingleton<UserPage>();
 
-            var songsIds = await _pamello.Users.Search("pivo");
+            serviceCollection.AddSingleton<PamelloClient>();
 
-            foreach (var songId in songsIds) {
-                Console.WriteLine((await _pamello.Users.Get(songId))?.Name);
-            }
-        }
+            serviceCollection.AddSingleton<SavedServerService>();
 
-        private async Task Events_OnPamelloEvent(PamelloEvent pamelloEvent) {
-            Console.WriteLine($"Recieved event {pamelloEvent}");
-        }
+            _services = serviceCollection.BuildServiceProvider();
 
-        private async Task Events_OnConnection() {
-            Console.WriteLine($"Connected to \"{_pamello.ServerHost}\"");
+            var servers = _services.GetRequiredService<SavedServerService>();
 
-            try {
-                await _pamello.Authorize(Guid.Parse("d01e6353-2ec7-469c-81a5-d3084fb17151"));
-            }
-            catch (Exception x) {
-                Console.WriteLine($"error while authorizing: {x.Message}");
-            }
-        }
+            var loopback = new SavedServer("Loopback Server", "127.0.0.1:51630");
 
-        private async Task Client_OnAuthorized() {
-            Console.WriteLine($"Authorized as \"{_pamello.Users.Current.Name}\"");
+            loopback.Tokens.Add(Guid.Parse("D01E6353-2EC7-469C-81A5-D3084FB17151"));
+            //loopback.Tokens.Add(Guid.Parse("71205227-970C-419A-9205-33FF509C1821"));
+            //loopback.Tokens.Add(Guid.Parse("27174539-1498-4ABB-B6EF-F646C93CC200"));
+            //loopback.Tokens.Add(Guid.Parse("00000000-2EC7-469C-81A5-D3084FB17151"));
 
-            _ready.SetResult();
+            servers.Add(loopback);
+            servers.Add(new SavedServer("Another Server", "122.212.34.121:51630"));
+
+            var mainWindow = _services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+
+            mainWindow.SwitchPage<ConnectionPage>();
         }
     }
 }
