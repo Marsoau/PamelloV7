@@ -193,11 +193,9 @@ namespace PamelloV7.Server.Model.Audio
             });
         }
         private void Current_Position_OnSecondTick() {
-            /*
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongTimePassedUpdated() {
                 CurrentSongTimePassed = Current?.Position.TotalSeconds ?? 0,
             });
-            */
         }
 
 

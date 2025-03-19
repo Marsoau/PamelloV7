@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:PamelloV7.Client"
              Startup="Application_Startup">
     <Application.Resources>
-         
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+        <Style TargetType="{x:Type ToggleButton}">
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
     </Application.Resources>
 </Application>

@@ -15,10 +15,22 @@ namespace PamelloV7.Wrapper.Services
         }
 
         public async Task InvokeCommand(string commandStr) {
-            await _client.HttpGetAsync<object>($"Command/{commandStr}");
+            try {
+                await _client.HttpGetAsync<object>($"Command/{commandStr}");
+            }
+            catch (Exception x) {
+                Console.WriteLine($"Exceprion in command \"{commandStr}\": {x}");
+            }
         }
         public async Task<TReturnType?> InvokeCommand<TReturnType>(string commandStr) {
-            return await _client.HttpGetAsync<TReturnType>($"Command/{commandStr}");
+            try {
+                return await _client.HttpGetAsync<TReturnType>($"Command/{commandStr}");
+            }
+            catch (Exception x) {
+                Console.WriteLine($"Exceprion in command \"{commandStr}\": {x}");
+            }
+
+            return default;
         }
 
         public async Task<int> PlayerCreate(string playerName) {
