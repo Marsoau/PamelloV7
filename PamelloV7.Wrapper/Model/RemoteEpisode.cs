@@ -27,7 +27,7 @@ namespace PamelloV7.Wrapper.Model
         }
 
         internal override void FullUpdate(PamelloEpisodeDTO dto) {
-
+            _dto = dto;
         }
     }
 }

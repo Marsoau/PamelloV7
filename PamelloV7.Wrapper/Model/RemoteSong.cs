@@ -43,7 +43,7 @@ namespace PamelloV7.Wrapper.Model
         }
 
         internal override void FullUpdate(PamelloSongDTO dto) {
-
+            _dto = dto;
         }
     }
 }

@@ -6,9 +6,62 @@
       xmlns:local="clr-namespace:PamelloV7.Client.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="UserPage">
+      Background="White"
+      Title="UserPage"
+      Loaded="Page_Loaded">
 
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Rectangle Grid.Column="1" Fill="#DEDEDE"/>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Rectangle Grid.Row="0" Fill="#F8F8F8"/>
+            <Rectangle Grid.Row="2" Fill="#F8F8F8"/>
+            <Rectangle Grid.Row="3" Fill="#F0F0F0"/>
+
+            <StackPanel Orientation="Horizontal" Margin="2">
+                <Button x:Name="Button_Back" Content="Back" Margin="2" Click="Button_Back_Click"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Margin="0,20,0,10" HorizontalAlignment="Center">
+                <Image x:Name="Image_Avatar" Width="120" Height="120"/>
+                <TextBlock x:Name="TextBlock_UserName" Text="Username" HorizontalAlignment="Center" Margin="0,10,0,0" FontSize="18" FontWeight="DemiBold"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2">
+                    <TextBlock Text="Songs added: "/>
+                    <TextBlock x:Name="TextBlock_SongAddedCount" Text="100" Style="{StaticResource HyperTextBlock}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2">
+                    <TextBlock Text="Joined At: "/>
+                    <TextBlock x:Name="TextBlock_JoinedAt" Text="01.01.2001"/>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock Grid.Row="3" x:Name="TextBlock_Ids" Text="0 | 0000000000000000" HorizontalAlignment="Center" Margin="0,16" Foreground="#ABABAB" FontWeight="DemiBold" FontSize="11"/>
+        </Grid>
+        <Grid Grid.Column="2">
+            <TabControl>
+                <TabItem x:Name="TabItem_FavoriteSongs" Header="Favorite Songs (0)">
+                    
+                </TabItem>
+                <TabItem x:Name="TabItem_FavoritePlaylists" Header="Favorite Playlists (0)">
+                    
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
 </Page>

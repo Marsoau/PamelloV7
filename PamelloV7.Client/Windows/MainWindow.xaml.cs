@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Client.Pages;
+using PamelloV7.Client.Pages.Refreshes;
 using PamelloV7.Wrapper;
 
 namespace PamelloV7.Client.Windows
@@ -45,8 +46,25 @@ namespace PamelloV7.Client.Windows
             Dispatcher.Invoke(SwitchPage<AuthorizationPage>);
         }
 
-        public void SwitchPage<TPage>() where TPage : Page {
-            Content = _services.GetRequiredService<TPage>();
+        public TPage SwitchPage<TPage>() where TPage : Page {
+            var page = _services.GetRequiredService<TPage>();
+
+            Content = page;
+
+            return page;
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e) {
+            if (e.Key == Key.F5) {
+                if (Content is IRefrashable page) {
+                    if (Keyboard.IsKeyDown(Key.LeftShift)) {
+                        page.Update();
+                    }
+                    else {
+                        page.Refresh();
+                    }
+                }
+            }
         }
     }
 }

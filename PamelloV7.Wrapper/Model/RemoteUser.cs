@@ -48,7 +48,7 @@ namespace PamelloV7.Wrapper.Model
         }
 
         internal override void FullUpdate(PamelloUserDTO dto) {
-
+            _dto = dto;
         }
     }
 }

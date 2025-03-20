@@ -28,7 +28,7 @@ namespace PamelloV7.Wrapper.Model
         }
 
         internal override void FullUpdate(PamelloPlaylistDTO dto) {
-
+            _dto = dto;
         }
     }
 }

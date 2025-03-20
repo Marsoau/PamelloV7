@@ -12,7 +12,7 @@ namespace PamelloV7.Wrapper.Model
     {
         protected readonly PamelloClient _client;
 
-        internal readonly TPamelloDTO _dto;
+        internal TPamelloDTO _dto;
 
         public int Id {
             get => _dto.Id;

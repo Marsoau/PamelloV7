@@ -57,7 +57,7 @@
 
                 <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Orientation="Horizontal" Margin="3">
                     <TextBlock Text="Added by " FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold"/>
-                    <TextBlock x:Name="TextBlock_CurrentSongAddedBy" Text="User" FontSize="10" Foreground="#FFC3A1B1" FontWeight="DemiBold"/>
+                    <TextBlock x:Name="TextBlock_CurrentSongAddedBy" Text="User" FontSize="10" FontWeight="DemiBold" Style="{StaticResource HyperTextBlock}" MouseUp="TextBlock_CurrentSongAddedBy_MouseUp"/>
                 </StackPanel>
                 <TextBlock x:Name="TextBlock_PlayerState" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Text="State" FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold" Margin="3"/>
 
@@ -102,16 +102,42 @@
             </Grid>
             <TabControl Grid.Row="2">
                 <TabItem Header="Speakers">
-                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Button x:Name="Button_ConnectSpeaker" Grid.Row="1" Content="Connect Speaker" Margin="2" Click="Button_ConnectSpeaker_Click"/>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Episodes">
-                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle Grid.Row="0" Fill="#F0F0F0"/>
+
+                        <Grid Grid.Row="0" Margin="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Content="Prev"/>
+                            <TextBlock Grid.Column="1" Text="Current Episode" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,0" FontWeight="DemiBold"/>
+                            <Button Grid.Column="2" Content="Next"/>
+                        </Grid>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Log">
                     
                 </TabItem>
             </TabControl>
-            <Grid Grid.Row="3" Grid.IsSharedSizeScope="True">
+            <Grid x:Name="Grid_User" Grid.Row="3" Grid.IsSharedSizeScope="True" MouseUp="Grid_User_MouseUp">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="58" SharedSizeGroup="Image"/>
                     <ColumnDefinition Width="*"/>
