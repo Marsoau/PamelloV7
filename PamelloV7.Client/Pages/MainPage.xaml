@@ -90,7 +90,10 @@
                     <Button x:Name="Button_ResumePause2" Grid.Column="2" Content="P" Click="Button_ResumePause_Click"/>
                     <Button x:Name="Button_Next" Grid.Column="4" Content="F" Click="Button_Next_Click"/>
                 </Grid>
-                <Grid Grid.Column="1" Grid.Row="1" Margin="2,0">
+                <Grid x:Name="Grid_DownloadProgress" Grid.Column="1" Grid.Row="1" Margin="3">
+                    <ProgressBar x:Name="ProgressBar_CurrentSong"/>
+                </Grid>
+                <Grid x:Name="Grid_SongTime" Grid.Column="1" Grid.Row="1" Margin="2,0" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>

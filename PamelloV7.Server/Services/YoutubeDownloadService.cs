@@ -6,27 +6,47 @@ using System.Text;
 
 namespace PamelloV7.Server.Services
 {
+	public class YoutubeDownloadItem {
+		public PamelloSong Song { get; set; }
+		public Task<EDownloadResult> Task { get; set; }
+		public double Progress { get; set; }
+	}
+
     public class YoutubeDownloadService
     {
 		private readonly PamelloEventsService _events;
 
-		private readonly Dictionary<int, Task<EDownloadResult>> _downloadingSongs;
+		private readonly List<YoutubeDownloadItem> _downloads;
 
 		public YoutubeDownloadService(
 			PamelloEventsService events
 		) {
 			_events = events;
 
-			_downloadingSongs = new Dictionary<int, Task<EDownloadResult>>();
+			_downloads = new List<YoutubeDownloadItem>();
+		}
+
+		private YoutubeDownloadItem? GetDownload(PamelloSong song) {
+			foreach (var download in _downloads) {
+                if (download.Song.Id == song.Id) {
+					return download;
+                }
+            }
+			return null;
 		}
 
 		public bool IsDownloading(PamelloSong song) {
-			return _downloadingSongs.ContainsKey(song.Id);
+			return GetDownload(song) is not null;
+		}
+		public double GetProgress(PamelloSong song) {
+			var download = GetDownload(song);
+			return download?.Progress ?? 0;
 		}
 
 		public async Task<EDownloadResult> DownloadFromYoutubeAsync(PamelloSong song, bool forceDownload = false) {
-			if (IsDownloading(song)) {
-				return await _downloadingSongs[song.Id];
+			var download = GetDownload(song);
+			if (download is not null) {
+				return await download.Task;
 			}
 			if (song.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
@@ -36,7 +56,13 @@ namespace PamelloV7.Server.Services
 
 			var downloadTask = new TaskCompletionSource<EDownloadResult>();
 
-			_downloadingSongs.Add(song.Id, downloadTask.Task);
+			download = new YoutubeDownloadItem() {
+				Song = song,
+				Task = downloadTask.Task,
+				Progress = 0
+			};
+
+			_downloads.Add(download);
 			_events.Broadcast(new SongDownloadStarted() {
 				SongId = song.Id,
 			});
@@ -77,7 +103,7 @@ namespace PamelloV7.Server.Services
 
 			downloadTask.SetResult(finalResult);
 
-			_downloadingSongs.Remove(song.Id);
+			_downloads.Remove(download);
 			_events.Broadcast(new SongDownloadFinished() {
 				SongId = song.Id,
 				Result = finalResult

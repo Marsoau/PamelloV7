@@ -18,10 +18,16 @@ namespace PamelloV7.Wrapper.Repositories
 
         internal void SubscribeToEventsDataUpdates() {
             _client.Events.OnSongDownloadStarted += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.IsDownloading = true;
             };
             _client.Events.OnSongDownloadProgeressUpdated += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.DownloadProgress = e.Progress;
             };
             _client.Events.OnSongDownloadFinished += async (e) => {
+                var song = await Get(e.SongId, false);
+                if (song is not null) song._dto.IsDownloading = false;
             };
 
             _client.Events.OnSongEpisodesIdsUpdated += async (e) => {

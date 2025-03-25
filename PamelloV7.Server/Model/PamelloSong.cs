@@ -187,6 +187,9 @@ namespace PamelloV7.Server.Model
                 FavoriteByIds = FavoriteByIds,
                 PlaylistsIds = PlaylistsIds,
                 EpisodesIds = EpisodesIds,
+
+                IsDownloading = _downloader.IsDownloading(this),
+                DownloadProgress = _downloader.GetProgress(this),
             };
         }
 

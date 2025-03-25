@@ -42,5 +42,12 @@ namespace PamelloV7.Core.DTO
 
         [JsonPropertyName("playlistsIds")]
         public IEnumerable<int> PlaylistsIds { get; set; }
+
+
+        [JsonPropertyName("isDownloading")]
+        public bool IsDownloading { get; set; }
+
+        [JsonPropertyName("downloadProgress")]
+        public double DownloadProgress { get; set; }
     }
 }

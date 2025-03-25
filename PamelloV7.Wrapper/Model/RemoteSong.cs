@@ -42,6 +42,13 @@ namespace PamelloV7.Wrapper.Model
             get => _dto.PlaylistsIds;
         }
 
+        public bool IsDownloading {
+            get => _dto.IsDownloading;
+        }
+        public double DownloadProgress {
+            get => _dto.DownloadProgress;
+        }
+
         internal override void FullUpdate(PamelloSongDTO dto) {
             _dto = dto;
         }

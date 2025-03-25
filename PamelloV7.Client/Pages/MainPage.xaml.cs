@@ -42,6 +42,9 @@ namespace PamelloV7.Client.Pages
             _pamello.Events.OnPlayerCurrentSongIdUpdated += Events_OnPlayerCurrentSongIdUpdated;
 
             _pamello.Events.OnPlayerIsPausedUpdated += Events_OnPlayerIsPausedUpdated;
+            _pamello.Events.OnSongDownloadFinished += Events_OnSongDownloadFinished;
+            _pamello.Events.OnSongDownloadStarted += Events_OnSongDownloadStarted;
+            _pamello.Events.OnSongDownloadProgeressUpdated += Events_OnSongDownloadProgeressUpdated;
 
             _pamello.Events.OnPlayerCurrentSongTimePassedUpdated += Events_OnPlayerCurrentSongTimePassedUpdated;
             _pamello.Events.OnPlayerCurrentSongTimeTotalUpdated += Events_OnPlayerCurrentSongTimeTotalUpdated; ;
@@ -52,6 +55,22 @@ namespace PamelloV7.Client.Pages
             _pamello.Events.OnPlayerQueueIsReversedUpdated += Events_OnPlayerQueueIsReversedUpdated;
             _pamello.Events.OnPlayerQueueIsNoLeftoversUpdated += Events_OnPlayerQueueIsNoLeftoversUpdated;
             _pamello.Events.OnPlayerQueueIsFeedRandomUpdated += Events_OnPlayerQueueIsFeedRandomUpdated;
+        }
+
+        private async Task Events_OnSongDownloadProgeressUpdated(Core.Events.SongDownloadProgeressUpdated arg) {
+            if (arg.SongId == _song?.Id) {
+                RefreshCurrentSongDownloadProgress();
+            }
+        }
+        private async Task Events_OnSongDownloadStarted(Core.Events.SongDownloadStarted arg) {
+            if (arg.SongId == _song?.Id) {
+                RefreshCurrentSongDownloadState();
+            }
+        }
+        private async Task Events_OnSongDownloadFinished(Core.Events.SongDownloadFinished arg) {
+            if (arg.SongId == _song?.Id) {
+                RefreshCurrentSongDownloadState();
+            }
         }
 
         private async Task Events_OnPlayerQueueSongsIdsUpdated(Core.Events.PlayerQueueSongsIdsUpdated arg) {

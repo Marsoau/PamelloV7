@@ -47,11 +47,14 @@ namespace PamelloV7.Server.Model.Audio
         }
 
 		public void Clean() {
+            _currentChunk?.Close();
             _currentChunk?.Dispose();
             _currentChunk = null;
+            _nextChunk?.Close();
             _nextChunk?.Dispose();
             _nextChunk = null;
 
+            _ffmpeg?.Close();
             _ffmpeg?.Dispose();
             _ffmpeg = null;
 

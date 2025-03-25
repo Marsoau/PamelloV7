@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using PamelloV7.Client.Components;
+using System.Windows;
 
 namespace PamelloV7.Client.Pages
 {
@@ -74,6 +75,28 @@ namespace PamelloV7.Client.Pages
             RefreshPlayerCurrentSongName();
             RefreshPlayerCurrentSongCover();
             RefreshPlayerCurrentSongAddedBy();
+            RefreshCurrentSongDownloadState();
+            RefreshCurrentSongDownloadProgress();
+        }
+
+        private void RefreshCurrentSongDownloadState() {
+            Dispatcher.Invoke(() => {
+                Console.WriteLine($"asdasdasd {_song?.IsDownloading}");
+                if (_song?.IsDownloading ?? false) {
+                    Grid_DownloadProgress.Visibility = Visibility.Visible;
+                    Grid_SongTime.Visibility = Visibility.Collapsed;
+                }
+                else {
+                    Grid_DownloadProgress.Visibility = Visibility.Collapsed;
+                    Grid_SongTime.Visibility = Visibility.Visible;
+                }
+            });
+        }
+
+        public void RefreshCurrentSongDownloadProgress() {
+            Dispatcher.Invoke(() => {
+                ProgressBar_CurrentSong.Value = (_song?.DownloadProgress ?? 0) * 100;
+            });
         }
 
         private void RefreshPlayerCurrentSongCover() {
