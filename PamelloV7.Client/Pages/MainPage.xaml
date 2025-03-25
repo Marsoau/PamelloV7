@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PamelloV7.Client.Pages"
+      xmlns:components="clr-namespace:PamelloV7.Client.Components"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Background="White"
@@ -175,6 +176,11 @@
 
                 <Rectangle Grid.ColumnSpan="2" Grid.Row="1" Fill="#F8F8F8"/>
 
+                <ScrollViewer x:Name="ScrollViewer_Queue" Grid.Row="0">
+                    <StackPanel x:Name="StackPanel_Queue" Margin="1">
+                    </StackPanel>
+                </ScrollViewer>
+                <TextBlock x:Name="TextBlock_QueueEmpty" Grid.Row="0" Text="Queue is Empty" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#FF989898" FontWeight="DemiBold" FontSize="9"/>
                 <Grid Grid.Row="1">
                     <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="4">
                         <CheckBox x:Name="CheckBox_Random" Content="Random" Margin="0,0,8,0" Click="CheckBox_Random_Click"/>

@@ -36,6 +36,8 @@ namespace PamelloV7.Client.Pages
         private void SubscribeToEvents() {
             _pamello.Events.OnUserSelectedPlayerIdUpdated += Events_OnUserSelectedPlayerIdUpdated;
 
+            _pamello.Events.OnPlayerQueueSongsIdsUpdated += Events_OnPlayerQueueSongsIdsUpdated;
+
             //Song
             _pamello.Events.OnPlayerCurrentSongIdUpdated += Events_OnPlayerCurrentSongIdUpdated;
 
@@ -50,6 +52,10 @@ namespace PamelloV7.Client.Pages
             _pamello.Events.OnPlayerQueueIsReversedUpdated += Events_OnPlayerQueueIsReversedUpdated;
             _pamello.Events.OnPlayerQueueIsNoLeftoversUpdated += Events_OnPlayerQueueIsNoLeftoversUpdated;
             _pamello.Events.OnPlayerQueueIsFeedRandomUpdated += Events_OnPlayerQueueIsFeedRandomUpdated;
+        }
+
+        private async Task Events_OnPlayerQueueSongsIdsUpdated(Core.Events.PlayerQueueSongsIdsUpdated arg) {
+            RefreshPlayerQueueList();
         }
 
         private async Task Events_OnUserSelectedPlayerIdUpdated(Core.Events.UserSelectedPlayerIdUpdated arg) {

@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="PamelloV7.Client.Components.QueueSongComponent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PamelloV7.Client.Components"
+             mc:Ignorable="d" 
+             d:Background="#E0E0E0"
+             Height="20" d:DesignWidth="400"
+             Loaded="UserControl_Loaded">
+    <UserControl.Style>
+        <Style TargetType="local:QueueSongComponent">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsCurrent}" Value="True">
+                    <Setter Property="Background" Value="Red"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0">
+            <TextBlock x:Name="TextBlock_SongName" Text="Song name" FontSize="10" FontWeight="DemiBold" Foreground="#FF212121"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

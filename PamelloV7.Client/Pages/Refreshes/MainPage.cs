@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using PamelloV7.Client.Components;
 
 namespace PamelloV7.Client.Pages
 {
@@ -99,6 +100,7 @@ namespace PamelloV7.Client.Pages
         //Refresh Player Queue
         private void RefreshPlayerQueue() {
             RefreshPlayerQueueModes();
+            RefreshPlayerQueueList();
         }
 
         private void RefreshPlayerQueueModes() {
@@ -126,6 +128,28 @@ namespace PamelloV7.Client.Pages
         private void RefreshPlayerQueueIsFeedRandom() {
             Dispatcher.Invoke(() => {
                 CheckBox_FeedRandom.IsChecked = _player?.QueueIsFeedRandom ?? false;
+            });
+        }
+
+        private void RefreshPlayerQueueList() {
+            Dispatcher.Invoke(() => {
+                StackPanel_Queue.Children.Clear();
+
+                if (_player is null || _player.QueueSongsIds.Count() == 0) {
+                    ScrollViewer_Queue.Visibility = System.Windows.Visibility.Collapsed;
+                    TextBlock_QueueEmpty.Visibility = System.Windows.Visibility.Visible;
+                    return;
+                }
+
+                foreach (var songId in _player.QueueSongsIds) {
+                    StackPanel_Queue.Children.Add(new QueueSongComponent(_services) {
+                        SongId = songId,
+                        Margin = new System.Windows.Thickness(1),
+                    });
+                }
+
+                ScrollViewer_Queue.Visibility = System.Windows.Visibility.Visible;
+                TextBlock_QueueEmpty.Visibility = System.Windows.Visibility.Collapsed;
             });
         }
     }
