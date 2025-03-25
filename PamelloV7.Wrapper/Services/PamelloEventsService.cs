@@ -20,13 +20,19 @@ namespace PamelloV7.Wrapper.Services
             public bool SetString(string str) {
                 var parts = str.Split(": ");
 
+                Console.Write($"setting event string: \"{str}\"... ");
+
                 if (parts[0] == "id") {
                     EventName = (EEventName)int.Parse(parts[1]);
                 }
                 else if (parts[0] == "data") {
                     Data = parts[1];
                 }
-                else return false;
+                else {
+                    Console.WriteLine("error");
+                    return false;
+                }
+                Console.WriteLine("done");
 
                 return true;
             }
@@ -325,6 +331,8 @@ namespace PamelloV7.Wrapper.Services
         }
 
         private SseEvent? ReadEvent(StreamReader sr) {
+            Console.WriteLine("reading event");
+
             char[] buffer = new char[1];
             StringBuilder sb = new StringBuilder();
 

@@ -15,10 +15,14 @@ namespace PamelloV7.Server.Model.Events
         public bool IsAuthorized { get => User is not null; }
         public bool IsClosed { get; private set; }
 
+        private Mutex _writingMutex;
+
         public PamelloEventListener(HttpResponse response) {
             _response = response;
 
             Token = Guid.NewGuid();
+
+            _writingMutex = new Mutex();
         }
 
         public async Task InitializeConnecion() {
@@ -36,8 +40,12 @@ namespace PamelloV7.Server.Model.Events
         {
             if (IsClosed) return;
 
+            await Task.Factory.StartNew(_writingMutex.WaitOne);
+
             await _response.WriteAsync($"id: {(int)pamelloEvent.EventName}\revent: {pamelloEvent.EventName}\rdata: {JsonSerializer.Serialize(pamelloEvent)}\r\r");
             await _response.Body.FlushAsync();
+
+            _writingMutex.ReleaseMutex();
         }
 
         public void SendEvent<TEventType>(TEventType pamelloEvent)

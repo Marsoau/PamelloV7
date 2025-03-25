@@ -57,15 +57,15 @@ namespace PamelloV7.Server.Services
 			var sr = new StreamReader(process.StandardOutput.BaseStream);
 
 			string[] progress;
-			int bytesDownloaded = 0;
-			int bytesTotal = 0;
+			long bytesDownloaded = 0;
+			long bytesTotal = 0;
 
 			while (!sr.EndOfStream) {
 				progress = (await sr.ReadLineAsync())?.Split('/') ?? ["0", "0"];
-				if (!int.TryParse(progress[0], out bytesDownloaded)) bytesDownloaded = 0;
-				if (!int.TryParse(progress[1], out bytesTotal)) bytesTotal = 0;
+				if (!long.TryParse(progress[0], out bytesDownloaded)) bytesDownloaded = 0;
+				if (!long.TryParse(progress[1], out bytesTotal)) bytesTotal = 0;
 
-				_events.Broadcast(new SongDownloadProgeressUpdated() {
+				await _events.BroadcastAsync(new SongDownloadProgeressUpdated() {
 					SongId = song.Id,
 					Progress = (double)bytesDownloaded / bytesTotal
 				});
