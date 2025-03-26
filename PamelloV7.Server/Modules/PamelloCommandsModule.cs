@@ -185,33 +185,33 @@ namespace PamelloV7.Server.Modules
 
         [PamelloCommand]
         public async Task PlayerQueueSongAdd(PamelloSong song) {
-            Player.Queue.AddSong(song);
+            Player.Queue.AddSong(song, User);
         }
         [PamelloCommand]
         public async Task PlayerQueueSongInsert(int queuePosition, PamelloSong song) {
-            Player.Queue.InsertSong(queuePosition, song);
+            Player.Queue.InsertSong(queuePosition, song, User);
         }
         [PamelloCommand]
         public async Task PlayerQueueSongYoutubeAdd(string youtubeId) {
             var song = await _songs.AddAsync(youtubeId, User);
             if (song is null) return;
 
-            Player.Queue.AddSong(song);
+            Player.Queue.AddSong(song, User);
         }
         [PamelloCommand]
         public async Task PlayerQueueSongYoutubeInsert(int queuePosition, string youtubeId) {
             var song = await _songs.AddAsync(youtubeId, User);
             if (song is null) return;
 
-            Player.Queue.InsertSong(queuePosition, song);
+            Player.Queue.InsertSong(queuePosition, song, User);
         }
         [PamelloCommand]
         public async Task PlayerQueuePlaylistAdd(PamelloPlaylist playlist) {
-            Player.Queue.AddPlaylist(playlist);
+            Player.Queue.AddPlaylist(playlist, User);
         }
         [PamelloCommand]
         public async Task PlayerQueuePlaylistInsert(int queuePosition, PamelloPlaylist playlist) {
-            Player.Queue.InsertPlaylist(queuePosition, playlist);
+            Player.Queue.InsertPlaylist(queuePosition, playlist, User);
         }
         [PamelloCommand]
         public async Task<int> PlayerQueueSongRemove(int position) {

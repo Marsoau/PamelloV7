@@ -20,11 +20,15 @@ namespace PamelloV7.Wrapper.Model
         public EPlayerState State {
             get => _dto.State;
         }
+
         public int? CurrentSongId {
             get => _dto.CurrentSongId;
         }
-        public IEnumerable<int> QueueSongsIds {
-            get => _dto.QueueSongsIds;
+        public int? CurrentAdderId {
+            get => _dto.CurrentAdderId;
+        }
+        public IEnumerable<PamelloQueueEntryDTO> QueueEntries {
+            get => _dto.QueueEntriesDTOs;
         }
         public int QueuePosition {
             get => _dto.QueuePosition;

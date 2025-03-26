@@ -91,7 +91,7 @@ namespace PamelloV7.Server.Services
 				if (!long.TryParse(progress[0], out bytesDownloaded)) bytesDownloaded = 0;
 				if (!long.TryParse(progress[1], out bytesTotal)) bytesTotal = 0;
 
-				await _events.BroadcastAsync(new SongDownloadProgeressUpdated() {
+				_events.Broadcast(new SongDownloadProgeressUpdated() {
 					SongId = song.Id,
 					Progress = (double)bytesDownloaded / bytesTotal
 				});
@@ -109,6 +109,8 @@ namespace PamelloV7.Server.Services
 				Result = finalResult
 			});
 
+			process.Close();
+			process.Dispose();
 			return finalResult;
 		}
     }

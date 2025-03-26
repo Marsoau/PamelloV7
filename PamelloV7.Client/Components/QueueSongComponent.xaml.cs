@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.DTO;
 using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Model;
 using System;
@@ -24,32 +25,33 @@ namespace PamelloV7.Client.Components
 
         private readonly PamelloClient _pamello;
 
-        public bool IsCurrent { get; set; } = true;
+        public bool IsCurrent { get; set; } = false;
 
-        public int? SongId { get; init; } = null;
+        public int QueuePosition { get; init; }
+        public PamelloQueueEntryDTO Entry { get; init; }
+
         public RemoteSong? Song { get; private set; }
+        public RemoteUser? Adder { get; private set; }
 
-        public QueueSongComponent(IServiceProvider services) {
+        public QueueSongComponent(IServiceProvider services, int queuePosition, PamelloQueueEntryDTO entry) {
             _services = services;
 
             _pamello = services.GetRequiredService<PamelloClient>();
 
+            QueuePosition = queuePosition;
+            Entry = entry;
+
             InitializeComponent();
         }
 
-        public async Task Refresh() {
-            if (SongId is null) {
-                Song = null;
-            }
-            else {
-                Song = await _pamello.Songs.Get(SongId.Value);
-            }
-
-            TextBlock_SongName.Text = Song?.Name;
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e) {
+            await Update();
         }
 
-        private async void UserControl_Loaded(object sender, RoutedEventArgs e) {
-            await Refresh();
+        private async void UserControl_MouseUp(object sender, MouseButtonEventArgs e) {
+            if (e.ChangedButton == MouseButton.Middle) {
+                await _pamello.Commands.PlayerQueueSongRemove(QueuePosition);
+            }
         }
     }
 }

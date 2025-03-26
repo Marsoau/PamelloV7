@@ -41,6 +41,7 @@ namespace PamelloV7.Client.Pages
             //Song
             _pamello.Events.OnPlayerCurrentSongIdUpdated += Events_OnPlayerCurrentSongIdUpdated;
 
+            _pamello.Events.OnPlayerCurrentAdderIdUpdated += Events_OnPlayerCurrentAdderIdUpdated;
             _pamello.Events.OnPlayerIsPausedUpdated += Events_OnPlayerIsPausedUpdated;
             _pamello.Events.OnSongDownloadFinished += Events_OnSongDownloadFinished;
             _pamello.Events.OnSongDownloadStarted += Events_OnSongDownloadStarted;
@@ -55,6 +56,10 @@ namespace PamelloV7.Client.Pages
             _pamello.Events.OnPlayerQueueIsReversedUpdated += Events_OnPlayerQueueIsReversedUpdated;
             _pamello.Events.OnPlayerQueueIsNoLeftoversUpdated += Events_OnPlayerQueueIsNoLeftoversUpdated;
             _pamello.Events.OnPlayerQueueIsFeedRandomUpdated += Events_OnPlayerQueueIsFeedRandomUpdated;
+        }
+
+        private async Task Events_OnPlayerCurrentAdderIdUpdated(Core.Events.PlayerCurrentAdderIdUpdated arg) {
+            RefreshPlayerCurrentSongAdder();
         }
 
         private async Task Events_OnSongDownloadProgeressUpdated(Core.Events.SongDownloadProgeressUpdated arg) {
@@ -73,7 +78,7 @@ namespace PamelloV7.Client.Pages
             }
         }
 
-        private async Task Events_OnPlayerQueueSongsIdsUpdated(Core.Events.PlayerQueueSongsIdsUpdated arg) {
+        private async Task Events_OnPlayerQueueSongsIdsUpdated(Core.Events.PlayerQueueEntriesUpdated arg) {
             RefreshPlayerQueueList();
         }
 
@@ -217,7 +222,7 @@ namespace PamelloV7.Client.Pages
         private async void TextBlock_CurrentSongAddedBy_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             var userPage = _mainWindow.SwitchPage<UserPage>();
 
-            await userPage.Update(_song?.AddedById);
+            await userPage.Update(_player?.CurrentAdderId);
         }
     }
 }

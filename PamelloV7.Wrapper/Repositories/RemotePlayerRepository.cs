@@ -33,6 +33,10 @@ namespace PamelloV7.Wrapper.Repositories
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.CurrentSongId = e.CurrentSongId;
             };
+            _client.Events.OnPlayerCurrentAdderIdUpdated += async (e) => {
+                var player = await _client.Users.Current.GetSelectedPlayer();
+                if (player is not null) player._dto.CurrentAdderId = e.CurrentAdderId;
+            };
             _client.Events.OnPlayerCurrentSongTimePassedUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.CurrentSongTimePassed = e.CurrentSongTimePassed;
@@ -71,7 +75,7 @@ namespace PamelloV7.Wrapper.Repositories
             };
             _client.Events.OnPlayerQueueSongsIdsUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
-                if (player is not null) player._dto.QueueSongsIds = e.QueueSongsIds;
+                if (player is not null) player._dto.QueueEntriesDTOs = e.QueueEntriesDTOs;
             };
             _client.Events.OnPlayerStateUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();

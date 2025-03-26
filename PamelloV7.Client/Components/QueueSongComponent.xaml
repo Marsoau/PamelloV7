@@ -7,16 +7,14 @@
              mc:Ignorable="d" 
              d:Background="#E0E0E0"
              Height="20" d:DesignWidth="400"
-             Loaded="UserControl_Loaded">
+             Loaded="UserControl_Loaded"
+             MouseUp="UserControl_MouseUp">
     <UserControl.Style>
         <Style TargetType="local:QueueSongComponent">
-            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="#F0F0F0"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=IsCurrent}" Value="True">
-                    <Setter Property="Background" Value="Red"/>
-                </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E8E8E8"/>
+                    <Setter Property="Background" Value="#F4F4F4"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

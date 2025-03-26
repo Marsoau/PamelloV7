@@ -167,7 +167,8 @@ namespace PamelloV7.Server.Model.Audio
                 State = State,
 
                 CurrentSongId = Queue.Current?.Song.Id,
-                QueueSongsIds = Queue.Songs.Select(song => song.Id),
+                CurrentAdderId = Queue.CurrentAdder?.Id,
+                QueueEntriesDTOs = Queue.EntriesDTOs,
                 QueuePosition = Queue.Position,
                 CurrentEpisodePosition = Queue.Current?.GetCurrentEpisodePosition(),
                 NextPositionRequest = Queue.NextPositionRequest,

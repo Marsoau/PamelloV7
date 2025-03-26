@@ -37,40 +37,30 @@ namespace PamelloV7.Server.Services
             return GetListener(eventsToken) ?? throw new PamelloException($"Events with token \"{eventsToken}\" doesnt exist");
         }
 
-        public async Task BroadcastAsync<TEventType>(TEventType pamelloEvent)
+        public void Broadcast<TEventType>(TEventType pamelloEvent)
             where TEventType : PamelloEvent
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null) continue;
-                await listener.SendEventAsync(pamelloEvent);
+                listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public async Task BroadcastToPlayerAsync<TEventType>(PamelloPlayer player, TEventType pamelloEvent)
+        public void BroadcastToPlayer<TEventType>(PamelloPlayer player, TEventType pamelloEvent)
             where TEventType : PamelloEvent
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null || listener.User.SelectedPlayer?.Id != player?.Id) continue;
-                await listener.SendEventAsync(pamelloEvent);
+                listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public async Task BroadcastToUserAsync<TEventType>(PamelloUser user, TEventType pamelloEvent)
+        public void BroadcastToUser<TEventType>(PamelloUser user, TEventType pamelloEvent)
             where TEventType : PamelloEvent
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null || listener.User.Id != user.Id) continue;
-                await listener.SendEventAsync(pamelloEvent);
+                listener.ScheduleEvent(pamelloEvent);
             }
         }
-
-        public void Broadcast<TEventType>(TEventType pamelloEvent)
-            where TEventType : PamelloEvent
-            => Task.Run(() => BroadcastAsync(pamelloEvent));
-        public void BroadcastToPlayer<TEventType>(PamelloPlayer player, TEventType pamelloEvent)
-            where TEventType : PamelloEvent
-            => Task.Run(() => BroadcastToPlayerAsync(player, pamelloEvent));
-        public void BroadcastToUser<TEventType>(PamelloUser user, TEventType pamelloEvent)
-            where TEventType : PamelloEvent
-            => Task.Run(() => BroadcastToUserAsync(user, pamelloEvent));
 
         public PamelloEventListener AuthorizeEventsWithCode(Guid eventsToken, int code) {
             var userDiscordId = _userAuthorization.GetDiscordId(code);

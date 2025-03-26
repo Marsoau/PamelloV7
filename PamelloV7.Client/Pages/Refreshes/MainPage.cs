@@ -74,7 +74,7 @@ namespace PamelloV7.Client.Pages
         private void RefreshPlayerCurrentSong() {
             RefreshPlayerCurrentSongName();
             RefreshPlayerCurrentSongCover();
-            RefreshPlayerCurrentSongAddedBy();
+            RefreshPlayerCurrentSongAdder();
             RefreshCurrentSongDownloadState();
             RefreshCurrentSongDownloadProgress();
         }
@@ -109,11 +109,14 @@ namespace PamelloV7.Client.Pages
                 TextBlock_CurrentSongName.Text = _song?.Name;
             });
         }
-        private void RefreshPlayerCurrentSongAddedBy() {
+        private void RefreshPlayerCurrentSongAdder() {
             Dispatcher.Invoke(async () => {
-                if (_song is null) return;
+                if (_player?.CurrentAdderId is null) {
+                    TextBlock_CurrentSongAddedBy.Text = "None";
+                    return;
+                }
 
-                var addedBy = await _pamello.Users.Get(_song.AddedById);
+                var addedBy = await _pamello.Users.Get(_player.CurrentAdderId.Value);
                 if (addedBy is null) return;
 
                 TextBlock_CurrentSongAddedBy.Text = addedBy.Name;
@@ -158,15 +161,14 @@ namespace PamelloV7.Client.Pages
             Dispatcher.Invoke(() => {
                 StackPanel_Queue.Children.Clear();
 
-                if (_player is null || _player.QueueSongsIds.Count() == 0) {
+                if (_player is null || _player.QueueEntries.Count() == 0) {
                     ScrollViewer_Queue.Visibility = System.Windows.Visibility.Collapsed;
                     TextBlock_QueueEmpty.Visibility = System.Windows.Visibility.Visible;
                     return;
                 }
 
-                foreach (var songId in _player.QueueSongsIds) {
-                    StackPanel_Queue.Children.Add(new QueueSongComponent(_services) {
-                        SongId = songId,
+                for (int i = 0; i < _player.QueueEntries.Count(); i++) {
+                    StackPanel_Queue.Children.Add(new QueueSongComponent(_services, i, _player.QueueEntries.ElementAt(i)) {
                         Margin = new System.Windows.Thickness(1),
                     });
                 }
