@@ -9,7 +9,6 @@
       Background="White"
       Title="UserPage"
       Loaded="Page_Loaded">
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
@@ -56,10 +55,18 @@
         <Grid Grid.Column="2">
             <TabControl>
                 <TabItem x:Name="TabItem_FavoriteSongs" Header="Favorite Songs (0)">
-                    
+                    <ScrollViewer>
+                        <StackPanel x:Name="StackPanel_FavoriteSongs" Margin="2">
+                            
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
                 <TabItem x:Name="TabItem_FavoritePlaylists" Header="Favorite Playlists (0)">
-                    
+                    <ScrollViewer>
+                        <StackPanel x:Name="StackPanel_FavoritePlaylists" Margin="2">
+                            
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
         </Grid>

@@ -12,8 +12,10 @@ namespace PamelloV7.Client.Pages
     public partial class UserPage : Page
     {
         private readonly IServiceProvider _services;
-        private readonly MainWindow _mainWindow;
+
         private readonly PamelloClient _pamello;
+
+        private readonly MainWindow _mainWindow;
 
         private RemoteUser? _user;
         public RemoteUser? User {
@@ -33,16 +35,8 @@ namespace PamelloV7.Client.Pages
             _pamello = services.GetRequiredService<PamelloClient>();
 
             InitializeComponent();
-        }
 
-        public async Task Update()
-            => await Update(null);
-        public async Task Update(int? userId) {
-            var id = userId ?? _user?.Id;
-
-            if (id is not null) _user = await _pamello.Users.GetNew(id.Value, true);
-
-            Refresh();
+            SubscribeToEvents();
         }
 
         private void Page_Loaded(object sender, System.Windows.RoutedEventArgs e) {

@@ -1,21 +1,34 @@
 ﻿using PamelloV7.Client.Interfaces;
+using PamelloV7.Client.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using System.Windows;
 
 namespace PamelloV7.Client.Pages
 {
     public partial class UserPage : IRefrashable
     {
+        public async Task Update()
+            => await Update(null);
+        public async Task Update(int? userId) {
+            var id = userId ?? _user?.Id;
+
+            if (id is not null) _user = await _pamello.Users.GetNew(id.Value, true);
+
+            Refresh();
+        }
+
         public void Refresh() {
             RefreshUserName();
             RefreshAvatar();
             RefreshAddedSongsCount();
             RefreshJoinedAt();
             RefreshIds();
+            RefreshTabs();
         }
 
         private void RefreshUserName() {
@@ -68,6 +81,31 @@ namespace PamelloV7.Client.Pages
                 }
                 else {
                     TextBlock_JoinedAt.Text = "Comng Soon";
+                }
+            });
+        }
+
+        private void RefreshTabs() {
+            RefreshFavoriteSongsTabHeader();
+            RefreshFavoriteSongsList();
+        }
+
+        private void RefreshFavoriteSongsTabHeader() {
+            Dispatcher.Invoke(() => {
+                TabItem_FavoriteSongs.Header = $"Favorite Songs ({User?.FavoriteSongsIds.Count() ?? 0})";
+            });
+        }
+
+        private void RefreshFavoriteSongsList() {
+            Dispatcher.Invoke(() => {
+                StackPanel_FavoriteSongs.Children.Clear();
+
+                if (User is null) return;
+
+                foreach (var songId in User.FavoriteSongsIds) {
+                    StackPanel_FavoriteSongs.Children.Add(new SongComponent(_services, songId) {
+                        Margin = new Thickness(2)
+                    });
                 }
             });
         }

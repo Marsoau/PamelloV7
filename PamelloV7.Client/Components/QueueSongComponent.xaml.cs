@@ -37,8 +37,8 @@ namespace PamelloV7.Client.Components
         }
         public static readonly DependencyProperty IsRequestedNextProperty = DependencyProperty.RegisterAttached("IsRequestedNext", typeof(bool), typeof(QueueSongComponent), new PropertyMetadata(false)); 
 
-
         private TextBlock TextBlock_SongName;
+        private TextBlock TextBlock_FavoriteIcon;
 
         public int QueuePosition { get; init; }
         public PamelloQueueEntryDTO Entry { get; init; }
@@ -55,10 +55,13 @@ namespace PamelloV7.Client.Components
             Entry = entry;
 
             InitializeComponent();
+
+            SubscribeToEvents();
         }
 
         public override void OnApplyTemplate() {
             TextBlock_SongName = (TextBlock)GetTemplateChild("TextBlock_SongName");
+            TextBlock_FavoriteIcon = (TextBlock)GetTemplateChild("TextBlock_FavoriteIcon");
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e) {
@@ -88,6 +91,15 @@ namespace PamelloV7.Client.Components
 
         private async void MenuItem_Remove_Click(object sender, RoutedEventArgs e) {
             await _pamello.Commands.PlayerQueueSongRemove(QueuePosition);
+        }
+
+        private async void MenuItem_FavoriteAdd_Click(object sender, RoutedEventArgs e) {
+            if (_pamello.Users.Current.FavoriteSongsIds.Contains(Entry.SongId)) {
+                await _pamello.Commands.SongFavoriteRemove(Entry.SongId.ToString());
+            }
+            else {
+                await _pamello.Commands.SongFavoriteAdd(Entry.SongId.ToString());
+            }
         }
     }
 }

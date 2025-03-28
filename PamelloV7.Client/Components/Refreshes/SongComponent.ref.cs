@@ -4,44 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace PamelloV7.Client.Components
 {
-    public partial class QueueSongComponent : IRefrashable
+    public partial class SongComponent : IRefrashable
     {
         public async Task Update() {
-            await UpdateSong();
-            await UpdateAdder();
+            Song = await _pamello.Songs.Get(SongId);
 
             Refresh();
         }
 
-        private async Task UpdateSong() {
-            var song = await _pamello.Songs.Get(Entry.SongId);
-            if (song is null) {
-                Song = null;
-                return;
-            }
-
-            Song = song;
-        }
-        private async Task UpdateAdder() {
-            if (Entry.AdderId is null) {
-                Adder = null;
-                return;
-            }
-
-            var user = await _pamello.Users.Get(Entry.AdderId.Value);
-            if (user is null) {
-                Adder = null;
-                return;
-            }
-
-            Adder = user;
-        }
-
         public void Refresh() {
             RefreshSongName();
+            RefreshSongCover();
             RefreshFavoriteState();
         }
 
@@ -50,9 +27,18 @@ namespace PamelloV7.Client.Components
                 TextBlock_SongName.Text = Song?.Name;
             });
         }
+
+        public void RefreshSongCover() {
+            if (Song is null || Song.CoverUrl is null || Song.CoverUrl.Length == 0) return;
+
+            Dispatcher.Invoke(() => {
+                Image_Cover.Source = new BitmapImage(new Uri(Song.CoverUrl));
+            });
+        }
+
         public void RefreshFavoriteState() {
             Dispatcher.Invoke(() => {
-                if (_pamello.Users.Current.FavoriteSongsIds.Contains(Entry.SongId)) {
+                if (_pamello.Users.Current.FavoriteSongsIds.Contains(SongId)) {
                     MenuItem_FavoriteAdd.Header = "Remove from Favorite";
                     TextBlock_FavoriteIcon.Visibility = System.Windows.Visibility.Visible;
                 }
