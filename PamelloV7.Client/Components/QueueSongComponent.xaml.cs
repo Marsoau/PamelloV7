@@ -76,7 +76,18 @@ namespace PamelloV7.Client.Components
         }
 
         private async void MenuItem_RequestNext_Click(object sender, RoutedEventArgs e) {
-            await _pamello.Commands.PlayerQueueSongRequestNext(QueuePosition);
+            var player = await _pamello.Users.Current.GetSelectedPlayer();
+            if (player is null) return;
+
+            await _pamello.Commands.PlayerQueueSongRequestNext(QueuePosition != player.NextPositionRequest ? QueuePosition : null);
+        }
+
+        private async void MenuItem_RequestNow_Click(object sender, RoutedEventArgs e) {
+            await _pamello.Commands.PlayerGoTo(QueuePosition, false);
+        }
+
+        private async void MenuItem_Remove_Click(object sender, RoutedEventArgs e) {
+            await _pamello.Commands.PlayerQueueSongRemove(QueuePosition);
         }
     }
 }

@@ -175,9 +175,11 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <Rectangle Grid.ColumnSpan="2" Grid.Row="1" Fill="#F8F8F8"/>
+                <Rectangle Grid.Row="1" Fill="#F8F8F8"/>
+                <Rectangle Grid.Row="2" Fill="#F0F0F0"/>
 
                 <ScrollViewer x:Name="ScrollViewer_Queue" Grid.Row="0">
                     <StackPanel x:Name="StackPanel_Queue" Margin="1">
@@ -185,11 +187,20 @@
                 </ScrollViewer>
                 <TextBlock x:Name="TextBlock_QueueEmpty" Grid.Row="0" Text="Queue is Empty" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#FF989898" FontWeight="DemiBold" FontSize="9"/>
                 <Grid Grid.Row="1">
-                    <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="4">
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
                         <CheckBox x:Name="CheckBox_Random" Content="Random" Margin="0,0,8,0" Click="CheckBox_Random_Click"/>
                         <CheckBox x:Name="CheckBox_Reversed" Content="Reversed" Margin="0,0,8,0" Click="CheckBox_Reversed_Click"/>
                         <CheckBox x:Name="CheckBox_NoLeftovers" Content="No Leftovers" Margin="0,0,8,0" Click="CheckBox_NoLeftovers_Click"/>
                         <CheckBox x:Name="CheckBox_FeedRandom" Content="Feed Random" Margin="0,0,8,0" Click="CheckBox_FeedRandom_Click"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
+                        <Button x:Name="Button_AddByValue" Content="Add" Margin="0,0,4,0" Click="Button_AddByValue_Click"/>
+                        <TextBox x:Name="TextBox_SongValue" Width="80" Padding="2,0"/>
+                    </StackPanel>
+                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
+                        <Button x:Name="Button_Clear" Content="Clear" Click="Button_Clear_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

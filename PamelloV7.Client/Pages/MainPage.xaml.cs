@@ -139,5 +139,15 @@ namespace PamelloV7.Client.Pages
 
         private async void Slider_CurrentSongTime_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e) {
         }
+
+        private async void Button_AddByValue_Click(object sender, System.Windows.RoutedEventArgs e) {
+            var value = TextBox_SongValue.Text;
+            await _pamello.Commands.PlayerQueueSongAdd(value);
+            TextBox_SongValue.Text = null;
+        }
+
+        private async void Button_Clear_Click(object sender, System.Windows.RoutedEventArgs e) {
+            await _pamello.Commands.PlayerQueueClear();
+        }
     }
 }

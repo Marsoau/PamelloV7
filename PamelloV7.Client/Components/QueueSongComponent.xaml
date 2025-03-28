@@ -11,7 +11,10 @@
              MouseUp="UserControl_MouseUp">
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem x:Name="MenuItem_RequestNext" Header="Request Next" Click="MenuItem_RequestNext_Click"/>
+            <MenuItem x:Name="MenuItem_RequestNow" Header="Play Now" Click="MenuItem_RequestNow_Click"/>
+            <MenuItem x:Name="MenuItem_RequestNext" Header="Play Next" Click="MenuItem_RequestNext_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuItem_Remove" Header="Remove" Click="MenuItem_Remove_Click"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <UserControl.Style>
