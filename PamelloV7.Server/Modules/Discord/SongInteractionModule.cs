@@ -63,19 +63,19 @@ namespace PamelloV7.Server.Modules.Discord
 
             [SlashCommand("add", "Add associacion to the song")]
             public async Task SongAssociacionsAddHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue,
-                [Summary("associacion", "New associacion name")] string associacion
+                [Summary("associacion", "New associacion name")] string associacion,
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
             ) => await SongAssociacionsAdd(songValue, associacion);
 
             [SlashCommand("remove", "Remove associacion from the song")]
             public async Task SongAssociacionsRemoveHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue,
-                [Summary("associacion", "New associacion name")] string associacion
+                [Summary("associacion", "Associacion name")] string associacion,
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
             ) => await SongAssociacionsRemove(songValue, associacion);
 
             [SlashCommand("list", "Show all song associacions")]
             public async Task SongAssociacionsListHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue,
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current",
                 [Summary("page", "Results page")] int page = 1
             ) => await SongAssociacionsList(songValue, page);
         }
