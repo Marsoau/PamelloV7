@@ -25,7 +25,20 @@ namespace PamelloV7.Client.Components
 
         private readonly PamelloClient _pamello;
 
-        public bool IsCurrent { get; set; } = false;
+        public bool IsCurrent {
+            get { return (bool)GetValue(IsCurrentProperty); }
+            set { SetValue(IsCurrentProperty, value); }
+        }
+        public static readonly DependencyProperty IsCurrentProperty = DependencyProperty.RegisterAttached("IsCurrent", typeof(bool), typeof(QueueSongComponent), new PropertyMetadata(false)); 
+
+        public bool IsRequestedNext {
+            get { return (bool)GetValue(IsRequestedNextProperty); }
+            set { SetValue(IsRequestedNextProperty, value); }
+        }
+        public static readonly DependencyProperty IsRequestedNextProperty = DependencyProperty.RegisterAttached("IsRequestedNext", typeof(bool), typeof(QueueSongComponent), new PropertyMetadata(false)); 
+
+
+        private TextBlock TextBlock_SongName;
 
         public int QueuePosition { get; init; }
         public PamelloQueueEntryDTO Entry { get; init; }
@@ -44,13 +57,21 @@ namespace PamelloV7.Client.Components
             InitializeComponent();
         }
 
+        public override void OnApplyTemplate() {
+            TextBlock_SongName = (TextBlock)GetTemplateChild("TextBlock_SongName");
+        }
+
         private async void UserControl_Loaded(object sender, RoutedEventArgs e) {
             await Update();
+            Console.WriteLine($"created entry at {QueuePosition}: {IsCurrent}");
         }
 
         private async void UserControl_MouseUp(object sender, MouseButtonEventArgs e) {
             if (e.ChangedButton == MouseButton.Middle) {
                 await _pamello.Commands.PlayerQueueSongRemove(QueuePosition);
+            }
+            else if  (e.ChangedButton == MouseButton.Left) {
+                await _pamello.Commands.PlayerGoTo(QueuePosition, false);
             }
         }
     }

@@ -43,11 +43,21 @@ namespace PamelloV7.Wrapper.Repositories
         }
 
         public async Task<TRemoteEntity?> GetNew(int id, bool fullUpdateIfExists = true) {
-            return GetFromDTO(await GetDTO(id), fullUpdateIfExists);
+            try {
+                return GetFromDTO(await GetDTO(id), fullUpdateIfExists);
+            }
+            catch {
+                return null;
+            }
         }
 
         public async Task<TRemoteEntity?> GetNew(string value, bool fullUpdateIfExists = true) {
-            return GetFromDTO(await GetDTO(value), fullUpdateIfExists);
+            try {
+                return GetFromDTO(await GetDTO(value), fullUpdateIfExists);
+            }
+            catch {
+                return null;
+            }
         }
 
         protected TRemoteEntity? GetFromDTO(TPamelloDTO? dto, bool fullUpdateIfExists = true) {

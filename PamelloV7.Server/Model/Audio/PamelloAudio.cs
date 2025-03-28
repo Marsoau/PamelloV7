@@ -43,7 +43,7 @@ namespace PamelloV7.Server.Model.Audio
             Position = new AudioTime(0);
             Duration = new AudioTime(0);
 
-            _chunkSize = new AudioTime(8);
+            _chunkSize = new AudioTime(12);
         }
 
 		public void Clean() {

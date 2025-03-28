@@ -24,10 +24,7 @@ namespace PamelloV7.Wrapper.Model
         public int? CurrentSongId {
             get => _dto.CurrentSongId;
         }
-        public int? CurrentAdderId {
-            get => _dto.CurrentAdderId;
-        }
-        public IEnumerable<PamelloQueueEntryDTO> QueueEntries {
+        public IEnumerable<PamelloQueueEntryDTO> QueueEntriesDTOs {
             get => _dto.QueueEntriesDTOs;
         }
         public int QueuePosition {

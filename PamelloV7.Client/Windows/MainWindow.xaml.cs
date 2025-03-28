@@ -12,8 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Client.Interfaces;
 using PamelloV7.Client.Pages;
-using PamelloV7.Client.Pages.Refreshes;
 using PamelloV7.Wrapper;
 
 namespace PamelloV7.Client.Windows

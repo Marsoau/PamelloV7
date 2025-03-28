@@ -19,12 +19,16 @@ namespace PamelloV7.Server.Repositories
 
         protected readonly List<TPamelloEntity> _loaded;
         protected List<TDatabaseEntity> _nonloaded
-            => LoadDatabaseEntities();
+            => LoadDatabaseEntitiesMutex();
+
+        private readonly Mutex _databaseReadMutex;
 
         public PamelloDatabaseRepository(IServiceProvider services) {
             _services = services;
 
             _loaded = new List<TPamelloEntity>();
+
+            _databaseReadMutex = new Mutex(false);
         }
 
         public virtual void InitServices() {
@@ -33,6 +37,15 @@ namespace PamelloV7.Server.Repositories
         }
 
         public abstract List<TDatabaseEntity> LoadDatabaseEntities();
+        private List<TDatabaseEntity> LoadDatabaseEntitiesMutex() {
+            _databaseReadMutex.WaitOne();
+
+            var entities = LoadDatabaseEntities();
+
+            _databaseReadMutex.ReleaseMutex();
+
+            return entities;
+        }
 
         public TPamelloEntity GetRequired(int id)
 			=> Get(id) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with id {id}");

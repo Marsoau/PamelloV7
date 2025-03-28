@@ -95,8 +95,7 @@ namespace PamelloV7.Wrapper.Services
         public event Func<PlayerIsPausedUpdated, Task> OnPlayerIsPausedUpdated;
         public event Func<PlayerProtectionUpdated, Task> OnPlayerProtectionUpdated;
         public event Func<PlayerCurrentSongIdUpdated, Task> OnPlayerCurrentSongIdUpdated;
-        public event Func<PlayerCurrentAdderIdUpdated, Task> OnPlayerCurrentAdderIdUpdated;
-        public event Func<PlayerQueueEntriesUpdated, Task> OnPlayerQueueSongsIdsUpdated;
+        public event Func<PlayerQueueEntriesDTOsUpdated, Task> OnPlayerQueueEntriesDTOsUpdated;
         public event Func<PlayerQueuePositionUpdated, Task> OnPlayerQueuePositionUpdated;
         public event Func<PlayerCurrentEpisodePositionUpdated, Task> OnPlayerCurrentEpisodePositionUpdated;
         public event Func<PlayerNextPositionRequestUpdated, Task> OnPlayerNextPositionRequestUpdated;
@@ -261,8 +260,8 @@ namespace PamelloV7.Wrapper.Services
                 case EEventName.PlayerCurrentSongIdUpdated:
                     await OnPlayerCurrentSongIdUpdated.Invoke((PlayerCurrentSongIdUpdated)pamelloEvent);
                     break;
-                case EEventName.PlayerQueueEntriesUpdated:
-                    await OnPlayerQueueSongsIdsUpdated.Invoke((PlayerQueueEntriesUpdated)pamelloEvent);
+                case EEventName.PlayerQueueEntriesDTOsUpdated:
+                    await OnPlayerQueueEntriesDTOsUpdated.Invoke((PlayerQueueEntriesDTOsUpdated)pamelloEvent);
                     break;
                 case EEventName.PlayerQueuePositionUpdated:
                     await OnPlayerQueuePositionUpdated.Invoke((PlayerQueuePositionUpdated)pamelloEvent);
@@ -290,9 +289,6 @@ namespace PamelloV7.Wrapper.Services
                     break;
                 case EEventName.PlayerQueueIsFeedRandomUpdated:
                     await OnPlayerQueueIsFeedRandomUpdated.Invoke((PlayerQueueIsFeedRandomUpdated)pamelloEvent);
-                    break;
-                case EEventName.PlayerCurrentAdderIdUpdated:
-                    await OnPlayerCurrentAdderIdUpdated.Invoke((PlayerCurrentAdderIdUpdated)pamelloEvent);
                     break;
             }
         }
@@ -514,8 +510,8 @@ namespace PamelloV7.Wrapper.Services
                 case EEventName.PlayerCurrentSongIdUpdated:
                     pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentSongIdUpdated>(sseEvent.Data);
                     break;
-                case EEventName.PlayerQueueEntriesUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueEntriesUpdated>(sseEvent.Data);
+                case EEventName.PlayerQueueEntriesDTOsUpdated:
+                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueEntriesDTOsUpdated>(sseEvent.Data);
                     break;
                 case EEventName.PlayerQueuePositionUpdated:
                     pamelloEvent = JsonSerializer.Deserialize<PlayerQueuePositionUpdated>(sseEvent.Data);
@@ -543,9 +539,6 @@ namespace PamelloV7.Wrapper.Services
                     break;
                 case EEventName.PlayerQueueIsFeedRandomUpdated:
                     pamelloEvent = JsonSerializer.Deserialize<PlayerQueueIsFeedRandomUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerCurrentAdderIdUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentAdderIdUpdated>(sseEvent.Data);
                     break;
             }
 

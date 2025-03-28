@@ -122,7 +122,15 @@ namespace PamelloV7.Server.Model.Audio
         private int _position;
         public int Position {
             get => _position;
-            set => _position = value;
+            set {
+                if (_position == value) return;
+
+                _position = value;
+
+                _events.BroadcastToPlayer(_player, new PlayerQueuePositionUpdated() {
+                    QueuePosition =_position,
+                });
+            }
         }
 
         private PamelloAudio? _current;
@@ -172,9 +180,6 @@ namespace PamelloV7.Server.Model.Audio
 
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongIdUpdated() {
                 CurrentSongId = _current?.Song.Id
-            });
-            _events.BroadcastToPlayer(_player, new PlayerCurrentAdderIdUpdated() {
-                CurrentAdderId = CurrentAdder?.Id
             });
 
             Current_Position_OnSecondTick();
@@ -246,7 +251,7 @@ namespace PamelloV7.Server.Model.Audio
             var insertPosition = NormalizeQueuePosition(position, true);
             _entries.Insert(insertPosition, new PamelloQueueEntry(song, adder));
 
-            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
 
@@ -272,7 +277,7 @@ namespace PamelloV7.Server.Model.Audio
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
-            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
 
@@ -304,7 +309,7 @@ namespace PamelloV7.Server.Model.Audio
                 _entries.RemoveAt(songPosition);
                 if (songPosition < Position) Position--;
 
-                _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+                _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                     QueueEntriesDTOs = EntriesDTOs,
                 });
             }
@@ -332,7 +337,7 @@ namespace PamelloV7.Server.Model.Audio
                 Position++;
             }
 
-            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
 
@@ -350,7 +355,7 @@ namespace PamelloV7.Server.Model.Audio
 			_entries[inPosition] = _entries[withPosition];
 			_entries[withPosition] = buffer;
 
-            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
 
@@ -396,7 +401,7 @@ namespace PamelloV7.Server.Model.Audio
                 _entries.RemoveAt(Position);
 				if (nextPosition > Position) nextPosition--;
 
-                _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+                _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                     QueueEntriesDTOs = EntriesDTOs,
                 });
             }
@@ -449,7 +454,7 @@ namespace PamelloV7.Server.Model.Audio
             SetCurrent(null);
             Position = 0;
 
-            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesUpdated() {
+            _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
         }

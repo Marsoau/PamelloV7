@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PamelloV7.Client.Pages.Refreshes
+namespace PamelloV7.Client.Interfaces
 {
     public interface IRefrashable
     {

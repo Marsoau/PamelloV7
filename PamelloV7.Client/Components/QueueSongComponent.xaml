@@ -5,23 +5,75 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PamelloV7.Client.Components"
              mc:Ignorable="d" 
-             d:Background="#E0E0E0"
+             d:Background="#F0F0F0"
              Height="20" d:DesignWidth="400"
              Loaded="UserControl_Loaded"
              MouseUp="UserControl_MouseUp">
     <UserControl.Style>
         <Style TargetType="local:QueueSongComponent">
             <Setter Property="Background" Value="#F0F0F0"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F4F4F4"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:QueueSongComponent">
+                        <Grid Background="{TemplateBinding Background}">
+                            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0" Orientation="Horizontal">
+                                <!-- ✅ This TextBlock can now be targeted in triggers -->
+                                <TextBlock x:Name="TextBlock_SongName" Text="Song name" FontSize="10" FontWeight="DemiBold" Foreground="#212121" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0" Orientation="Horizontal">
+                                <TextBlock x:Name="TextBlock_Duration" Text="0:00" FontSize="10" FontWeight="Bold" Foreground="#777777" Visibility="Collapsed"/>
+                                <TextBlock x:Name="TextBlock_RequestedNext" Text="Next" Padding="3,0" FontSize="10" FontWeight="DemiBold" Background="#212121" Foreground="#E0E0E0" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 🔹 TRIGGERS: Apply Background and Foreground Styles -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsRequestedNext" Value="True">
+                                <Setter TargetName="TextBlock_RequestedNext" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <!-- Default -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsCurrent" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="#F0F0F0"/>
+                                <Setter TargetName="TextBlock_SongName" Property="Foreground" Value="#212121"/>
+                            </MultiTrigger>
+
+                            <!-- Hover -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsCurrent" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="#F8F8F8"/>
+                                <Setter TargetName="TextBlock_SongName" Property="Foreground" Value="#212121"/>
+                            </MultiTrigger>
+
+                            <!-- Selected -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsCurrent" Value="True"/>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="#212121"/>
+                                <Setter TargetName="TextBlock_SongName" Property="Foreground" Value="#F0F0F0"/>
+                            </MultiTrigger>
+
+                            <!-- Selected + Hover -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsCurrent" Value="True"/>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="#313131"/>
+                                <Setter TargetName="TextBlock_SongName" Property="Foreground" Value="#F0F0F0"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Style>
-    <Grid>
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0">
-            <TextBlock x:Name="TextBlock_SongName" Text="Song name" FontSize="10" FontWeight="DemiBold" Foreground="#FF212121"/>
-        </StackPanel>
-    </Grid>
 </UserControl>

@@ -1,5 +1,4 @@
-﻿using PamelloV7.Client.Pages.Refreshes;
-using PamelloV7.Core.Audio;
+﻿using PamelloV7.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using PamelloV7.Client.Components;
 using System.Windows;
+using PamelloV7.Client.Interfaces;
 
 namespace PamelloV7.Client.Pages
 {
@@ -110,16 +110,21 @@ namespace PamelloV7.Client.Pages
             });
         }
         private void RefreshPlayerCurrentSongAdder() {
+            var currentEntry = _player?.QueueEntriesDTOs.ElementAtOrDefault(_player.QueuePosition);
+            Console.WriteLine($"setting adder: {currentEntry?.AdderId}, from entry: {currentEntry}");
+
             Dispatcher.Invoke(async () => {
-                if (_player?.CurrentAdderId is null) {
-                    TextBlock_CurrentSongAddedBy.Text = "None";
+                if (currentEntry is null || currentEntry.AdderId is null) {
+                    TextBlock_CurrentSongAddedByLabel.Text = "Added automaticaly";
+                    TextBlock_CurrentSongAddedByUser.Text = null;
                     return;
                 }
 
-                var addedBy = await _pamello.Users.Get(_player.CurrentAdderId.Value);
+                var addedBy = await _pamello.Users.Get(currentEntry.AdderId.Value);
                 if (addedBy is null) return;
 
-                TextBlock_CurrentSongAddedBy.Text = addedBy.Name;
+                TextBlock_CurrentSongAddedByLabel.Text = "Added by ";
+                TextBlock_CurrentSongAddedByUser.Text = addedBy.Name;
             });
         }
         
@@ -161,20 +166,22 @@ namespace PamelloV7.Client.Pages
             Dispatcher.Invoke(() => {
                 StackPanel_Queue.Children.Clear();
 
-                if (_player is null || _player.QueueEntries.Count() == 0) {
-                    ScrollViewer_Queue.Visibility = System.Windows.Visibility.Collapsed;
-                    TextBlock_QueueEmpty.Visibility = System.Windows.Visibility.Visible;
+                if (_player is null || _player.QueueEntriesDTOs.Count() == 0) {
+                    ScrollViewer_Queue.Visibility = Visibility.Collapsed;
+                    TextBlock_QueueEmpty.Visibility = Visibility.Visible;
                     return;
                 }
 
-                for (int i = 0; i < _player.QueueEntries.Count(); i++) {
-                    StackPanel_Queue.Children.Add(new QueueSongComponent(_services, i, _player.QueueEntries.ElementAt(i)) {
-                        Margin = new System.Windows.Thickness(1),
+                for (int i = 0; i < _player.QueueEntriesDTOs.Count(); i++) {
+                    StackPanel_Queue.Children.Add(new QueueSongComponent(_services, i, _player.QueueEntriesDTOs.ElementAt(i)) {
+                        Margin = new Thickness(1),
+                        IsRequestedNext = _player.NextPositionRequest == i,
+                        IsCurrent = _player.QueuePosition == i
                     });
                 }
 
-                ScrollViewer_Queue.Visibility = System.Windows.Visibility.Visible;
-                TextBlock_QueueEmpty.Visibility = System.Windows.Visibility.Collapsed;
+                ScrollViewer_Queue.Visibility = Visibility.Visible;
+                TextBlock_QueueEmpty.Visibility = Visibility.Collapsed;
             });
         }
     }

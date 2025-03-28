@@ -57,8 +57,8 @@
                 <TextBlock Grid.Column="1" Grid.Row="0" x:Name="TextBlock_CurrentSongName" Text="Imperial Circus Dead Decadence Official - Jashin No Konrei" FontSize="16" FontWeight="DemiBold" AllowDrop="True" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" LineStackingStrategy="BlockLineHeight" Margin="3,3,3,20"/>
 
                 <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Orientation="Horizontal" Margin="3">
-                    <TextBlock Text="Added by " FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold"/>
-                    <TextBlock x:Name="TextBlock_CurrentSongAddedBy" Text="User" FontSize="10" FontWeight="DemiBold" Style="{StaticResource HyperTextBlock}" MouseUp="TextBlock_CurrentSongAddedBy_MouseUp"/>
+                    <TextBlock x:Name="TextBlock_CurrentSongAddedByLabel" Text="Added by " FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold"/>
+                    <TextBlock x:Name="TextBlock_CurrentSongAddedByUser" Text="User" FontSize="10" FontWeight="DemiBold" Style="{StaticResource HyperTextBlock}" MouseUp="TextBlock_CurrentSongAddedBy_MouseUp"/>
                 </StackPanel>
                 <TextBlock x:Name="TextBlock_PlayerState" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Text="State" FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold" Margin="3"/>
 
@@ -100,7 +100,7 @@
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="TextBlock_CurrentSongTimePassed" Grid.Column="0" Text="52:09" VerticalAlignment="Center" FontSize="10" Margin="2,0"/>
-                    <Slider x:Name="Slider_CurrentSongTime" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="2,0" Maximum="1" LargeChange="0.5"/>
+                    <Slider x:Name="Slider_CurrentSongTime" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="2,0" Maximum="1" LargeChange="0.5" ValueChanged="Slider_CurrentSongTime_ValueChanged"/>
                     <TextBlock x:Name="TextBlock_CurrentSongTimeTotal" Grid.Column="2" Text="1:22:13" VerticalAlignment="Center" FontSize="10" Margin="2,0"/>
                 </Grid>
             </Grid>

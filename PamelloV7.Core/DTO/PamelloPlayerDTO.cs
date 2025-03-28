@@ -30,10 +30,7 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("currentSongId")]
         public int? CurrentSongId { get; set; }
 
-        [JsonPropertyName("currentAdderId")]
-        public int? CurrentAdderId { get; set; }
-
-        [JsonPropertyName("queueSongsIds")]
+        [JsonPropertyName("queueEntriesDTOs")]
         public IEnumerable<PamelloQueueEntryDTO> QueueEntriesDTOs { get; set; }
 
         [JsonPropertyName("queuePosition")]

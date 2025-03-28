@@ -33,10 +33,6 @@ namespace PamelloV7.Wrapper.Repositories
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.CurrentSongId = e.CurrentSongId;
             };
-            _client.Events.OnPlayerCurrentAdderIdUpdated += async (e) => {
-                var player = await _client.Users.Current.GetSelectedPlayer();
-                if (player is not null) player._dto.CurrentAdderId = e.CurrentAdderId;
-            };
             _client.Events.OnPlayerCurrentSongTimePassedUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.CurrentSongTimePassed = e.CurrentSongTimePassed;
@@ -48,10 +44,6 @@ namespace PamelloV7.Wrapper.Repositories
             _client.Events.OnPlayerIsPausedUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.IsPaused = e.IsPaused;
-            };
-            _client.Events.OnPlayerNextPositionRequestUpdated += async (e) => {
-                var player = await _client.Users.Current.GetSelectedPlayer();
-                if (player is not null) player._dto.NextPositionRequest = e.NextPositionRequest;
             };
             _client.Events.OnPlayerQueueIsFeedRandomUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
@@ -73,7 +65,7 @@ namespace PamelloV7.Wrapper.Repositories
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.QueuePosition = e.QueuePosition;
             };
-            _client.Events.OnPlayerQueueSongsIdsUpdated += async (e) => {
+            _client.Events.OnPlayerQueueEntriesDTOsUpdated += async (e) => {
                 var player = await _client.Users.Current.GetSelectedPlayer();
                 if (player is not null) player._dto.QueueEntriesDTOs = e.QueueEntriesDTOs;
             };

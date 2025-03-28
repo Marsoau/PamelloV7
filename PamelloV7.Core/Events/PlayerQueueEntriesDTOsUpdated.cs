@@ -3,9 +3,9 @@ using PamelloV7.Core.DTO;
 
 namespace PamelloV7.Core.Events
 {
-    public class PlayerQueueEntriesUpdated : PamelloEvent
+    public class PlayerQueueEntriesDTOsUpdated : PamelloEvent
     {
-        public PlayerQueueEntriesUpdated() : base(EEventName.PlayerQueueEntriesUpdated) { }
+        public PlayerQueueEntriesDTOsUpdated() : base(EEventName.PlayerQueueEntriesDTOsUpdated) { }
 
         public IEnumerable<PamelloQueueEntryDTO> QueueEntriesDTOs { get; set; }
     }

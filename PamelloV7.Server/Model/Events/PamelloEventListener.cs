@@ -184,8 +184,8 @@ namespace PamelloV7.Server.Model.Events
                     case EEventName.PlayerCurrentSongIdUpdated:
                         await _response.WriteAsync($"data: {JsonSerializer.Serialize((PlayerCurrentSongIdUpdated)pamelloEvent)}\r\r");
                         break;
-                    case EEventName.PlayerQueueEntriesUpdated:
-                        await _response.WriteAsync($"data: {JsonSerializer.Serialize((PlayerQueueEntriesUpdated)pamelloEvent)}\r\r");
+                    case EEventName.PlayerQueueEntriesDTOsUpdated:
+                        await _response.WriteAsync($"data: {JsonSerializer.Serialize((PlayerQueueEntriesDTOsUpdated)pamelloEvent)}\r\r");
                         break;
                     case EEventName.PlayerQueuePositionUpdated:
                         await _response.WriteAsync($"data: {JsonSerializer.Serialize((PlayerQueuePositionUpdated)pamelloEvent)}\r\r");
