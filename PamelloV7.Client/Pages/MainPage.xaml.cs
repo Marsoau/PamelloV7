@@ -149,5 +149,19 @@ namespace PamelloV7.Client.Pages
         private async void Button_Clear_Click(object sender, System.Windows.RoutedEventArgs e) {
             await _pamello.Commands.PlayerQueueClear();
         }
+
+        private async void Button_Logout_Click(object sender, System.Windows.RoutedEventArgs e) {
+            await _pamello.Unauthorize();
+
+            _mainWindow.SwitchPage<AuthorizationPage>();
+        }
+
+        private async void TextBox_SongValue_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+            if (e.Key == System.Windows.Input.Key.Enter) {
+                var value = TextBox_SongValue.Text;
+                await _pamello.Commands.PlayerQueueSongAdd(value);
+                TextBox_SongValue.Text = null;
+            }
+        }
     }
 }

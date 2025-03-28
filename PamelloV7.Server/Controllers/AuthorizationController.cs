@@ -56,5 +56,17 @@ namespace PamelloV7.Server.Controllers
 
             return Ok(events.User.Token);
         }
+
+        [HttpGet("Close/{eventsToken}/{userToken}")]
+        public IActionResult GetClose(Guid eventsToken, Guid userToken) {
+            try {
+                _events.UnauthorizeEvents(eventsToken, userToken);
+            }
+            catch (PamelloException x) {
+                throw new PamelloControllerException(BadRequest(x.Message));
+            }
+
+            return Ok();
+        }
     }
 }

@@ -82,6 +82,16 @@ namespace PamelloV7.Server.Modules
             var player = _players.Create(User, playerName);
             User.SelectedPlayer = player;
 
+            var vc = _discordClients.GetUserVoiceChannel(User);
+            if (vc is null) return player;
+
+            var vcUsers = _discordClients.GetVoiceChannelUsers(vc);
+            foreach (var user in vcUsers) {
+                if (user.SelectedPlayer is null) {
+                    user.SelectedPlayer = player;
+                }
+            }
+
             return player;
         }
 

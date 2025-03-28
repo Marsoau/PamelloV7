@@ -241,7 +241,12 @@ namespace PamelloV7.Server.Model.Events
         }
 
         public void AssighnUser(PamelloUser user) {
+            if (User is not null) throw new PamelloException("User is already assighned for that events");
+
             User = user;
+        }
+        public void AbandonUser() {
+            User = null;
         }
 
         public void Close() {

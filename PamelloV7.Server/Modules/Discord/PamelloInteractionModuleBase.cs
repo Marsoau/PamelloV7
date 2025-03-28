@@ -78,6 +78,19 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task Ping()
         {
             await RespondInfo("Pong");
+
+            var guild = Context.Guild;
+            var guildUser = guild.GetUser(Context.User.DiscordId);
+            var vc = guildUser.VoiceChannel;
+
+            if (vc is null) return;
+
+            var users = _discordClients.GetVoiceChannelUsers(vc);
+
+            Console.WriteLine("vc usres:");
+            foreach (var user in users) {
+                Console.WriteLine(user);
+            }
         }
 
         public async Task GetCode()

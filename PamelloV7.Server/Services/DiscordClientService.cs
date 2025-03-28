@@ -102,5 +102,19 @@ namespace PamelloV7.Server.Services
 
 			return null;
 		}
+
+        public List<PamelloUser> GetVoiceChannelUsers(SocketVoiceChannel vc) {
+			var users = new List<PamelloUser>();
+
+			PamelloUser? pamelloUser = null;
+			foreach (var discordUser in vc.ConnectedUsers) {
+				pamelloUser = _users.GetByDiscord(discordUser.Id, false);
+				if (pamelloUser is null) continue;
+
+				users.Add(pamelloUser);
+			}
+
+			return users;
+		}
     }
 }

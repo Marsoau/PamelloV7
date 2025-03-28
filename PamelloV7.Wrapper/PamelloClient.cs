@@ -42,6 +42,8 @@ namespace PamelloV7.Wrapper
             Playlists = new RemotePlaylistRepository(this);
         }
 
+        internal Task HttpGetAsync(string url, Guid? customToken = null)
+            => HttpGetAsync<object?>(url, customToken);
         internal async Task<T?> HttpGetAsync<T>(string url, Guid? customToken = null) {
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
             if (UserToken is not null) {
@@ -49,10 +51,13 @@ namespace PamelloV7.Wrapper
             }
 
             var responce = await _http.SendAsync(request);
+            var contentString = await responce.Content.ReadAsStringAsync();
+
             if (responce.StatusCode != System.Net.HttpStatusCode.OK) {
-                if (responce.Content is null) throw new Exception("Unknown error ocured");
-                throw new Exception(await responce.Content.ReadAsStringAsync());
+                throw new Exception(contentString);
             }
+
+            if (contentString.Length == 0) return default;
 
             var result = JsonSerializer.Deserialize<T>(responce.Content.ReadAsStream());
 
@@ -113,6 +118,14 @@ namespace PamelloV7.Wrapper
             await Users.UpdateCurrentUser();
 
             OnAuthorized?.Invoke();
+        }
+
+        public async Task Unauthorize() {
+            if (EventsToken is null) throw new Exception("You have to be connected to the server");
+            if (UserToken is null) throw new Exception("You have to be authorized");
+
+            await HttpGetAsync($"Authorization/Close/{EventsToken}/{UserToken}");
+            UserToken = null;
         }
     }
 }

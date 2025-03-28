@@ -160,8 +160,8 @@
 
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom" Margin="1">
-                    <Button Content="Settings" Margin="1"/>
-                    <Button Content="Logout" Margin="1"/>
+                    <Button x:Name="Button_Settings" Content="Settings" Margin="1"/>
+                    <Button x:Name="Button_Logout" Content="Logout" Margin="1" Click="Button_Logout_Click"/>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -197,7 +197,7 @@
                 <Grid Grid.Row="2">
                     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
                         <Button x:Name="Button_AddByValue" Content="Add" Margin="0,0,4,0" Click="Button_AddByValue_Click"/>
-                        <TextBox x:Name="TextBox_SongValue" Width="80" Padding="2,0"/>
+                        <TextBox x:Name="TextBox_SongValue" Width="80" Padding="2,0" KeyDown="TextBox_SongValue_KeyDown"/>
                     </StackPanel>
                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
                         <Button x:Name="Button_Clear" Content="Clear" Click="Button_Clear_Click"/>

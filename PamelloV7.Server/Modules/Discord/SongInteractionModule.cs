@@ -39,12 +39,12 @@ namespace PamelloV7.Server.Modules.Discord
 
             [SlashCommand("add", "Add song to the favorites")]
             public async Task SongFavoriteAddHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
             ) => await SongFavoriteAdd(songValue);
 
             [SlashCommand("remove", "Remove song from the favorites")]
             public async Task SongFavoriteRemoveHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
             ) => await SongFavoriteRemove(songValue);
 
             [SlashCommand("list", "Show all your favorite songs")]
