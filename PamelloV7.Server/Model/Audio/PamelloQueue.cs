@@ -113,8 +113,8 @@ namespace PamelloV7.Server.Model.Audio
 
                 _nextPositionRequest = value;
 
-                _events.BroadcastToPlayer(_player, new PlayerQueueIsFeedRandomUpdated() {
-                    QueueIsFeedRandom = IsFeedRandom,
+                _events.BroadcastToPlayer(_player, new PlayerNextPositionRequestUpdated() {
+                    NextPositionRequest = NextPositionRequest
                 });
             }
         }
@@ -307,7 +307,10 @@ namespace PamelloV7.Server.Model.Audio
 			if (Position == songPosition) GoToNextSong(true);
 			else {
                 _entries.RemoveAt(songPosition);
+
                 if (songPosition < Position) Position--;
+                if (songPosition < NextPositionRequest) NextPositionRequest--;
+                else if (songPosition == NextPositionRequest) NextPositionRequest = null;
 
                 _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                     QueueEntriesDTOs = EntriesDTOs,

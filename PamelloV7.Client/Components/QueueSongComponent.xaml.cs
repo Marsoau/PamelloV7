@@ -74,5 +74,9 @@ namespace PamelloV7.Client.Components
                 await _pamello.Commands.PlayerGoTo(QueuePosition, false);
             }
         }
+
+        private async void MenuItem_RequestNext_Click(object sender, RoutedEventArgs e) {
+            await _pamello.Commands.PlayerQueueSongRequestNext(QueuePosition);
+        }
     }
 }

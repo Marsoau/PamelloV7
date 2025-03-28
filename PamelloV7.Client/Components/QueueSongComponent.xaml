@@ -9,6 +9,11 @@
              Height="20" d:DesignWidth="400"
              Loaded="UserControl_Loaded"
              MouseUp="UserControl_MouseUp">
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem x:Name="MenuItem_RequestNext" Header="Request Next" Click="MenuItem_RequestNext_Click"/>
+        </ContextMenu>
+    </UserControl.ContextMenu>
     <UserControl.Style>
         <Style TargetType="local:QueueSongComponent">
             <Setter Property="Background" Value="#F0F0F0"/>
