@@ -36,8 +36,13 @@ namespace PamelloV7.Wrapper.Services
         public async Task<int> PlayerCreate(string playerName) {
             return await InvokeCommand<int>($"PlayerCreate?playerName={playerName}");
         }
-        public async Task PlayerSelect(string playerValue) {
-            await InvokeCommand($"PlayerSelect?player={playerValue}");
+        public async Task PlayerSelect(string? playerValue) {
+            if (playerValue is null) {
+                await InvokeCommand($"PlayerSelect");
+            }
+            else {
+                await InvokeCommand($"PlayerSelect?player={playerValue}");
+            }
         }
         public async Task PlayerProtection(bool state) {
             await InvokeCommand($"PlayerProtection?state={state}");

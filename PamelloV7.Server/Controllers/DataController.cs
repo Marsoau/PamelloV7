@@ -142,7 +142,7 @@ namespace PamelloV7.Server.Controllers
         {
             RequireUser();
 
-            var entityResults = await repository.Search(querry);
+            var entityResults = await repository.Search(querry, User);
             var idResults = entityResults.Select(entity => entity.Id);
 
             return Ok(idResults);

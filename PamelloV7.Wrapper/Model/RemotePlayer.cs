@@ -57,6 +57,14 @@ namespace PamelloV7.Wrapper.Model
             get => _dto.QueueIsFeedRandom;
         }
 
+        public bool IsProtected {
+            get => _dto.IsProtected;
+        }
+
+        public int OwnerId {
+            get => _dto.OwnerId;
+        }
+
         internal override void FullUpdate(PamelloPlayerDTO dto) {
             _dto = dto;
         }

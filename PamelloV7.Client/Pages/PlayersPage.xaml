@@ -4,11 +4,76 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PamelloV7.Client.Pages"
+      xmlns:components="clr-namespace:PamelloV7.Client.Components"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="PlayersPage">
+      Background="White"
+      Title="PlayersPage"
+      Loaded="Page_Loaded">
 
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Rectangle Grid.Column="1" Fill="#DEDEDE"/>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="2"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Rectangle Grid.Row="0" Fill="#F8F8F8"/>
+            <Rectangle Grid.Row="2" Fill="#DEDEDE"/>
+
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="2">
+                <Button x:Name="Button_Back" Content="Back" Margin="2" Click="Button_Back_Click"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="2">
+                <Button x:Name="Button_Create" Content="Create" Margin="2" Click="Button_Create_Click"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1" x:Name="Grid_CurrentPlayer" Visibility="Collapsed">
+                
+            </Grid>
+            <Grid Grid.Row="1" x:Name="Grid_NoPlayer" Height="32">
+                <TextBlock Text="No Player Selected" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" Foreground="#FFABABAB" FontWeight="DemiBold"/>
+            </Grid>
+
+            <ScrollViewer Grid.Row="3">
+                <StackPanel x:Name="StackPanel_AvailablePlayers" Margin="2">
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <ScrollViewer Grid.Column="2">
+            <StackPanel x:Name="StackPanel_Options">
+                <components:OptionComponent Header="Name">
+                    <Grid Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TextBox_PlayerName" Grid.Column="0" Margin="2"/>
+                        <Button x:Name="Button_ApplyPlayerName" Grid.Column="1" Content="Apply" Margin="2" Click="Button_ApplyPlayerName_Click"/>
+                    </Grid>
+                </components:OptionComponent>
+                <components:OptionComponent Header="Protection">
+                    <CheckBox x:Name="CheckBox_Protection" Content="Enabled" Margin="4" Click="CheckBox_Protection_Click"/>
+                </components:OptionComponent>
+                <components:OptionComponent Header="Inputs">
+                    <TextBlock Text="Comming Soon" Margin="4"/>
+                </components:OptionComponent>
+                <components:OptionComponent Header="Outputs">
+                    <TextBlock Text="Comming Soon" Margin="4"/>
+                </components:OptionComponent>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -40,33 +40,6 @@ namespace PamelloV7.Client.Pages
             await Update();
         }
 
-        public async Task Update() {
-            await UpdatePlayer();
-            await UpdateSong();
-
-            Refresh();
-        }
-
-        private async Task UpdatePlayer() {
-            if (_pamello.Users.Current?.SelectedPlayerId is null) {
-                _player = null;
-            }
-            else {
-                _player = await _pamello.Players.GetNew(_pamello.Users.Current.SelectedPlayerId.Value, true);
-            }
-
-            Console.WriteLine("player updated");
-        }
-        private async Task UpdateSong() {
-            if (_player is null || _player.CurrentSongId is null) {
-                _song = null;
-            }
-            else {
-                _song = await _pamello.Songs.GetNew(_player.CurrentSongId.Value, true);
-            }
-
-            Console.WriteLine($"song updated to {_song?.Name ?? "none-"} ({_player?.CurrentSongId ?? -100})");
-        }
 
         private async void Button_Skip_Click(object sender, System.Windows.RoutedEventArgs e) {
             await _pamello.Commands.PlayerSkip();
@@ -162,6 +135,18 @@ namespace PamelloV7.Client.Pages
                 await _pamello.Commands.PlayerQueueSongAdd(value);
                 TextBox_SongValue.Text = null;
             }
+        }
+
+        private void Button_PlayersMore_Click(object sender, System.Windows.RoutedEventArgs e) {
+            _mainWindow.SwitchPage<PlayersPage>();
+        }
+
+        private async void Button_EpisodePrevious_Click(object sender, System.Windows.RoutedEventArgs e) {
+            await _pamello.Commands.PlayerPrevEpisode();
+        }
+
+        private async void Button_EpisodeNext_Click(object sender, System.Windows.RoutedEventArgs e) {
+            await _pamello.Commands.PlayerNextEpisode();
         }
     }
 }

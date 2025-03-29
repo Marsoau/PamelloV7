@@ -37,8 +37,8 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Player 1" FontSize="13" FontWeight="Bold" Foreground="#FF444444"/>
-                <Button Grid.Column="1" Content="..."/>
+                <TextBlock x:Name="TextBlock_PlayerName" Grid.Column="0" Text="Player 1" FontSize="13" FontWeight="Bold" Foreground="#FF444444"/>
+                <Button x:Name="Button_PlayersMore" Grid.Column="1" Content="..." Click="Button_PlayersMore_Click"/>
             </Grid>
             <Grid Grid.Row="1" Background="#F0F0F0">
                 <Grid.RowDefinitions>
@@ -131,9 +131,9 @@
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <Button Grid.Column="0" Content="Prev"/>
+                            <Button x:Name="Button_EpisodePrevious" Grid.Column="0" Content="Prev" Click="Button_EpisodePrevious_Click"/>
                             <TextBlock Grid.Column="1" Text="Current Episode" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,0" FontWeight="DemiBold"/>
-                            <Button Grid.Column="2" Content="Next"/>
+                            <Button x:Name="Button_EpisodeNext" Grid.Column="2" Content="Next" Click="Button_EpisodeNext_Click"/>
                         </Grid>
                     </Grid>
                 </TabItem>
@@ -168,8 +168,11 @@
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="2"/>
                 <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
+
+            <Rectangle Grid.Row="1" Fill="#DEDEDE"/>
 
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
@@ -197,7 +200,7 @@
                 <Grid Grid.Row="2">
                     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
                         <Button x:Name="Button_AddByValue" Content="Add" Margin="0,0,4,0" Click="Button_AddByValue_Click"/>
-                        <TextBox x:Name="TextBox_SongValue" Width="80" Padding="2,0" KeyDown="TextBox_SongValue_KeyDown"/>
+                        <TextBox x:Name="TextBox_SongValue" Width="120" Padding="2,0" KeyDown="TextBox_SongValue_KeyDown"/>
                     </StackPanel>
                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="4">
                         <Button x:Name="Button_Clear" Content="Clear" Click="Button_Clear_Click"/>

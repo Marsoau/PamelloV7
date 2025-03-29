@@ -17,6 +17,10 @@ namespace PamelloV7.Core.DTO
         public string Name { get; set; }
 
 
+        [JsonPropertyName("ownerId")]
+        public int OwnerId { get; set; }
+
+
         [JsonPropertyName("isPaused")]
         public bool IsPaused { get; set; }
 

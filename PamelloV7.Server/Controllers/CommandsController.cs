@@ -64,6 +64,10 @@ namespace PamelloV7.Server.Controllers
                 Console.WriteLine(typeof(IEntity).IsAssignableFrom(argsInfo[i].ParameterType));
                 if (typeof(IEntity).IsAssignableFrom(argsInfo[i].ParameterType)) {
                     try {
+                        Console.WriteLine($"cehchink for {argsInfo[i].Name}");
+                        if (Nullable.GetUnderlyingType(argsInfo[i].ParameterType) is not null) {
+                            Console.WriteLine($"arg {argsInfo[i].Name} is optional");
+                        }
                         if (argsInfo[i].ParameterType == typeof(PamelloUser)) {
                             argValue = await _users.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }

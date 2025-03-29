@@ -21,5 +21,26 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="components:OptionComponent">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid DataContext="{Binding RelativeSource={RelativeSource AncestorType=components:OptionComponent}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle Grid.Row="0" Fill="#F8F8F8"/>
+                            <Rectangle Grid.Row="1" Fill="#F0F0F0"/>
+
+                            <TextBlock Grid.Row="0" Text="{Binding Header}" Padding="5,3" FontSize="14" FontWeight="DemiBold" Foreground="#212121"/>
+
+                            <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

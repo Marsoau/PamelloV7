@@ -166,6 +166,9 @@ namespace PamelloV7.Server.Model.Audio
                 IsPaused = IsPaused,
                 State = State,
 
+                OwnerId = Creator.Id,
+                IsProtected = IsProtected,
+
                 CurrentSongId = Queue.Current?.Song.Id,
                 QueueEntriesDTOs = Queue.EntriesDTOs,
                 QueuePosition = Queue.Position,

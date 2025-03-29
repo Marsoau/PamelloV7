@@ -13,6 +13,34 @@ namespace PamelloV7.Client.Pages
 {
     public partial class MainPage : IRefrashable
     {
+        public async Task Update() {
+            await UpdatePlayer();
+            await UpdateSong();
+
+            Refresh();
+        }
+
+        private async Task UpdatePlayer() {
+            if (_pamello.Users.Current?.SelectedPlayerId is null) {
+                _player = null;
+            }
+            else {
+                _player = await _pamello.Players.GetNew(_pamello.Users.Current.SelectedPlayerId.Value, true);
+            }
+
+            Console.WriteLine("player updated");
+        }
+        private async Task UpdateSong() {
+            if (_player is null || _player.CurrentSongId is null) {
+                _song = null;
+            }
+            else {
+                _song = await _pamello.Songs.GetNew(_player.CurrentSongId.Value, true);
+            }
+
+            Console.WriteLine($"song updated to {_song?.Name ?? "none-"} ({_player?.CurrentSongId ?? -100})");
+        }
+
         public void Refresh() {
             Dispatcher.Invoke(() => {
                 TextBlock_Username.Text = _pamello.Users.Current.Name;
@@ -26,6 +54,8 @@ namespace PamelloV7.Client.Pages
 
         //Refresh Player
         private void RefreshPlayer() {
+            RefreshPlayerName();
+
             RefreshPlayerCurrentSong();
 
             RefreshPlayerIsPaused();
@@ -67,6 +97,12 @@ namespace PamelloV7.Client.Pages
 
             Dispatcher.Invoke(() => {
                 TextBlock_CurrentSongTimeTotal.Text = time.ToShortString();
+            });
+        }
+
+        private void RefreshPlayerName() {
+            Dispatcher.Invoke(() => {
+                TextBlock_PlayerName.Text = _player?.Name;
             });
         }
 
