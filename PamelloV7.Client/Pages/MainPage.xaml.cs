@@ -148,5 +148,9 @@ namespace PamelloV7.Client.Pages
         private async void Button_EpisodeNext_Click(object sender, System.Windows.RoutedEventArgs e) {
             await _pamello.Commands.PlayerNextEpisode();
         }
+
+        private void Button_Settings_Click(object sender, System.Windows.RoutedEventArgs e) {
+            _mainWindow.SwitchPage<SettingsPage>();
+        }
     }
 }

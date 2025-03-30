@@ -160,7 +160,7 @@
 
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom" Margin="1">
-                    <Button x:Name="Button_Settings" Content="Settings" Margin="1"/>
+                    <Button x:Name="Button_Settings" Content="Settings" Margin="1" Click="Button_Settings_Click"/>
                     <Button x:Name="Button_Logout" Content="Logout" Margin="1" Click="Button_Logout_Click"/>
                 </StackPanel>
             </Grid>
