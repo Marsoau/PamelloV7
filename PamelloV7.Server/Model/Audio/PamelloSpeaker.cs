@@ -59,7 +59,9 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         private Task AudioClient_Connected() {
+			Console.WriteLine("creating stream");
             _audioOutput = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
+			Console.WriteLine("creted");
             return Task.CompletedTask;
         }
 

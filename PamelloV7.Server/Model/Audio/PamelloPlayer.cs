@@ -104,20 +104,22 @@ namespace PamelloV7.Server.Model.Audio
             byte[] audio = new byte[2];
             bool success = false;
 
-            if (Queue.Current is null) return;
-            if (!await Queue.Current.TryInitialize()) return;
+            //if (Queue.Current is null) return;
+            //if (!await Queue.Current.TryInitialize()) return;
 
             while (true) {
                 if (Queue.Current is null) {
                     State = EPlayerState.AwaitingSong;
-                    
+
                     await Task.Delay(250);
                     continue;
                 }
                 if (!Queue.Current.IsInitialized) {
                     State = EPlayerState.AwaitingSongInitialization;
                     if (!await Queue.Current.TryInitialize()) {
+						Console.WriteLine("failed to initialize");
                         Queue.GoToNextSong(true);
+						continue;
                     }
                 }
                 if (!_speakers.IsChannelActive(Id)) {
@@ -125,11 +127,7 @@ namespace PamelloV7.Server.Model.Audio
 
                     await Task.Delay(250);
                     continue;
-                }
-                if (IsPaused) {
-                    await Task.Delay(250);
-                    continue;
-                }
+				}
 
                 State = EPlayerState.Active;
 

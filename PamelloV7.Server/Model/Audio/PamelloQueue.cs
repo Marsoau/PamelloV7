@@ -217,6 +217,7 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         private void Current_Duration_OnSecondTick() {
+			Console.WriteLine($"tick {Current?.Duration.TotalSeconds}");
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongTimeTotalUpdated() {
                 CurrentSongTimeTotal = Current?.Duration.TotalSeconds ?? 0,
             });

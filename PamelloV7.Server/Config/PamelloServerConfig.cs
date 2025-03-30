@@ -1,5 +1,4 @@
-﻿using PamelloV7.Core.Config;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Reflection;
 
 namespace PamelloV7.Server.Config

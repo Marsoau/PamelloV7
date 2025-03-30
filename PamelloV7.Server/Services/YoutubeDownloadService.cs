@@ -51,7 +51,7 @@ namespace PamelloV7.Server.Services
 			if (song.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
-				File.Delete($@"{AppContext.BaseDirectory}Data\Music\{song.Id}.opus");
+				File.Delete($@"{AppContext.BaseDirectory}Data/Music/{song.Id}.opus");
 			}
 
 			var downloadTask = new TaskCompletionSource<EDownloadResult>();
@@ -67,10 +67,14 @@ namespace PamelloV7.Server.Services
 				SongId = song.Id,
 			});
 
+			if (!Directory.Exists($"{AppContext.BaseDirectory}Data/Music")) {
+				Directory.CreateDirectory($"{AppContext.BaseDirectory}Data/Music");
+			}
+
 			using var process = new Process();
 			process.StartInfo = new ProcessStartInfo() {
-				FileName = $@"{AppContext.BaseDirectory}yt-dlp.exe",
-				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{AppContext.BaseDirectory}Data\Music\{song.Id}"" --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={song.YoutubeId}",
+				FileName = $@"yt-dlp",
+				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{AppContext.BaseDirectory}Data/Music/{song.Id}"" --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={song.YoutubeId}",
 				StandardOutputEncoding = Encoding.Unicode,
 				UseShellExecute = false,
 				RedirectStandardOutput = true

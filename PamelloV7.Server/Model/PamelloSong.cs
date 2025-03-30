@@ -61,7 +61,7 @@ namespace PamelloV7.Server.Model
 
         public bool IsDownloaded {
             get {
-                var file = new FileInfo($@"{AppContext.BaseDirectory}Data\Music\{Id}.opus");
+                var file = new FileInfo($@"{AppContext.BaseDirectory}Data/Music/{Id}.opus");
 
                 if (!file.Exists) return false;
                 if (_downloader.IsDownloading(this)) return false;

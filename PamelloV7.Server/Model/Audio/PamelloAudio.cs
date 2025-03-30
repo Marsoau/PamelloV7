@@ -80,7 +80,10 @@ namespace PamelloV7.Server.Model.Audio
             Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
 
             await LoadChunksAtAsync(0);
-            if (_currentChunk is null) return false;
+            if (_currentChunk is null) {
+				Console.WriteLine("interesting");
+				return false;
+			}
 
             _currentChunkPosition = 0;
             Song.PlayCount++;
@@ -228,7 +231,8 @@ namespace PamelloV7.Server.Model.Audio
 
 			_ffmpeg = Process.Start(new ProcessStartInfo {
 				FileName = "ffmpeg",
-				Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
+				//Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
+				Arguments = $@"-hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				UseShellExecute = false,
 				RedirectStandardOutput = true
 			});
@@ -238,14 +242,17 @@ namespace PamelloV7.Server.Model.Audio
             //Console.WriteLine($"->\n-> loading chunk at {position}\n->");
 
             if (_ffmpeg is null) {
-                Console.WriteLine("ffmpeg creating 1");
+                //Console.WriteLine("ffmpeg creating 1");
                 CreateFFMpeg();
+                //Console.WriteLine("ffmpeg created 1");
             }
             else {
-                _ffmpeg.Resume();
+				_ffmpeg.ResumeLinux();
+                //_ffmpeg.Resume();
             }
 
             if (_ffmpeg is null) return null;
+			//Console.WriteLine("ffmpeg is not null");
 
             long startPos = _chunkSize.TimeValue * position;
             long endPos = _chunkSize.TimeValue * (position + 1);
@@ -255,6 +262,7 @@ namespace PamelloV7.Server.Model.Audio
             if (_ffmpegPosition > startPos) {
                 //Console.WriteLine("ffmpeg creating 2");
                 CreateFFMpeg();
+                //Console.WriteLine("ffmpeg created 2");
             }
 
             //Console.WriteLine($"seeking to the start from {_ffmpegPosition} to {startPos}");
@@ -275,7 +283,10 @@ namespace PamelloV7.Server.Model.Audio
                         //Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
                         return chunkStream;
                     }
-                    else return null;
+                    else {
+						//Console.WriteLine($"failed to load chunk stream at {position}");
+						return null;
+					}
                 }
 
                 _ffmpeg.StandardOutput.BaseStream.Read(buffer);
@@ -283,14 +294,15 @@ namespace PamelloV7.Server.Model.Audio
                 _ffmpegPosition += 2;
             }
 
-            _ffmpeg.Suspend();
+			_ffmpeg.SuspendLinux();
+            //_ffmpeg.Suspend();
 
             //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
             return chunkStream;
         }
 
         public static string GetSongAudioPath(PamelloSong song)
-            => $@"{AppContext.BaseDirectory}Data\Music\{song.Id}.opus";
+            => $@"{AppContext.BaseDirectory}Data/Music/{song.Id}.opus";
         public static AudioTime? GetSongDuration(PamelloSong song) {
             if (!song.IsDownloaded) {
                 return null;

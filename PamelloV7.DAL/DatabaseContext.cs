@@ -13,15 +13,15 @@ namespace PamelloV7.DAL
         public DbSet<DatabaseAssociacion> Associacions { get; set; }
 
         public DatabaseContext() {
-            if (!Directory.Exists("Data")) {
-                Directory.CreateDirectory("Data");
+            if (!Directory.Exists($"{AppContext.BaseDirectory}Data")) {
+                Directory.CreateDirectory($"{AppContext.BaseDirectory}Data");
             }
 
             Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlite(@$"Data Source={AppContext.BaseDirectory}Data\data.db");
+            optionsBuilder.UseSqlite(@$"Data Source={AppContext.BaseDirectory}Data/data.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {

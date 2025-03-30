@@ -16,9 +16,33 @@ namespace PamelloV7.Server.Extensions
     /// that it may be better to do so as close to all at once as we can.</para></remarks>
     public static class ProcessExtensions
     {
+		[DllImport("libc", SetLastError = true)]
+		private static extern int kill(int pid, int sig);
+
+		private const int SIGCONT = 18;
+		private const int SIGSTOP = 19;
+
+		private static void Execute(string file, string args) {
+			var psi = new ProcessStartInfo();
+			psi.FileName = file;
+			psi.Arguments = args;
+
+			using var process = Process.Start(psi);
+
+			process?.WaitForExit();
+		}
+
+
         #region Methods
+
+        public static void SuspendLinux(this Process process) {
+			kill(-process.Id, SIGSTOP);
+		}
+        public static void ResumeLinux(this Process process) {
+			kill(-process.Id, SIGCONT);
+		}
  
-        public static void Suspend(this Process process)
+        public static void SuspendWindows(this Process process)
         {
             //Console.WriteLine("suspending");
             Action<ProcessThread> suspend = pt =>
@@ -52,7 +76,7 @@ namespace PamelloV7.Server.Extensions
             }
         }
  
-        public static void Resume(this Process process)
+        public static void ResumeWindows(this Process process)
         {
             //Console.WriteLine("resuming");
             Action<ProcessThread> resume = pt =>
