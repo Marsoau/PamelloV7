@@ -128,8 +128,12 @@ namespace PamelloV7.Server.Model.Audio
                     await Task.Delay(250);
                     continue;
 				}
+				if (IsPaused) {
+					await Task.Delay(250);
+					continue;
+				}
 
-                State = EPlayerState.Active;
+				State = EPlayerState.Active;
 
                 success = await Queue.Current.NextBytes(audio);
 
