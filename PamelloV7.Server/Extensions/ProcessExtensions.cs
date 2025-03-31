@@ -22,17 +22,6 @@ namespace PamelloV7.Server.Extensions
 		private const int SIGCONT = 18;
 		private const int SIGSTOP = 19;
 
-		private static void Execute(string file, string args) {
-			var psi = new ProcessStartInfo();
-			psi.FileName = file;
-			psi.Arguments = args;
-
-			using var process = Process.Start(psi);
-
-			process?.WaitForExit();
-		}
-
-
         #region Methods
 
         public static void SuspendLinux(this Process process) {
@@ -40,6 +29,23 @@ namespace PamelloV7.Server.Extensions
 		}
         public static void ResumeLinux(this Process process) {
 			kill(-process.Id, SIGCONT);
+		}
+
+        public static void Suspend(this Process process) {
+            if (OperatingSystem.IsLinux()) {
+                SuspendLinux(process);
+            }
+            else if (OperatingSystem.IsWindows()) {
+                SuspendWindows(process);
+            }
+		}
+        public static void Resume(this Process process) {
+            if (OperatingSystem.IsLinux()) {
+                ResumeLinux(process);
+            }
+            else if (OperatingSystem.IsWindows()) {
+                ResumeWindows(process);
+            }
 		}
  
         public static void SuspendWindows(this Process process)

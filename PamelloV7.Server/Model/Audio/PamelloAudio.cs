@@ -247,7 +247,7 @@ namespace PamelloV7.Server.Model.Audio
                 //Console.WriteLine("ffmpeg created 1");
             }
             else {
-				_ffmpeg.ResumeLinux();
+				_ffmpeg.Resume();
                 //_ffmpeg.Resume();
             }
 
@@ -294,7 +294,7 @@ namespace PamelloV7.Server.Model.Audio
                 _ffmpegPosition += 2;
             }
 
-			_ffmpeg.SuspendLinux();
+			_ffmpeg.Suspend();
             //_ffmpeg.Suspend();
 
             //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
