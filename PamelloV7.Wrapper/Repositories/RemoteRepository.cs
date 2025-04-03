@@ -75,16 +75,22 @@ namespace PamelloV7.Wrapper.Repositories
             return remoteEntity;
         }
 
-        public async Task<IEnumerable<int>> Search(string querry = "", string? addedBy = null, string? favoriteBy = null) {
+        public async Task<IEnumerable<int>> Search(string querry = "") {
+            return await GetSearch(querry, []);
+        }
+        protected async Task<IEnumerable<int>> GetSearch(string querry, Dictionary<string, string> atributes) {
             var sb = new StringBuilder();
 
             sb.Append($"Data/Search/{ControllerName}s/{querry}");
-            if (addedBy is not null) sb.Append($"?addedBy={addedBy}");
-            if (favoriteBy is not null) {
-                if (addedBy is null) sb.Append("?");
+
+            var first = true;
+            foreach (var attribute in atributes) {
+                if (first) sb.Append("?");
                 else sb.Append("&");
 
-                sb.Append($"favoriteBy={favoriteBy}");
+                sb.Append(attribute.Key);
+                sb.Append("=");
+                sb.Append(attribute.Value);
             }
 
             return await _client.HttpGetAsync<IEnumerable<int>>(sb.ToString()) ?? [];

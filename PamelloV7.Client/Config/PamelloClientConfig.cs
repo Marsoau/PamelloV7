@@ -11,5 +11,6 @@ namespace PamelloV7.Client.Config
         public static object PlayersControlsStyle;
         public static bool ShowQueueSecondRow;
         public static string DefaultPlayerName;
+        public static int SearchPageSize = 20;
     }
 }

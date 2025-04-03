@@ -60,6 +60,15 @@ namespace PamelloV7.Wrapper.Repositories
             };
         }
 
+        public async Task<IEnumerable<int>> Search(string querry = "", string? addedBy = null, string? favoriteBy = null) {
+            var atributes = new Dictionary<string, string>();
+
+            if (addedBy is not null) atributes.Add("addedBy", addedBy);
+            if (favoriteBy is not null) atributes.Add("favoriteBy", favoriteBy);
+
+            return await GetSearch(querry, atributes);
+        }
+
         protected override Task<PamelloSongDTO?> GetDTO(int id)
             => _client.HttpGetAsync<PamelloSongDTO>($"Data/Song?id={id}");
         protected override Task<PamelloSongDTO?> GetDTO(string value)

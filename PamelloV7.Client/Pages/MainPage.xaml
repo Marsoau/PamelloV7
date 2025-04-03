@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PamelloV7.Client.Pages"
       xmlns:components="clr-namespace:PamelloV7.Client.Components"
+      xmlns:pages="clr-namespace:PamelloV7.Client.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Background="White"
@@ -138,7 +139,7 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Log">
-                    
+
                 </TabItem>
             </TabControl>
             <Grid x:Name="Grid_User" Grid.Row="3" Grid.IsSharedSizeScope="True" MouseUp="Grid_User_MouseUp">
@@ -206,6 +207,63 @@
                         <Button x:Name="Button_Clear" Content="Clear" Click="Button_Clear_Click"/>
                     </StackPanel>
                 </Grid>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2px"/>
+                    <ColumnDefinition Width="200px"/>
+                </Grid.ColumnDefinitions>
+
+                <Rectangle Grid.ColumnSpan="3" Grid.Row="0" Fill="#F8F8F8"/>
+
+                <Rectangle Grid.Column="1" Grid.RowSpan="2" Fill="#DEDEDE"/>
+
+                <Grid Grid.Column="0" Grid.Row="0" Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="TextBox_SearchQuerry" Grid.Column="0" Margin="0,0,4,0"/>
+                    <Button x:Name="Button_Search" Grid.Column="1" Content="Search" Click="Button_Search_Click"/>
+                </Grid>
+
+                <ComboBox x:Name="ComboBox_SearchCategory" Grid.Column="2" Grid.Row="0" Margin="4" SelectionChanged="ComboBox_SearchCategory_SelectionChanged">
+                    <ComboBoxItem Tag="0" IsSelected="True" Content="Songs"/>
+                    <ComboBoxItem Tag="1" Content="Playlists"/>
+                    <ComboBoxItem Tag="2" Content="Users"/>
+                </ComboBox>
+
+                <Grid Grid.Column="0" Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Rectangle Grid.Row="1" Fill="#F8F8F8"/>
+
+                    <ScrollViewer Grid.Row="0">
+                        <StackPanel x:Name="StackPanel_Search" Margin="2">
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Grid Grid.Row="1" Margin="4">
+                        <Button x:Name="Button_SearchPrevPage" Content="Prev" HorizontalAlignment="Left" Click="Button_SearchPrevPage_Click"/>
+                        <TextBlock x:Name="TextBlock_SearchPage" Text="0 / 0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button x:Name="Button_SearchNextPage" Content="Next" HorizontalAlignment="Right" Click="Button_SearchNextPage_Click"/>
+                    </Grid>
+                </Grid>
+                <ScrollViewer Grid.Column="2" Grid.Row="1">
+                    <StackPanel Margin="2">
+
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Grid>

@@ -8,6 +8,8 @@ using System.Windows.Media.Imaging;
 using PamelloV7.Client.Components;
 using System.Windows;
 using PamelloV7.Client.Interfaces;
+using System.Windows.Controls;
+using PamelloV7.Client.Config;
 
 namespace PamelloV7.Client.Pages
 {
@@ -219,6 +221,50 @@ namespace PamelloV7.Client.Pages
                 ScrollViewer_Queue.Visibility = Visibility.Visible;
                 TextBlock_QueueEmpty.Visibility = Visibility.Collapsed;
             });
+        }
+
+        private void RefreshSearchResults() {
+            IEnumerable<int> ids;
+
+            switch (_searchCategory) {
+                case ESearchCategory.Songs:
+                    ids = _songsSearchResult;
+                    break;
+                case ESearchCategory.Playlists:
+                    ids = _playlistsSearchResult;
+                    break;
+                case ESearchCategory.Users:
+                    ids = _usersSearchResult;
+                    break;
+                default:
+                    ids = [];
+                    break;
+            }
+
+            UserControl? itemComponent = null;
+            var from = _searchPage * PamelloClientConfig.SearchPageSize;
+            var to = from + PamelloClientConfig.SearchPageSize;
+            if (to > ids.Count()) to = ids.Count();
+
+            StackPanel_Search.Children.Clear();
+            for (int i = from; i < to; i++) {
+                switch (_searchCategory) {
+                    case ESearchCategory.Songs:
+                        itemComponent = new SongComponent(_services, ids.ElementAt(i));
+                        break;
+                    case ESearchCategory.Playlists:
+                        break;
+                    case ESearchCategory.Users:
+                        break;
+                }
+                if (itemComponent is null) continue;
+
+                itemComponent.Margin = new Thickness(2);
+
+                StackPanel_Search.Children.Add(itemComponent);
+            }
+
+            TextBlock_SearchPage.Text = $"{_searchPage + 1} / {ids.Count() / PamelloClientConfig.SearchPageSize + (ids.Count() % PamelloClientConfig.SearchPageSize != 0 ? 1 : 0)}";
         }
     }
 }
