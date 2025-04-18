@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.DTO;
+﻿using PamelloV7.Core.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

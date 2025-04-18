@@ -17,7 +17,6 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.2.0" />
     <PackageReference Include="Discord.Net" Version="3.17.1" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.69.0.3707" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />

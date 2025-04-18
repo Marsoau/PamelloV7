@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.DTO;
+﻿using PamelloV7.Core.DTO;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Model;
 using System;
