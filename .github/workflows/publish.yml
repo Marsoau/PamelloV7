@@ -1,0 +1,53 @@
+name: Publish NuGet Packages
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # Triggers on tags like v1.2.3 :contentReference[oaicite:9]{index=9}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repo
+      - uses: actions/checkout@v3
+
+      # 2. Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'  # Matches your target frameworks :contentReference[oaicite:10]{index=10}
+
+      # 3. Cache NuGet packages
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-  :contentReference[oaicite:11]{index=11}
+
+      # 4. Restore dependencies
+      - name: Restore
+        run: dotnet restore PamelloV7.sln
+
+      # 5. Build & Pack PamelloV7.Core
+      - name: Pack PamelloV7.Core
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj \
+              --configuration Release --no-build --output nupkgs  :contentReference[oaicite:12]{index=12}
+
+      # 6. Build & Pack PamelloV7.Wrapper
+      - name: Pack PamelloV7.Wrapper
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj \
+              --configuration Release --no-build --output nupkgs  :contentReference[oaicite:13]{index=13}
+
+      # 7. Publish packages to NuGet.org
+      - name: Push to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          for pkg in nupkgs/*.nupkg; do
+            dotnet nuget push "$pkg" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key $NUGET_API_KEY
+          done  :contentReference[oaicite:14]{index=14}
