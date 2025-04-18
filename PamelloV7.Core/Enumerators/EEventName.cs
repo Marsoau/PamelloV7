@@ -9,6 +9,8 @@ namespace PamelloV7.Core.Enumerators
     public enum EEventName
     {
         EventsConnected,
+        EventsAuthorized,
+        EventsUnauthorized,
 
         UserCreated,
         UserUpdated,

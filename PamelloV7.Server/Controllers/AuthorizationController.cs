@@ -27,12 +27,7 @@ namespace PamelloV7.Server.Controllers
         public IActionResult GetWithCode(Guid eventsToken, int code) {
             PamelloEventListener events;
 
-            try {
-                events = _events.AuthorizeEventsWithCode(eventsToken, code);
-            }
-            catch (PamelloException x) {
-                throw new PamelloControllerException(BadRequest(x.Message));
-            }
+            events = _events.AuthorizeEventsWithCode(eventsToken, code);
 
             if (events.User is null)
                 throw new PamelloControllerException(BadRequest("Unexpected exception with null user after authorization"));
@@ -44,12 +39,7 @@ namespace PamelloV7.Server.Controllers
         public IActionResult GetWithToken(Guid eventsToken, Guid userToken) {
             PamelloEventListener events;
 
-            try {
-                events = _events.AuthorizeEventsWithToken(eventsToken, userToken);
-            }
-            catch (PamelloException x) {
-                throw new PamelloControllerException(BadRequest(x.Message));
-            }
+            events = _events.AuthorizeEventsWithToken(eventsToken, userToken);
 
             if (events.User is null)
                 throw new PamelloControllerException(BadRequest("Unexpected exception with null user after authorization"));
@@ -57,14 +47,9 @@ namespace PamelloV7.Server.Controllers
             return Ok(events.User.Token);
         }
 
-        [HttpGet("CloseEvents/{eventsToken}/{userToken}")]
-        public IActionResult GetClose(Guid eventsToken, Guid userToken) {
-            try {
-                _events.UnauthorizeEvents(eventsToken, userToken);
-            }
-            catch (PamelloException x) {
-                throw new PamelloControllerException(BadRequest(x.Message));
-            }
+        [HttpGet("Events/{eventsToken}/Unauthorize")]
+        public IActionResult GetClose(Guid eventsToken) {
+            _events.UnauthorizeEvents(eventsToken);
 
             return Ok();
         }
@@ -72,10 +57,10 @@ namespace PamelloV7.Server.Controllers
         [HttpGet("GetToken/{code}")]
         public IActionResult GetToken(int code) {
             var discordId = _authorization.GetDiscordId(code);
-            if (discordId is null) throw new PamelloException($"Code {code} is invalid");
+            if (discordId is null) throw new PamelloControllerException(BadRequest($"Code {code} is invalid"));
 
             var user = _users.GetByDiscord(discordId.Value);
-            if (user is null) throw new PamelloException($"Cant get user my discord id {discordId} (from code {code})");
+            if (user is null) throw new PamelloControllerException(NotFound($"Cant get user my discord id {discordId} (from code {code})"));
 
             return Ok(user.Token);
         }

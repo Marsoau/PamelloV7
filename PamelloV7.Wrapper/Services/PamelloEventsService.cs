@@ -39,13 +39,18 @@ namespace PamelloV7.Wrapper.Services
         }
 
         private readonly HttpClient _http;
-        private readonly PamelloClient _pamelloClient;
+        private readonly PamelloClient _client;
+
+        public Guid? EventsToken { get; internal set; }
+
 
         public event Func<Task>? OnConnection;
 
         public event Func<PamelloEvent, Task> OnPamelloEvent;
 
         public event Func<EventsConnected, Task> OnEventsConnected;
+        public event Func<EventsAuthorized, Task> OnEventsAuthorized;
+        public event Func<EventsUnAuthorized, Task> OnEventsUnAuthorized;
 
         public event Func<UserCreated, Task> OnUserCreated;
         public event Func<UserUpdated, Task> OnUserUpdated;
@@ -107,7 +112,7 @@ namespace PamelloV7.Wrapper.Services
         public event Func<PlayerQueueIsFeedRandomUpdated, Task> OnPlayerQueueIsFeedRandomUpdated;
 
         public PamelloEventsService(PamelloClient client) {
-            _pamelloClient = client;
+            _client = client;
 
             _http = new HttpClient();
 
@@ -119,7 +124,7 @@ namespace PamelloV7.Wrapper.Services
         private async Task PamelloEventsService_OnEventsConnected(EventsConnected arg) {
             if (arg.EventsToken == Guid.Empty) return;
 
-            _pamelloClient.EventsToken = arg.EventsToken;
+            EventsToken = arg.EventsToken;
             if (OnConnection is not null) await OnConnection.Invoke();
         }
 
@@ -127,6 +132,12 @@ namespace PamelloV7.Wrapper.Services
             switch (pamelloEvent.EventName) {
                 case EEventName.EventsConnected:
                     await OnEventsConnected.Invoke((EventsConnected)pamelloEvent);
+                    break;
+                case EEventName.EventsAuthorized:
+                    await OnEventsAuthorized.Invoke((EventsAuthorized)pamelloEvent);
+                    break;
+                case EEventName.EventsUnauthorized:
+                    await OnEventsUnAuthorized.Invoke((EventsUnAuthorized)pamelloEvent);
                     break;
                 case EEventName.UserCreated:
                     await OnUserCreated.Invoke((UserCreated)pamelloEvent);
@@ -299,7 +310,7 @@ namespace PamelloV7.Wrapper.Services
             eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
             if (eventStream is null) throw new Exception("Cant connect");
 
-            _pamelloClient.ServerHost = serverHost;
+            _client.ServerHost = serverHost;
             Task.Run(() => ListenEventStream(eventStream));
         }
         public async Task<bool> TryConnect(string serverHost) {
@@ -377,6 +388,12 @@ namespace PamelloV7.Wrapper.Services
             switch (sseEvent.EventName) {
                 case EEventName.EventsConnected:
                     pamelloEvent = JsonSerializer.Deserialize<EventsConnected>(sseEvent.Data);
+                    break;
+                case EEventName.EventsAuthorized:
+                    pamelloEvent = JsonSerializer.Deserialize<EventsAuthorized>(sseEvent.Data);
+                    break;
+                case EEventName.EventsUnauthorized:
+                    pamelloEvent = JsonSerializer.Deserialize<EventsUnAuthorized>(sseEvent.Data);
                     break;
                 case EEventName.UserCreated:
                     pamelloEvent = JsonSerializer.Deserialize<UserCreated>(sseEvent.Data);
@@ -543,6 +560,18 @@ namespace PamelloV7.Wrapper.Services
             }
 
             return pamelloEvent;
+        }
+
+        public async Task Authorize() {
+            if (EventsToken is null) return;
+            if (_client.Authorization.UserToken is null) return;
+
+            await _client.HttpGetAsync($"Authorization/Events/{EventsToken}/WithToken/{_client.Authorization.UserToken}");
+        }
+        public async Task UnAuthorize() {
+            if (EventsToken is null) return;
+
+            await _client.HttpGetAsync($"Authorization/Events/{EventsToken}/Unauthorize");
         }
     }
 }

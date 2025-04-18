@@ -214,6 +214,12 @@ namespace PamelloV7.Server.Model.Events
                     case EEventName.PlayerQueueIsFeedRandomUpdated:
                         await _response.WriteAsync($"data: {JsonSerializer.Serialize((PlayerQueueIsFeedRandomUpdated)pamelloEvent)}\r\r");
                         break;
+                    case EEventName.EventsAuthorized:
+                        await _response.WriteAsync($"data: {JsonSerializer.Serialize((EventsAuthorized)pamelloEvent)}\r\r");
+                        break;
+                    case EEventName.EventsUnauthorized:
+                        await _response.WriteAsync($"data: {JsonSerializer.Serialize((EventsUnAuthorized)pamelloEvent)}\r\r");
+                        break;
                 }
 
                 await _response.Body.FlushAsync();
@@ -244,9 +250,15 @@ namespace PamelloV7.Server.Model.Events
             if (User is not null) throw new PamelloException("User is already assighned for that events");
 
             User = user;
+
+            ScheduleEvent(new EventsAuthorized() {
+                UserToken = User.Token,
+            });
         }
         public void AbandonUser() {
             User = null;
+
+            ScheduleEvent(new EventsUnAuthorized());
         }
 
         public void Close() {

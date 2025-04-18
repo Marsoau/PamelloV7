@@ -81,10 +81,8 @@ namespace PamelloV7.Server.Services
 
             return events;
         }
-        public void UnauthorizeEvents(Guid eventsToken, Guid userToken) {
+        public void UnauthorizeEvents(Guid eventsToken) {
             var events = GetRequiredListener(eventsToken);
-
-            if (events.User?.Token != userToken) throw new PamelloException($"Cant unauthorize this events token \"{userToken}\"");
 
             events.AbandonUser();
         }
