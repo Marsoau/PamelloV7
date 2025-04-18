@@ -34,11 +34,11 @@ jobs:
 
       # 5. Build & Pack PamelloV7.Core
       - name: Pack PamelloV7.Core
-        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build --output nupkgs
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --output nupkgs
 
       # 6. Build & Pack PamelloV7.Wrapper
       - name: Pack PamelloV7.Wrapper
-        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build --output nupkgs
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --output nupkgs
 
       # 7. Publish packages to NuGet.org
       - name: Push to NuGet.org
