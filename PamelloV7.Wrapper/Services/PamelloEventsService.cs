@@ -136,7 +136,7 @@ namespace PamelloV7.Wrapper.Services
                 case EEventName.EventsAuthorized:
                     await OnEventsAuthorized.Invoke((EventsAuthorized)pamelloEvent);
                     break;
-                case EEventName.EventsUnauthorized:
+                case EEventName.EventsUnAuthorized:
                     await OnEventsUnAuthorized.Invoke((EventsUnAuthorized)pamelloEvent);
                     break;
                 case EEventName.UserCreated:
@@ -304,14 +304,16 @@ namespace PamelloV7.Wrapper.Services
             }
         }
 
-        public async Task Connect(string serverHost) {
+        public async Task<bool> Connect(string serverHost) {
             Stream? eventStream = null;
 
             eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
-            if (eventStream is null) throw new Exception("Cant connect");
+            if (eventStream is null) return false;
 
             _client.ServerHost = serverHost;
             Task.Run(() => ListenEventStream(eventStream));
+
+            return true;
         }
         public async Task<bool> TryConnect(string serverHost) {
             try {
@@ -392,7 +394,7 @@ namespace PamelloV7.Wrapper.Services
                 case EEventName.EventsAuthorized:
                     pamelloEvent = JsonSerializer.Deserialize<EventsAuthorized>(sseEvent.Data);
                     break;
-                case EEventName.EventsUnauthorized:
+                case EEventName.EventsUnAuthorized:
                     pamelloEvent = JsonSerializer.Deserialize<EventsUnAuthorized>(sseEvent.Data);
                     break;
                 case EEventName.UserCreated:
@@ -562,11 +564,13 @@ namespace PamelloV7.Wrapper.Services
             return pamelloEvent;
         }
 
-        public async Task Authorize() {
-            if (EventsToken is null) return;
-            if (_client.Authorization.UserToken is null) return;
+        public async Task<bool> Authorize() {
+            if (EventsToken is null) return false;
+            if (_client.Authorization.UserToken is null) return false;
 
             await _client.HttpGetAsync($"Authorization/Events/{EventsToken}/WithToken/{_client.Authorization.UserToken}");
+
+            return true;
         }
         public async Task UnAuthorize() {
             if (EventsToken is null) return;

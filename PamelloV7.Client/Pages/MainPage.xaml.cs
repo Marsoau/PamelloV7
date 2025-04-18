@@ -159,7 +159,7 @@ namespace PamelloV7.Client.Pages
         }
 
         private async void Button_Logout_Click(object sender, System.Windows.RoutedEventArgs e) {
-            await _pamello.Unauthorize();
+            await _pamello.Authorization.Unauthorize();
 
             _mainWindow.SwitchPage<AuthorizationPage>();
         }

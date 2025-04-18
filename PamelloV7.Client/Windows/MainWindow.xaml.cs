@@ -33,12 +33,12 @@ namespace PamelloV7.Client.Windows
             _pamello = _services.GetRequiredService<PamelloClient>();
 
             _pamello.Events.OnConnection += Events_OnConnection;
-            _pamello.OnAuthorized += _pamello_OnAuthorized;
+            _pamello.Events.OnEventsAuthorized += Events_OnEventsAuthorized;
 
             InitializeComponent();
         }
 
-        private async Task _pamello_OnAuthorized() {
+        private async Task Events_OnEventsAuthorized(Core.Events.EventsAuthorized arg) {
             Dispatcher.Invoke(SwitchPage<MainPage>);
         }
 

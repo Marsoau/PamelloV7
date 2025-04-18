@@ -4,6 +4,6 @@ namespace PamelloV7.Core.Events
 {
     public class EventsUnAuthorized : PamelloEvent
     {
-        public EventsUnAuthorized() : base(EEventName.EventsUnauthorized) { }
+        public EventsUnAuthorized() : base(EEventName.EventsUnAuthorized) { }
     }
 }

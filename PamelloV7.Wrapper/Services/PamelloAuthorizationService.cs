@@ -14,9 +14,19 @@ namespace PamelloV7.Wrapper.Services
 
         public PamelloAuthorizationService(PamelloClient client) {
             _client = client;
+
+            _client.Events.OnEventsAuthorized += Events_OnEventsAuthorized;
+            _client.Events.OnEventsUnAuthorized += Events_OnEventsUnAuthorized;
         }
 
-        public async Task<bool> WithCodeAsync(int code) {
+        private async Task Events_OnEventsAuthorized(Core.Events.EventsAuthorized arg) {
+
+        }
+        private async Task Events_OnEventsUnAuthorized(Core.Events.EventsUnAuthorized arg) {
+
+        }
+
+        public async Task<bool> WithCodeAsync(int code, bool authorizeEvents = true) {
             Guid? userToken;
 
             try {
@@ -29,21 +39,24 @@ namespace PamelloV7.Wrapper.Services
 
             if (userToken is null) return false;
 
-            await WithTokenAsync(userToken.Value);
+            await WithTokenAsync(userToken.Value, authorizeEvents);
 
             return true;
         }
-        public async Task WithTokenAsync(Guid token) {
+        public async Task WithTokenAsync(Guid token, bool authorizeEvents = true) {
             await Unauthorize();
 
             UserToken = token;
+            await _client.Users.UpdateCurrentUser();
 
-            await _client.Events.Authorize();
+            if (authorizeEvents) await _client.Events.Authorize();
         }
         public async Task Unauthorize(bool eventsOnly = false) {
             await _client.Events.UnAuthorize();
 
             if (!eventsOnly) UserToken = null;
+
+            await _client.Users.UpdateCurrentUser();
         }
     }
 }

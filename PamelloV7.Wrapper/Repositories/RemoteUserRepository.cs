@@ -60,10 +60,12 @@ namespace PamelloV7.Wrapper.Repositories
         }
 
         internal async Task UpdateCurrentUser() {
-            if (_client.UserToken is null)
-                throw new Exception("Cant update current user, token is null");
-
-            Current = await GetNew(_client.UserToken.Value) ?? throw new Exception($"Cant update current user by token \"{_client.UserToken}\"");
+            if (_client.Authorization.UserToken is null) {
+                Current = null;
+            }
+            else {
+                Current = await GetNew(_client.Authorization.UserToken.Value);
+            }
         }
 
         public async Task<RemoteUser?> GetNew(Guid token) {

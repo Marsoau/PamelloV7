@@ -52,7 +52,7 @@ namespace PamelloV7.Client.Pages
 
             serverSender.State = Enumerators.EServerComponentState.Connecting;
 
-            if (await _pamello.TryConnect(serverSender.Server.Host)) {
+            if (await _pamello.Events.Connect(serverSender.Server.Host)) {
                 Console.WriteLine("connected");
 
                 var authorizationPage = _services.GetRequiredService<AuthorizationPage>();

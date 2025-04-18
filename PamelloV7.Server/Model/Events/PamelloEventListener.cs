@@ -217,7 +217,7 @@ namespace PamelloV7.Server.Model.Events
                     case EEventName.EventsAuthorized:
                         await _response.WriteAsync($"data: {JsonSerializer.Serialize((EventsAuthorized)pamelloEvent)}\r\r");
                         break;
-                    case EEventName.EventsUnauthorized:
+                    case EEventName.EventsUnAuthorized:
                         await _response.WriteAsync($"data: {JsonSerializer.Serialize((EventsUnAuthorized)pamelloEvent)}\r\r");
                         break;
                 }
@@ -256,6 +256,8 @@ namespace PamelloV7.Server.Model.Events
             });
         }
         public void AbandonUser() {
+            if (User is null) return;
+
             User = null;
 
             ScheduleEvent(new EventsUnAuthorized());

@@ -21,15 +21,12 @@ namespace PamelloV7.Wrapper
 
         public string? ServerHost { get; internal set; }
 
-        public event Func<Task>? OnAuthorized;
-
         public PamelloClient() {
             _http = new HttpClient();
 
-            Authorization = new PamelloAuthorizationService(this);
-
             Events = new PamelloEventsService(this);
             Commands = new PamelloCommandsService(this);
+            Authorization = new PamelloAuthorizationService(this);
 
             Users = new RemoteUserRepository(this);
             Songs = new RemoteSongRepository(this);

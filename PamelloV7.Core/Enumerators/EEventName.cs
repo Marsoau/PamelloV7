@@ -10,7 +10,7 @@ namespace PamelloV7.Core.Enumerators
     {
         EventsConnected,
         EventsAuthorized,
-        EventsUnauthorized,
+        EventsUnAuthorized,
 
         UserCreated,
         UserUpdated,

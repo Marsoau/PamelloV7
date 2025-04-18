@@ -55,12 +55,8 @@ namespace PamelloV7.Client.Pages
 
             tokenSender.State = Enumerators.ETokenComponentState.Authorizing;
 
-            if (await _pamello.TryAuthorize(tokenSender.Token)) {
-                Console.WriteLine("authorized");
-            }
-            else {
-                Console.WriteLine("noauthorization((");
-            }
+            await _pamello.Authorization.WithTokenAsync(tokenSender.Token, false);
+            await AuthorizeEvents();
 
             foreach (TokenComponent tokenComponent in StackPanel_TokenList.Children) {
                 tokenComponent.State = Enumerators.ETokenComponentState.Ready;
@@ -73,11 +69,22 @@ namespace PamelloV7.Client.Pages
                 return;
             }
 
-            if (await _pamello.TryAuthorize(code)) {
-                Console.WriteLine("authorized");
+            if (await _pamello.Authorization.WithCodeAsync(code, false)) {
+                Console.WriteLine("authorized user with code");
             }
             else {
                 MessageBox.Show($"Code is invalid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            await AuthorizeEvents();
+        }
+
+        private async Task AuthorizeEvents() {
+            if (await _pamello.Events.Authorize()) {
+                Console.WriteLine("events authorized");
+            }
+            else {
+                Console.WriteLine("noauthorization((");
             }
         }
     }
