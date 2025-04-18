@@ -24,7 +24,7 @@ jobs:
           dotnet-version: |
             9.0.x
             8.0.x
-          cache: true
+          cache: false
 
       # Cache NuGet packages
       - name: Cache NuGet packages
