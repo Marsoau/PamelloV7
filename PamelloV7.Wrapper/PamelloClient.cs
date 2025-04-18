@@ -19,7 +19,7 @@ namespace PamelloV7.Wrapper
         public readonly RemoteEpisodeRepository Episodes;
         public readonly RemotePlaylistRepository Playlists;
 
-        public string? ServerHost { get; internal set; }
+        public string? ServerHost;
 
         public PamelloClient() {
             _http = new HttpClient();
@@ -38,6 +38,8 @@ namespace PamelloV7.Wrapper
         internal Task HttpGetAsync(string url, Guid? customToken = null)
             => HttpGetAsync<object?>(url, customToken);
         internal async Task<T?> HttpGetAsync<T>(string url, Guid? customToken = null) {
+            if (ServerHost is null) throw new PamelloException("ServerHost of PamelloClient wasnt set trying to make a request");
+
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
             if (Authorization.UserToken is not null) {
                 request.Headers.Add("user", (customToken ?? Authorization.UserToken).Value.ToString());

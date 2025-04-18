@@ -303,13 +303,14 @@ namespace PamelloV7.Wrapper.Services
             }
         }
 
-        public async Task<bool> Connect(string serverHost) {
-            Stream? eventStream = null;
+        public async Task<bool> Connect(string? serverHost = null) {
+            if (serverHost is null) serverHost = _client.ServerHost;
 
-            eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
+            var eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
             if (eventStream is null) return false;
 
             _client.ServerHost = serverHost;
+
             Task.Run(() => ListenEventStream(eventStream));
 
             return true;
