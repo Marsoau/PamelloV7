@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*'   # Triggers on tags like v1.2.3 :contentReference[oaicite:9]{index=9}
+      - 'v*.*.*'   # Triggers on tags like v1.2.3
 
 jobs:
   build-and-publish:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'  # Matches your target frameworks :contentReference[oaicite:10]{index=10}
+          dotnet-version: '9.0.x'  # Matches your target frameworks
 
       # 3. Cache NuGet packages
       - name: Cache NuGet packages
@@ -26,7 +26,7 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-  :contentReference[oaicite:11]{index=11}
+            ${{ runner.os }}-nuget-
 
       # 4. Restore dependencies
       - name: Restore
@@ -34,11 +34,11 @@ jobs:
 
       # 5. Build & Pack PamelloV7.Core
       - name: Pack PamelloV7.Core
-        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build --output nupkgs  :contentReference[oaicite:12]{index=12}
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build --output nupkgs
 
       # 6. Build & Pack PamelloV7.Wrapper
       - name: Pack PamelloV7.Wrapper
-        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build --output nupkgs  :contentReference[oaicite:13]{index=13}
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build --output nupkgs
 
       # 7. Publish packages to NuGet.org
       - name: Push to NuGet.org
@@ -49,4 +49,4 @@ jobs:
             dotnet nuget push "$pkg" \
               --source https://api.nuget.org/v3/index.json \
               --api-key $NUGET_API_KEY
-          done  :contentReference[oaicite:14]{index=14}
+          done
