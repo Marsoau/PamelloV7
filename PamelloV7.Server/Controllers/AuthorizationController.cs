@@ -23,7 +23,7 @@ namespace PamelloV7.Server.Controllers
             _users = services.GetRequiredService<PamelloUserRepository>();
         }
 
-        [HttpGet("{eventsToken}/WithCode/{code}")]
+        [HttpGet("Events/{eventsToken}/WithCode/{code}")]
         public IActionResult GetWithCode(Guid eventsToken, int code) {
             PamelloEventListener events;
 
@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Controllers
             return Ok(events.User.Token);
         }
 
-        [HttpGet("{eventsToken}/WithToken/{userToken}")]
+        [HttpGet("Events/{eventsToken}/WithToken/{userToken}")]
         public IActionResult GetWithToken(Guid eventsToken, Guid userToken) {
             PamelloEventListener events;
 
@@ -57,7 +57,7 @@ namespace PamelloV7.Server.Controllers
             return Ok(events.User.Token);
         }
 
-        [HttpGet("Close/{eventsToken}/{userToken}")]
+        [HttpGet("CloseEvents/{eventsToken}/{userToken}")]
         public IActionResult GetClose(Guid eventsToken, Guid userToken) {
             try {
                 _events.UnauthorizeEvents(eventsToken, userToken);
@@ -67,6 +67,17 @@ namespace PamelloV7.Server.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("GetToken/{code}")]
+        public IActionResult GetToken(int code) {
+            var discordId = _authorization.GetDiscordId(code);
+            if (discordId is null) throw new PamelloException($"Code {code} is invalid");
+
+            var user = _users.GetByDiscord(discordId.Value);
+            if (user is null) throw new PamelloException($"Cant get user my discord id {discordId} (from code {code})");
+
+            return Ok(user.Token);
         }
     }
 }
