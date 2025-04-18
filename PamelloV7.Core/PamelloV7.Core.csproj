@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>PamelloV7.Core</PackageId>
-		<Version>0.0.0</Version>
+		<Version>0.0.1</Version>
 		<Authors>Marsoau</Authors>
 		<Description>Core utilities for PamelloV7</Description>
 	</PropertyGroup>
