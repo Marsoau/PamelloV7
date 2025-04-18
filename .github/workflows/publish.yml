@@ -1,6 +1,13 @@
 name: Build and publish NuGet packages
 on:
   workflow_dispatch:
+    inputs:
+      doCore:
+        description: 'Build & Publish PamelloV7.Core'
+        type: boolean
+      doWrapper:
+        description: 'Build & Publish PamelloV7.Wrapper'
+        type: boolean
 
 jobs:
   build-and-publish:
@@ -31,18 +38,22 @@ jobs:
 
       # Build PamelloV7.Core
       - name: Build PamelloV7.Core
+        if: ${{ inputs.doCore }}
         run: dotnet build PamelloV7.Core/PamelloV7.Core.csproj --configuration Release
 
       # Build PamelloV7.Wrapper
       - name: Build PamelloV7.Wrapper
+        if: ${{ inputs.doWrapper }}
         run: dotnet build PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release
 
       # Pack PamelloV7.Core
       - name: Pack PamelloV7.Core
+        if: ${{ inputs.doCore }}
         run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --output nupkgs
 
       # Pack PamelloV7.Wrapper
       - name: Pack PamelloV7.Wrapper
+        if: ${{ inputs.doWrapper }}
         run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --output nupkgs
 
       # Push to NuGet.org
