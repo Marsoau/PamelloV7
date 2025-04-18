@@ -26,15 +26,6 @@ jobs:
             8.0.x
           cache: false
 
-      # Cache NuGet packages
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
       # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore PamelloV7.sln
