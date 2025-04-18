@@ -77,6 +77,16 @@ namespace PamelloV7.Server
         private static void ConfigureAPIServices(IServiceCollection services) {
             services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
             services.AddHttpClient();
+
+			services.AddCors(options =>
+					{
+					options.AddPolicy("AllowSpecificOrigin",
+							builder => {
+							builder.AllowAnyOrigin()
+							.AllowAnyHeader()
+							.AllowAnyMethod();
+							});
+					});
         }
 
         private static async Task StartupDatabaseServices(IServiceProvider services) {
@@ -167,6 +177,7 @@ namespace PamelloV7.Server
             //app.UseHttpsRedirection();
 
             app.MapControllers();
+            app.UseCors("AllowSpecificOrigin");
 
             await app.RunAsync();
         }
