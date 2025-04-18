@@ -32,10 +32,10 @@ jobs:
       - name: Restore
         run: dotnet restore PamelloV7.sln
 
-      - name: Build Solution
+      - name: Build PamelloV7.Core
         run: dotnet build PamelloV7.Core/PamelloV7.Core.csproj --configuration Release
 
-      - name: Build Solution
+      - name: Build PamelloV7.Wrapper
         run: dotnet build PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release
 
       # 5. Build & Pack PamelloV7.Core
@@ -52,7 +52,6 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           for pkg in nupkgs/*.nupkg; do
-            dotnet nuget push "$pkg" \
-              --source https://api.nuget.org/v3/index.json \
-              --api-key $NUGET_API_KEY
+            dotnet nuget push "$pkg" --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
           done
+        shell: bash
