@@ -33,10 +33,10 @@ jobs:
         run: dotnet restore PamelloV7.sln
 
       - name: Build Solution
-        run: dotnet build PamelloV7.Core.PamelloV7.Code.csproj --configuration Release
+        run: dotnet build PamelloV7.Core/PamelloV7.Core.csproj --configuration Release
 
       - name: Build Solution
-        run: dotnet build PamelloV7.Wrapper.PamelloV7.Wrapper.csproj --configuration Release
+        run: dotnet build PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release
 
       # 5. Build & Pack PamelloV7.Core
       - name: Pack PamelloV7.Core
