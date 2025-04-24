@@ -121,7 +121,7 @@ namespace PamelloV7.Server.Repositories
 				YoutubeId = youtubeId,
 				PlayCount = 0,
                 AddedAt = DateTime.UtcNow,
-                AddedBy = adder.Entity,
+                AddedBy = db.Users.Find(adder.Id),
                 Associacions = [],
 				FavoritedBy = [],
 				Playlists = [],
@@ -171,10 +171,12 @@ namespace PamelloV7.Server.Repositories
         }
         public override List<DatabaseSong> ProvideEntities() {
             return GetDatabase().Songs
+                .AsNoTracking()
                 .Include(song => song.Episodes)
                 .Include(song => song.Playlists)
                 .Include(song => song.FavoritedBy)
                 .Include(song => song.Associacions)
+                .AsSplitQuery()
                 .ToList();
         }
     }

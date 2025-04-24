@@ -84,8 +84,10 @@ namespace PamelloV7.Server.Repositories
         }
         public override List<DatabasePlaylist> ProvideEntities() {
             return GetDatabase().Playlists
+                .AsNoTracking()
                 .Include(playlist => playlist.Songs)
                 .Include(playlist => playlist.FavoritedBy)
+                .AsSplitQuery()
                 .ToList();
         }
         public override void Delete(int id) => throw new NotImplementedException();

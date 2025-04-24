@@ -82,7 +82,7 @@ namespace PamelloV7.Server.Repositories
             return pamelloEpisode;
         }
         public override List<DatabaseEpisode> ProvideEntities() {
-            return GetDatabase().Episodes.ToList();
+            return GetDatabase().Episodes.AsNoTracking().ToList();
         }
 
         public override async Task<PamelloEpisode?> GetByValue(string value, PamelloUser? scopeUser) {
