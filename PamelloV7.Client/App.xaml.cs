@@ -8,6 +8,7 @@ using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Services;
 using System.Configuration;
 using System.Data;
+using System.Net;
 using System.Text;
 using System.Windows;
 
@@ -39,7 +40,7 @@ namespace PamelloV7.Client
 
             var servers = _services.GetRequiredService<SavedServerService>();
 
-            var loopback = new SavedServer("Loopback Server", "127.0.0.1:51630");
+            var loopback = new SavedServer("Loopback Server", IPEndPoint.Parse("127.0.0.1:51630"));
 
             loopback.Tokens.Add(Guid.Parse("D01E6353-2EC7-469C-81A5-D3084FB17151"));
             //loopback.Tokens.Add(Guid.Parse("71205227-970C-419A-9205-33FF509C1821"));
@@ -47,7 +48,8 @@ namespace PamelloV7.Client
             //loopback.Tokens.Add(Guid.Parse("A3788EA1-BFE5-4E05-ACF2-F88429649938"));
 
             servers.Add(loopback);
-            servers.Add(new SavedServer("Another Server", "122.212.34.121:51630"));
+            servers.Add(new SavedServer("Public IP Server", IPEndPoint.Parse("217.97.47.2:51630")));
+            servers.Add(new SavedServer("Loopbak 2", IPEndPoint.Parse("127.0.0.1:51630")));
 
             var mainWindow = _services.GetRequiredService<MainWindow>();
             mainWindow.Show();

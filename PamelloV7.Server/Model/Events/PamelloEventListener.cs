@@ -236,6 +236,16 @@ namespace PamelloV7.Server.Model.Events
             });
         }
 
+        public async Task CloseConnection() {
+            IsClosed = true;
+            try {
+                await _response.CompleteAsync();
+            }
+            catch (ObjectDisposedException x) {
+
+            }
+        }
+
         private static int eventN = 0;
         public void ScheduleEvent<TEventType>(TEventType pamelloEvent)
             where TEventType : PamelloEvent

@@ -160,8 +160,6 @@ namespace PamelloV7.Client.Pages
 
         private async void Button_Logout_Click(object sender, System.Windows.RoutedEventArgs e) {
             await _pamello.Authorization.Unauthorize();
-
-            _mainWindow.SwitchPage<AuthorizationPage>();
         }
 
         private async void TextBox_SongValue_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {

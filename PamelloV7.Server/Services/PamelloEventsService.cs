@@ -20,6 +20,29 @@ namespace PamelloV7.Server.Services
             _users = users;
 
             _listeners = new List<PamelloEventListener>();
+
+            Task.Run(RemoveListenersThread);
+        }
+
+        private async Task RemoveListenersThread() {
+            var removeQueue = new Queue<PamelloEventListener>();
+
+            while (true) {
+                foreach (var listener in _listeners) {
+                    if (listener.IsClosed) removeQueue.Enqueue(listener);
+                }
+                while (removeQueue.Count > 0) {
+                    await RemoveListener(removeQueue.Dequeue());
+                }
+                await Task.Delay(1000);
+            }
+        }
+
+        private async Task RemoveListener(PamelloEventListener listener) {
+            _listeners.Remove(listener);
+            await listener.CloseConnection();
+
+            Console.WriteLine($"removed \"{listener.Token}\" events");
         }
 
         public async Task<PamelloEventListener> AddListener(HttpResponse response) {
@@ -85,6 +108,13 @@ namespace PamelloV7.Server.Services
             var events = GetRequiredListener(eventsToken);
 
             events.AbandonUser();
+        }
+
+        public void CloseEvents(Guid eventsToken) {
+            var events = GetRequiredListener(eventsToken);
+
+            events.AbandonUser();
+            events.Close();
         }
     }
 }

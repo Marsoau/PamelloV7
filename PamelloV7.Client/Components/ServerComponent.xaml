@@ -24,7 +24,7 @@
         </StackPanel>
 
         <StackPanel x:Name="StackPanel_Buttons" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-            <Button x:Name="Button_Edit" Content="Edit" Padding="4,0" Margin="4,0,0,0"/>
+            <Button x:Name="Button_Edit" Content="Edit" Padding="4,0" Margin="4,0,0,0" Click="Button_Edit_Click"/>
             <Button x:Name="Button_Connect" Content="Connect" Padding="4,0" Margin="4,0,0,0" Click="Button_Connect_Click"/>
         </StackPanel>
         <TextBlock x:Name="TextBlock_Status" Grid.Column="1" Visibility="Collapsed" Text="Status Text" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>

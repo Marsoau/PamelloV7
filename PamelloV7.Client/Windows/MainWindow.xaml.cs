@@ -32,17 +32,32 @@ namespace PamelloV7.Client.Windows
 
             _pamello = _services.GetRequiredService<PamelloClient>();
 
-            _pamello.Events.OnConnection += Events_OnConnection;
+            _pamello.Events.OnConnect += Events_OnConnection;
+            _pamello.Events.OnDisconnect += Events_OnDisconnect;
+
             _pamello.Events.OnEventsAuthorized += Events_OnEventsAuthorized;
+            _pamello.Events.OnEventsUnAuthorized += Events_OnEventsUnAuthorized;
 
             InitializeComponent();
         }
 
+        private async Task Events_OnDisconnect() {
+            Console.WriteLine("--- OnDisconnect");
+            Dispatcher.Invoke(SwitchPage<ConnectionPage>);
+        }
+
+        private async Task Events_OnEventsUnAuthorized(Core.Events.EventsUnAuthorized arg) {
+            Console.WriteLine("--- OnUnauthorized");
+            Dispatcher.Invoke(SwitchPage<AuthorizationPage>);
+        }
+
         private async Task Events_OnEventsAuthorized(Core.Events.EventsAuthorized arg) {
+            Console.WriteLine("--- OnAuthorized");
             Dispatcher.Invoke(SwitchPage<MainPage>);
         }
 
         private async Task Events_OnConnection() {
+            Console.WriteLine("--- OnConnect");
             Dispatcher.Invoke(SwitchPage<AuthorizationPage>);
         }
 

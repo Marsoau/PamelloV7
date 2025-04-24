@@ -46,6 +46,9 @@ namespace PamelloV7.Client.Components
             }
         }
 
+        public event Func<ServerComponent, Task> OnConnectionRequested;
+        public event Func<ServerComponent, Task> OnEditRequested;
+
         public ServerComponent(IServiceProvider services, SavedServer server) {
             _services = services;
 
@@ -58,7 +61,7 @@ namespace PamelloV7.Client.Components
 
         public void Update() {
             TextBlock_Name.Text = Server.Name;
-            TextBlock_Host.Text = Server.Host;
+            TextBlock_Host.Text = Server.Host.ToString() ?? "";
         }
 
         private void Idle() {
@@ -85,7 +88,11 @@ namespace PamelloV7.Client.Components
         private async void Button_Connect_Click(object sender, RoutedEventArgs e) {
             var connectionPage = _services.GetRequiredService<ConnectionPage>();
 
-            await connectionPage.ServerComponent_Button_Connect_Click(this);
+            await OnConnectionRequested.Invoke(this);
+        }
+
+        private async void Button_Edit_Click(object sender, RoutedEventArgs e) {
+            await OnEditRequested.Invoke(this);
         }
     }
 }

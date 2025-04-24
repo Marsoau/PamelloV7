@@ -98,5 +98,9 @@ namespace PamelloV7.Wrapper.Repositories
         protected abstract Task<TPamelloDTO?> GetDTO(int id);
         protected abstract Task<TPamelloDTO?> GetDTO(string value);
         protected abstract TRemoteEntity CreateRemoteEntity(TPamelloDTO dto);
+
+        internal void Cleanup() {
+            _loaded.Clear();
+        }
     }
 }

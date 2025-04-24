@@ -42,7 +42,7 @@ namespace PamelloV7.Client.Pages
             TokenComponent tokenComponent;
             foreach (var token in Server.Tokens) {
                 tokenComponent = new TokenComponent(_services, token);
-                tokenComponent.Margin = new System.Windows.Thickness(0, 0, 0, 4);
+                tokenComponent.Margin = new System.Windows.Thickness(2);
 
                 StackPanel_TokenList.Children.Add(tokenComponent);
             }
@@ -70,6 +70,10 @@ namespace PamelloV7.Client.Pages
             }
 
             if (await _pamello.Authorization.WithCodeAsync(code, false)) {
+                if (_pamello.Authorization.UserToken is not null) {
+                    Server?.Tokens.Add(_pamello.Authorization.UserToken.Value);
+                    UpdateTokenList();
+                }
                 Console.WriteLine("authorized user with code");
             }
             else {
@@ -86,6 +90,10 @@ namespace PamelloV7.Client.Pages
             else {
                 Console.WriteLine("noauthorization((");
             }
+        }
+
+        private async void Button_Disconnect_Click(object sender, RoutedEventArgs e) {
+            await _pamello.Events.Disconnect();
         }
     }
 }

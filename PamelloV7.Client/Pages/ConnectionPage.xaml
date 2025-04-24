@@ -9,17 +9,31 @@
       d:DesignHeight="450" d:DesignWidth="800"
       d:Background="White"
       Title="ConnectionPage">
-    <Grid HorizontalAlignment="Center" Margin="4">
+    <Grid x:Name="testgrid" HorizontalAlignment="Center" Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <ScrollViewer Grid.Row="0">
-            <StackPanel x:Name="StackPanel_ServerList" MinWidth="320" Margin="0,0,4,0">
+            <StackPanel x:Name="StackPanel_ServerList" MinWidth="320" Margin="2">
             </StackPanel>
         </ScrollViewer>
         <Grid Grid.Row="1" Margin="0,4,0,0">
-            <Button Content="Add Server..." Padding="4 0"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" x:Name="Button_DiscradEdit" Content="Discard" Visibility="Collapsed" Margin="0,0,4,0" Click="Button_DiscradEdit_Click"/>
+            <Button Grid.Column="1" x:Name="Button_ConfirmEdit" Content="New Server..." Click="Button_ConfirmEdit_Click"/>
         </Grid>
+        <StackPanel Grid.Row="2" x:Name="StackPanel_EditServer" Margin="0,4,0,0" Visibility="Collapsed">
+            <components:OptionComponent Header="Server Name">
+                <TextBox x:Name="TextBox_ServerName" Margin="4"/>
+            </components:OptionComponent>
+            <components:OptionComponent Header="Server Address">
+                <TextBox x:Name="TextBox_ServerAddress" Margin="4"/>
+            </components:OptionComponent>
+        </StackPanel>
     </Grid>
 </Page>

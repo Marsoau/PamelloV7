@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -37,13 +38,16 @@ namespace PamelloV7.Wrapper.Services
             }
         }
 
-        private readonly HttpClient _http;
+        private HttpClient? _http;
+        private Stream? _eventStream;
+
         private readonly PamelloClient _client;
 
         public Guid? EventsToken { get; internal set; }
 
 
-        public event Func<Task>? OnConnection;
+        public event Func<Task>? OnConnect;
+        public event Func<Task> OnDisconnect;
 
         public event Func<PamelloEvent, Task> OnPamelloEvent;
 
@@ -113,18 +117,27 @@ namespace PamelloV7.Wrapper.Services
         public PamelloEventsService(PamelloClient client) {
             _client = client;
 
-            _http = new HttpClient();
+            _http = null;
+            _eventStream = null;
 
             OnPamelloEvent += PamelloEventsService_OnPamelloEvent;
 
             OnEventsConnected += PamelloEventsService_OnEventsConnected;
+
+            OnDisconnect += PamelloEventsService_OnDisconnect;
+        }
+
+        private async Task PamelloEventsService_OnDisconnect() {
+            EventsToken = null;
+
+            _client.Cleanup();
         }
 
         private async Task PamelloEventsService_OnEventsConnected(EventsConnected arg) {
             if (arg.EventsToken == Guid.Empty) return;
 
             EventsToken = arg.EventsToken;
-            if (OnConnection is not null) await OnConnection.Invoke();
+            if (OnConnect is not null) await OnConnect.Invoke();
         }
 
         private async Task PamelloEventsService_OnPamelloEvent(PamelloEvent pamelloEvent) {
@@ -303,18 +316,6 @@ namespace PamelloV7.Wrapper.Services
             }
         }
 
-        public async Task<bool> Connect(string? serverHost = null) {
-            if (serverHost is null) serverHost = _client.ServerHost;
-
-            var eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
-            if (eventStream is null) return false;
-
-            _client.ServerHost = serverHost;
-
-            Task.Run(() => ListenEventStream(eventStream));
-
-            return true;
-        }
         public async Task<bool> TryConnect(string serverHost) {
             try {
                 await Connect(serverHost);
@@ -324,6 +325,29 @@ namespace PamelloV7.Wrapper.Services
             }
 
             return true;
+        }
+        public async Task<bool> Connect(string? serverHost = null) {
+            if (serverHost is null) serverHost = _client.ServerHost;
+
+            if (_http is not null || _eventStream is not null) {
+                _http?.Dispose();
+                _eventStream?.Dispose();
+            }
+
+            _http = new HttpClient();
+
+            _eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
+            if (_eventStream is null) return false;
+
+            _client.ServerHost = serverHost;
+
+            Task.Run(() => ListenEventStream(_eventStream));
+
+            return true;
+        }
+
+        public async Task Disconnect() {
+            await _client.HttpGetAsync($"Events/{EventsToken}/Close");
         }
 
         private void ListenEventStream(Stream eventStream) {
@@ -341,6 +365,8 @@ namespace PamelloV7.Wrapper.Services
 
                 OnPamelloEvent.Invoke(pamelloEvent);
             }
+
+            OnDisconnect.Invoke();
         }
 
         private SseEvent? ReadEvent(StreamReader sr) {

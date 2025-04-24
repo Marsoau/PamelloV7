@@ -58,5 +58,13 @@ namespace PamelloV7.Wrapper
 
             return result;
         }
+
+        internal void Cleanup() {
+            Episodes.Cleanup();
+            Players.Cleanup();
+            Playlists.Cleanup();
+            Songs.Cleanup();
+            Users.Cleanup();
+        }
     }
 }

@@ -139,7 +139,12 @@ namespace PamelloV7.Client.Pages
 
         private void RefreshPlayerCurrentSongCover() {
             Dispatcher.Invoke(() => {
-                Image_CurrentSongCover.Source = new BitmapImage(new Uri(_song?.CoverUrl ?? "https://static.vecteezy.com/system/resources/thumbnails/022/059/000/small_2x/no-image-available-icon-vector.jpg"));
+                if (_song is null) {
+                    Image_CurrentSongCover.Source = null;
+                }
+                else {
+                    Image_CurrentSongCover.Source = new BitmapImage(new Uri(_song.CoverUrl));
+                }
             });
         }
         private void RefreshPlayerCurrentSongName() {
@@ -152,6 +157,12 @@ namespace PamelloV7.Client.Pages
             Console.WriteLine($"setting adder: {currentEntry?.AdderId}, from entry: {currentEntry}");
 
             Dispatcher.Invoke(async () => {
+                if (_song is null) {
+                    TextBlock_CurrentSongAddedByLabel.Text = null;
+                    TextBlock_CurrentSongAddedByUser.Text = null;
+                    return;
+                }
+
                 if (currentEntry is null || currentEntry.AdderId is null) {
                     TextBlock_CurrentSongAddedByLabel.Text = "Added automaticaly";
                     TextBlock_CurrentSongAddedByUser.Text = null;

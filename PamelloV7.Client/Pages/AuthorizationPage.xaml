@@ -25,11 +25,11 @@
                 <Button x:Name="Button_Authorize" Grid.Column="1" Content="Authorize" Margin="4,0,0,0" Padding="4,0" Click="Button_Authorize_Click"/>
             </Grid>
 
-            <ScrollViewer Grid.Row="1" Grid.RowSpan="2" Margin="0,4,0,0">
-                <StackPanel x:Name="StackPanel_TokenList" MinWidth="320" MinHeight="56" Margin="0,0,4,0">
+            <ScrollViewer Grid.Row="1" Margin="0,4,0,0">
+                <StackPanel x:Name="StackPanel_TokenList" MinWidth="320" MinHeight="56" Margin="2">
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-        <Button Content="Disconnect" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="4,0" Margin="4"/>
+        <Button x:Name="Button_Disconnect" Content="Disconnect" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="4,0" Margin="4" Click="Button_Disconnect_Click"/>
     </Grid>
 </Page>

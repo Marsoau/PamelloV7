@@ -20,6 +20,7 @@ namespace PamelloV7.Server.Controllers
 
         [HttpGet]
         public async Task Connect() {
+            Console.WriteLine("test con");
             var listener = await _events.AddListener(Response);
 
             Console.WriteLine($"created \"{listener.Token}\" events connection");
@@ -28,9 +29,17 @@ namespace PamelloV7.Server.Controllers
                 await Task.Delay(1000);
             }
 
-            listener.Close();
-
             Console.WriteLine($"closed \"{listener.Token}\" events connection");
+
+            listener.Close();
+        }
+
+        [HttpGet("{eventsToken}/Close")]
+        public IActionResult GetConnect(Guid eventsToken) {
+            Console.WriteLine("test disc");
+            _events.CloseEvents(eventsToken);
+
+            return Ok();
         }
     }
 }
