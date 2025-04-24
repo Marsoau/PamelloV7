@@ -17,6 +17,8 @@ namespace PamelloV7.Server.Repositories
         public PamelloPlaylist Create(string name, PamelloUser user) {
             if (name.Length == 0) throw new PamelloException("Playlist name cant be empty");
 
+            var db = GetDatabase();
+
             var databasePlaylist = new DatabasePlaylist() {
                 Name = name,
                 Songs = [],
@@ -25,8 +27,8 @@ namespace PamelloV7.Server.Repositories
                 FavoritedBy = [],
             };
 
-            _database.Playlists.Add(databasePlaylist);
-            _database.SaveChanges();
+            db.Playlists.Add(databasePlaylist);
+            db.SaveChanges();
 
             return Load(databasePlaylist);
         }
@@ -35,10 +37,12 @@ namespace PamelloV7.Server.Repositories
             => GetByName(name) ?? throw new PamelloException($"Cant find playlist by name \"{name}\"");
 
         public PamelloPlaylist? GetByName(string name) {
+            var entities = GetEntities();
+
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);
             if (pamelloPlaylist is not null) return pamelloPlaylist;
 
-            var databasePlaylist = _nonloaded.FirstOrDefault(playlist => playlist.Name == name);
+            var databasePlaylist = entities.FirstOrDefault(playlist => playlist.Name == name);
             if (databasePlaylist is null) return null;
 
             return Load(databasePlaylist);
@@ -57,8 +61,6 @@ namespace PamelloV7.Server.Repositories
         }
 
         public async Task<IEnumerable<PamelloPlaylist>> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null, PamelloUser? scopeUser = null) {
-            LoadAll();
-
             IEnumerable<PamelloPlaylist> list = _loaded;
 
             if (ownedBy is not null) {
@@ -80,8 +82,8 @@ namespace PamelloV7.Server.Repositories
 
             return pamelloPlaylist;
         }
-        public override List<DatabasePlaylist> LoadDatabaseEntities() {
-            return _database.Playlists
+        public override List<DatabasePlaylist> ProvideEntities() {
+            return GetDatabase().Playlists
                 .Include(playlist => playlist.Songs)
                 .Include(playlist => playlist.FavoritedBy)
                 .ToList();

@@ -124,7 +124,9 @@ namespace PamelloV7.Server.Model
                 throw new PamelloException($"Associacion \"{associacion}\" is reserved");
             }
 
-            var databaseAssociacion = _database.Associacions.Find(associacion);
+            var db = GetDatabase();
+
+            var databaseAssociacion = db.Associacions.Find(associacion);
             if (databaseAssociacion is not null) {
                 if (databaseAssociacion.Song.Id == Entity.Id)
                     throw new PamelloException($"Associacion \"{associacion}\" already exist this song");
@@ -137,8 +139,8 @@ namespace PamelloV7.Server.Model
                 Song = Entity
             };
 
-            _database.Associacions.Add(databaseAssociacion);
-            Save();
+            db.Associacions.Add(databaseAssociacion);
+            db.SaveChanges();
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
@@ -147,14 +149,16 @@ namespace PamelloV7.Server.Model
         }
 
         public void RemoveAssociacion(string associacion, bool removeGlobaly = false) {
-            var databaseAssociacion = _database.Associacions.Find(associacion);
+            var db = GetDatabase();
+
+            var databaseAssociacion = db.Associacions.Find(associacion);
 
             if (databaseAssociacion is null || (!removeGlobaly && databaseAssociacion.Song.Id != Entity.Id)) {
                 throw new PamelloException("This song doesnt contain");
             }
 
-            _database.Associacions.Remove(databaseAssociacion);
-            Save();
+            db.Associacions.Remove(databaseAssociacion);
+            db.SaveChanges();
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,

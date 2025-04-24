@@ -11,9 +11,9 @@ namespace PamelloV7.Server.Model
     {
         protected internal readonly T Entity;
 
-        protected readonly PamelloEventsService _events;
+        protected readonly IServiceProvider _services;
 
-        protected readonly DatabaseContext _database;
+        protected readonly PamelloEventsService _events;
 
         protected readonly PamelloSongRepository _songs;
         protected readonly PamelloEpisodeRepository _episodes;
@@ -24,8 +24,9 @@ namespace PamelloV7.Server.Model
         public abstract string Name { get; set; }
 
         public PamelloEntity(T databaseEntity, IServiceProvider services) {
+            _services = services;
+
             _events = services.GetRequiredService<PamelloEventsService>();
-            _database = services.GetRequiredService<DatabaseContext>();
 
             _songs = services.GetRequiredService<PamelloSongRepository>();
             _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
@@ -35,7 +36,8 @@ namespace PamelloV7.Server.Model
             Entity = databaseEntity;
         }
 
-        protected void Save() => _database.SaveChanges();
+        protected DatabaseContext GetDatabase() => _services.GetRequiredService<DatabaseContext>();
+        protected void Save() => GetDatabase().SaveChanges();
 
         public virtual DiscordString ToDiscordString() {
             return DiscordString.Bold(Name) + " " + DiscordString.Code($"[{Id}]");

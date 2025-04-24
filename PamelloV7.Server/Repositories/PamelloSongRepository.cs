@@ -31,14 +31,18 @@ namespace PamelloV7.Server.Repositories
             var pamelloSong = _loaded.FirstOrDefault(song => song.Name == name);
             if (pamelloSong is not null) return pamelloSong;
 
-            var databaseSong = _nonloaded.FirstOrDefault(song => song.Name == name);
+            var entites = GetEntities();
+
+            var databaseSong = entites.FirstOrDefault(song => song.Name == name);
             if (databaseSong is null) return null;
 
             return Load(databaseSong);
         }
 
         public PamelloSong? GetByAssociacion(string ascn) {
-            var databaseAssociacion = _database.Associacions.Find(ascn);
+            var db = GetDatabase();
+
+            var databaseAssociacion = db.Associacions.Find(ascn);
             if (databaseAssociacion is null) return null;
 
             return Get(databaseAssociacion.Song.Id);
@@ -48,7 +52,9 @@ namespace PamelloV7.Server.Repositories
             var pamelloSong = _loaded.FirstOrDefault(song => song.YoutubeId == youtubeId);
             if (pamelloSong is not null) return pamelloSong;
 
-            var databaseSong = _nonloaded.FirstOrDefault(song => song.YoutubeId == youtubeId);
+            var entites = GetEntities();
+
+            var databaseSong = entites.FirstOrDefault(song => song.YoutubeId == youtubeId);
             if (databaseSong is null) return null;
 
             return Load(databaseSong);
@@ -85,12 +91,6 @@ namespace PamelloV7.Server.Repositories
             return song;
         }
 
-        public PamelloSong? GetRandom() {
-            if (_nonloaded.Count == 0) return null;
-
-            var randomPosition = Random.Shared.Next(0, _nonloaded.Count);
-            return Load(_nonloaded[randomPosition]);
-        }
         public async Task<PamelloSong?> GetRandomPV5(PamelloUser adder) {
             DirectoryInfo pv5dir = new DirectoryInfo(@"D:\DiscordMusic");
             var pv5files = pv5dir.GetFiles();
@@ -106,6 +106,8 @@ namespace PamelloV7.Server.Repositories
         public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {
             if (adder is null) return null;
             if (youtubeId?.Length != 11) return null;
+
+            var db = GetDatabase();
 
             var pamelloSong = GetByYoutubeId(youtubeId);
             if (pamelloSong is not null) return pamelloSong;
@@ -133,8 +135,8 @@ namespace PamelloV7.Server.Repositories
                 Skip = false
 			}).ToList();
 
-			_database.Songs.Add(databaseSong);
-			_database.SaveChanges();
+			db.Songs.Add(databaseSong);
+			db.SaveChanges();
 
             pamelloSong = Load(databaseSong);
 
@@ -146,8 +148,6 @@ namespace PamelloV7.Server.Repositories
         public override void Delete(int id) => throw new NotImplementedException();
 
         public async Task<IEnumerable<PamelloSong>> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null, PamelloUser scopeUser = null) {
-            LoadAll();
-
             IEnumerable<PamelloSong> list = _loaded;
 
             if (addedBy is not null) {
@@ -169,8 +169,8 @@ namespace PamelloV7.Server.Repositories
 
             return pamelloSong;
         }
-        public override List<DatabaseSong> LoadDatabaseEntities() {
-            return _database.Songs
+        public override List<DatabaseSong> ProvideEntities() {
+            return GetDatabase().Songs
                 .Include(song => song.Episodes)
                 .Include(song => song.Playlists)
                 .Include(song => song.FavoritedBy)

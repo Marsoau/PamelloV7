@@ -29,13 +29,13 @@ namespace PamelloV7.Server
             var app = builder.Build();
 
             await StartupDatabaseServices(app.Services);
-            await StartupPamelloServices(app.Services);
             await StartupDiscordServices(app.Services);
+            await StartupPamelloServices(app.Services);
             await StartupAPIServices(app);
         }
 
         private static void ConfigureDatabaseServices(IServiceCollection services) {
-            services.AddSingleton<DatabaseContext>();
+            services.AddTransient<DatabaseContext>();
         }
 
         private static void ConfigureDiscordServices(IServiceCollection services) {
@@ -78,15 +78,13 @@ namespace PamelloV7.Server
             services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
             services.AddHttpClient();
 
-			services.AddCors(options =>
-					{
-					options.AddPolicy("AllowSpecificOrigin",
-							builder => {
-							builder.AllowAnyOrigin()
-							.AllowAnyHeader()
-							.AllowAnyMethod();
-							});
-					});
+			services.AddCors(options => {
+                options.AddPolicy("AllowSpecificOrigin", builder => {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
         }
 
         private static async Task StartupDatabaseServices(IServiceProvider services) {
@@ -98,12 +96,6 @@ namespace PamelloV7.Server
 
             discordClients.SubscriveToEvents();
 
-            var users = services.GetRequiredService<PamelloUserRepository>();
-            var songs = services.GetRequiredService<PamelloSongRepository>();
-            var players = services.GetRequiredService<PamelloPlayerRepository>();
-            var speakers = services.GetRequiredService<PamelloSpeakerService>();
-            var downloader = services.GetRequiredService<YoutubeDownloadService>();
-
             var interactionService = services.GetRequiredService<InteractionService>();
             var interactionHandler = services.GetRequiredService<InteractionHandler>();
 
@@ -114,7 +106,7 @@ namespace PamelloV7.Server
             var mainDiscordReady = new TaskCompletionSource();
 
             discordClients.MainClient.Log += async (message) => {
-                Console.WriteLine($">discord<: {message}");
+                //Console.WriteLine($">discord<: {message}");
             };
 
             discordClients.MainClient.Ready += async () => {
@@ -124,10 +116,10 @@ namespace PamelloV7.Server
                 await interactionService.RegisterCommandsToGuildAsync(guild.Id);
             };
             discordClients.DiscordClients[1].Log += async (message) => {
-                Console.WriteLine($">speaker<: {message}");
+                //Console.WriteLine($">speaker<: {message}");
             };
             discordClients.DiscordClients[1].Ready += async () => {
-                Console.WriteLine("speaker ready");
+                //Console.WriteLine("speaker ready");
             };
 
             await discordClients.MainClient.LoginAsync(TokenType.Bot, PamelloServerConfig.MainBotToken);
@@ -144,33 +136,55 @@ namespace PamelloV7.Server
         private static async Task StartupPamelloServices(IServiceProvider services) {
             var events = services.GetRequiredService<PamelloEventsService>();
 
-            /*
-            events.OnUserCreated += async (user) => {
-                Console.WriteLine($"Created new user {user.Id}");
-            };
-            events.OnUserLoaded += async (user) => {
-                Console.WriteLine($"Loaded {user}");
-            };
-
-            events.OnDownloadStart += (song) => {
-                Console.WriteLine($"Started download of \"{song}\"");
-            };
-            events.OnDownloadEnd += (song, result) => {
-                Console.WriteLine($"Ended download of \"{song}\" with result \"{result}\"");
-            };
-            */
-
             var users = services.GetRequiredService<PamelloUserRepository>();
             var songs = services.GetRequiredService<PamelloSongRepository>();
             var episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             var playlists = services.GetRequiredService<PamelloPlaylistRepository>();
             var players = services.GetRequiredService<PamelloPlayerRepository>();
 
+            songs.BeforeLoading += () => {
+                DatabaseEntityRepository_BeforeLoading("songs");
+            };
+            episodes.BeforeLoading += () => {
+                DatabaseEntityRepository_BeforeLoading("episodes");
+            };
+            playlists.BeforeLoading += () => {
+                DatabaseEntityRepository_BeforeLoading("playlists");
+            };
+            users.BeforeLoading += () => {
+                DatabaseEntityRepository_BeforeLoading("users");
+            };
+
+            songs.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
+            episodes.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
+            playlists.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
+            users.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
+
+            songs.OnLoaded += DatabaseEntityRepository_OnLoaded;
+            episodes.OnLoaded += DatabaseEntityRepository_OnLoaded;
+            playlists.OnLoaded += DatabaseEntityRepository_OnLoaded;
+            users.OnLoaded += DatabaseEntityRepository_OnLoaded;
+
             users.InitServices();
             songs.InitServices();
             episodes.InitServices();
             playlists.InitServices();
             players.InitServices();
+
+            songs.LoadAll();
+            episodes.LoadAll();
+            playlists.LoadAll();
+            users.LoadAll();
+        }
+
+        private static void DatabaseEntityRepository_OnLoaded() {
+            Console.WriteLine("\nDone");
+        }
+        private static void DatabaseEntityRepository_BeforeLoading(string name) {
+            Console.WriteLine($"Loading {name}");
+        }
+        private static void DatabaseEntityRepository_OnLoadingProgress(int loaded, int total) {
+            Console.Write($"\r[{loaded}/{total}] {((double)loaded / total) * 100}%                  ");
         }
 
         private static async Task StartupAPIServices(WebApplication app) {

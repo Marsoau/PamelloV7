@@ -22,6 +22,8 @@ namespace PamelloV7.Server.Repositories
             base.InitServices();
         }
         public PamelloEpisode Create(PamelloSong song, AudioTime start, string name, bool skip) {
+            var db = GetDatabase();
+
             var databaseEpisode = new DatabaseEpisode() {
                 Name = name,
                 Start = start.TotalSeconds,
@@ -29,8 +31,8 @@ namespace PamelloV7.Server.Repositories
                 Song = song.Entity
             };
 
-            _database.Episodes.Add(databaseEpisode);
-            _database.SaveChanges();
+            db.Episodes.Add(databaseEpisode);
+            db.SaveChangesAsync();
 
             _events.Broadcast(new EpisodeCreated() { 
                 EpisodeId = databaseEpisode.Id,
@@ -47,8 +49,11 @@ namespace PamelloV7.Server.Repositories
             var episode = GetRequired(id);
 
             _loaded.Remove(episode);
-            _database.Episodes.Remove(episode.Entity);
-            _database.SaveChanges();
+
+            var db = GetDatabase();
+
+            db.Episodes.Remove(episode.Entity);
+            db.SaveChanges();
 
             _events.Broadcast(new EpisodeDeleted() { 
                  EpisodeId = episode.Id,
@@ -59,7 +64,9 @@ namespace PamelloV7.Server.Repositories
             });
         }
         public void DeleteAllFrom(PamelloSong song) {
-            var deletionList = _database.Episodes.Where(databaseEpisode => databaseEpisode.Song.Id == song.Id);
+            var db = GetDatabase();
+
+            var deletionList = db.Episodes.Where(databaseEpisode => databaseEpisode.Song.Id == song.Id);
 
             foreach (var deletion in deletionList) {
                 Delete(deletion.Id);
@@ -74,8 +81,8 @@ namespace PamelloV7.Server.Repositories
 
             return pamelloEpisode;
         }
-        public override List<DatabaseEpisode> LoadDatabaseEntities() {
-            return _database.Episodes.ToList();
+        public override List<DatabaseEpisode> ProvideEntities() {
+            return GetDatabase().Episodes.ToList();
         }
 
         public override async Task<PamelloEpisode?> GetByValue(string value, PamelloUser? scopeUser) {
