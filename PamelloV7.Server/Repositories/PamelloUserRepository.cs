@@ -113,6 +113,6 @@ namespace PamelloV7.Server.Repositories
                 .ToList();
         }
 
-        public override void Delete(int id) => throw new NotImplementedException();
+        public override void Delete(PamelloUser user) => throw new NotImplementedException();
     }
 }

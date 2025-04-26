@@ -395,7 +395,9 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
             await Commands.SongRename(song, newName);
 
-            await RespondInfo($"{song.ToDiscordString()} renamed");
+            var song2 = await _songs.GetByValue(songValue);
+
+            await RespondInfo($"{song.ToDiscordString()} renamed; {song2?.ToDiscordString()} ({song.GetHashCode()}:{song.GetHashCode()})");
         }
 
         public async Task SongFavoriteAdd(string songValue)
@@ -509,7 +511,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 return;
             }
 
-            if (episode.Skip) {
+            if (episode.AutoSkip) {
                 await RespondInfo($"Episode {episode.ToDiscordString()} will be skipped");
             }
             else {

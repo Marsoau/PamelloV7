@@ -7,9 +7,9 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
-    public abstract class PamelloEntity<T> : IEntity where T : DatabaseEntity
+    public abstract class PamelloEntity<TDatabaseEntity> : IEntity where TDatabaseEntity : DatabaseEntity
     {
-        protected internal readonly T Entity;
+        protected TDatabaseEntity? DatabaseEntity { get; private set; }
 
         protected readonly IServiceProvider _services;
 
@@ -20,10 +20,10 @@ namespace PamelloV7.Server.Model
         protected readonly PamelloPlaylistRepository _playlists;
         protected readonly PamelloUserRepository _users;
 
-        public abstract int Id { get; }
+        public int Id { get; }
         public abstract string Name { get; set; }
 
-        public PamelloEntity(T databaseEntity, IServiceProvider services) {
+        public PamelloEntity(TDatabaseEntity databaseEntity, IServiceProvider services) {
             _services = services;
 
             _events = services.GetRequiredService<PamelloEventsService>();
@@ -33,11 +33,30 @@ namespace PamelloV7.Server.Model
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
             _users = services.GetRequiredService<PamelloUserRepository>();
 
-            Entity = databaseEntity;
+            Id = databaseEntity.Id;
+
+            DatabaseEntity = databaseEntity;
         }
 
         protected DatabaseContext GetDatabase() => _services.GetRequiredService<DatabaseContext>();
-        protected void Save() => GetDatabase().SaveChanges();
+        protected void Save() {
+            var time = DateTime.Now;
+            Task.Run(async () => {
+                using var db = GetDatabase();
+
+                var entity = GetDatabaseEntity(db);
+                await Task.Delay(2000);
+
+                await db.SaveChangesAsync();
+            });
+            Console.WriteLine($"task: {DateTime.Now - time}");
+        }
+
+        protected abstract void InitSet();
+        public void Init() {
+            InitSet();
+            DatabaseEntity = null;
+        }
 
         public virtual DiscordString ToDiscordString() {
             return DiscordString.Bold(Name) + " " + DiscordString.Code($"[{Id}]");
@@ -48,5 +67,6 @@ namespace PamelloV7.Server.Model
         }
 
         public abstract IPamelloDTO GetDTO();
+        public abstract TDatabaseEntity GetDatabaseEntity(DatabaseContext? db = null);
     }
 }

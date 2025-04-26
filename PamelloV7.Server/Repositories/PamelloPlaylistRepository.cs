@@ -15,32 +15,17 @@ namespace PamelloV7.Server.Repositories
         }
 
         public PamelloPlaylist Create(string name, PamelloUser user) {
-            if (name.Length == 0) throw new PamelloException("Playlist name cant be empty");
-
-            var db = GetDatabase();
-
-            var databasePlaylist = new DatabasePlaylist() {
-                Name = name,
-                Songs = [],
-                Owner = user.Entity,
-                IsProtected = false,
-                FavoritedBy = [],
-            };
-
-            db.Playlists.Add(databasePlaylist);
-            db.SaveChanges();
-
-            return Load(databasePlaylist);
+            return user.CreatePlaylist(name);
         }
 
         public PamelloPlaylist GetByNameRequired(string name)
             => GetByName(name) ?? throw new PamelloException($"Cant find playlist by name \"{name}\"");
 
         public PamelloPlaylist? GetByName(string name) {
-            var entities = GetEntities();
-
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);
             if (pamelloPlaylist is not null) return pamelloPlaylist;
+
+            var entities = GetEntities();
 
             var databasePlaylist = entities.FirstOrDefault(playlist => playlist.Name == name);
             if (databasePlaylist is null) return null;
@@ -67,7 +52,7 @@ namespace PamelloV7.Server.Repositories
                 list = list.Where(playlist => playlist.OwnedBy.Id == ownedBy.Id);
             }
             if (favoriteBy is not null) {
-                list = list.Where(playlist => playlist.FavoriteBy.Any(user => user.Id == favoriteBy.Id));
+                list = list.Where(playlist => playlist.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
             }
 
             return await Search(list, querry, scopeUser);
@@ -85,11 +70,12 @@ namespace PamelloV7.Server.Repositories
         public override List<DatabasePlaylist> ProvideEntities() {
             return GetDatabase().Playlists
                 .AsNoTracking()
+                .Include(playlist => playlist.Owner)
                 .Include(playlist => playlist.Songs)
                 .Include(playlist => playlist.FavoritedBy)
                 .AsSplitQuery()
                 .ToList();
         }
-        public override void Delete(int id) => throw new NotImplementedException();
+        public override void Delete(PamelloPlaylist playlist) => throw new NotImplementedException();
     }
 }

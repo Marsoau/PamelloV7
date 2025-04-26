@@ -1,20 +1,24 @@
 ﻿using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
+using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
+using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Server.Model
 {
     public class PamelloEpisode : PamelloEntity<DatabaseEpisode>
     {
-        public override int Id {
-            get => Entity.Id;
-        }
+        private string _name;
+        private AudioTime _start;
+        private bool _autoSkip;
+        private PamelloSong _song;
+
         public override string Name {
-            get => Entity.Name;
+            get => _name;
             set {
-                Entity.Name = value;
+                _name = value;
                 Save();
 
                 _events.Broadcast(new EpisodeNameUpdated() {
@@ -23,61 +27,82 @@ namespace PamelloV7.Server.Model
                 });
             }
         }
-        public int Start {
-            get => Entity.Start;
+        public AudioTime Start {
+            get => _start;
             set {
-                if (Entity.Start == value) return;
+                if (_start.TotalSeconds == value.TotalSeconds) return;
 
-                Entity.Start = value;
+                _start = value;
                 Save();
 
                 _events.Broadcast(new EpisodeStartUpdated() {
                     EpisodeId = Id,
-                    Start = Start
+                    Start = Start.TotalSeconds
                 });
             }
         }
-        public bool Skip {
-            get => Entity.Skip;
+        public bool AutoSkip {
+            get => _autoSkip;
             set {
-                if (Entity.Skip == value) return;
+                if (_autoSkip == value) return;
 
-                Entity.Skip = value;
+                _autoSkip = value;
                 Save();
 
                 _events.Broadcast(new EpisodeSkipUpdated() {
                     EpisodeId = Id,
-                    Skip = Skip
+                    Skip = AutoSkip
                 });
             }
         }
 
         public PamelloSong Song {
-            get => _songs.GetRequired(Entity.Song.Id);
+            get => _song;
         }
 
         public PamelloEpisode(IServiceProvider services,
             DatabaseEpisode databaseEpisode
         ) : base(databaseEpisode, services) {
+            _name = databaseEpisode.Name;
+            _start = new AudioTime(databaseEpisode.Start);
+            _autoSkip = databaseEpisode.Skip;
+        }
 
+        protected override void InitSet() {
+            if (DatabaseEntity is null) return;
+
+            _song = _songs.GetRequired(DatabaseEntity.Song.Id);
         }
 
         public override DiscordString ToDiscordString() {
-            return DiscordString.Code(new AudioTime(Start).ToShortString()) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}") + " " + (Skip ? DiscordString.Italic("skip").ToString() : "");
+            return DiscordString.Code(Start.ToShortString()) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}") + " " + (AutoSkip ? DiscordString.Italic("skip").ToString() : "");
         }
 
         public override string ToString() {
-            return $"[{Id} ({(Skip ? "Skip" : "Play")})] {Name}";
+            return $"[{Id} ({(AutoSkip ? "Skip" : "Play")})] {Name}";
         }
 
         public override IPamelloDTO GetDTO() {
             return new PamelloEpisodeDTO() {
                 Id = Id,
                 Name = Name,
-                Start = Start,
-                Skip = Skip,
+                Start = Start.TotalSeconds,
+                Skip = AutoSkip,
                 SongId = Song.Id,
             };
+        }
+
+        public override DatabaseEpisode GetDatabaseEntity(DatabaseContext? db = null) {
+            db ??= GetDatabase();
+
+            var dbEpisode = db.Episodes.Find(Id);
+            if (dbEpisode is null) throw new PamelloException("Episode entity cant find itself in the database");
+
+            dbEpisode.Name = Name;
+            dbEpisode.Start = Start.TotalSeconds;
+            dbEpisode.Skip = AutoSkip;
+
+            return dbEpisode;
         }
     }
 }

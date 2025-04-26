@@ -113,6 +113,7 @@ namespace PamelloV7.Server
                 mainDiscordReady.SetResult();
 
                 var guild = discordClients.MainClient.GetGuild(1304142495453548646);
+                //await guild.DeleteApplicationCommandsAsync();
                 await interactionService.RegisterCommandsToGuildAsync(guild.Id);
             };
             discordClients.DiscordClients[1].Log += async (message) => {
@@ -143,16 +144,16 @@ namespace PamelloV7.Server
             var players = services.GetRequiredService<PamelloPlayerRepository>();
 
             songs.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("songs");
+                DatabaseEntityRepository_BeforeLoading("Loading songs");
             };
             episodes.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("episodes");
+                DatabaseEntityRepository_BeforeLoading("Loading episodes");
             };
             playlists.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("playlists");
+                DatabaseEntityRepository_BeforeLoading("Loading playlists");
             };
             users.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("users");
+                DatabaseEntityRepository_BeforeLoading("Loading users");
             };
 
             songs.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
@@ -165,6 +166,29 @@ namespace PamelloV7.Server
             playlists.OnLoaded += DatabaseEntityRepository_OnLoaded;
             users.OnLoaded += DatabaseEntityRepository_OnLoaded;
 
+            songs.BeforeInit += () => {
+                DatabaseEntityRepository_BeforeLoading("Initializing songs");
+            };
+            episodes.BeforeInit += () => {
+                DatabaseEntityRepository_BeforeLoading("Initializing episodes");
+            };
+            playlists.BeforeInit += () => {
+                DatabaseEntityRepository_BeforeLoading("Initializing playlists");
+            };
+            users.BeforeInit += () => {
+                DatabaseEntityRepository_BeforeLoading("Initializing users");
+            };
+
+            songs.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
+            episodes.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
+            playlists.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
+            users.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
+
+            songs.OnInit += DatabaseEntityRepository_OnLoaded;
+            episodes.OnInit += DatabaseEntityRepository_OnLoaded;
+            playlists.OnInit += DatabaseEntityRepository_OnLoaded;
+            users.OnInit += DatabaseEntityRepository_OnLoaded;
+
             users.InitServices();
             songs.InitServices();
             episodes.InitServices();
@@ -175,13 +199,18 @@ namespace PamelloV7.Server
             episodes.LoadAll();
             playlists.LoadAll();
             users.LoadAll();
+
+            songs.InitAll();
+            episodes.InitAll();
+            playlists.InitAll();
+            users.InitAll();
         }
 
         private static void DatabaseEntityRepository_OnLoaded() {
             Console.WriteLine("\nDone");
         }
         private static void DatabaseEntityRepository_BeforeLoading(string name) {
-            Console.WriteLine($"Loading {name}");
+            Console.WriteLine($"{name}");
         }
         private static void DatabaseEntityRepository_OnLoadingProgress(int loaded, int total) {
             Console.Write($"\r[{loaded}/{total}] {((double)loaded / total) * 100}%                  ");

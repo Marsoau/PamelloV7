@@ -50,7 +50,12 @@ namespace PamelloV7.Server.Handlers
 				Console.WriteLine("ERROR with interaction");
                 Console.WriteLine($"Message: {x.Message}");
                 Console.WriteLine($"More: {x}");
-                await interaction.RespondAsync("An error occured, check the console for more info", ephemeral: true);
+				if (interaction.GetOriginalResponseAsync() is not null) {
+					await interaction.FollowupAsync("An error occured, check the console for more info", ephemeral: true);
+				}
+				else {
+                    await interaction.RespondAsync("An error occured, check the console for more info", ephemeral: true);
+				}
 			}
 		}
 

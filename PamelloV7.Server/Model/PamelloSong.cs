@@ -5,6 +5,9 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
+using PamelloV7.DAL;
+using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core;
 
 namespace PamelloV7.Server.Model
 {
@@ -12,15 +15,20 @@ namespace PamelloV7.Server.Model
     {
         private readonly YoutubeDownloadService _downloader;
 
-        public override int Id {
-            get => Entity.Id;
-        }
-        public override string Name {
-            get => Entity.Name;
-            set {
-                if (Entity.Name == value) return;
+        private string _name;
+        private string _youtubeId;
+        private string _coverUrl;
+        private int _playCount;
+        private DateTime _addedAt;
+        private PamelloUser _addedBy;
 
-                Entity.Name = value;
+        public override string Name {
+            get => _name;
+            set {
+                if (_name == value) return;
+
+                _name = value;
+                Save();
 
                 _events.Broadcast(new SongNameUpdated() {
                     SongId = Id,
@@ -29,12 +37,13 @@ namespace PamelloV7.Server.Model
             }
         }
         public string YoutubeId {
-            get => Entity.YoutubeId;
+            get => _youtubeId;
         }
         public string CoverUrl {
-            get => Entity.CoverUrl;
+            get => _coverUrl;
             set {
-                Entity.CoverUrl = value;
+                _coverUrl = value;
+                Save();
 
                 _events.Broadcast(new SongCoverUrlUpdated() {
                     SongId = Id,
@@ -43,11 +52,12 @@ namespace PamelloV7.Server.Model
             }
         }
         public int PlayCount {
-            get => Entity.PlayCount;
+            get => _playCount;
             set {
-                if (Entity.PlayCount == value) return;
+                if (_playCount == value) return;
 
-                Entity.PlayCount = value;
+                _playCount = value;
+                Save();
 
                 _events.Broadcast(new SongPlayCountUpdated() {
                     SongId = Id,
@@ -56,7 +66,7 @@ namespace PamelloV7.Server.Model
             }
         }
         public DateTime AddedAt {
-            get => Entity.AddedAt;
+            get => _addedAt;
         }
 
         public bool IsDownloaded {
@@ -72,29 +82,36 @@ namespace PamelloV7.Server.Model
         }
 
         public PamelloUser AddedBy {
-            get => _users.GetRequired(Entity.AddedBy.Id);
+            get => _addedBy;
         }
 
+        private List<PamelloUser> _favoritedBy;
+        private List<PamelloEpisode> _episodes;
+        private List<PamelloPlaylist> _playlists;
+        private List<string> _associacions;
+
         public IReadOnlyList<PamelloUser> FavoritedBy {
-            get => Entity.FavoritedBy.Select(user => _users.GetRequired(user.Id)).ToList();
+            get => _favoritedBy;
         }
 
         public IReadOnlyList<PamelloEpisode> Episodes {
-            get => EpisodesIds.Select(_episodes.GetRequired).ToList();
+            get => _episodes;
         }
 
         public IReadOnlyList<PamelloPlaylist> Playlists {
-            get => Entity.Playlists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+            get => _playlists;
         }
 
         public IReadOnlyList<string> Associacions {
-            get => Entity.Associacions.Select(associacion => associacion.Associacion).ToList();
+            get => _associacions;
         }
 
         public IEnumerable<int> FavoriteByIds {
-            get => Entity.FavoritedBy.Select(databaseUser => databaseUser.Id);
+            get => _favoritedBy.Select(e => e.Id);
         }
         public IEnumerable<int> EpisodesIds {
+            get => _favoritedBy.Select(e => e.Id);
+            /*
             get {
                 var list = Entity.Episodes.ToList();
                 list.Sort((a, b) => {
@@ -108,27 +125,45 @@ namespace PamelloV7.Server.Model
                 });
                 return list.Select(databaseEpisode => databaseEpisode.Id);
             }
+            */
         }
         public IEnumerable<int> PlaylistsIds {
-            get => Entity.Playlists.Select(databasePlaylist => databasePlaylist.Id);
+            get => _playlists.Select(e => e.Id);
         }
 
         public PamelloSong(IServiceProvider services,
             DatabaseSong databaseSong
         ) : base(databaseSong, services) {
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
+
+            _name = databaseSong.Name;
+            _youtubeId = databaseSong.YoutubeId;
+            _coverUrl = databaseSong.CoverUrl;
+            _playCount = databaseSong.PlayCount;
+            _addedAt = databaseSong.AddedAt;
+        }
+
+        protected override void InitSet() {
+            if (DatabaseEntity is null) return;
+
+            _addedBy = _users.GetRequired(DatabaseEntity.AddedBy.Id);
+
+            _favoritedBy = DatabaseEntity.FavoritedBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
+            _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
+            _playlists = DatabaseEntity.FavoritedBy.Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
+            _associacions = DatabaseEntity.Associacions.Where(e => e.Song.Id == Id).Select(e => e.Associacion).ToList();
         }
 
         public void AddAssociacion(string associacion) {
             if (DatabaseAssociacion.Reserved.Contains(associacion)) {
-                throw new PamelloException($"Associacion \"{associacion}\" is reserved");
+                throw new PamelloException($"Associacion \"{associacion}\" is reserved and cannot be assigned to a song");
             }
 
             var db = GetDatabase();
 
             var databaseAssociacion = db.Associacions.Find(associacion);
             if (databaseAssociacion is not null) {
-                if (databaseAssociacion.Song.Id == Entity.Id)
+                if (databaseAssociacion.Song.Id == Id)
                     throw new PamelloException($"Associacion \"{associacion}\" already exist this song");
 
                 throw new PamelloException($"Associacion \"{associacion}\" already exist for another song");
@@ -136,29 +171,35 @@ namespace PamelloV7.Server.Model
 
             databaseAssociacion = new DatabaseAssociacion() {
                 Associacion = associacion,
-                Song = Entity
+                Song = db.Songs.Find(Id)
             };
 
             db.Associacions.Add(databaseAssociacion);
             db.SaveChanges();
 
+            _associacions.Add(associacion);
+
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
                 Associacions = Associacions
             });
         }
 
-        public void RemoveAssociacion(string associacion, bool removeGlobaly = false) {
+        public void RemoveAssociacion(string associacion) {
             var db = GetDatabase();
+
+            if (!_associacions.Contains(associacion)) {
+                throw new PamelloException("This song doesnt contain that associacion");
+            }
 
             var databaseAssociacion = db.Associacions.Find(associacion);
 
-            if (databaseAssociacion is null || (!removeGlobaly && databaseAssociacion.Song.Id != Entity.Id)) {
-                throw new PamelloException("This song doesnt contain");
+            if (databaseAssociacion is not null) {
+                db.Associacions.Remove(databaseAssociacion);
+                db.SaveChanges();
             }
 
-            db.Associacions.Remove(databaseAssociacion);
-            db.SaveChanges();
+            _associacions.Remove(associacion);
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
@@ -166,15 +207,116 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public PamelloEpisode AddEpisode(AudioTime start, string name) {
-            var episode = _episodes.Create(this, start, name, false);
+        public PamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip) {
+            var db = GetDatabase();
+
+            var dbSong = db.Songs.Find(Id);
+            if (dbSong is null) throw new PamelloException("Song doesnt exist in the database for some reason, cant add episode");
+
+            var databaseEpisode = new DatabaseEpisode() {
+                Name = name,
+                Start = start.TotalSeconds,
+                Skip = autoSkip,
+                Song = dbSong,
+            };
+
+            db.Episodes.Add(databaseEpisode);
+            db.SaveChanges();
+
+            var episode = base._episodes.Load(databaseEpisode);
+            episode.Init();
+
+            _episodes.Add(episode);
+
+            _events.Broadcast(new EpisodeCreated() { 
+                EpisodeId = databaseEpisode.Id,
+            });
+            _events.Broadcast(new SongEpisodesIdsUpdated() { 
+                SongId = Id,
+                EpisodesIds = EpisodesIds,
+            });
+
             return episode;
         }
-        public void RemoveEpisode(int position) {
+        public void RemoveEpisodeAt(int position) {
             var episode = Episodes.ElementAtOrDefault(position);
             if (episode is null) throw new PamelloException($"Episode in position {position} was not found");
 
-            _episodes.Delete(episode.Id);
+            RemoveEpisode(episode);
+        }
+        public void RemoveEpisode(PamelloEpisode episode) {
+            if (!_episodes.Remove(episode)) return;
+
+            base._episodes.Delete(episode);
+
+            _events.Broadcast(new SongEpisodesIdsUpdated() {
+                SongId = Id,
+                EpisodesIds = EpisodesIds,
+            });
+        }
+        public void RemoveAllEpisodes() {
+            var oldEpisodes = _episodes;
+
+            _episodes.Clear();
+
+            foreach (var episode in oldEpisodes) {
+                base._episodes.Delete(episode);
+            }
+
+            _events.Broadcast(new SongEpisodesIdsUpdated() { 
+                SongId = Id,
+                EpisodesIds = EpisodesIds,
+            });
+        }
+
+        public void MakeFavorited(PamelloUser user) {
+            if (_favoritedBy.Contains(user)) return;
+
+            _favoritedBy.Add(user);
+            Save();
+
+            user.AddFavoriteSong(this);
+            _events.Broadcast(new SongFavoriteByIdsUpdated() {
+                SongId = Id,
+                FavoriteByIds = FavoriteByIds
+            });
+        }
+        public void UnmakeFavorited(PamelloUser user) {
+            if (!_favoritedBy.Contains(user)) return;
+
+            _favoritedBy.Remove(user);
+            Save();
+
+            user.RemoveFavoriteSong(this);
+            _events.Broadcast(new SongFavoriteByIdsUpdated() {
+                SongId = Id,
+                FavoriteByIds = FavoriteByIds
+            });
+        }
+
+        public void AddToPlaylist(PamelloPlaylist playlist) {
+            if (_playlists.Contains(playlist)) return;
+
+            _playlists.Add(playlist);
+            Save();
+
+            playlist.AddSong(this);
+            _events.Broadcast(new SongPlaylistsIdsUpdated() {
+                SongId = Id,
+                PlaylistsIds = PlaylistsIds,
+            });
+        }
+        public void RemoveFromPlaylist(PamelloPlaylist playlist) {
+            if (_playlists.Contains(playlist)) return;
+
+            _playlists.Remove(playlist);
+            Save();
+
+            playlist.RemoveSong(this);
+            _events.Broadcast(new SongPlaylistsIdsUpdated() {
+                SongId = Id,
+                PlaylistsIds = PlaylistsIds,
+            });
         }
 
         public override IPamelloDTO GetDTO() {
@@ -184,7 +326,7 @@ namespace PamelloV7.Server.Model
                 YoutubeId = YoutubeId,
                 CoverUrl = CoverUrl,
                 PlayCount = PlayCount,
-                AddedById = Entity.AddedBy.Id,
+                AddedById = AddedBy.Id,
                 AddedAt = AddedAt,
 
                 Associacions = Associacions,
@@ -195,6 +337,73 @@ namespace PamelloV7.Server.Model
                 IsDownloading = _downloader.IsDownloading(this),
                 DownloadProgress = _downloader.GetProgress(this),
             };
+        }
+
+        public override DatabaseSong GetDatabaseEntity(DatabaseContext? db = null) {
+            db ??= GetDatabase();
+
+            var dbSong = db.Songs
+                .Where(databaseSong => databaseSong.Id == Id)
+                .Include(databaseSong => databaseSong.AddedBy)
+                .Include(databaseSong => databaseSong.Playlists)
+                .Include(databaseSong => databaseSong.FavoritedBy)
+                .Include(databaseSong => databaseSong.Episodes)
+                .Include(databaseSong => databaseSong.Associacions)
+                .AsSplitQuery()
+                .FirstOrDefault();
+            if (dbSong is null) throw new PamelloDatabaseSaveException();
+
+            dbSong.Name = Name;
+            dbSong.YoutubeId = YoutubeId;
+            dbSong.CoverUrl = CoverUrl;
+            dbSong.PlayCount = PlayCount;
+            dbSong.AddedAt = AddedAt;
+
+            var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
+            var dbFavoriteByIds = dbSong.FavoritedBy.Select(user => user.Id);
+            var dbEpisodesIds = dbSong.Episodes.Select(episode => episode.Id);
+            var dbAssociacionsValues = dbSong.Associacions.Select(associacion => associacion.Associacion);
+
+            var playlistsDifference = DifferenceResult<int>.From(
+                dbPlaylistsIds, 
+                PlaylistsIds,
+                true
+            );
+            var favoriteByDifference = DifferenceResult<int>.From(
+                dbFavoriteByIds, 
+                FavoriteByIds,
+                true
+            );
+            var episodesDifference = DifferenceResult<int>.From(
+                dbEpisodesIds, 
+                EpisodesIds,
+                true
+            );
+            var associacionsDifference = DifferenceResult<string>.From(
+                dbAssociacionsValues, 
+                Associacions,
+                true
+            );
+
+            playlistsDifference.ExcludeMoved();
+            favoriteByDifference.ExcludeMoved();
+            episodesDifference.ExcludeMoved();
+            associacionsDifference.ExcludeMoved();
+
+            playlistsDifference.Apply(dbSong.Playlists, (id) => {
+                return db.Playlists.Find(id)!;
+            });
+            favoriteByDifference.Apply(dbSong.FavoritedBy, (id) => {
+                return db.Users.Find(id)!;
+            });
+            episodesDifference.Apply(dbSong.Episodes, (id) => {
+                return db.Episodes.Find(id)!;
+            });
+            associacionsDifference.Apply(dbSong.Associacions, (id) => {
+                return db.Associacions.Find(id)!;
+            });
+
+            return dbSong;
         }
 
         public override DiscordString ToDiscordString() {

@@ -22,55 +22,32 @@ namespace PamelloV7.Server.Repositories
             base.InitServices();
         }
         public PamelloEpisode Create(PamelloSong song, AudioTime start, string name, bool skip) {
-            var db = GetDatabase();
-
-            var databaseEpisode = new DatabaseEpisode() {
-                Name = name,
-                Start = start.TotalSeconds,
-                Skip = false,
-                Song = song.Entity
-            };
-
-            db.Episodes.Add(databaseEpisode);
-            db.SaveChangesAsync();
-
-            _events.Broadcast(new EpisodeCreated() { 
-                EpisodeId = databaseEpisode.Id,
-            });
-            _events.Broadcast(new SongEpisodesIdsUpdated() { 
-                SongId = song.Id,
-                EpisodesIds = song.EpisodesIds,
-            });
-
-            return Load(databaseEpisode);
+            return song.AddEpisode(start, name, skip);
         }
 
-        public override void Delete(int id) {
-            var episode = GetRequired(id);
-
-            _loaded.Remove(episode);
+        public override void Delete(PamelloEpisode episode) {
+            if (!_loaded.Remove(episode)) return;
 
             var db = GetDatabase();
 
-            db.Episodes.Remove(episode.Entity);
-            db.SaveChanges();
+            var dbEpisode = db.Episodes.Find(episode.Id);
+            
+            if (dbEpisode is not null) {
+                db.Episodes.Remove(dbEpisode);
+                db.SaveChanges();
+
+                var song = _songs.Get(dbEpisode.Song.Id);
+                if (song is not null) {
+                    song.RemoveEpisode(episode);
+                }
+            }
 
             _events.Broadcast(new EpisodeDeleted() { 
                  EpisodeId = episode.Id,
             });
-            _events.Broadcast(new SongEpisodesIdsUpdated() { 
-                SongId = episode.Song.Id,
-                EpisodesIds = episode.Song.EpisodesIds,
-            });
         }
         public void DeleteAllFrom(PamelloSong song) {
-            var db = GetDatabase();
-
-            var deletionList = db.Episodes.Where(databaseEpisode => databaseEpisode.Song.Id == song.Id);
-
-            foreach (var deletion in deletionList) {
-                Delete(deletion.Id);
-            }
+            song.RemoveAllEpisodes();
         }
         public override PamelloEpisode Load(DatabaseEpisode databaseEpisode) {
             var pamelloEpisode = _loaded.FirstOrDefault(episode => episode.Id == databaseEpisode.Id);
@@ -82,7 +59,10 @@ namespace PamelloV7.Server.Repositories
             return pamelloEpisode;
         }
         public override List<DatabaseEpisode> ProvideEntities() {
-            return GetDatabase().Episodes.AsNoTracking().ToList();
+            return GetDatabase().Episodes
+                .AsNoTracking()
+                .Include(episode => episode.Song)
+                .ToList();
         }
 
         public override async Task<PamelloEpisode?> GetByValue(string value, PamelloUser? scopeUser) {

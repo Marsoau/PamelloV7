@@ -129,17 +129,17 @@ namespace PamelloV7.Server.Model.Audio
             foreach (var episode in Song.Episodes) {
 				if (
 					(excludeCurrent) ?
-					(episode.Start > Position.TotalSeconds) :
-					(episode.Start >= Position.TotalSeconds)
+					(episode.Start.TotalSeconds > Position.TotalSeconds) :
+					(episode.Start.TotalSeconds >= Position.TotalSeconds)
 				) {
-					if (episode.Skip) {
-                        if (closestBreakPoint is null || episode.Start < closestBreakPoint) {
-                            closestBreakPoint = episode.Start;
+					if (episode.AutoSkip) {
+                        if (closestBreakPoint is null || episode.Start.TotalSeconds < closestBreakPoint) {
+                            closestBreakPoint = episode.Start.TotalSeconds;
                         }
                     }
-					else if (episode.Start > closestBreakPoint) {
-                        if (closestJumpPoint is null || episode.Start < closestJumpPoint) {
-                            closestJumpPoint = episode.Start;
+					else if (episode.Start.TotalSeconds > closestBreakPoint) {
+                        if (closestJumpPoint is null || episode.Start.TotalSeconds < closestJumpPoint) {
+                            closestJumpPoint = episode.Start.TotalSeconds;
                         }
                     }
 				}
@@ -191,14 +191,20 @@ namespace PamelloV7.Server.Model.Audio
                 return;
             }
 
-            await RewindTo(new AudioTime(episode.Start), forceEpisodePlayback);
+            await RewindTo(episode.Start, forceEpisodePlayback);
         }
 
         public int? GetCurrentEpisodePosition() {
             int? closestLeft = null;
 
             for (int i = 0; i < Song.Episodes.Count; i++) {
-                if (Song.Episodes[i].Start <= Position.TotalSeconds && Song.Episodes[i].Start > (closestLeft is not null ? Song.Episodes[closestLeft.Value].Start : int.MinValue)) {
+                if (Song.Episodes[i].Start.TotalSeconds <= Position.TotalSeconds &&
+                    Song.Episodes[i].Start.TotalSeconds > 
+                    (closestLeft is not null ?
+                        Song.Episodes[closestLeft.Value].Start.TotalSeconds :
+                        int.MinValue
+                    )
+                ) {
                     closestLeft = i;
                 }
             }

@@ -3,6 +3,7 @@ using PamelloV7.Client.Model;
 using PamelloV7.Client.Pages;
 using PamelloV7.Client.Services;
 using PamelloV7.Client.Windows;
+using PamelloV7.Core;
 using PamelloV7.Core.Events;
 using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Services;
@@ -55,6 +56,37 @@ namespace PamelloV7.Client
             mainWindow.Show();
 
             mainWindow.SwitchPage<ConnectionPage>();
+            return;
+            List<int> before = [1, 2, 3, 4, 5];
+            List<int> after = [3, 1, 5, 4, 2, 7];
+
+            var difference = DifferenceResult<int>.From(before, after, true);
+
+            difference.ExcludeMoved();
+
+            Console.WriteLine("added:");
+            foreach (var item in difference.Added) {
+                Console.WriteLine($"| {item.Value} at {item.Key}");
+            }
+            Console.WriteLine("moved:");
+            foreach (var item in difference.Moved) {
+                Console.WriteLine($"| from {item.Key} to {item.Value}");
+            }
+            Console.WriteLine("changed:");
+            foreach (var item in difference.Changed) {
+                Console.WriteLine($"| {item.Value} at {item.Key}");
+            }
+            Console.WriteLine("deleted:");
+            foreach (var item in difference.Deleted) {
+                Console.WriteLine($"| {item.Value} at {item.Key}");
+            }
+
+            difference.Apply(before, value => value);
+
+            Console.WriteLine("after applied:");
+            foreach (var item in before) {
+                Console.WriteLine($"| {item}");
+            }
         }
     }
 }

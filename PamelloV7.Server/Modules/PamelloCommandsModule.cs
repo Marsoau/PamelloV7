@@ -296,11 +296,11 @@ namespace PamelloV7.Server.Modules
 
         [PamelloCommand]
         public async Task<int> SongEpisodesAdd(PamelloSong song, int episodeStart, string episodeName) {
-            return song.AddEpisode(new AudioTime(episodeStart), episodeName).Id;
+            return song.AddEpisode(new AudioTime(episodeStart), episodeName, false).Id;
         }
         [PamelloCommand]
         public async Task SongEpisodesRemove(PamelloSong song, int episodePosition) {
-            song.RemoveEpisode(episodePosition);
+            song.RemoveEpisodeAt(episodePosition);
         }
         [PamelloCommand]
         public async Task SongEpisodesRename(PamelloSong song, int episodePosition, string newName) {
@@ -314,14 +314,14 @@ namespace PamelloV7.Server.Modules
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
-            episode.Skip = newState;
+            episode.AutoSkip = newState;
         }
         [PamelloCommand]
         public async Task SongEpisodesEditTime(PamelloSong song, int episodePosition, int newTime) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
-            episode.Start = newTime;
+            episode.Start = new AudioTime(newTime);
         }
         [PamelloCommand]
         public async Task SongEpisodesClear(PamelloSong song) {
@@ -368,7 +368,7 @@ namespace PamelloV7.Server.Modules
         }
         [PamelloCommand]
         public async Task PlaylistDelete(PamelloPlaylist playlist) {
-            _playlists.Delete(playlist.Id);
+            _playlists.Delete(playlist);
         }
 
         //speakers

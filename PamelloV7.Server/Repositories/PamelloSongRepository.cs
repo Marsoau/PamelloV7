@@ -42,7 +42,10 @@ namespace PamelloV7.Server.Repositories
         public PamelloSong? GetByAssociacion(string ascn) {
             var db = GetDatabase();
 
-            var databaseAssociacion = db.Associacions.Find(ascn);
+            var databaseAssociacion = db.Associacions
+                .Where(dbAssociacion => dbAssociacion.Associacion == ascn)
+                .Include(dbAssociacion => dbAssociacion.Song)
+                .FirstOrDefault();
             if (databaseAssociacion is null) return null;
 
             return Get(databaseAssociacion.Song.Id);
@@ -145,7 +148,7 @@ namespace PamelloV7.Server.Repositories
             return pamelloSong;
 		}
 
-        public override void Delete(int id) => throw new NotImplementedException();
+        public override void Delete(PamelloSong song) => throw new NotImplementedException();
 
         public async Task<IEnumerable<PamelloSong>> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null, PamelloUser scopeUser = null) {
             IEnumerable<PamelloSong> list = _loaded;
@@ -172,6 +175,7 @@ namespace PamelloV7.Server.Repositories
         public override List<DatabaseSong> ProvideEntities() {
             return GetDatabase().Songs
                 .AsNoTracking()
+                .Include(song => song.AddedBy)
                 .Include(song => song.Episodes)
                 .Include(song => song.Playlists)
                 .Include(song => song.FavoritedBy)

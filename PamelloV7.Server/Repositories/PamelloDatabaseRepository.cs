@@ -18,6 +18,10 @@ namespace PamelloV7.Server.Repositories
         public event Action<int, int>? OnLoadingProgress;
         public event Action? OnLoaded;
 
+        public event Action? BeforeInit;
+        public event Action<int, int>? OnInitProgress;
+        public event Action? OnInit;
+
         protected PamelloEventsService _events { get; private set; }
 
         protected readonly List<TPamelloEntity> _loaded;
@@ -51,15 +55,12 @@ namespace PamelloV7.Server.Repositories
         public TPamelloEntity GetRequired(int id)
 			=> Get(id) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with id {id}");
         public virtual TPamelloEntity? Get(int id) {
-            Console.WriteLine($"Loaded for {typeof(TPamelloEntity)}: {_loaded.Count}");
-            var db = GetEntities();
-
             var pamelloEntity = _loaded.FirstOrDefault(e => e.Id == id);
             if (pamelloEntity is not null) return pamelloEntity;
 
-            Console.WriteLine("No entity");
+            var entities = GetEntities();
 
-            var databaseEntity = db.Find(e => e.Id == id);
+            var databaseEntity = entities.Find(e => e.Id == id);
             if (databaseEntity is null) return null;
 
             return Load(databaseEntity);
@@ -102,9 +103,26 @@ namespace PamelloV7.Server.Repositories
 
             OnLoaded?.Invoke();
         }
+        public Task LoadAllAsync() {
+            return Task.Run(LoadAll);
+        }
+
+        public void InitAll() {
+            BeforeInit?.Invoke();
+
+            var count = 0;
+            var total = _loaded.Count;
+
+            foreach (var entity in _loaded) {
+                entity.Init();
+                OnInitProgress?.Invoke(++count, total);
+            }
+
+            OnInit?.Invoke();
+        }
 
         public abstract TPamelloEntity? Load(TDatabaseEntity databaseEntity);
 
-        public abstract void Delete(int id);
+        public abstract void Delete(TPamelloEntity entity);
     }
 }

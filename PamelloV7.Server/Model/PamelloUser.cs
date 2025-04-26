@@ -7,6 +7,9 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
+using PamelloV7.DAL;
+using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core;
 
 namespace PamelloV7.Server.Model
 {
@@ -19,26 +22,28 @@ namespace PamelloV7.Server.Model
         public readonly SocketUser? DiscordUser;
         public readonly PamelloCommandsModule Commands;
 
-        public override int Id {
-            get => Entity.Id;
-        }
+        private ulong _discordId;
+        private Guid _token;
+        private DateTime _joinedAt;
+        private int _songsPlayed;
+        private bool _isAdministrator;
+
         public ulong DiscordId {
-            get => Entity.DiscordId;
+            get => _discordId;
         }
         public Guid Token {
-            get => Entity.Token;
+            get => _token;
         }
         public DateTime JoinedAt {
-            get => Entity.JoinedAt;
+            get => _joinedAt;
         }
 
         public int SongsPlayed {
-            get => Entity.SongsPlayed;
+            get => _songsPlayed;
             private set  {
-                if (Entity.SongsPlayed == value) return;
+                if (_songsPlayed == value) return;
 
-                Entity.SongsPlayed = value;
-
+                _songsPlayed = value;
                 Save();
 
                 _events.Broadcast(new UserSongsPlayedUpdated() {
@@ -54,11 +59,11 @@ namespace PamelloV7.Server.Model
         }
 
         public bool IsAdministrator {
-            get => Entity.IsAdministrator;
+            get => _isAdministrator;
             set {
-                if (Entity.IsAdministrator == value) return;
+                if (_isAdministrator == value) return;
 
-                Entity.IsAdministrator = value;
+                _isAdministrator = value;
                 Save();
 
                 _events.Broadcast(new UserIsAdministratorUpdated() {
@@ -68,30 +73,35 @@ namespace PamelloV7.Server.Model
             }
         }
 
+        public List<PamelloSong> _addedSongs;
+        public List<PamelloPlaylist> _addedPlaylists;
+        public List<PamelloSong> _favoriteSongs;
+        public List<PamelloPlaylist> _favoritePlaylists;
+
         public IReadOnlyList<PamelloSong> AddedSongs {
-            get => Entity.AddedSongs.Select(song => _songs.GetRequired(song.Id)).ToList();
+            get => _addedSongs;
         }
         public IReadOnlyList<PamelloPlaylist> AddedPlaylists {
-            get => Entity.OwnedPlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+            get => _addedPlaylists;
         }
         public IReadOnlyList<PamelloSong> FavoriteSongs {
-            get => Entity.FavoriteSongs.Select(song => _songs.GetRequired(song.Id)).ToList();
+            get => _favoriteSongs;
         }
         public IReadOnlyList<PamelloPlaylist> FavoritePlaylists {
-            get => Entity.FavoritePlaylists.Select(playlist => _playlists.GetRequired(playlist.Id)).ToList();
+            get => _favoritePlaylists;
         }
 
         public IEnumerable<int> AddedSongsIds {
-            get => Entity.AddedSongs.Select(databaseSong => databaseSong.Id);
+            get => _addedSongs.Select(entity => entity.Id);
         }
         public IEnumerable<int> AddedPlaylistsIds {
-            get => Entity.OwnedPlaylists.Select(databasePlaylist => databasePlaylist.Id);
+            get => _addedPlaylists.Select(entity => entity.Id);
         }
         public IEnumerable<int> FavoriteSongsIds {
-            get => Entity.FavoriteSongs.Select(databaseSong => databaseSong.Id);
+            get => _favoriteSongs.Select(entity => entity.Id);
         }
         public IEnumerable<int> FavoritePlaylistsIds {
-            get => Entity.FavoritePlaylists.Select(databasePlaylist => databasePlaylist.Id);
+            get => _favoritePlaylists.Select(entity => entity.Id);
         }
 
         private PamelloPlayer? _previousPlayer;
@@ -127,6 +137,21 @@ namespace PamelloV7.Server.Model
             _clients = services.GetRequiredService<DiscordClientService>();
             _speakers = services.GetRequiredService<PamelloSpeakerService>();
             _players = services.GetRequiredService<PamelloPlayerRepository>();
+
+            _token = databaseUser.Token;
+            _discordId = databaseUser.DiscordId;
+            _joinedAt = databaseUser.JoinedAt;
+            _songsPlayed = databaseUser.SongsPlayed;
+            _isAdministrator = databaseUser.IsAdministrator;
+        }
+
+        protected override void InitSet() {
+            if (DatabaseEntity is null) return;
+
+            _addedSongs = DatabaseEntity.AddedSongs.Select(e => _songs.GetRequired(e.Id)).ToList();
+            _addedPlaylists = DatabaseEntity.OwnedPlaylists.Select(e => _playlists.GetRequired(e.Id)).ToList();
+            _favoriteSongs = DatabaseEntity.FavoriteSongs.Select(e => _songs.GetRequired(e.Id)).ToList();
+            _favoritePlaylists = DatabaseEntity.FavoritePlaylists.Select(e => _playlists.GetRequired(e.Id)).ToList();
         }
 
         public void TryLoadLastPlayer() {
@@ -160,61 +185,49 @@ namespace PamelloV7.Server.Model
         }
 
         public void AddFavoriteSong(PamelloSong song) {
-            if (Entity.FavoriteSongs.Any(databaseSong => databaseSong.Id == song.Id))
-                throw new Exception("this song is already favorite");
+            if (_favoriteSongs.Contains(song)) return;
 
-            Entity.FavoriteSongs.Add(song.Entity);
+            _favoriteSongs.Add(song);
             Save();
 
+            song.MakeFavorited(this);
             _events.Broadcast(new UserFavoriteSongsUpdated() {
                 UserId = Id,
                 FavoriteSongsIds = FavoriteSongsIds,
-            });
-            _events.Broadcast(new SongFavoriteByIdsUpdated() {
-                SongId = song.Id,
-                FavoriteByIds = song.FavoriteByIds
             });
         }
         public void RemoveFavoriteSong(PamelloSong song) {
-            if (!Entity.FavoriteSongs.Any(databaseSong => databaseSong.Id == song.Id))
-                throw new Exception("this song is not favorite");
+            if (!_favoriteSongs.Contains(song)) return;
 
-            Entity.FavoriteSongs.Remove(song.Entity);
+            _favoriteSongs.Remove(song);
             Save();
 
+            song.UnmakeFavorited(this);
             _events.Broadcast(new UserFavoriteSongsUpdated() {
                 UserId = Id,
                 FavoriteSongsIds = FavoriteSongsIds,
-            });
-            _events.Broadcast(new SongFavoriteByIdsUpdated() {
-                SongId = song.Id,
-                FavoriteByIds = song.FavoriteByIds
             });
         }
 
         public void AddFavoritePlaylist(PamelloPlaylist playlist) {
-            if (Entity.FavoritePlaylists.Any(databasePlaylist => databasePlaylist.Id == playlist.Id))
-                throw new PamelloException("this playlist is already favorite");
+            if (_favoritePlaylists.Contains(playlist)) return;
 
-            Entity.FavoritePlaylists.Add(playlist.Entity);
+            _favoritePlaylists.Add(playlist);
             Save();
 
+            playlist.MakeFavorited(this);
             _events.Broadcast(new UserFavoritePlaylistsUpdated() {
                 UserId = Id,
                 FavoritePlaylistsIds = FavoritePlaylistsIds,
             });
-            _events.Broadcast(new PlaylistFavoriteByIdsUpdated() {
-                PlaylistId = playlist.Id,
-                FavoriteByIds = playlist.FavoriteByIds
-            });
         }
         public void RemoveFavoritePlaylist(PamelloPlaylist playlist) {
-            if (!Entity.FavoritePlaylists.Any(databasePlaylist => databasePlaylist.Id == playlist.Id))
-                throw new PamelloException("this playlist is not favorite");
+            if (!_favoritePlaylists.Contains(playlist)) return;
 
-            Entity.FavoritePlaylists.Remove(playlist.Entity);
+            _favoritePlaylists.Remove(playlist);
             Save();
 
+            playlist.UnmakeFavorited(this);
             _events.Broadcast(new UserFavoritePlaylistsUpdated() {
                 UserId = Id,
                 FavoritePlaylistsIds = FavoritePlaylistsIds,
@@ -226,7 +239,38 @@ namespace PamelloV7.Server.Model
         }
 
         public PamelloPlaylist CreatePlaylist(string name) {
-            return _playlists.Create(name, this);
+            if (name.Length == 0) throw new PamelloException("Playlist name cant be empty");
+
+            var db = GetDatabase();
+
+            var dbUser = db.Users.Find(Id);
+            if (dbUser is null) throw new PamelloException("User doesnt exist in the database for some reason, cant add playlist");
+
+            var databasePlaylist = new DatabasePlaylist() {
+                Name = name,
+                Songs = [],
+                Owner = dbUser,
+                IsProtected = false,
+                FavoritedBy = [],
+            };
+
+            db.Playlists.Add(databasePlaylist);
+            db.SaveChanges();
+
+            var playlist = _playlists.Load(databasePlaylist);
+            playlist.Init();
+
+            _addedPlaylists.Add(playlist);
+
+            _events.Broadcast(new PlaylistCreated() {
+                PlaylistId = Id,
+            });
+            _events.Broadcast(new UserAddedPlaylistsUpdated() {
+                UserId = Id,
+                AddedPlaylistsIds = AddedPlaylistsIds
+            });
+
+            return playlist;
         }
 
         public override IPamelloDTO GetDTO() {
@@ -245,6 +289,69 @@ namespace PamelloV7.Server.Model
 
                 IsAdministrator = IsAdministrator,
             };
+        }
+
+        public override DatabaseUser GetDatabaseEntity(DatabaseContext? db = null) {
+            db ??= GetDatabase();
+
+            var dbUser = db.Users
+                .Where(databaseUser => databaseUser.Id == Id)
+                .Include(databaseUser => databaseUser.FavoriteSongs)
+                .Include(databaseUser => databaseUser.FavoritePlaylists)
+                .Include(databaseUser => databaseUser.AddedSongs)
+                .Include(databaseUser => databaseUser.OwnedPlaylists)
+                .AsSplitQuery()
+                .FirstOrDefault();
+            if (dbUser is null) throw new PamelloDatabaseSaveException();
+
+            dbUser.SongsPlayed = SongsPlayed;
+            dbUser.IsAdministrator = IsAdministrator;
+
+            var dbAddedSongsIds = dbUser.AddedSongs.Select(song => song.Id);
+            var dbAddedPlaylistsIds = dbUser.OwnedPlaylists.Select(song => song.Id);
+            var dbFavoriteSongsIds = dbUser.FavoriteSongs.Select(song => song.Id);
+            var dbFavoritePlaylistsIds = dbUser.FavoritePlaylists.Select(song => song.Id);
+
+            var addedSongsDifference = DifferenceResult<int>.From(
+                dbAddedSongsIds, 
+                AddedSongsIds,
+                true
+            );
+            var addedPlaylistsDifference = DifferenceResult<int>.From(
+                dbAddedPlaylistsIds, 
+                AddedPlaylistsIds,
+                true
+            );
+            var favoriteSongsDifference = DifferenceResult<int>.From(
+                dbFavoriteSongsIds, 
+                FavoriteSongsIds,
+                true
+            );
+            var favoritePlaylistsDifference = DifferenceResult<int>.From(
+                dbFavoritePlaylistsIds, 
+                FavoritePlaylistsIds,
+                true
+            );
+
+            addedSongsDifference.ExcludeMoved();
+            addedPlaylistsDifference.ExcludeMoved();
+            favoriteSongsDifference.ExcludeMoved();
+            favoritePlaylistsDifference.ExcludeMoved();
+
+            addedSongsDifference.Apply(dbUser.AddedSongs, (songId) => {
+                return db.Songs.Find(songId)!;
+            });
+            addedPlaylistsDifference.Apply(dbUser.OwnedPlaylists, (playlistId) => {
+                return db.Playlists.Find(playlistId)!;
+            });
+            favoriteSongsDifference.Apply(dbUser.FavoriteSongs, (songId) => {
+                return db.Songs.Find(songId)!;
+            });
+            favoritePlaylistsDifference.Apply(dbUser.FavoritePlaylists, (playlistId) => {
+                return db.Playlists.Find(playlistId)!;
+            });
+
+            return dbUser;
         }
     }
 }
