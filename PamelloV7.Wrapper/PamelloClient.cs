@@ -19,6 +19,8 @@ namespace PamelloV7.Wrapper
         public readonly RemoteEpisodeRepository Episodes;
         public readonly RemotePlaylistRepository Playlists;
 
+        public event Action<string?>? OnLog;
+
         public string? ServerHost;
 
         public PamelloClient() {
@@ -57,6 +59,10 @@ namespace PamelloV7.Wrapper
             var result = JsonSerializer.Deserialize<T>(responce.Content.ReadAsStream());
 
             return result;
+        }
+
+        internal void Log(object obj) {
+            OnLog?.Invoke(obj.ToString());
         }
 
         internal void Cleanup() {
