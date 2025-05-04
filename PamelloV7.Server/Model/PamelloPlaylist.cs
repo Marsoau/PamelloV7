@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PamelloV7.Core;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Difference;
 
 namespace PamelloV7.Server.Model
 {

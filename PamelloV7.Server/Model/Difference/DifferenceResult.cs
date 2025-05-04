@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PamelloV7.Core
+namespace PamelloV7.Server.Model.Difference
 {
     public class DifferenceResult<TType>
     {
@@ -18,10 +18,10 @@ namespace PamelloV7.Core
         public int Changes { get; private set; }
 
         private DifferenceResult() {
-            Added = new ();
-            Moved = new ();
-            Changed = new ();
-            Deleted = new ();
+            Added = new();
+            Moved = new();
+            Changed = new();
+            Deleted = new();
         }
 
         public static DifferenceResult<TType> From(IEnumerable<TType> ebefore, IEnumerable<TType> eafter, bool withMoved = false, bool withChanged = false) {
@@ -46,7 +46,7 @@ namespace PamelloV7.Core
             var beforeCount = before.Count();
 
             int b, a, b1, a1;
-            bool end = false;
+            var end = false;
             for (b = 0, a = 0; b < beforeCount || a < afterCount;) {
                 if (sameAt(b, a)) {
                     b++;
@@ -59,23 +59,21 @@ namespace PamelloV7.Core
                 b1 = b;
 
                 while (!end) {
-                    for (a1 = a; a1 < afterCount && !sameAt(b1, a1); a1++);
+                    for (a1 = a; a1 < afterCount && !sameAt(b1, a1); a1++) ;
 
                     if (a1 >= afterCount) {
                         b1++;
-                        if (b1 >= beforeCount) {
-                            end = true;
-                        }
+                        if (b1 >= beforeCount) end = true;
                     }
                     else {
                         end = true;
                     }
                 }
 
-                for (int i = b; i < b1 && i < beforeCount; i++) {
+                for (var i = b; i < b1 && i < beforeCount; i++) {
                     result.Deleted.Add(/*fixedPos ? b :*/ i, at(before, i));
                 }
-                for (int i = a; i < a1 && i < afterCount; i++) {
+                for (var i = a; i < a1 && i < afterCount; i++) {
                     result.Added.Add(/*fixedPos ? a :*/ i, at(after, i));
                 }
 
@@ -93,7 +91,7 @@ namespace PamelloV7.Core
 
                 foreach (var kv in result.Deleted.ToList()) {
                     if (addedMap.TryGetValue(kv.Value, out var q) && q.Count > 0) {
-                        int newPos = q.Dequeue();
+                        var newPos = q.Dequeue();
                         result.Moved.Add(kv.Key, newPos);
                         result.Added.Remove(newPos);
                         result.Deleted.Remove(kv.Key);
@@ -125,8 +123,8 @@ namespace PamelloV7.Core
         }
 
         public void Apply<T>(IList<T> target, Func<TType, T> get) {
-            int lastIndex = -1;
-            int offset = 0;
+            var lastIndex = -1;
+            var offset = 0;
 
             var add = (KeyValuePair<int, TType> kvp) => {
                 if (lastIndex != kvp.Key) {
@@ -146,10 +144,10 @@ namespace PamelloV7.Core
                 target.Insert(kvp.Value - (kvp.Key < kvp.Value ? 1 : 0), value);
             };
 
-            for (int i = Deleted.Count - 1; i >= 0; i--) {
+            for (var i = Deleted.Count - 1; i >= 0; i--) {
                 delete(Deleted.ElementAt(i));
             }
-            for (int i = 0; i < Added.Count; i++) {
+            for (var i = 0; i < Added.Count; i++) {
                 add(Added.ElementAt(i));
             }
         }
