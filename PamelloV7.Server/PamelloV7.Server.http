@@ -1,6 +1,1 @@
-@PamelloV7.Server_HostAddress = http://localhost:5149
-
-GET {{PamelloV7.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
+@PamelloV7.Server_HostAddress = http://localhost:51630
