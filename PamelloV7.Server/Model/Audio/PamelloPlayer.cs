@@ -8,7 +8,6 @@ namespace PamelloV7.Server.Model.Audio
 {
     public class PamelloPlayer : IEntity
     {
-        private readonly YoutubeDownloadService _downloader;
         private readonly PamelloSpeakerService _speakers;
         private readonly PamelloEventsService _events;
 
@@ -71,7 +70,6 @@ namespace PamelloV7.Server.Model.Audio
             string name,
             PamelloUser creator
         ) {
-            _downloader = services.GetRequiredService<YoutubeDownloadService>();
             _speakers = services.GetRequiredService<PamelloSpeakerService>();
             _events = services.GetRequiredService<PamelloEventsService>();
 

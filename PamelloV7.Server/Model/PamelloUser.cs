@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Model
 
         public int SongsPlayed {
             get => _songsPlayed;
-            private set  {
+            set {
                 if (_songsPlayed == value) return;
 
                 _songsPlayed = value;
