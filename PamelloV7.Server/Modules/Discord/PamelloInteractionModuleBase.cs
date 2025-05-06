@@ -351,7 +351,11 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             PamelloUser? addedBy = null;
             if (addedByDiscordUser is not null) {
-                addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
+                addedBy = _users.GetByDiscord(addedByDiscordUser.Id, false);
+
+                if (addedBy is null) {
+                    throw new PamelloException($"User {new DiscordString(addedByDiscordUser)}");
+                }
             }
 
             var results = await _songs.Search(querry, addedBy);

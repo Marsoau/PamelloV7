@@ -1,4 +1,6 @@
-﻿namespace PamelloV7.Server.Model.Discord
+﻿using Discord.WebSocket;
+
+namespace PamelloV7.Server.Model.Discord
 {
     public class DiscordString
     {
@@ -15,6 +17,9 @@
         }
         public DiscordString(PamelloUser user) {
             _str = $"<@{user.DiscordId}>";
+        }
+        public DiscordString(SocketUser user) {
+            _str = $"<@{user.Id}>";
         }
 
         public DiscordString Bold() {

@@ -12,13 +12,13 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("create", "Create new playlist")]
         public async Task PlaylistCreateHandler(
             [Summary("name", "Playlist name")] string name,
-            [Summary("fill-with-queue", "Fill new playlist with songs currently in queue")] EBoolState fillWithQueue = EBoolState.Disabled
-        ) => await PlaylistCreate(name, fillWithQueue == EBoolState.Enabled);
+            [Summary("fill-with-queue", "Fill new playlist with songs currently in queue")] EBoolAnswer fillWithQueue = EBoolAnswer.No
+        ) => await PlaylistCreate(name, fillWithQueue == EBoolAnswer.Yes);
 
         [SlashCommand("add-song", "Add song to the playlist")]
         public async Task PlaylistAddSongHandler(
             [Summary("playlist", "Playlist id/name")] string playlistValue,
-            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
         ) => await PlaylistAddSong(playlistValue, songValue);
 
         [SlashCommand("add-playlist", "Add playlist songs to another playlist")]
@@ -30,7 +30,7 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("remove-song", "Show playlist info")]
         public async Task PlaylistRemoveSongHandler(
             [Summary("playlist", "Playlist id/name")] string playlistValue,
-            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
+            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
         ) => await PlaylistRemoveSong(playlistValue, songValue);
 
         [SlashCommand("search", "Search playlists in the database")]
@@ -53,8 +53,8 @@ namespace PamelloV7.Server.Modules.Discord
 
         [SlashCommand("rename", "Rename playlist")]
         public async Task PlaylistRenameHandler(
-            [Summary("playlist", "Playlist id/name")] string playlistValue,
-            [Summary("new-name", "Playlist new name")] string name
+            [Summary("new-name", "Playlist new name")] string name,
+            [Summary("playlist", "Playlist id/name")] string playlistValue
         ) => await PlaylistRename(playlistValue, name);
 
         [Group("favorite", "Commands to interact with playlists")]
