@@ -28,6 +28,9 @@ namespace PamelloV7.Wrapper.Model
 		public bool IsAdministrator {
             get => _dto.IsAdministrator;
         }
+        public DateTime JoinedAt {
+            get => _dto.JoinedAt;
+        }
 
         public IEnumerable<int> AddedSongsIds {
             get => _dto.AddedSongsIds;

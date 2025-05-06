@@ -27,6 +27,9 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("songsPlayed")]
         public int SongsPlayed { get; set; }
 
+        [JsonPropertyName("joinedAt")]
+        public DateTime JoinedAt { get; set; }
+
 
         [JsonPropertyName("addedSongsIds")]
         public IEnumerable<int> AddedSongsIds { get; set; }

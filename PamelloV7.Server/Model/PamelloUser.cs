@@ -281,6 +281,7 @@ namespace PamelloV7.Server.Model
                 AvatarUrl = DiscordUser?.GetAvatarUrl(),
                 SelectedPlayerId = SelectedPlayer?.Id,
                 SongsPlayed = SongsPlayed,
+                JoinedAt = JoinedAt,
 
                 AddedSongsIds = AddedSongsIds,
                 AddedPlaylistsIds = AddedPlaylistsIds,
