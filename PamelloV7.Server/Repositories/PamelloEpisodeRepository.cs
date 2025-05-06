@@ -49,7 +49,7 @@ namespace PamelloV7.Server.Repositories
         public void DeleteAllFrom(PamelloSong song) {
             song.RemoveAllEpisodes();
         }
-        public override PamelloEpisode Load(DatabaseEpisode databaseEpisode) {
+        protected override PamelloEpisode LoadBase(DatabaseEpisode databaseEpisode) {
             var pamelloEpisode = _loaded.FirstOrDefault(episode => episode.Id == databaseEpisode.Id);
             if (pamelloEpisode is not null) return pamelloEpisode;
 

@@ -116,5 +116,16 @@ namespace PamelloV7.Server.Services
 
 			return users;
 		}
+
+		public SocketUser? GetDiscordUser(ulong userId) {
+			SocketUser? user = null;
+
+			foreach (var client in DiscordClients) {
+				user = client.GetUser(userId);
+				if (user is not null) break;
+			}
+
+			return user;
+		}
     }
 }

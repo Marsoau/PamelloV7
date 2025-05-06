@@ -72,7 +72,7 @@ namespace PamelloV7.Server.Model
             _isProtected = databasePlaylist.IsProtected;
         }
 
-        protected override void InitSet() {
+        protected override void InitBase() {
             if (DatabaseEntity is null) return;
 
             _owner = _users.GetRequired(DatabaseEntity.Owner.Id);

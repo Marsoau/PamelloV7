@@ -68,7 +68,7 @@ namespace PamelloV7.Server.Model
             _autoSkip = databaseEpisode.Skip;
         }
 
-        protected override void InitSet() {
+        protected override void InitBase() {
             if (DatabaseEntity is null) return;
 
             _song = _songs.GetRequired(DatabaseEntity.Song.Id);

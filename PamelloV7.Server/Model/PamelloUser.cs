@@ -19,7 +19,7 @@ namespace PamelloV7.Server.Model
         private readonly PamelloSpeakerService _speakers;
         private readonly PamelloPlayerRepository _players;
 
-        public readonly SocketUser? DiscordUser;
+        public SocketUser? DiscordUser { get; private set; }
         public readonly PamelloCommandsModule Commands;
 
         private ulong _discordId;
@@ -128,10 +128,8 @@ namespace PamelloV7.Server.Model
         }
 
         public PamelloUser(IServiceProvider services,
-            DatabaseUser databaseUser,
-            SocketUser? discordUser
+            DatabaseUser databaseUser
         ) : base(databaseUser, services) {
-            DiscordUser = discordUser;
             Commands = new PamelloCommandsModule(services, this);
 
             _clients = services.GetRequiredService<DiscordClientService>();
@@ -145,8 +143,10 @@ namespace PamelloV7.Server.Model
             _isAdministrator = databaseUser.IsAdministrator;
         }
 
-        protected override void InitSet() {
+        protected override void InitBase() {
             if (DatabaseEntity is null) return;
+
+            DiscordUser = _clients.GetDiscordUser(DatabaseEntity.DiscordId);
 
             _addedSongs = DatabaseEntity.AddedSongs.Select(e => _songs.GetRequired(e.Id)).ToList();
             _addedPlaylists = DatabaseEntity.OwnedPlaylists.Select(e => _playlists.GetRequired(e.Id)).ToList();

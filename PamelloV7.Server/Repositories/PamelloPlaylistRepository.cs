@@ -58,7 +58,7 @@ namespace PamelloV7.Server.Repositories
             return await Search(list, querry, scopeUser);
         }
 
-        public override PamelloPlaylist Load(DatabasePlaylist databasePlaylist) {
+        protected override PamelloPlaylist LoadBase(DatabasePlaylist databasePlaylist) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Id == databasePlaylist.Id);
             if (pamelloPlaylist is not null) return pamelloPlaylist;
 

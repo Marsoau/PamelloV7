@@ -43,8 +43,6 @@ namespace PamelloV7.Server.Repositories
             if (_discordClients.IsClientUser(discordId)) return null;
             if (!createIfNotFound) return null;
 
-            var discordUser = _discordClients.MainClient.GetUser(discordId);
-
             databaseUser = new DatabaseUser() {
                 DiscordId = discordId,
                 Token = Guid.NewGuid(),
@@ -62,7 +60,7 @@ namespace PamelloV7.Server.Repositories
             db.Users.Add(databaseUser);
             db.SaveChanges();
 
-            pamelloUser = new PamelloUser(_services, databaseUser, discordUser);
+            pamelloUser = new PamelloUser(_services, databaseUser);
             _loaded.Add(pamelloUser);
 
             //_events.UserCreated(pamelloUser);
@@ -87,17 +85,12 @@ namespace PamelloV7.Server.Repositories
             return Task.FromResult(user);
         }
 
-        public override PamelloUser? Load(DatabaseUser databaseUser) {
+        protected override PamelloUser? LoadBase(DatabaseUser databaseUser) {
             var pamelloUser = _loaded.FirstOrDefault(user => user.Id == databaseUser.Id);
             if (pamelloUser is not null) return pamelloUser;
 
-            var discordUser = _discordClients.MainClient.GetUser(databaseUser.DiscordId);
-            if (discordUser is null) return null;
-
-            pamelloUser = new PamelloUser(_services, databaseUser, discordUser);
+            pamelloUser = new PamelloUser(_services, databaseUser);
             _loaded.Add(pamelloUser);
-
-            //_events.UserLoaded(pamelloUser);
 
             return pamelloUser;
         }

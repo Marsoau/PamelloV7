@@ -143,7 +143,7 @@ namespace PamelloV7.Server.Model
             _addedAt = databaseSong.AddedAt;
         }
 
-        protected override void InitSet() {
+        protected override void InitBase() {
             if (DatabaseEntity is null) return;
 
             _addedBy = _users.GetRequired(DatabaseEntity.AddedBy.Id);

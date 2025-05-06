@@ -97,7 +97,7 @@ namespace PamelloV7.Server.Repositories
             var total = entities.Count;
 
             foreach (var databaseEntity in entities) {
-                Load(databaseEntity);
+                LoadBase(databaseEntity);
                 OnLoadingProgress?.Invoke(++count, total);
             }
 
@@ -120,8 +120,18 @@ namespace PamelloV7.Server.Repositories
 
             OnInit?.Invoke();
         }
+        public Task InitAllAsync() {
+            return Task.Run(InitAll);
+        }
 
-        public abstract TPamelloEntity? Load(TDatabaseEntity databaseEntity);
+        public TPamelloEntity? Load(TDatabaseEntity databaseEntity, bool doInit = true) {
+            var entity = LoadBase(databaseEntity);
+
+            if (doInit) entity?.Init();
+
+            return entity;
+        }
+        protected abstract TPamelloEntity? LoadBase(TDatabaseEntity databaseEntity);
 
         public abstract void Delete(TPamelloEntity entity);
     }

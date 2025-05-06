@@ -52,9 +52,9 @@ namespace PamelloV7.Server.Model
             Console.WriteLine($"task: {DateTime.Now - time}");
         }
 
-        protected abstract void InitSet();
+        protected abstract void InitBase();
         public void Init() {
-            InitSet();
+            InitBase();
             DatabaseEntity = null;
         }
 

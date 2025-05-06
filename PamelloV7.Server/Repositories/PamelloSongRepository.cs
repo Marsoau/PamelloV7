@@ -163,7 +163,7 @@ namespace PamelloV7.Server.Repositories
             return await Search(list, querry, scopeUser);
         }
 
-        public override PamelloSong Load(DatabaseSong databaseSong) {
+        protected override PamelloSong LoadBase(DatabaseSong databaseSong) {
             var pamelloSong = _loaded.FirstOrDefault(song => song.Id == databaseSong.Id);
             if (pamelloSong is not null) return pamelloSong;
 

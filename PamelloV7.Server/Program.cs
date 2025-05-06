@@ -195,15 +195,15 @@ namespace PamelloV7.Server
             playlists.InitServices();
             players.InitServices();
 
-            songs.LoadAll();
-            episodes.LoadAll();
-            playlists.LoadAll();
-            users.LoadAll();
+            await songs.LoadAllAsync();
+            await episodes.LoadAllAsync();
+            await playlists.LoadAllAsync();
+            await users.LoadAllAsync();
 
-            songs.InitAll();
-            episodes.InitAll();
-            playlists.InitAll();
-            users.InitAll();
+            await songs.InitAllAsync();
+            await episodes.InitAllAsync();
+            await playlists.InitAllAsync();
+            await users.InitAllAsync();
         }
 
         private static void DatabaseEntityRepository_OnLoaded() {
