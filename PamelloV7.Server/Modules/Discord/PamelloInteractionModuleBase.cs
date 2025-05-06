@@ -354,7 +354,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 addedBy = _users.GetByDiscord(addedByDiscordUser.Id, false);
 
                 if (addedBy is null) {
-                    throw new PamelloException($"User {new DiscordString(addedByDiscordUser)}");
+                    throw new PamelloException($"User {new DiscordString(addedByDiscordUser)} is not a known pamello user");
                 }
             }
 
