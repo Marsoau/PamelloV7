@@ -120,7 +120,7 @@ namespace PamelloV7.Server.Model.Audio
 						continue;
                     }
                 }
-                if (!_speakers.IsChannelActive(Id)) {
+                if (!_speakers.DoesPlayerHasSpeakers(this)) {
                     State = EPlayerState.AwaitingSpeaker;
 
                     await Task.Delay(250);
@@ -136,7 +136,7 @@ namespace PamelloV7.Server.Model.Audio
                 success = await Queue.Current.NextBytes(audio);
 
                 try {
-                    if (success) await _speakers.BroadcastBytes(Id, audio);
+                    if (success) await _speakers.BroadcastBytes(this, audio);
                     else {
                         Console.WriteLine($"{Queue.Current.Song} ended");
                     

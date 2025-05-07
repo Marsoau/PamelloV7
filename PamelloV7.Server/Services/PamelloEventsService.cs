@@ -1,6 +1,6 @@
 ﻿using PamelloV7.Server.Model;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Server.Model.Events;
+using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;

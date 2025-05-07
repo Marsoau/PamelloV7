@@ -3,17 +3,14 @@ using PamelloV7.Core.Events;
 using System.Text.Json;
 using PamelloV7.Core.Exceptions;
 
-namespace PamelloV7.Server.Model.Events
+namespace PamelloV7.Server.Model.Listeners
 {
-    public class PamelloEventListener
+    public class PamelloEventListener : PamelloListener
     {
-        private readonly HttpResponse _response;
-
         public Guid Token { get; }
         public PamelloUser? User { get; private set; }
 
         public bool IsAuthorized { get => User is not null; }
-        public bool IsClosed { get; private set; }
 
         public readonly Queue<PamelloEvent> _eventsQueue;
 
@@ -21,9 +18,7 @@ namespace PamelloV7.Server.Model.Events
 
         private readonly AutoResetEvent _eventsWait;
 
-        public PamelloEventListener(HttpResponse response) {
-            _response = response;
-
+        public PamelloEventListener(HttpResponse response) : base(response) {
             Token = Guid.NewGuid();
 
             _eventsQueue = new Queue<PamelloEvent>();
@@ -226,7 +221,7 @@ namespace PamelloV7.Server.Model.Events
             }
         }
 
-        public async Task InitializeConnecion() {
+        public override async Task InitializeConnecion() {
             _response.ContentType = "text/event-stream";
             _response.Headers.CacheControl = "no-cache";
             await _response.Body.FlushAsync();
@@ -236,7 +231,7 @@ namespace PamelloV7.Server.Model.Events
             });
         }
 
-        public async Task CloseConnection() {
+        protected override async Task CloseConnectionBase() {
             IsClosed = true;
             try {
                 await _response.CompleteAsync();

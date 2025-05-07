@@ -115,6 +115,9 @@ namespace PamelloV7.Server.Repositories
             var pamelloSong = GetByYoutubeId(youtubeId);
             if (pamelloSong is not null) return pamelloSong;
 
+            var adderUser = db.Users.Find(adder.Id);
+            if (adderUser is null) return null;
+
 			var youtubeInfo = await _youtube.GetVideoInfoAsync(youtubeId);
             if (youtubeInfo is null) return null;
 
@@ -124,7 +127,7 @@ namespace PamelloV7.Server.Repositories
 				YoutubeId = youtubeId,
 				PlayCount = 0,
                 AddedAt = DateTime.UtcNow,
-                AddedBy = db.Users.Find(adder.Id),
+                AddedBy = adderUser,
                 Associacions = [],
 				FavoritedBy = [],
 				Playlists = [],

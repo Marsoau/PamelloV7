@@ -373,18 +373,24 @@ namespace PamelloV7.Server.Modules
 
         //speakers
         [PamelloCommand]
-        public async Task SpeakerConnect() {
+        public async Task SpeakerConnectDiscord() {
             var vc = _discordClients.GetUserVoiceChannel(User);
             if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
 
-            await _speakers.ConnectSpeaker(Player, vc.Guild.Id, vc.Id);
+            await _speakers.ConnectDiscord(Player, vc.Guild.Id, vc.Id);
         }
         [PamelloCommand]
-        public async Task SpeakerDisconnect() {
+        public async Task SpeakerDisconnectDiscord() {
             var vc = _discordClients.GetUserVoiceChannel(User);
             if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
 
-            await _speakers.DisconnectSpeaker(Player, vc.Id);
+            await _speakers.DisconnectDiscord(Player, vc.Id);
+        }
+        [PamelloCommand]
+        public async Task<int> SpeakerConnectInternet(int? channel) {
+            var speaker = await _speakers.ConnectInternet(Player, channel);
+
+            return speaker.Channel;
         }
     }
 }

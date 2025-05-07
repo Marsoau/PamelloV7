@@ -701,13 +701,13 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SpeakerConnect() {
             Context.User.TryLoadLastPlayer();
 
-            await Commands.SpeakerConnect();
+            await Commands.SpeakerConnectDiscord();
 
             await RespondPlayerInfo("Connected");
         }
 
         public async Task SpeakerDisconnect() {
-            await Commands.SpeakerDisconnect();
+            await Commands.SpeakerDisconnectDiscord();
 
             await RespondPlayerInfo("Disconnected");
         }

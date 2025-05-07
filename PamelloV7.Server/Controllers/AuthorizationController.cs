@@ -5,7 +5,7 @@ using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Server.Model.Events;
+using PamelloV7.Server.Model.Listeners;
 
 namespace PamelloV7.Server.Controllers
 {

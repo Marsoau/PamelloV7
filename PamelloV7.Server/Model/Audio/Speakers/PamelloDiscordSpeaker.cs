@@ -2,9 +2,9 @@
 using Discord.WebSocket;
 using PamelloV7.Server.Model.Discord;
 
-namespace PamelloV7.Server.Model.Audio
+namespace PamelloV7.Server.Model.Audio.Speakers
 {
-    public class PamelloSpeaker
+    public class PamelloDiscordSpeaker : PamelloSpeaker
     {
         public readonly DiscordSocketClient Client;
         public readonly SocketGuild Guild;
@@ -14,23 +14,17 @@ namespace PamelloV7.Server.Model.Audio
 
         private AudioOutStream? _audioOutput;
 
-        public int Channel { get; }
-
-        public bool IsActive {
+        public override bool IsActive {
             get => _audioOutput is not null;
         }
 
-        public event Action<PamelloSpeaker>? Terminated;
-
-        public PamelloSpeaker(IServiceProvider services,
+        public PamelloDiscordSpeaker(IServiceProvider services,
             DiscordSocketClient client,
             ulong guildId,
-            int channel
-        ) {
+            PamelloPlayer player
+        ) : base(player) {
             Client = client;
             Guild = client.GetGuild(guildId);
-
-            Channel = channel;
 
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
@@ -40,9 +34,7 @@ namespace PamelloV7.Server.Model.Audio
             if (user.Id != Client.CurrentUser.Id) return;
             Console.WriteLine("> UVSU <");
 
-            if (toVc.VoiceChannel is null) {
-                await Terminate();
-            }
+            if (toVc.VoiceChannel is null) await Terminate();
         }
 
         private async Task Client_VoiceServerUpdated(SocketVoiceServer voiceServer) {
@@ -59,9 +51,9 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         private Task AudioClient_Connected() {
-			Console.WriteLine("creating stream");
+            Console.WriteLine("creating stream");
             _audioOutput = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
-			Console.WriteLine("creted");
+            Console.WriteLine("creted");
             return Task.CompletedTask;
         }
 
@@ -72,23 +64,24 @@ namespace PamelloV7.Server.Model.Audio
             await vc.ConnectAsync();
         }
 
-        public async Task PlayBytesAsync(byte[] audio) {
+        public override async Task PlayBytesAsync(byte[] audio) {
             if (_audioOutput is null) return;
 
             try {
                 await _audioOutput.WriteAsync(audio);
-            } catch {
+            }
+            catch {
                 Console.WriteLine("async x");
 
                 await Terminate();
             }
         }
 
-        public async Task Terminate() {
+        public override async Task Terminate() {
             if (Voice is not null) await Voice.DisconnectAsync();
             _audioOutput = null;
 
-            Terminated?.Invoke(this);
+            InvokeOnTerminated();
         }
 
         public string ToDiscordString() {
