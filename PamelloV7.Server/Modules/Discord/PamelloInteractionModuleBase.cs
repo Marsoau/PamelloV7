@@ -712,6 +712,12 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondPlayerInfo("Disconnected");
         }
 
+        public async Task SpeakerConnectInternet(int? channel) {
+            await _speakers.ConnectInternet(Player, channel);
+            
+            await RespondPlayerInfo("Connected", $"Internet speaker connected to internet channel {channel}");
+        }
+
         public async Task SpeakerList() {
         }
     }

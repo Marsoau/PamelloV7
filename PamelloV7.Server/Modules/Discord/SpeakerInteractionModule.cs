@@ -14,6 +14,12 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
         public async Task SpeakerDisconnectHandler()
             => await SpeakerDisconnect();
+        
+        [SlashCommand("connect-internet", "Connect internet speaker")]
+        public async Task SpeakerConnectInternetHandler(
+            [Summary("channel", "Internet channel id")] int? channel = null
+        ) => await SpeakerConnectInternet(channel);
+        
         public async Task SpeakerListHandler()
             => await SpeakerList();
     }

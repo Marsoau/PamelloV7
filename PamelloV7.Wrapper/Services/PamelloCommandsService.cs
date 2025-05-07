@@ -188,11 +188,17 @@ namespace PamelloV7.Wrapper.Services
         public async Task PlaylistDelete(string playlistValue) {
             await InvokeCommand($"PlaylistDelete?playlist={playlistValue}");
         }
-        public async Task SpeakerConnect() {
+        public async Task SpeakerConnectDiscord() {
             await InvokeCommand($"SpeakerConnect");
         }
-        public async Task SpeakerDisconnect() {
+        public async Task SpeakerDisconnectDiscord() {
             await InvokeCommand($"SpeakerDisconnect");
+        }
+        public async Task<int> SpeakerConnectInternet(int? channel = null) {
+            return await InvokeCommand<int>($"SpeakerConnectInternet?channel={channel}");
+        }
+        public async Task SpeakerDisconnectInternet(int? channel = null) {
+            await InvokeCommand($"SpeakerDisconnectInternet?channel={channel}");
         }
     }
 }
