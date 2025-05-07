@@ -178,6 +178,8 @@ namespace PamelloV7.Server.Model.Audio
                 SubscribeCurrentAudioEvents();
             }
 
+            if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
+
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongIdUpdated() {
                 CurrentSongId = _current?.Song.Id
             });

@@ -88,7 +88,6 @@ namespace PamelloV7.Server.Model.Audio
             _currentChunkPosition = 0;
 
             Song.PlayCount++;
-            Song.AddedBy.SongsPlayed++;
 
             return true;
         }
