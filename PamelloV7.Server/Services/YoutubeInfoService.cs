@@ -101,8 +101,6 @@ namespace PamelloV7.Server.Services
                 throw new PamelloException("Couldnt find requires json object in html");
             }
 
-            File.WriteAllText(@"D:\json\v.json", jsonStr);
-
             return JsonDocument.Parse(jsonStr ?? "{}");
         }
 

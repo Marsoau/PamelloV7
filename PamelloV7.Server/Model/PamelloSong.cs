@@ -110,22 +110,19 @@ namespace PamelloV7.Server.Model
             get => _favoritedBy.Select(e => e.Id);
         }
         public IEnumerable<int> EpisodesIds {
-            get => _favoritedBy.Select(e => e.Id);
-            /*
             get {
-                var list = Entity.Episodes.ToList();
+                var list = new List<PamelloEpisode>(_episodes);
                 list.Sort((a, b) => {
                     if (a == null && b == null) return 0;
                     if (a == null) return -1;
                     if (b == null) return 1;
 
-                    if (a.Start > b.Start) return 1;
-                    if (a.Start < b.Start) return -1;
+                    if (a.Start.TotalSeconds > b.Start.TotalSeconds) return 1;
+                    if (a.Start.TotalSeconds < b.Start.TotalSeconds) return -1;
                     return 0;
                 });
                 return list.Select(databaseEpisode => databaseEpisode.Id);
             }
-            */
         }
         public IEnumerable<int> PlaylistsIds {
             get => _playlists.Select(e => e.Id);
@@ -353,11 +350,15 @@ namespace PamelloV7.Server.Model
                 .FirstOrDefault();
             if (dbSong is null) throw new PamelloDatabaseSaveException();
 
+            var addedBy = db.Users.Find(_addedBy.Id);
+            if (addedBy is null) throw new PamelloDatabaseSaveException();
+
             dbSong.Name = Name;
             dbSong.YoutubeId = YoutubeId;
             dbSong.CoverUrl = CoverUrl;
             dbSong.PlayCount = PlayCount;
             dbSong.AddedAt = AddedAt;
+            dbSong.AddedBy = addedBy;
 
             var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
             var dbFavoriteByIds = dbSong.FavoritedBy.Select(user => user.Id);

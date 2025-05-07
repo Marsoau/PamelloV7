@@ -32,27 +32,6 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                     FileName = "ffmpeg",
                     Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
                         "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    /*
-                    Arguments = "-f s16le -ac 2 -ar 48000 -use_wallclock_as_timestamps 1 -re -i pipe:0 " +
-                        "-af aresample=async=1 " +
-                        "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
-                        "-f lavfi -re -i anullsrc=channel_layout=stereo:sample_rate=48000 " +
-                        "-filter_complex \"[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=0\" " +
-                        "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0" +
-                        "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000" +
-                        "-filter_complex \"[0:a]apad=pad_len=512[a0];[a0][1:a]amix=inputs=2:duration=longest:dropout_transition=0\"" +
-                        "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    Arguments = "-use_wallclock_as_timestamps 1 " +
-                        "-f s16le -ac 2 -ar 48000 -i pipe:0 " +
-                        "-af aresample=async=1 " +
-                        "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    Arguments = "-thread_queue_size 512 -f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
-                        "-thread_queue_size 512 -f lavfi -re -i anullsrc=channel_layout=stereo:sample_rate=48000 " +
-                        "-filter_complex \"[0:a]apad=pad_len=512[a0];[a0][1:a]amix=inputs=2:duration=longest:dropout_transition=0[a]\" " +
-                        "-map \"[a]\" -acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                    */
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
