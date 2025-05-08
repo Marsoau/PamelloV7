@@ -548,12 +548,18 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SongEpisodesList(string songValue, int page)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
+            var currentEpisode = await _episodes.GetByValue("current", Context.User);
 
             await RespondPage(
-                $"Episodes of song [{song.Id}]",
+                $"Episodes of {song.Name} [{song.Id}]",
                 song.Episodes,
                 (sb, pos, episode) => {
-                    sb.AppendLine((DiscordString.Code(pos) + " " + episode.ToDiscordString()).ToString());
+                    if (episode == currentEpisode) {
+                        sb.AppendLine(DiscordString.Bold(DiscordString.Code(pos) + " " + episode.ToDiscordString()).ToString());
+                    }
+                    else {
+                        sb.AppendLine((DiscordString.Code(pos) + " " + episode.ToDiscordString()).ToString());
+                    }
                 },
                 page - 1
             );

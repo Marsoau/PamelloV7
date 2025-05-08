@@ -10,7 +10,7 @@ namespace PamelloV7.Server.Model.Discord
             if (obj is DiscordString discordStr) {
                 _str = discordStr._str;
             }
-            else if (skipEcranation) {
+            else if (skipEcranation || obj is DiscordString) {
                 _str = obj.ToString() ?? "";
             }
             else _str = Ecranate(obj);
