@@ -75,7 +75,7 @@ namespace PamelloV7.Server.Model
         }
 
         public override DiscordString ToDiscordString() {
-            return DiscordString.Code(Start.ToShortString()) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}") + " " + (AutoSkip ? DiscordString.Italic("skip").ToString() : "");
+            return (AutoSkip ? DiscordString.Code("skip").Italic() : DiscordString.Code(Start.ToShortString())) + " - " + DiscordString.Url(Name, $"https://www.youtube.com/watch?v={Song.YoutubeId}&t={Start}");
         }
 
         public override string ToString() {
