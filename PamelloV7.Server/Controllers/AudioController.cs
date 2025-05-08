@@ -25,12 +25,14 @@ namespace PamelloV7.Server.Controllers
         }
 
         [HttpGet("Out/{channel}")]
-        public async Task Out(int channel) {
+        public async Task Out(string channel) {
             var speaker = _speakers.GetInternetSpeaker(channel);
-            if (speaker is null) throw new PamelloException($"No speaker found for channel {channel}");
+            if (speaker is null) throw new PamelloException($"No speaker found for channel <{channel}>");
 
-            var listener = await speaker.AddListener(Response);
-            Console.WriteLine($"isl {listener.Id} on channel <{channel}> added");
+            if (!speaker.IsPublic) RequireUser();
+
+            var listener = await speaker.AddListener(Response, User);
+            Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to {(speaker.IsPublic ? "PUBLIC!" : "PRIVATE")} channel <{channel}>");
 
             while (!HttpContext.RequestAborted.IsCancellationRequested) {
                 await Task.Delay(1000);
@@ -38,11 +40,11 @@ namespace PamelloV7.Server.Controllers
 
             await listener.CloseConnection();
 
-            Console.WriteLine($"isl {listener.Id} cancelation requested");
+            Console.WriteLine($"ISL-{listener.Id} cancellation requested...");
 
             await listener.Completion.Task;
 
-            Console.WriteLine($"isl {listener.Id} on channel <{channel}> closed");
+            Console.WriteLine($"ISL-{listener.Id} on channel <{channel}> closed");
         }
     }
 }

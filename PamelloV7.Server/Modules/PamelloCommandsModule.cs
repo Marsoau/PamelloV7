@@ -387,10 +387,17 @@ namespace PamelloV7.Server.Modules
             await _speakers.DisconnectDiscord(Player, vc.Id);
         }
         [PamelloCommand]
-        public async Task<int> SpeakerConnectInternet(int? channel) {
-            var speaker = await _speakers.ConnectInternet(Player, channel);
+        public async Task<string> SpeakerConnectInternet(string? channel, bool isPublic = false) {
+            var speaker = await _speakers.ConnectInternet(Player, channel, isPublic);
 
             return speaker.Channel;
+        }
+        [PamelloCommand]
+        public async Task SpeakerInternetChangeProtection(string channel, bool isPublic = false) {
+            var speaker = _speakers.GetInternetSpeaker(channel);
+            if (speaker is null) throw new PamelloException($"Cant find internet speaker on channel \"{channel}\"");
+
+            speaker.IsPublic = isPublic;
         }
     }
 }

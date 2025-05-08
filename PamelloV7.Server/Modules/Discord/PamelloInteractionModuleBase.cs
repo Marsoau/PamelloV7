@@ -718,10 +718,14 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondPlayerInfo("Disconnected");
         }
 
-        public async Task SpeakerConnectInternet(int? channel) {
-            await _speakers.ConnectInternet(Player, channel);
+        public async Task SpeakerConnectInternet(string? channel, bool isPublic) {
+            var speaker = await _speakers.ConnectInternet(Player, channel, isPublic);
             
-            await RespondPlayerInfo("Connected", $"Internet speaker connected to internet channel {channel}");
+            await RespondPlayerInfo("Connected", $"{(speaker.IsPublic ? "Public" : "Private")} internet speaker connected to internet channel " + DiscordString.Code(speaker.Channel));
+        }
+
+        public async Task SpeakerInternetChangeProtection(string channel, bool isPublic) {
+            await Commands.SpeakerInternetChangeProtection(channel, isPublic);
         }
 
         public async Task SpeakerList() {

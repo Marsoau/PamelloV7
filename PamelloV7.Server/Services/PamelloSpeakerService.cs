@@ -75,20 +75,20 @@ namespace PamelloV7.Server.Services
             }
         }
 
-        public async Task<PamelloInternetSpeaker> ConnectInternet(PamelloPlayer player, int? channel = null) {
+        public async Task<PamelloInternetSpeaker> ConnectInternet(PamelloPlayer player, string? channel = null, bool isPublic = false) {
             if (channel is null) {
-                channel = 0;
-                while (!IsInternetChannelAvailable((++channel).Value));
+                var channelN = 0;
+                while (!IsInternetChannelAvailable($"c-{channelN}"));
+                
+                channel = $"c-{channelN}";
             }
             else {
-                if (!IsInternetChannelAvailable(channel.Value)) {
+                if (!IsInternetChannelAvailable(channel)) {
                     throw new Exception($"Channel {channel} is unavailable");
                 }
             }
 
-            if (channel <= 0) throw new PamelloException("Use of channels <= 0 is not available");
-
-            var internetSpeaker = new PamelloInternetSpeaker(player, channel.Value);
+            var internetSpeaker = new PamelloInternetSpeaker(player, channel, isPublic);
             await internetSpeaker.InitialConnection();
 
             _speakers.Add(internetSpeaker);
@@ -107,7 +107,7 @@ namespace PamelloV7.Server.Services
             return false;
         }
 
-        public bool IsInternetChannelAvailable(int channel) {
+        public bool IsInternetChannelAvailable(string channel) {
             foreach(var speaker in _speakers) {
                 if (speaker is PamelloInternetSpeaker internetSpeaker) {
                     if (internetSpeaker.Channel == channel) {
@@ -141,7 +141,7 @@ namespace PamelloV7.Server.Services
             return players.ToList();
         }
 
-        public PamelloInternetSpeaker? GetInternetSpeaker(int channel) {
+        public PamelloInternetSpeaker? GetInternetSpeaker(string channel) {
             foreach (var speaker in _speakers) {
                 if (speaker is PamelloInternetSpeaker internetSpeaker) {
                     if (internetSpeaker.Channel == channel) return internetSpeaker;

@@ -4,12 +4,15 @@ namespace PamelloV7.Server.Model.Listeners
 {
     public class PamelloInternetSpeakerListener : PamelloListener
     {
-        public PamelloInternetSpeakerListener(HttpResponse response) : base(response) {
+        public readonly PamelloUser? User;
+        
+        public PamelloInternetSpeakerListener(HttpResponse response, PamelloUser? user) : base(response) {
+            User = user;
         }
 
         public override async Task InitializeConnecion() {
             _response.ContentType = "audio/mpeg";
-            _response.Headers["Cache-Control"] = "no-cache";
+            _response.Headers.CacheControl = "no-cache";
             await _response.Body.FlushAsync();
         }
 

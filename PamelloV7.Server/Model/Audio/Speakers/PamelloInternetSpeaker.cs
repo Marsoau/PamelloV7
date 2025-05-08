@@ -12,18 +12,22 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         private MemoryStream _pcmAudioBuffer;
         private MemoryStream _mpegAudioBuffer;
+        
+        public bool IsPublic { get; set; }
 
-        public int Channel { get; }
+        public string Channel { get; }
 
         public override bool IsActive => !(_ffmpeg?.HasExited ?? true) && _listeners.Count > 0;
 
-        public PamelloInternetSpeaker(PamelloPlayer player, int channel) : base(player) {
+        public PamelloInternetSpeaker(PamelloPlayer player, string channel, bool isPublic) : base(player) {
             _listeners = new ConcurrentDictionary<int, PamelloInternetSpeakerListener>();
 
             Channel = channel;
 
             _pcmAudioBuffer = new MemoryStream();
             _mpegAudioBuffer = new MemoryStream();
+
+            IsPublic = isPublic;
         }
 
         public async Task InitialConnection() {
@@ -46,8 +50,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
                 try {
                     while (true) {
-                        int read = await stream.ReadAsync(buffer, 0, buffer.Length);
-                        if (read == 0) break; // FFmpeg closed
+                        var read = await stream.ReadAsync(buffer);
+                        if (read == 0) break;
 
                         var data = buffer[..read];
 
@@ -56,7 +60,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                                 await listener.Value.SendAudio(data);
                             }
                             catch {
-                                // Optionally remove dead clients here
+                                //
                             }
                         }
                     }
@@ -88,7 +92,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         private async Task SlienceFiller() {
             Console.WriteLine("start");
             while (true) {
-                if ((Player?.State == Core.Enumerators.EPlayerState.Active && Player.IsPaused == false) || _listeners.Count == 0) {
+                if (Player is { State: Core.Enumerators.EPlayerState.Active, IsPaused: false } || _listeners.IsEmpty) {
                     //Console.WriteLine("wait");
                     await Task.Delay(100);
                     continue;
@@ -101,8 +105,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             }
         }
 
-        public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response) {
-            var listener = new PamelloInternetSpeakerListener(response);
+        public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, PamelloUser? user) {
+            var listener = new PamelloInternetSpeakerListener(response, user);
             await listener.InitializeConnecion();
 
             _listeners.TryAdd(listener.Id, listener);
@@ -113,7 +117,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         private void Listener_OnClosed(PamelloListener listener) {
             _listeners.Remove(listener.Id, out _);
-            Console.WriteLine($"isl {listener.Id} removed from <{Channel}>");
+            Console.WriteLine($"ISL-{listener.Id} removed from <{Channel}>");
         }
         public override Task Terminate() => throw new NotImplementedException();
     }

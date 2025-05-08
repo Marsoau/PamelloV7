@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using PamelloV7.Core.Enumerators;
 
 namespace PamelloV7.Server.Modules.Discord
 {
@@ -17,8 +18,15 @@ namespace PamelloV7.Server.Modules.Discord
         
         [SlashCommand("connect-internet", "Connect internet speaker")]
         public async Task SpeakerConnectInternetHandler(
-            [Summary("channel", "Internet channel id")] int? channel = null
-        ) => await SpeakerConnectInternet(channel);
+            [Summary("channel", "Internet speaker channel name")] string? channel = null,
+            [Summary("is-public", "Is speaker available for connection without authorization")] EBoolAnswer isPublic = EBoolAnswer.No
+        ) => await SpeakerConnectInternet(channel, isPublic == EBoolAnswer.Yes);
+        
+        [SlashCommand("channel-protection", "Change protection of internet speaker channel")]
+        public async Task SpeakerInternetChangeProtectionHandler(
+            [Summary("channel", "Internet speaker channel name")] string channel,
+            [Summary("is-public", "Is speaker available for connection without authorization")] EBoolAnswer isPublic
+        ) => await SpeakerInternetChangeProtection(channel, isPublic == EBoolAnswer.Yes);
         
         public async Task SpeakerListHandler()
             => await SpeakerList();
