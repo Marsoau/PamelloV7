@@ -115,13 +115,13 @@ namespace PamelloV7.Server.Repositories
             var pamelloSong = GetByYoutubeId(youtubeId);
             if (pamelloSong is not null) return pamelloSong;
 
-            var adderUser = db.Users.Find(adder.Id);
+            var adderUser = await db.Users.FindAsync(adder.Id);
             if (adderUser is null) return null;
 
 			var youtubeInfo = await _youtube.GetVideoInfoAsync(youtubeId);
             if (youtubeInfo is null) return null;
 
-			var databaseSong = new DatabaseSong() {
+			var databaseSong = new DatabaseSong {
 				Name = youtubeInfo.Name,
 				CoverUrl = $"https://img.youtube.com/vi/{youtubeId}/maxresdefault.jpg",
 				YoutubeId = youtubeId,
@@ -134,7 +134,7 @@ namespace PamelloV7.Server.Repositories
                 Episodes = [],
 			};
 
-			databaseSong.Episodes = youtubeInfo.Episodes.Select(episodeInfo => new DatabaseEpisode() {
+			databaseSong.Episodes = youtubeInfo.Episodes.Select(episodeInfo => new DatabaseEpisode {
 				Name = episodeInfo.Name,
 				Start = episodeInfo.Start,
 				Song = databaseSong,
@@ -142,11 +142,12 @@ namespace PamelloV7.Server.Repositories
 			}).ToList();
 
 			db.Songs.Add(databaseSong);
-			db.SaveChanges();
+			await db.SaveChangesAsync();
 
             pamelloSong = Load(databaseSong);
-
-            //event
+            if (pamelloSong is null) return null;
+            
+            adder._addedSongs.Add(pamelloSong);
 
             return pamelloSong;
 		}

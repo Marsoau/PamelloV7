@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Model
 
         protected DatabaseContext GetDatabase() => _services.GetRequiredService<DatabaseContext>();
         protected void Save() {
-            var time = DateTime.Now;
+            //var time = DateTime.Now;
             Task.Run(async () => {
                 using var db = GetDatabase();
 
@@ -49,7 +49,7 @@ namespace PamelloV7.Server.Model
 
                 await db.SaveChangesAsync();
             });
-            Console.WriteLine($"task: {DateTime.Now - time}");
+            //Console.WriteLine($"task: {DateTime.Now - time}");
         }
 
         protected abstract void InitBase();

@@ -339,18 +339,14 @@ namespace PamelloV7.Server.Model
             favoriteSongsDifference.ExcludeMoved();
             favoritePlaylistsDifference.ExcludeMoved();
 
-            addedSongsDifference.Apply(dbUser.AddedSongs, (songId) => {
-                return db.Songs.Find(songId)!;
-            });
-            addedPlaylistsDifference.Apply(dbUser.OwnedPlaylists, (playlistId) => {
-                return db.Playlists.Find(playlistId)!;
-            });
-            favoriteSongsDifference.Apply(dbUser.FavoriteSongs, (songId) => {
-                return db.Songs.Find(songId)!;
-            });
-            favoritePlaylistsDifference.Apply(dbUser.FavoritePlaylists, (playlistId) => {
-                return db.Playlists.Find(playlistId)!;
-            });
+            addedSongsDifference.Apply(dbUser.AddedSongs, songId
+                => db.Songs.Find(songId)!);
+            addedPlaylistsDifference.Apply(dbUser.OwnedPlaylists, playlistId
+                => db.Playlists.Find(playlistId)!);
+            favoriteSongsDifference.Apply(dbUser.FavoriteSongs, songId
+                => db.Songs.Find(songId)!);
+            favoritePlaylistsDifference.Apply(dbUser.FavoritePlaylists, playlistId
+                => db.Playlists.Find(playlistId)!);
 
             return dbUser;
         }

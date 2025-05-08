@@ -27,10 +27,8 @@ namespace PamelloV7.Wrapper.Services
                     Data = parts[1];
                 }
                 else {
-                    Console.WriteLine("error");
                     return false;
                 }
-                Console.WriteLine("done");
 
                 return true;
             }

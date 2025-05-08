@@ -350,15 +350,15 @@ namespace PamelloV7.Server.Model
                 .FirstOrDefault();
             if (dbSong is null) throw new PamelloDatabaseSaveException();
 
-            var addedBy = db.Users.Find(_addedBy.Id);
-            if (addedBy is null) throw new PamelloDatabaseSaveException();
+            //var addedBy = db.Users.Find(_addedBy.Id);
+            //if (addedBy is null) throw new PamelloDatabaseSaveException();
 
             dbSong.Name = Name;
             dbSong.YoutubeId = YoutubeId;
             dbSong.CoverUrl = CoverUrl;
             dbSong.PlayCount = PlayCount;
-            dbSong.AddedAt = AddedAt;
-            dbSong.AddedBy = addedBy;
+            //dbSong.AddedAt = AddedAt;
+            //dbSong.AddedBy = addedBy;
 
             var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
             var dbFavoriteByIds = dbSong.FavoritedBy.Select(user => user.Id);
@@ -391,18 +391,14 @@ namespace PamelloV7.Server.Model
             episodesDifference.ExcludeMoved();
             associacionsDifference.ExcludeMoved();
 
-            playlistsDifference.Apply(dbSong.Playlists, (id) => {
-                return db.Playlists.Find(id)!;
-            });
-            favoriteByDifference.Apply(dbSong.FavoritedBy, (id) => {
-                return db.Users.Find(id)!;
-            });
-            episodesDifference.Apply(dbSong.Episodes, (id) => {
-                return db.Episodes.Find(id)!;
-            });
-            associacionsDifference.Apply(dbSong.Associacions, (id) => {
-                return db.Associacions.Find(id)!;
-            });
+            playlistsDifference.Apply(dbSong.Playlists, id
+                => db.Playlists.Find(id)!);
+            favoriteByDifference.Apply(dbSong.FavoritedBy, id
+                => db.Users.Find(id)!);
+            episodesDifference.Apply(dbSong.Episodes, id
+                => db.Episodes.Find(id)!);
+            associacionsDifference.Apply(dbSong.Associacions, id
+                => db.Associacions.Find(id)!);
 
             return dbSong;
         }
