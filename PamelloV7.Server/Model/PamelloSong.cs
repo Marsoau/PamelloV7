@@ -152,9 +152,7 @@ namespace PamelloV7.Server.Model
         }
 
         public void AddAssociacion(string associacion) {
-            if (DatabaseAssociacion.Reserved.Contains(associacion)) {
-                throw new PamelloException($"Associacion \"{associacion}\" is reserved and cannot be assigned to a song");
-            }
+            DatabaseAssociacion.EnsureNotReserved(associacion);
 
             var db = GetDatabase();
 

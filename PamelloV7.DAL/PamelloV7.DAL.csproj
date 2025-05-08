@@ -12,4 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+  </ItemGroup>
 </Project>

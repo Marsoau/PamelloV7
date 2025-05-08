@@ -84,7 +84,7 @@ namespace PamelloV7.Server.Modules.Discord
                 [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
             ) => await PlayerQueueSongAdd(songValue);
 
-            [SlashCommand("instert-song", "Add playlist to the queue")]
+            [SlashCommand("insert-song", "Add playlist to the queue")]
             public async Task PlayerQueueSongInsertHandler(
                 [Summary("position", "Where song should be inserted")] int position,
                 [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
