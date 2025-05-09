@@ -29,5 +29,16 @@ namespace PamelloV7.Server.Controllers.Base
             User = _users.GetByToken(userToken) ??
                 throw new PamelloControllerException(BadRequest($"user \"{userToken}\" doesnt exist"));
         }
+
+        protected void TryGetUser() {
+            if (User is not null) return;
+
+            try {
+                RequireUser();
+            }
+            catch {
+                //ignore
+            }
+        }
     }
 }

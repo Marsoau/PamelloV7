@@ -30,6 +30,7 @@ namespace PamelloV7.Server.Controllers
             if (speaker is null) throw new PamelloException($"No speaker found for channel <{channel}>");
 
             if (!speaker.IsPublic) RequireUser();
+            else TryGetUser();
 
             var listener = await speaker.AddListener(Response, User);
             Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to {(speaker.IsPublic ? "PUBLIC!" : "PRIVATE")} channel <{channel}>");
