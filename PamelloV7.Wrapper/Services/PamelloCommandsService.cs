@@ -122,8 +122,8 @@ namespace PamelloV7.Wrapper.Services
         public async Task PlayerQueueFeedRandom(bool value) {
             await InvokeCommand($"PlayerQueueFeedRandom?value={value}");
         }
-        public async Task PlayerQueueSuffle() {
-            await InvokeCommand($"PlayerQueueSuffle");
+        public async Task PlayerQueueShuffle() {
+            await InvokeCommand($"PlayerQueueShuffle");
         }
         public async Task PlayerQueueClear() {
             await InvokeCommand($"PlayerQueueClear");
@@ -140,11 +140,11 @@ namespace PamelloV7.Wrapper.Services
         public async Task SongFavoriteRemove(string songValue) {
             await InvokeCommand($"SongFavoriteRemove?song={songValue}");
         }
-        public async Task SongAssociacionsAdd(string songValue, string associacion) {
-            await InvokeCommand($"SongAssociacionsAdd?song={songValue}&associacion={associacion}");
+        public async Task SongAssociationsAdd(string songValue, string associacion) {
+            await InvokeCommand($"SongAssociationsAdd?song={songValue}&associacion={associacion}");
         }
-        public async Task SongAssociacionsRemove(string songValue, string associacion) {
-            await InvokeCommand($"SongAssociacionsRemove?song={songValue}&associacion={associacion}");
+        public async Task SongAssociationsRemove(string songValue, string associacion) {
+            await InvokeCommand($"SongAssociationsRemove?song={songValue}&associacion={associacion}");
         }
         public async Task<int> SongEpisodesAdd(string songValue, int episodeStart, string episodeName) {
             return await InvokeCommand<int>($"SongEpisodesAdd?song={songValue}&episodeStart={episodeStart}&episodeName={episodeName}");

@@ -190,7 +190,7 @@ namespace PamelloV7.Server.Model
             _favoriteSongs.Add(song);
             Save();
 
-            song.MakeFavorited(this);
+            song.MakeFavorite(this);
             _events.Broadcast(new UserFavoriteSongsUpdated() {
                 UserId = Id,
                 FavoriteSongsIds = FavoriteSongsIds,
@@ -202,7 +202,7 @@ namespace PamelloV7.Server.Model
             _favoriteSongs.Remove(song);
             Save();
 
-            song.UnmakeFavorited(this);
+            song.UnmakeFavorite(this);
             _events.Broadcast(new UserFavoriteSongsUpdated() {
                 UserId = Id,
                 FavoriteSongsIds = FavoriteSongsIds,

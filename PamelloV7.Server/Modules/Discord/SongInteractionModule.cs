@@ -65,19 +65,19 @@ namespace PamelloV7.Server.Modules.Discord
             public async Task SongAssociacionsAddHandler(
                 [Summary("associacion", "New associacion name")] string associacion,
                 [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
-            ) => await SongAssociacionsAdd(songValue, associacion);
+            ) => await SongAssociationsAdd(songValue, associacion);
 
             [SlashCommand("remove", "Remove associacion from the song")]
-            public async Task SongAssociacionsRemoveHandler(
-                [Summary("associacion", "Associacion name")] string associacion,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
-            ) => await SongAssociacionsRemove(songValue, associacion);
+            public async Task SongAssociationsRemoveHandler(
+                [Summary("association", "Association name")] string associacion,
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
+            ) => await SongAssociationsRemove(songValue, associacion);
 
-            [SlashCommand("list", "Show all song associacions")]
+            [SlashCommand("list", "Show all song associations")]
             public async Task SongAssociacionsListHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current",
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current",
                 [Summary("page", "Results page")] int page = 1
-            ) => await SongAssociacionsList(songValue, page);
+            ) => await SongAssociationsList(songValue, page);
         }
 
         [Group("episodes", "Commands to manage song episodes")]
@@ -89,45 +89,45 @@ namespace PamelloV7.Server.Modules.Discord
             public async Task SongEpisodesAddHandler(
                 [Summary("start", "Episode start time (format HH:MM:SS)")] string episodeTime,
                 [Summary("name", "Episode name")] string episodeName,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesAdd(songValue, episodeTime, episodeName);
 
             [SlashCommand("rename", "Rename episode")]
             public async Task SongEpisodesRenameHandler(
                 [Summary("new-name", "Episode new name")] string newName,
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesRename(songValue, episodePosition, newName);
 
             [SlashCommand("skip", "Change episode skip state")]
             public async Task SongEpisodesChangeStartHandler(
                 [Summary("skip", "New episode skip state")] EBoolState state,
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesSkipSet(songValue, episodePosition, state);
 
-            [SlashCommand("change-start", "Chabge episode start time")]
+            [SlashCommand("change-start", "Change episode start time")]
             public async Task SongEpisodesChangeStartHandler(
                 [Summary("new-start", "New episode start time (format HH:MM:SS)")] string newTime,
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesChangeStart(songValue, episodePosition, newTime);
 
             [SlashCommand("list", "Show episodes of the song")]
             public async Task SongEpisodesListHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current",
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current",
                 [Summary("page", "Results page")] int page = 1
             ) => await SongEpisodesList(songValue, page);
 
             [SlashCommand("remove", "Remove episode from the song")]
             public async Task SongEpisodesRemoveHandler(
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesRemove(songValue, episodePosition);
 
             [SlashCommand("clear", "Clear all episodes from the song")]
             public async Task SongEpisodesClearHandler(
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
             ) => await SongEpisodesClear(songValue);
         }
     }

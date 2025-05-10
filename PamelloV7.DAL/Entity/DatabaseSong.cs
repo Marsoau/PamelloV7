@@ -14,6 +14,6 @@
 
         public List<DatabaseEpisode> Episodes { get; set; }
         public List<DatabasePlaylist> Playlists { get; set; }
-        public List<DatabaseAssociacion> Associacions { get; set; }
+        public List<DatabaseAssociation> Associations { get; set; }
 	}
 }

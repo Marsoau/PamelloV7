@@ -42,8 +42,8 @@ namespace PamelloV7.Server.Repositories
         public PamelloSong? GetByAssociacion(string ascn) {
             var db = GetDatabase();
 
-            var databaseAssociacion = db.Associacions
-                .Where(dbAssociacion => dbAssociacion.Associacion == ascn)
+            var databaseAssociacion = db.Associations
+                .Where(dbAssociacion => dbAssociacion.Association == ascn)
                 .Include(dbAssociacion => dbAssociacion.Song)
                 .FirstOrDefault();
             if (databaseAssociacion is null) return null;
@@ -128,7 +128,7 @@ namespace PamelloV7.Server.Repositories
 				PlayCount = 0,
                 AddedAt = DateTime.UtcNow,
                 AddedBy = adderUser,
-                Associacions = [],
+                Associations = [],
 				FavoritedBy = [],
 				Playlists = [],
                 Episodes = [],
@@ -183,7 +183,7 @@ namespace PamelloV7.Server.Repositories
                 .Include(song => song.Episodes)
                 .Include(song => song.Playlists)
                 .Include(song => song.FavoritedBy)
-                .Include(song => song.Associacions)
+                .Include(song => song.Associations)
                 .AsSplitQuery()
                 .ToList();
         }

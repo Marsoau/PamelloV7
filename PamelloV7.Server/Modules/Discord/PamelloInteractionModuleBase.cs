@@ -320,7 +320,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlayerQueueSuffle()
         {
-            await Commands.PlayerQueueSuffle();
+            await Commands.PlayerQueueShuffle();
 
             await RespondPlayerInfo("Queue suffled");
         }
@@ -443,29 +443,29 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             );
         }
 
-        public async Task SongAssociacionsAdd(string songValue, string associacion)
+        public async Task SongAssociationsAdd(string songValue, string associacion)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociacionsAdd(song, associacion);
+            await Commands.SongAssociationsAdd(song, associacion);
 
-            await RespondInfo($"Associacion \"{associacion}\" added to song {song.ToDiscordString()}");
+            await RespondInfo($"Association \"{associacion}\" added to song {song.ToDiscordString()}");
         }
-        public async Task SongAssociacionsRemove(string songValue, string associacion)
+        public async Task SongAssociationsRemove(string songValue, string associacion)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociacionsRemove(song, associacion);
+            await Commands.SongAssociationsRemove(song, associacion);
 
-            await RespondInfo($"Associacion \"{associacion}\" removed from song {song.ToDiscordString()}");
+            await RespondInfo($"Association \"{associacion}\" removed from song {song.ToDiscordString()}");
         }
-        public async Task SongAssociacionsList(string songValue, int page)
+        public async Task SongAssociationsList(string songValue, int page)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
             await RespondPage(
-                $"Associacions of song [{song.Id}]",
+                $"Associations of song [{song.Id}]",
                 song.Associacions,
-                (sb, pos, associacion) => {
-                    sb.AppendLine(DiscordString.Code(associacion).ToString());
+                (sb, pos, association) => {
+                    sb.AppendLine(DiscordString.Code(association).ToString());
                 },
                 page - 1
             );

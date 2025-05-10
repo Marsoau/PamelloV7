@@ -148,31 +148,31 @@ namespace PamelloV7.Server.Model
             _favoritedBy = DatabaseEntity.FavoritedBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
             _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
             _playlists = DatabaseEntity.FavoritedBy.Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
-            _associacions = DatabaseEntity.Associacions.Where(e => e.Song.Id == Id).Select(e => e.Associacion).ToList();
+            _associacions = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
         }
 
-        public void AddAssociacion(string associacion) {
-            DatabaseAssociacion.EnsureNotReserved(associacion);
+        public void AddAssociation(string association) {
+            DatabaseAssociation.EnsureNotReserved(association);
 
             var db = GetDatabase();
 
-            var databaseAssociacion = db.Associacions.Find(associacion);
-            if (databaseAssociacion is not null) {
-                if (databaseAssociacion.Song.Id == Id)
-                    throw new PamelloException($"Associacion \"{associacion}\" already exist this song");
+            var databaseAssociation = db.Associations.Find(association);
+            if (databaseAssociation is not null) {
+                if (databaseAssociation.Song.Id == Id)
+                    throw new PamelloException($"Association \"{association}\" already exist this song");
 
-                throw new PamelloException($"Associacion \"{associacion}\" already exist for another song");
+                throw new PamelloException($"Association \"{association}\" already exist for another song");
             }
 
-            databaseAssociacion = new DatabaseAssociacion() {
-                Associacion = associacion,
+            databaseAssociation = new DatabaseAssociation() {
+                Association = association,
                 Song = db.Songs.Find(Id)
             };
 
-            db.Associacions.Add(databaseAssociacion);
+            db.Associations.Add(databaseAssociation);
             db.SaveChanges();
 
-            _associacions.Add(associacion);
+            _associacions.Add(association);
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
@@ -180,21 +180,21 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void RemoveAssociacion(string associacion) {
+        public void RemoveAssociation(string association) {
             var db = GetDatabase();
 
-            if (!_associacions.Contains(associacion)) {
-                throw new PamelloException("This song doesnt contain that associacion");
+            if (!_associacions.Contains(association)) {
+                throw new PamelloException("This song doesnt contain that association");
             }
 
-            var databaseAssociacion = db.Associacions.Find(associacion);
+            var databaseAssociation = db.Associations.Find(association);
 
-            if (databaseAssociacion is not null) {
-                db.Associacions.Remove(databaseAssociacion);
+            if (databaseAssociation is not null) {
+                db.Associations.Remove(databaseAssociation);
                 db.SaveChanges();
             }
 
-            _associacions.Remove(associacion);
+            _associacions.Remove(association);
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
@@ -264,7 +264,7 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void MakeFavorited(PamelloUser user) {
+        public void MakeFavorite(PamelloUser user) {
             if (_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Add(user);
@@ -276,7 +276,7 @@ namespace PamelloV7.Server.Model
                 FavoriteByIds = FavoriteByIds
             });
         }
-        public void UnmakeFavorited(PamelloUser user) {
+        public void UnmakeFavorite(PamelloUser user) {
             if (!_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Remove(user);
@@ -343,7 +343,7 @@ namespace PamelloV7.Server.Model
                 .Include(databaseSong => databaseSong.Playlists)
                 .Include(databaseSong => databaseSong.FavoritedBy)
                 .Include(databaseSong => databaseSong.Episodes)
-                .Include(databaseSong => databaseSong.Associacions)
+                .Include(databaseSong => databaseSong.Associations)
                 .AsSplitQuery()
                 .FirstOrDefault();
             if (dbSong is null) throw new PamelloDatabaseSaveException();
@@ -361,7 +361,7 @@ namespace PamelloV7.Server.Model
             var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
             var dbFavoriteByIds = dbSong.FavoritedBy.Select(user => user.Id);
             var dbEpisodesIds = dbSong.Episodes.Select(episode => episode.Id);
-            var dbAssociacionsValues = dbSong.Associacions.Select(associacion => associacion.Associacion);
+            var dbAssociationsValues = dbSong.Associations.Select(association => association.Association);
 
             var playlistsDifference = DifferenceResult<int>.From(
                 dbPlaylistsIds, 
@@ -378,8 +378,8 @@ namespace PamelloV7.Server.Model
                 EpisodesIds,
                 true
             );
-            var associacionsDifference = DifferenceResult<string>.From(
-                dbAssociacionsValues, 
+            var associationsDifference = DifferenceResult<string>.From(
+                dbAssociationsValues, 
                 Associacions,
                 true
             );
@@ -387,7 +387,7 @@ namespace PamelloV7.Server.Model
             playlistsDifference.ExcludeMoved();
             favoriteByDifference.ExcludeMoved();
             episodesDifference.ExcludeMoved();
-            associacionsDifference.ExcludeMoved();
+            associationsDifference.ExcludeMoved();
 
             playlistsDifference.Apply(dbSong.Playlists, id
                 => db.Playlists.Find(id)!);
@@ -395,8 +395,8 @@ namespace PamelloV7.Server.Model
                 => db.Users.Find(id)!);
             episodesDifference.Apply(dbSong.Episodes, id
                 => db.Episodes.Find(id)!);
-            associacionsDifference.Apply(dbSong.Associacions, id
-                => db.Associacions.Find(id)!);
+            associationsDifference.Apply(dbSong.Associations, id
+                => db.Associations.Find(id)!);
 
             return dbSong;
         }

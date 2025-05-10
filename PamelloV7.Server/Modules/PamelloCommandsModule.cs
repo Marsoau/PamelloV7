@@ -258,7 +258,7 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task PlayerQueueSuffle() {
+        public async Task PlayerQueueShuffle() {
             throw new NotImplementedException();
         }
         [PamelloCommand]
@@ -286,12 +286,12 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task SongAssociacionsAdd(PamelloSong song, string associacion) {
-            song.AddAssociacion(associacion);
+        public async Task SongAssociationsAdd(PamelloSong song, string associacion) {
+            song.AddAssociation(associacion);
         }
         [PamelloCommand]
-        public async Task SongAssociacionsRemove(PamelloSong song, string associacion) {
-            song.RemoveAssociacion(associacion);
+        public async Task SongAssociationsRemove(PamelloSong song, string associacion) {
+            song.RemoveAssociation(associacion);
         }
 
         [PamelloCommand]

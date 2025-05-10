@@ -10,7 +10,7 @@ namespace PamelloV7.DAL
         public DbSet<DatabaseEpisode> Episodes { get; set; }
         public DbSet<DatabasePlaylist> Playlists { get; set; }
 
-        public DbSet<DatabaseAssociacion> Associacions { get; set; }
+        public DbSet<DatabaseAssociation> Associations { get; set; }
 
         public DatabaseContext() {
             if (!Directory.Exists($"{AppContext.BaseDirectory}Data")) {
@@ -49,7 +49,7 @@ namespace PamelloV7.DAL
             modelBuilder.Entity<DatabaseSong>(songBuilder => {
                 songBuilder.HasMany(song => song.Episodes)
                     .WithOne(episode => episode.Song);
-                songBuilder.HasMany(song => song.Associacions)
+                songBuilder.HasMany(song => song.Associations)
                     .WithOne(associacion => associacion.Song);
                 songBuilder.HasMany(song => song.Playlists)
                     .WithMany(playlist => playlist.Songs)
@@ -59,8 +59,8 @@ namespace PamelloV7.DAL
                         entity.ToTable("PlaylistsSongs");
                     });
             });
-            modelBuilder.Entity<DatabaseAssociacion>(associacionBuilder => {
-                associacionBuilder.HasKey(ascn => ascn.Associacion);
+            modelBuilder.Entity<DatabaseAssociation>(associacionBuilder => {
+                associacionBuilder.HasKey(ascn => ascn.Association);
             });
         }
     }
