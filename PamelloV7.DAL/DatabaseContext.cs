@@ -29,9 +29,9 @@ namespace PamelloV7.DAL
                 userBuilder.HasMany(user => user.AddedSongs)
                     .WithOne(song => song.AddedBy);
                 userBuilder.HasMany(user => user.FavoriteSongs)
-                    .WithMany(song => song.FavoritedBy)
+                    .WithMany(song => song.FavoriteBy)
                     .UsingEntity(entity => {
-                        entity.Property("FavoritedById").HasColumnName("UserId");
+                        entity.Property("FavoriteById").HasColumnName("UserId");
                         entity.Property("FavoriteSongsId").HasColumnName("SongId");
                         entity.ToTable("UsersFavoriteSongs");
                     });
@@ -39,9 +39,9 @@ namespace PamelloV7.DAL
                 userBuilder.HasMany(user => user.OwnedPlaylists)
                     .WithOne(playlist => playlist.Owner);
                 userBuilder.HasMany(user => user.FavoritePlaylists)
-                    .WithMany(playlist => playlist.FavoritedBy)
+                    .WithMany(playlist => playlist.FavoriteBy)
                     .UsingEntity(entity => {
-                        entity.Property("FavoritedById").HasColumnName("UserId");
+                        entity.Property("FavoriteById").HasColumnName("UserId");
                         entity.Property("FavoritePlaylistsId").HasColumnName("PlaylistId");
                         entity.ToTable("UsersFavoritePlaylists");
                     });
@@ -50,7 +50,7 @@ namespace PamelloV7.DAL
                 songBuilder.HasMany(song => song.Episodes)
                     .WithOne(episode => episode.Song);
                 songBuilder.HasMany(song => song.Associations)
-                    .WithOne(associacion => associacion.Song);
+                    .WithOne(association => association.Song);
                 songBuilder.HasMany(song => song.Playlists)
                     .WithMany(playlist => playlist.Songs)
                     .UsingEntity(entity => {
@@ -59,8 +59,8 @@ namespace PamelloV7.DAL
                         entity.ToTable("PlaylistsSongs");
                     });
             });
-            modelBuilder.Entity<DatabaseAssociation>(associacionBuilder => {
-                associacionBuilder.HasKey(ascn => ascn.Association);
+            modelBuilder.Entity<DatabaseAssociation>(associationBuilder => {
+                associationBuilder.HasKey(association => association.Association);
             });
         }
     }

@@ -55,26 +55,26 @@ namespace PamelloV7.Server.Modules.Discord
             ) => await SongFavoriteList(querry, page, targetDiscordUser);
         }
 
-        [Group("associacions", "Commands to manage song associacions")]
-        public class SongAssociacionsInteractionModule : PamelloInteractionModuleBase
+        [Group("associations", "Commands to manage song associacions")]
+        public class SongAssociationsInteractionModule : PamelloInteractionModuleBase
         {
-            public SongAssociacionsInteractionModule(IServiceProvider services) : base(services) { }
+            public SongAssociationsInteractionModule(IServiceProvider services) : base(services) { }
 
 
-            [SlashCommand("add", "Add associacion to the song")]
-            public async Task SongAssociacionsAddHandler(
-                [Summary("associacion", "New associacion name")] string associacion,
-                [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
-            ) => await SongAssociationsAdd(songValue, associacion);
-
-            [SlashCommand("remove", "Remove associacion from the song")]
-            public async Task SongAssociationsRemoveHandler(
-                [Summary("association", "Association name")] string associacion,
+            [SlashCommand("add", "Add association to the song")]
+            public async Task SongAssociationsAddHandler(
+                [Summary("association", "New association name")] string association,
                 [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
-            ) => await SongAssociationsRemove(songValue, associacion);
+            ) => await SongAssociationsAdd(songValue, association);
+
+            [SlashCommand("remove", "Remove association from the song")]
+            public async Task SongAssociationsRemoveHandler(
+                [Summary("association", "Association name")] string association,
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
+            ) => await SongAssociationsRemove(songValue, association);
 
             [SlashCommand("list", "Show all song associations")]
-            public async Task SongAssociacionsListHandler(
+            public async Task SongAssociationsListHandler(
                 [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current",
                 [Summary("page", "Results page")] int page = 1
             ) => await SongAssociationsList(songValue, page);

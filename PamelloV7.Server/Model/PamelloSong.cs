@@ -145,9 +145,9 @@ namespace PamelloV7.Server.Model
 
             _addedBy = _users.GetRequired(DatabaseEntity.AddedBy.Id);
 
-            _favoritedBy = DatabaseEntity.FavoritedBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
+            _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
             _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
-            _playlists = DatabaseEntity.FavoritedBy.Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
+            _playlists = DatabaseEntity.FavoriteBy.Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
             _associacions = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
         }
 
@@ -341,7 +341,7 @@ namespace PamelloV7.Server.Model
                 .Where(databaseSong => databaseSong.Id == Id)
                 .Include(databaseSong => databaseSong.AddedBy)
                 .Include(databaseSong => databaseSong.Playlists)
-                .Include(databaseSong => databaseSong.FavoritedBy)
+                .Include(databaseSong => databaseSong.FavoriteBy)
                 .Include(databaseSong => databaseSong.Episodes)
                 .Include(databaseSong => databaseSong.Associations)
                 .AsSplitQuery()
@@ -359,7 +359,7 @@ namespace PamelloV7.Server.Model
             //dbSong.AddedBy = addedBy;
 
             var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
-            var dbFavoriteByIds = dbSong.FavoritedBy.Select(user => user.Id);
+            var dbFavoriteByIds = dbSong.FavoriteBy.Select(user => user.Id);
             var dbEpisodesIds = dbSong.Episodes.Select(episode => episode.Id);
             var dbAssociationsValues = dbSong.Associations.Select(association => association.Association);
 
@@ -391,7 +391,7 @@ namespace PamelloV7.Server.Model
 
             playlistsDifference.Apply(dbSong.Playlists, id
                 => db.Playlists.Find(id)!);
-            favoriteByDifference.Apply(dbSong.FavoritedBy, id
+            favoriteByDifference.Apply(dbSong.FavoriteBy, id
                 => db.Users.Find(id)!);
             episodesDifference.Apply(dbSong.Episodes, id
                 => db.Episodes.Find(id)!);

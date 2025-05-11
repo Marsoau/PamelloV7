@@ -251,7 +251,7 @@ namespace PamelloV7.Server.Model
                 Songs = [],
                 Owner = dbUser,
                 IsProtected = false,
-                FavoritedBy = [],
+                FavoriteBy = [],
             };
 
             db.Playlists.Add(databasePlaylist);

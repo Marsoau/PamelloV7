@@ -129,7 +129,7 @@ namespace PamelloV7.Server.Repositories
                 AddedAt = DateTime.UtcNow,
                 AddedBy = adderUser,
                 Associations = [],
-				FavoritedBy = [],
+				FavoriteBy = [],
 				Playlists = [],
                 Episodes = [],
 			};
@@ -182,7 +182,7 @@ namespace PamelloV7.Server.Repositories
                 .Include(song => song.AddedBy)
                 .Include(song => song.Episodes)
                 .Include(song => song.Playlists)
-                .Include(song => song.FavoritedBy)
+                .Include(song => song.FavoriteBy)
                 .Include(song => song.Associations)
                 .AsSplitQuery()
                 .ToList();

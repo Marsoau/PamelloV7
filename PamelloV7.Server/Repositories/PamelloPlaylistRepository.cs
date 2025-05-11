@@ -72,7 +72,7 @@ namespace PamelloV7.Server.Repositories
                 .AsNoTracking()
                 .Include(playlist => playlist.Owner)
                 .Include(playlist => playlist.Songs)
-                .Include(playlist => playlist.FavoritedBy)
+                .Include(playlist => playlist.FavoriteBy)
                 .AsSplitQuery()
                 .ToList();
         }

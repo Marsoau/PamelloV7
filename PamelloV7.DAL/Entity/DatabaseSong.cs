@@ -10,7 +10,7 @@
         public DateTime AddedAt { get; set; }
 
         public DatabaseUser AddedBy { get; set; }
-        public List<DatabaseUser> FavoritedBy { get; set; }
+        public List<DatabaseUser> FavoriteBy { get; set; }
 
         public List<DatabaseEpisode> Episodes { get; set; }
         public List<DatabasePlaylist> Playlists { get; set; }

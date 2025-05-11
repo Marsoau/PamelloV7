@@ -443,19 +443,19 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             );
         }
 
-        public async Task SongAssociationsAdd(string songValue, string associacion)
+        public async Task SongAssociationsAdd(string songValue, string association)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociationsAdd(song, associacion);
+            await Commands.SongAssociationsAdd(song, association);
 
-            await RespondInfo($"Association \"{associacion}\" added to song {song.ToDiscordString()}");
+            await RespondInfo($"Association \"{association}\" added to song {song.ToDiscordString()}");
         }
-        public async Task SongAssociationsRemove(string songValue, string associacion)
+        public async Task SongAssociationsRemove(string songValue, string association)
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
-            await Commands.SongAssociationsRemove(song, associacion);
+            await Commands.SongAssociationsRemove(song, association);
 
-            await RespondInfo($"Association \"{associacion}\" removed from song {song.ToDiscordString()}");
+            await RespondInfo($"Association \"{association}\" removed from song {song.ToDiscordString()}");
         }
         public async Task SongAssociationsList(string songValue, int page)
         {
