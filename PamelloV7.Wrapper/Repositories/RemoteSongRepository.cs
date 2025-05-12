@@ -56,7 +56,7 @@ namespace PamelloV7.Wrapper.Repositories
             };
             _client.Events.OnSongAssociacionsUpdated += async (e) => {
                 var song = await Get(e.SongId, false);
-                if (song is not null) song._dto.Associacions = e.Associacions;
+                if (song is not null) song._dto.Associations = e.Associacions;
             };
         }
 

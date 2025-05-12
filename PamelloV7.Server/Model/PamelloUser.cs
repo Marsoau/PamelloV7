@@ -184,6 +184,30 @@ namespace PamelloV7.Server.Model
             return player;
         }
 
+        public bool TrySelectPlayer(PamelloPlayer? player) {
+            if (player is null) {
+                SelectedPlayer = null;
+                return true;
+            }
+            
+            if (player.Creator == this || !player.IsProtected) {
+                SelectedPlayer = player;
+                return true;
+            }
+            
+            var vc = _clients.GetUserVoiceChannel(this);
+            if (vc is null) return false;
+            
+            var vcPlayers = _speakers.GetVoicePlayers(vc.Id);
+            if (!vcPlayers.Contains(player)) return false;
+            
+            SelectedPlayer = player;
+            return true;
+        }
+        public void RequireSelectPlayer(PamelloPlayer? player) {
+            if (!TrySelectPlayer(player)) throw new PamelloException("Player is ");
+        }
+
         public void AddFavoriteSong(PamelloSong song) {
             if (_favoriteSongs.Contains(song)) return;
 

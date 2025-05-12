@@ -95,7 +95,7 @@ namespace PamelloV7.Server.Repositories
         }
 
         public async Task<PamelloSong?> GetRandomPV5(PamelloUser adder) {
-            DirectoryInfo pv5dir = new DirectoryInfo(@"D:\DiscordMusic");
+            var pv5dir = new DirectoryInfo(@"D:\DiscordMusic");
             var pv5files = pv5dir.GetFiles();
             FileInfo file;
 
@@ -103,7 +103,7 @@ namespace PamelloV7.Server.Repositories
                 file = pv5files[Random.Shared.Next(0, pv5files.Length)];
             } while (file.Extension != ".mp4");
 
-            return await AddAsync(file.Name.Substring(0, 11), adder);
+            return await AddAsync(file.Name[..11], adder);
         }
 
         public async Task<PamelloSong?> AddAsync(string youtubeId, PamelloUser adder) {

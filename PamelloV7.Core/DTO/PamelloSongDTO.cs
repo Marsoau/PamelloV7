@@ -31,8 +31,8 @@ namespace PamelloV7.Core.DTO
         public DateTime AddedAt { get; set; }
 
 
-        [JsonPropertyName("associacions")]
-        public IEnumerable<string> Associacions { get; set; }
+        [JsonPropertyName("associations")]
+        public IEnumerable<string> Associations { get; set; }
 
         [JsonPropertyName("favoriteByIds")]
         public IEnumerable<int> FavoriteByIds { get; set; }

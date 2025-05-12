@@ -179,7 +179,7 @@ namespace PamelloV7.Server.Model.Audio
             rewindCompletion.SetResult();
             _rewinding = null;
         }
-        public async Task RewindToEpisode(int episodePosition, bool forceEpisodePlayback = true) {
+        public async Task<PamelloEpisode?> RewindToEpisode(int episodePosition, bool forceEpisodePlayback = true) {
             var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
                 if (episodePosition > 0) {
@@ -189,10 +189,11 @@ namespace PamelloV7.Server.Model.Audio
                     await RewindTo(new AudioTime(0), forceEpisodePlayback);
                 }
 
-                return;
+                return null;
             }
 
             await RewindTo(episode.Start, forceEpisodePlayback);
+            return episode;
         }
 
         public int? GetCurrentEpisodePosition() {

@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using PamelloV7.Server.Modules.Discord.Base;
 
 namespace PamelloV7.Server.Modules.Discord
 {

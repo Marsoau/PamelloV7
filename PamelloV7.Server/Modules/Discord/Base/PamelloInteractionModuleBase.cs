@@ -1,19 +1,19 @@
-﻿using Discord;
+﻿using System.Text;
+using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
+using PamelloV7.Core.Audio;
+using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Exceptions;
+using PamelloV7.Server.Model;
+using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Core.Audio;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Server.Model;
-using PamelloV7.Server.Model.Discord;
-using System.Text;
-using Discord.WebSocket;
 
-namespace PamelloV7.Server.Modules.Discord
+namespace PamelloV7.Server.Modules.Discord.Base
 {
     public class PamelloInteractionModuleBase : InteractionModuleBase<PamelloSocketInteractionContext>
     {
@@ -158,31 +158,26 @@ namespace PamelloV7.Server.Modules.Discord
 
         public async Task PlayerSkip()
         {
-            var songId = await Commands.PlayerSkip();
-            if (songId is null) throw new Exception("Unexpected error with song id being null ocurred");
-
-            var song = _songs.GetRequired(songId.Value);
+            var song = await Commands.PlayerSkip();
+            if (song is null) throw new Exception("Unexpected error with song id being null ocurred");
 
             await RespondPlayerInfo("Skip", $"Song {song.ToDiscordString()} skipped");
         }
         public async Task PlayerGoTo(int songPosition, bool returnBack)
         {
-            var songId = await Commands.PlayerGoTo(songPosition, returnBack);
-            var song = _songs.GetRequired(songId);
-
+            var song = await Commands.PlayerGoTo(songPosition, returnBack);
+            
             await RespondPlayerInfo("Go To", $"Playing {song.ToDiscordString()}");
         }
         public async Task PlayerNext()
         {
-            var songId = await Commands.PlayerNext();
-            var song = _songs.GetRequired(songId);
+            var song = await Commands.PlayerNext();
 
             await RespondPlayerInfo("Next", $"Playing {song.ToDiscordString()}");
         }
         public async Task PlayerPrev()
         {
-            var songId = await Commands.PlayerPrev();
-            var song = _songs.GetRequired(songId);
+            var song = await Commands.PlayerPrev();
 
             await RespondPlayerInfo("Previous", $"Playing {song.ToDiscordString()}");
         }
@@ -257,9 +252,8 @@ namespace PamelloV7.Server.Modules.Discord
         }
         public async Task PlayerQueueSongRemove(int position)
         {
-            var songId = await Commands.PlayerQueueSongRemove(position);
+            var song = await Commands.PlayerQueueSongRemove(position);
 
-            var song = _songs.GetRequired(songId);
             await RespondPlayerInfo("Remove song from queue", $"Removed {song.ToDiscordString()}");
         }
         public async Task PlayerQueueSongMove(int fromPosition, int toPosition)
@@ -476,8 +470,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var song = await _songs.GetByValueRequired(songValue, Context.User);
             var episodeStart = AudioTime.FromStrTime(episodeTime);
 
-            var episodeId = await Commands.SongEpisodesAdd(song, episodeStart.TotalSeconds, episodeName);
-            var episode = _episodes.GetRequired(episodeId);
+            var episode = await Commands.SongEpisodeAdd(song, episodeStart.TotalSeconds, episodeName);
 
             await RespondInfo($"Episode {episode.ToDiscordString()} added");
         }
@@ -485,7 +478,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesRemove(song, episodePosition);
+            await Commands.SongEpisodeRemove(song, episodePosition);
 
             await RespondInfo($"Episode removed");
         }
@@ -493,7 +486,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesRename(song, episodePosition, newName);
+            await Commands.SongEpisodeRename(song, episodePosition, newName);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
@@ -568,8 +561,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         //playlist
         public async Task PlaylistCreate(string name, bool fillWithQueue)
         {
-            var playlistId = await Commands.PlaylistCreate(name, fillWithQueue);
-            var playlist = _playlists.GetRequired(playlistId);
+            var playlist = await Commands.PlaylistCreate(name, fillWithQueue);
 
             await RespondInfo($"Playlist {playlist.ToDiscordString()} created");
         }
@@ -707,13 +699,13 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SpeakerConnect() {
             Context.User.TryLoadLastPlayer();
 
-            await Commands.SpeakerConnectDiscord();
+            await Commands.SpeakerDiscordConnect();
 
             await RespondPlayerInfo("Connected");
         }
 
         public async Task SpeakerDisconnect() {
-            await Commands.SpeakerDisconnectDiscord();
+            await Commands.SpeakerDisconnect();
 
             await RespondPlayerInfo("Disconnected");
         }

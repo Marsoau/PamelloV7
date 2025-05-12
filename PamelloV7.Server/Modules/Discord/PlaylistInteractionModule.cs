@@ -1,6 +1,7 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Modules.Discord.Base;
 
 namespace PamelloV7.Server.Modules.Discord
 {

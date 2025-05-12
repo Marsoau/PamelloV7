@@ -22,30 +22,22 @@ namespace PamelloV7.Wrapper.Services
                 Console.WriteLine($"Exceprion in command \"{commandStr}\": {x}");
             }
         }
-        public async Task<TReturnType?> InvokeCommand<TReturnType>(string commandStr) {
-            try {
-                return await _client.HttpGetAsync<TReturnType>($"Command/{commandStr}");
-            }
-            catch (Exception x) {
-                Console.WriteLine($"Exceprion in command \"{commandStr}\": {x}");
-            }
-
-            return default;
+        public async Task<TReturnType> InvokeCommand<TReturnType>(string commandStr) {
+            return await _client.HttpGetAsync<TReturnType>($"Command/{commandStr}");
         }
 
         public async Task<int> PlayerCreate(string playerName) {
             return await InvokeCommand<int>($"PlayerCreate?playerName={playerName}");
         }
-        public async Task PlayerSelect(string? playerValue) {
+        public async Task<int?> PlayerSelect(string? playerValue) {
             if (playerValue is null) {
-                await InvokeCommand($"PlayerSelect");
-            }
-            else {
-                await InvokeCommand($"PlayerSelect?player={playerValue}");
+                return await InvokeCommand<int?>($"PlayerSelect");
+            } {
+                return await InvokeCommand<int?>($"PlayerSelect?player={playerValue}");
             }
         }
-        public async Task PlayerProtection(bool state) {
-            await InvokeCommand($"PlayerProtection?state={state}");
+        public async Task<bool> PlayerProtection(bool state) {
+            return await InvokeCommand<bool>($"PlayerProtection?state={state}");
         }
         public async Task PlayerDelete() {
             await InvokeCommand($"PlayerDelete");
@@ -68,35 +60,29 @@ namespace PamelloV7.Wrapper.Services
         public async Task<int> PlayerNext() {
             return await InvokeCommand<int>($"PlayerNext");
         }
-        public async Task PlayerGoToEpisode(int episodePosition) {
-            await InvokeCommand($"PlayerGoToEpisode?episodePosition={episodePosition}");
+        public async Task<int?> PlayerGoToEpisode(int episodePosition) {
+            return await InvokeCommand<int?>($"PlayerGoToEpisode?episodePosition={episodePosition}");
         }
-        public async Task PlayerPrevEpisode() {
-            await InvokeCommand($"PlayerPrevEpisode");
+        public async Task<int?> PlayerPrevEpisode() {
+            return await InvokeCommand<int?>($"PlayerPrevEpisode");
         }
-        public async Task PlayerNextEpisode() {
-            await InvokeCommand($"PlayerNextEpisode");
+        public async Task<int?> PlayerNextEpisode() {
+            return await InvokeCommand<int?>($"PlayerNextEpisode");
         }
         public async Task PlayerRewind(int seconds) {
             await InvokeCommand($"PlayerRewind?seconds={seconds}");
         }
-        public async Task PlayerQueueSongAdd(string songValue) {
-            await InvokeCommand($"PlayerQueueSongAdd?song={songValue}");
+        public async Task<int> PlayerQueueSongAdd(string songValue) {
+            return await InvokeCommand<int>($"PlayerQueueSongAdd?song={songValue}");
         }
-        public async Task PlayerQueueSongInsert(int queuePosition, string songValue) {
-            await InvokeCommand($"PlayerQueueSongInsert?queuePosition={queuePosition}&song={songValue}");
+        public async Task<int> PlayerQueueSongInsert(int queuePosition, string songValue) {
+            return await InvokeCommand<int>($"PlayerQueueSongInsert?queuePosition={queuePosition}&song={songValue}");
         }
-        public async Task PlayerQueueSongYoutubeAdd(string youtubeId) {
-            await InvokeCommand($"PlayerQueueSongYoutubeAdd?youtubeId={youtubeId}");
+        public async Task<int> PlayerQueuePlaylistAdd(string playlistValue) {
+            return await InvokeCommand<int>($"PlayerQueuePlaylistAdd?playlist={playlistValue}");
         }
-        public async Task PlayerQueueSongYoutubeInsert(int queuePosition, string youtubeId) {
-            await InvokeCommand($"PlayerQueueSongYoutubeInsert?queuePosition={queuePosition}&youtubeId={youtubeId}");
-        }
-        public async Task PlayerQueuePlaylistAdd(string playlistValue) {
-            await InvokeCommand($"PlayerQueuePlaylistAdd?playlist={playlistValue}");
-        }
-        public async Task PlayerQueuePlaylistInsert(int queuePosition, string playlistValue) {
-            await InvokeCommand($"PlayerQueuePlaylistInsert?queuePosition={queuePosition}&playlist={playlistValue}");
+        public async Task<int> PlayerQueuePlaylistInsert(int queuePosition, string playlistValue) {
+            return await InvokeCommand<int>($"PlayerQueuePlaylistInsert?queuePosition={queuePosition}&playlist={playlistValue}");
         }
         public async Task<int> PlayerQueueSongRemove(int position) {
             return await InvokeCommand<int>($"PlayerQueueSongRemove?position={position}");
@@ -131,8 +117,8 @@ namespace PamelloV7.Wrapper.Services
         public async Task<int> SongAdd(string youtubeId) {
             return await InvokeCommand<int>($"SongAdd?youtubeId={youtubeId}");
         }
-        public async Task SongRename(string songValue, string newName) {
-            await InvokeCommand($"SongRename?song={songValue}&newName={newName}");
+        public Task<string> SongRename(string songValue, string newName) {
+            return InvokeCommand<string>($"SongRename?song={songValue}&newName={newName}");
         }
         public async Task SongFavoriteAdd(string songValue) {
             await InvokeCommand($"SongFavoriteAdd?song={songValue}");
@@ -146,38 +132,38 @@ namespace PamelloV7.Wrapper.Services
         public async Task SongAssociationsRemove(string songValue, string associacion) {
             await InvokeCommand($"SongAssociationsRemove?song={songValue}&associacion={associacion}");
         }
-        public async Task<int> SongEpisodesAdd(string songValue, int episodeStart, string episodeName) {
-            return await InvokeCommand<int>($"SongEpisodesAdd?song={songValue}&episodeStart={episodeStart}&episodeName={episodeName}");
+        public async Task<int> SongEpisodeAdd(string songValue, int episodeStart, string episodeName) {
+            return await InvokeCommand<int>($"SongEpisodeAdd?song={songValue}&episodeStart={episodeStart}&episodeName={episodeName}");
         }
-        public async Task SongEpisodesRemove(string songValue, int episodePosition) {
-            await InvokeCommand($"SongEpisodesRemove?song={songValue}&episodePosition={episodePosition}");
+        public async Task SongEpisodeRemove(string songValue, int episodePosition) {
+            await InvokeCommand($"SongEpisodeRemove?song={songValue}&episodePosition={episodePosition}");
         }
-        public async Task SongEpisodesRename(string songValue, int episodePosition, string newName) {
-            await InvokeCommand($"SongEpisodesRename?song={songValue}&episodePosition={episodePosition}&newName={newName}");
+        public async Task<string> SongEpisodeRename(string songValue, int episodePosition, string newName) {
+            return await InvokeCommand<string>($"SongEpisodeRename?song={songValue}&episodePosition={episodePosition}&newName={newName}");
         }
-        public async Task SongEpisodesSkipSet(string songValue, int episodePosition, bool newState) {
-            await InvokeCommand($"SongEpisodesSkipSet?song={songValue}&episodePosition={episodePosition}&newState={newState}");
+        public async Task SongEpisodeSkipSet(string songValue, int episodePosition, bool newState) {
+            await InvokeCommand($"SongEpisodeSkipSet?song={songValue}&episodePosition={episodePosition}&newState={newState}");
         }
-        public async Task SongEpisodesEditTime(string songValue, int episodePosition, int newTime) {
-            await InvokeCommand($"SongEpisodesEditTime?song={songValue}&episodePosition={episodePosition}&newTime={newTime}");
+        public async Task<int> SongEpisodeEditTime(string songValue, int episodePosition, int newTime) {
+            return await InvokeCommand<int>($"SongEpisodeEditTime?song={songValue}&episodePosition={episodePosition}&newTime={newTime}");
         }
-        public async Task SongEpisodesClear(string songValue) {
-            await InvokeCommand($"SongEpisodesClear?song={songValue}");
+        public async Task SongEpisodeClear(string songValue) {
+            await InvokeCommand($"SongEpisodeClear?song={songValue}");
         }
         public async Task<int> PlaylistCreate(string name, bool fillWithQueue) {
             return await InvokeCommand<int>($"PlaylistCreate?name={name}&fillWithQueue={fillWithQueue}");
         }
-        public async Task PlaylistAddSong(string playlistValue, string songValue) {
-            await InvokeCommand($"PlaylistAddSong?playlist={playlistValue}&song={songValue}");
+        public async Task<int?> PlaylistAddSong(string playlistValue, string songValue) {
+            return await InvokeCommand<int?>($"PlaylistAddSong?playlist={playlistValue}&song={songValue}");
         }
         public async Task<int> PlaylistAddPlaylistSongs(int toPlaylistId, int fromPlaylistId) {
             return await InvokeCommand<int>($"PlaylistAddPlaylistSongs?toPlaylistId={toPlaylistId}&fromPlaylistId={fromPlaylistId}");
         }
-        public async Task PlaylistRemoveSong(string playlistValue, string songValue) {
-            await InvokeCommand($"PlaylistRemoveSong?playlist={playlistValue}&song={songValue}");
+        public async Task<int?> PlaylistRemoveSong(string playlistValue, string songValue) {
+            return await InvokeCommand<int?>($"PlaylistRemoveSong?playlist={playlistValue}&song={songValue}");
         }
-        public async Task PlaylistRename(string playlistValue, string newName) {
-            await InvokeCommand($"PlaylistRename?playlist={playlistValue}&newName={newName}");
+        public async Task<string> PlaylistRename(string playlistValue, string newName) {
+            return await InvokeCommand<string>($"PlaylistRename?playlist={playlistValue}&newName={newName}");
         }
         public async Task PlaylistFavoriteAdd(string playlistValue) {
             await InvokeCommand($"PlaylistFavoriteAdd?playlist={playlistValue}");
@@ -188,17 +174,17 @@ namespace PamelloV7.Wrapper.Services
         public async Task PlaylistDelete(string playlistValue) {
             await InvokeCommand($"PlaylistDelete?playlist={playlistValue}");
         }
-        public async Task SpeakerConnectDiscord() {
-            await InvokeCommand($"SpeakerConnect");
+        public async Task SpeakerDiscordConnect() {
+            await InvokeCommand($"SpeakerDiscordConnect");
         }
-        public async Task SpeakerDisconnectDiscord() {
+        public async Task SpeakerDisconnect() {
             await InvokeCommand($"SpeakerDisconnect");
         }
-        public async Task<int> SpeakerConnectInternet(int? channel = null) {
-            return await InvokeCommand<int>($"SpeakerConnectInternet?channel={channel}");
+        public async Task<string> SpeakerInternetConnect(string? channel = null, bool isPublic = false) {
+            return await InvokeCommand<string>($"SpeakerInternetConnect?channel={channel}&isPublic={isPublic}");
         }
-        public async Task SpeakerDisconnectInternet(int? channel = null) {
-            await InvokeCommand($"SpeakerDisconnectInternet?channel={channel}");
+        public async Task<bool> SpeakerInternetChangeProtection(string channel, bool isPublic = false) {
+            return await InvokeCommand<bool>($"SpeakerInternetChangeProtection?channel={channel}&isPublic={isPublic}");
         }
     }
 }

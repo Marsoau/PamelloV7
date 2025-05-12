@@ -30,7 +30,7 @@ namespace PamelloV7.Wrapper.Model
         }
 
         public IEnumerable<string> Associacions {
-            get => _dto.Associacions;
+            get => _dto.Associations;
         }
         public IEnumerable<int> FavoriteByIds {
             get => _dto.FavoriteByIds;

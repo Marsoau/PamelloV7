@@ -133,7 +133,7 @@ namespace PamelloV7.Client.Pages
         }
 
         private async void Button_ConnectSpeaker_Click(object sender, System.Windows.RoutedEventArgs e) {
-            await _pamello.Commands.SpeakerConnectDiscord();
+            await _pamello.Commands.SpeakerDiscordConnect();
         }
 
         private async void TextBlock_CurrentSongAddedBy_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {

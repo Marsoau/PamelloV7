@@ -324,7 +324,7 @@ namespace PamelloV7.Server.Model
                 AddedById = AddedBy.Id,
                 AddedAt = AddedAt,
 
-                Associacions = Associacions,
+                Associations = Associacions,
                 FavoriteByIds = FavoriteByIds,
                 PlaylistsIds = PlaylistsIds,
                 EpisodesIds = EpisodesIds,

@@ -80,8 +80,8 @@ namespace PamelloV7.Server.Model
             _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.GetRequired(e.Id)).ToList();
         }
 
-        public void AddSong(PamelloSong song) {
-            if (_songs.Contains(song)) return;
+        public PamelloSong? AddSong(PamelloSong song) {
+            if (_songs.Contains(song)) return null;
 
             _songs.Add(song);
             Save();
@@ -91,6 +91,8 @@ namespace PamelloV7.Server.Model
                 PlaylistId = Id,
                 SongsIds = SongsIds,
             });
+            
+            return song;
         }
 
         public int AddList(IReadOnlyList<PamelloSong> list) {
@@ -117,8 +119,8 @@ namespace PamelloV7.Server.Model
             return count;
         }
 
-        public void RemoveSong(PamelloSong song) {
-            if (!_songs.Contains(song)) return;
+        public PamelloSong? RemoveSong(PamelloSong song) {
+            if (!_songs.Contains(song)) return null;
 
             _songs.Remove(song);
             Save();
@@ -128,6 +130,8 @@ namespace PamelloV7.Server.Model
                 PlaylistId = Id,
                 SongsIds = SongsIds,
             });
+            
+            return song;
         }
 
         public void MakeFavorited(PamelloUser user) {

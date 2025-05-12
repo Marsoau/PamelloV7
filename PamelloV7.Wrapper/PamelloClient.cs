@@ -39,24 +39,28 @@ namespace PamelloV7.Wrapper
 
         internal Task HttpGetAsync(string url, Guid? customToken = null)
             => HttpGetAsync<object?>(url, customToken);
-        internal async Task<T?> HttpGetAsync<T>(string url, Guid? customToken = null) {
+        internal async Task<T> HttpGetAsync<T>(string url, Guid? customToken = null) {
             if (ServerHost is null) throw new PamelloException("ServerHost of PamelloClient wasnt set trying to make a request");
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
             if (Authorization.UserToken is not null) {
-                request.Headers.Add("user", (customToken ?? Authorization.UserToken).Value.ToString());
+                request.Headers.Add("user", (
+                    customToken ??
+                    Authorization.UserToken ??
+                    throw new PamelloException("UserToken is null")
+                ).ToString());
             }
 
-            var responce = await _http.SendAsync(request);
-            var contentString = await responce.Content.ReadAsStringAsync();
+            var response = await _http.SendAsync(request);
+            var contentString = await response.Content.ReadAsStringAsync();
 
-            if (responce.StatusCode != System.Net.HttpStatusCode.OK) {
+            if (response.StatusCode != System.Net.HttpStatusCode.OK) {
                 throw new Exception(contentString);
             }
 
             if (contentString.Length == 0) return default;
 
-            var result = JsonSerializer.Deserialize<T>(responce.Content.ReadAsStream());
+            var result = JsonSerializer.Deserialize<T>(response.Content.ReadAsStream());
 
             return result;
         }
