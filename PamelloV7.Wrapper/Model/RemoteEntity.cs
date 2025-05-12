@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PamelloV7.Wrapper.Interfaces;
 
 namespace PamelloV7.Wrapper.Model
 {
-    public abstract class RemoteEntity<TPamelloDTO> where TPamelloDTO : IPamelloDTO
+    public abstract class RemoteEntity<TPamelloDTO> : IRemoteEntity where TPamelloDTO : IPamelloDTO
     {
         protected readonly PamelloClient _client;
 
