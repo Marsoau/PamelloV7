@@ -58,22 +58,21 @@ namespace PamelloV7.Server.Repositories
             List<PamelloPlayer> vcPlayers = null;
 
             var vc = _discordClients.GetUserVoiceChannel(scopeUser);
-            if (vc is not null) vcPlayers = _speakers.GetVoicePlayers(vc.Id);
-            else vcPlayers = new List<PamelloPlayer>();
+            vcPlayers = vc is not null ? _speakers.GetVoicePlayers(vc.Id) : [];
 
             foreach (var pamelloPlayer in _players) {
                 if (pamelloPlayer is null) continue;
-
-                if (pamelloPlayer.Name.ToLower().Contains(querry)) {
-                    if (pamelloPlayer.IsProtected) {
-                        if (pamelloPlayer.Creator != scopeUser) {
-                            if (!vcPlayers.Contains(pamelloPlayer)) {
-                                continue;
-                            }
+                if (!pamelloPlayer.Name.Contains(querry, StringComparison.CurrentCultureIgnoreCase)) continue;
+                
+                if (pamelloPlayer.IsProtected) {
+                    if (pamelloPlayer.Creator != scopeUser) {
+                        if (!vcPlayers.Contains(pamelloPlayer)) {
+                            continue;
                         }
                     }
-                    results.Add(pamelloPlayer);
                 }
+                
+                results.Add(pamelloPlayer);
             }
 
             return Task.FromResult((IEnumerable<PamelloPlayer>)results);
