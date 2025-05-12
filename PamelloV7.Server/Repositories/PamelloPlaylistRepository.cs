@@ -33,16 +33,19 @@ namespace PamelloV7.Server.Repositories
             return Load(databasePlaylist);
         }
 
-        public override Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser = null) {
+        public override async Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser = null) {
             PamelloPlaylist? playlist = null;
 
-            if (int.TryParse(value, out int id)) {
+            if (value == "random") {
+                playlist = GetRandom();
+            }
+            if (int.TryParse(value, out var id)) {
                 playlist = Get(id);
             }
 
             playlist ??= GetByName(value);
 
-            return Task.FromResult(playlist);
+            return playlist;
         }
 
         public async Task<IEnumerable<PamelloPlaylist>> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null, PamelloUser? scopeUser = null) {

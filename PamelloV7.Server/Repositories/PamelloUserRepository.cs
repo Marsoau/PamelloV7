@@ -75,6 +75,9 @@ namespace PamelloV7.Server.Repositories
             if (value == "current") {
                 user = scopeUser;
             }
+            if (value == "random") {
+                user = GetRandom();
+            }
             else if (int.TryParse(value, out var id)) {
                 user = Get(id);
             }

@@ -81,20 +81,26 @@ namespace PamelloV7.Server.Repositories
 
         public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser = null)
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required player wuth id {value}");
-        public Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser = null) {
+        public async Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser = null) {
             PamelloPlayer? player = null;
 
             if (value == "current") {
                 player = scopeUser?.SelectedPlayer;
             }
-            else if (int.TryParse(value, out int id)) {
+            else if (value == "random") {
+                var availablePlayers = (await Search("", scopeUser)).ToList();
+                var i = Random.Shared.Next(0, availablePlayers.Count);
+
+                player = availablePlayers[i];
+            }
+            else if (int.TryParse(value, out var id)) {
                 player = Get(id);
             }
             else {
                 player = GetByName(value);
             }
 
-            return Task.FromResult(player);
+            return player;
         }
     }
 }

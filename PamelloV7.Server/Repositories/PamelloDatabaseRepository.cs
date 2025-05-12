@@ -48,9 +48,7 @@ namespace PamelloV7.Server.Repositories
         }
 
         public TPamelloEntity GetRandom() {
-            var entities = GetEntities();
-
-            return Get(Random.Shared.Next(0, entities.Count));
+            return _loaded[Random.Shared.Next(0, _loaded.Count)];
         }
         public TPamelloEntity GetRequired(int id)
 			=> Get(id) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with id {id}");
