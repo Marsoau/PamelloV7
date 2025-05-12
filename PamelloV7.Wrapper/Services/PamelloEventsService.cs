@@ -41,6 +41,8 @@ namespace PamelloV7.Wrapper.Services
 
         public Guid? EventsToken { get; internal set; }
 
+        public bool IsConnected { get; private set; }
+
 
         public event Func<Task>? OnConnect;
         public event Func<Task> OnDisconnect;
@@ -133,6 +135,8 @@ namespace PamelloV7.Wrapper.Services
             if (arg.EventsToken == Guid.Empty) return;
 
             EventsToken = arg.EventsToken;
+            
+            IsConnected = true;
             if (OnConnect is not null) await OnConnect.Invoke();
         }
 
@@ -337,7 +341,7 @@ namespace PamelloV7.Wrapper.Services
 
             _client.ServerHost = serverHost;
 
-            Task.Run(() => ListenEventStream(_eventStream));
+            _ = Task.Run(() => ListenEventStream(_eventStream));
 
             return true;
         }
@@ -362,12 +366,13 @@ namespace PamelloV7.Wrapper.Services
                 OnPamelloEvent.Invoke(pamelloEvent);
             }
 
+            IsConnected = false;
             OnDisconnect.Invoke();
         }
 
         private SseEvent? ReadEvent(StreamReader sr) {
-            char[] buffer = new char[1];
-            StringBuilder sb = new StringBuilder();
+            var buffer = new char[1];
+            var sb = new StringBuilder();
 
             var brakeFound = false;
 

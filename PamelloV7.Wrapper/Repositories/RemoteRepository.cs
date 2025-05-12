@@ -33,8 +33,10 @@ namespace PamelloV7.Wrapper.Repositories
             => await GetNew(value) ?? throw new PamelloException($"Cant get new user by value \"{value}\"");
 
         public async Task<TRemoteEntity?> Get(int id, bool requestNewIfNotFound = true) {
-            var remoteEntity = _loaded.FirstOrDefault(entity => entity.Id == id);
-            if (remoteEntity is not null) return remoteEntity;
+            if (_client.Events.IsConnected) {
+                var remoteEntity = _loaded.FirstOrDefault(entity => entity.Id == id);
+                if (remoteEntity is not null) return remoteEntity;
+            }
 
             if (!requestNewIfNotFound) return null;
 
@@ -69,7 +71,10 @@ namespace PamelloV7.Wrapper.Repositories
             }
 
             remoteEntity = CreateRemoteEntity(dto);
-            _loaded.Add(remoteEntity);
+
+            if (_client.Events.IsConnected) {
+                _loaded.Add(remoteEntity);
+            }
 
             return remoteEntity;
         }
