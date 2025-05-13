@@ -130,7 +130,7 @@ namespace PamelloV7.Server.Repositories
                 AddedBy = adderUser,
                 Associations = [],
 				FavoriteBy = [],
-				Playlists = [],
+				PlaylistEntries = [],
                 Episodes = [],
 			};
 
@@ -181,7 +181,7 @@ namespace PamelloV7.Server.Repositories
                 .AsNoTracking()
                 .Include(song => song.AddedBy)
                 .Include(song => song.Episodes)
-                .Include(song => song.Playlists)
+                .Include(song => song.PlaylistEntries)
                 .Include(song => song.FavoriteBy)
                 .Include(song => song.Associations)
                 .AsSplitQuery()

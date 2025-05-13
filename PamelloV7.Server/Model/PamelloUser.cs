@@ -272,7 +272,7 @@ namespace PamelloV7.Server.Model
 
             var databasePlaylist = new DatabasePlaylist() {
                 Name = name,
-                Songs = [],
+                Entries = [],
                 Owner = dbUser,
                 IsProtected = false,
                 FavoriteBy = [],
@@ -337,36 +337,20 @@ namespace PamelloV7.Server.Model
             var dbFavoriteSongsIds = dbUser.FavoriteSongs.Select(song => song.Id);
             var dbFavoritePlaylistsIds = dbUser.FavoritePlaylists.Select(song => song.Id);
 
-            var addedSongsDifference = DifferenceResult<int>.From(
-                dbAddedSongsIds, 
-                AddedSongsIds,
-                true
-            );
-            var addedPlaylistsDifference = DifferenceResult<int>.From(
-                dbAddedPlaylistsIds, 
-                AddedPlaylistsIds,
-                true
-            );
             var favoriteSongsDifference = DifferenceResult<int>.From(
                 dbFavoriteSongsIds, 
                 FavoriteSongsIds,
-                true
+                withMoved: true
             );
             var favoritePlaylistsDifference = DifferenceResult<int>.From(
                 dbFavoritePlaylistsIds, 
                 FavoritePlaylistsIds,
-                true
+                withMoved: true
             );
 
-            addedSongsDifference.ExcludeMoved();
-            addedPlaylistsDifference.ExcludeMoved();
             favoriteSongsDifference.ExcludeMoved();
             favoritePlaylistsDifference.ExcludeMoved();
 
-            addedSongsDifference.Apply(dbUser.AddedSongs, songId
-                => db.Songs.Find(songId)!);
-            addedPlaylistsDifference.Apply(dbUser.OwnedPlaylists, playlistId
-                => db.Playlists.Find(playlistId)!);
             favoriteSongsDifference.Apply(dbUser.FavoriteSongs, songId
                 => db.Songs.Find(songId)!);
             favoritePlaylistsDifference.Apply(dbUser.FavoritePlaylists, playlistId

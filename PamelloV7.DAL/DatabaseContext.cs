@@ -56,10 +56,12 @@ namespace PamelloV7.DAL
             
             modelBuilder.Entity<DatabasePlaylistEntry>(entryBuilder => {
                 entryBuilder.HasKey(entry => entry.Id);
-                entryBuilder.HasOne(entry => entry.Playlist)
-                    .WithMany(playlist => playlist.Entries);
-                entryBuilder.HasOne(entry => entry.Song)
-                    .WithMany(song => song.PlaylistEntries);
+                entryBuilder.HasOne<DatabasePlaylist>()
+                    .WithMany(playlist => playlist.Entries)
+                    .HasForeignKey(entry => entry.PlaylistId);
+                entryBuilder.HasOne<DatabaseSong>()
+                    .WithMany(song => song.PlaylistEntries)
+                    .HasForeignKey(entry => entry.SongId);
             });
             
             modelBuilder.Entity<DatabaseAssociation>(associationBuilder => {

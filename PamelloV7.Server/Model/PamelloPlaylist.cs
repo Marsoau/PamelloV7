@@ -76,8 +76,10 @@ namespace PamelloV7.Server.Model
             if (DatabaseEntity is null) return;
 
             _owner = _users.GetRequired(DatabaseEntity.Owner.Id);
-            _songs = DatabaseEntity.Songs.Select(e => base._songs.GetRequired(e.Id)).ToList();
+            
             _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.GetRequired(e.Id)).ToList();
+            var orderedEntries = DatabaseEntity.Entries.Where(entry => entry.PlaylistId == Id).OrderBy(entry => entry.Order);
+            _songs = orderedEntries.Select(entry => base._songs.Get(entry.SongId)).OfType<PamelloSong>().ToList();
         }
 
         public PamelloSong? AddSong(PamelloSong song) {
@@ -176,7 +178,7 @@ namespace PamelloV7.Server.Model
 
             var dbPlaylist = db.Playlists
                 .Where(databasePlaylist => databasePlaylist.Id == Id)
-                .Include(databasePlaylist => databasePlaylist.Songs)
+                .Include(databasePlaylist => databasePlaylist.Entries)
                 .Include(databasePlaylist => databasePlaylist.FavoriteBy)
                 .AsSplitQuery()
                 .FirstOrDefault();
@@ -185,26 +187,28 @@ namespace PamelloV7.Server.Model
             dbPlaylist.Name = Name;
             dbPlaylist.IsProtected = IsProtected;
 
-            var dbSongsIds = dbPlaylist.Songs.Select(song => song.Id);
-            var dbFavoriteByIds = dbPlaylist.FavoriteBy.Select(song => song.Id);
+            var difference = Songs.Count - dbPlaylist.Entries.Count;
+            if (difference > 0) {
+                for (var i = 0; i < difference; i++) {
+                    dbPlaylist.Entries.Add(new DatabasePlaylistEntry {
+                        PlaylistId = Id
+                    });
+                }
+            }
+            else if (difference < 0) {
+                for (var i = 0; i > difference; i--) {
+                    dbPlaylist.Entries.RemoveAt(dbPlaylist.Entries.Count - 1);
+                }
+            }
 
-            var addedSongsDifference = DifferenceResult<int>.From(
-                dbSongsIds, 
-                SongsIds,
-                true
-            );
-            var addedPlaylistsDifference = DifferenceResult<int>.From(
-                dbFavoriteByIds, 
-                FavoriteByIds,
-                true
-            );
+            if (Songs.Count != dbPlaylist.Entries.Count) throw new PamelloDatabaseSaveException();
 
-            addedSongsDifference.ExcludeMoved();
-            addedPlaylistsDifference.ExcludeMoved();
-
-            addedSongsDifference.Apply(dbPlaylist.Songs, songId => db.Songs.Find(songId)!);
-            addedPlaylistsDifference.Apply(dbPlaylist.FavoriteBy, playlistId => db.Users.Find(playlistId)!);
-
+            var orderCount = 0;
+            foreach (var song in Songs) {
+                dbPlaylist.Entries[orderCount].SongId = song.Id;
+                dbPlaylist.Entries[orderCount].Order = ++orderCount;
+            }
+            
             return dbPlaylist;
         }
     }

@@ -147,7 +147,9 @@ namespace PamelloV7.Server.Model
 
             _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
             _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
-            _playlists = DatabaseEntity.FavoriteBy.Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
+            _playlists = DatabaseEntity.PlaylistEntries
+                .Where(entry => entry.PlaylistId == Id)
+                .Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
             _associacions = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
         }
 
@@ -340,7 +342,7 @@ namespace PamelloV7.Server.Model
             var dbSong = db.Songs
                 .Where(databaseSong => databaseSong.Id == Id)
                 .Include(databaseSong => databaseSong.AddedBy)
-                .Include(databaseSong => databaseSong.Playlists)
+                .Include(databaseSong => databaseSong.PlaylistEntries)
                 .Include(databaseSong => databaseSong.FavoriteBy)
                 .Include(databaseSong => databaseSong.Episodes)
                 .Include(databaseSong => databaseSong.Associations)
@@ -355,44 +357,24 @@ namespace PamelloV7.Server.Model
             dbSong.YoutubeId = YoutubeId;
             dbSong.CoverUrl = CoverUrl;
             dbSong.PlayCount = PlayCount;
-            //dbSong.AddedAt = AddedAt;
-            //dbSong.AddedBy = addedBy;
 
-            var dbPlaylistsIds = dbSong.Playlists.Select(playlist => playlist.Id);
-            var dbFavoriteByIds = dbSong.FavoriteBy.Select(user => user.Id);
             var dbEpisodesIds = dbSong.Episodes.Select(episode => episode.Id);
             var dbAssociationsValues = dbSong.Associations.Select(association => association.Association);
 
-            var playlistsDifference = DifferenceResult<int>.From(
-                dbPlaylistsIds, 
-                PlaylistsIds,
-                true
-            );
-            var favoriteByDifference = DifferenceResult<int>.From(
-                dbFavoriteByIds, 
-                FavoriteByIds,
-                true
-            );
             var episodesDifference = DifferenceResult<int>.From(
                 dbEpisodesIds, 
                 EpisodesIds,
-                true
+                withMoved: true
             );
             var associationsDifference = DifferenceResult<string>.From(
                 dbAssociationsValues, 
                 Associacions,
-                true
+                withMoved: true
             );
 
-            playlistsDifference.ExcludeMoved();
-            favoriteByDifference.ExcludeMoved();
             episodesDifference.ExcludeMoved();
             associationsDifference.ExcludeMoved();
 
-            playlistsDifference.Apply(dbSong.Playlists, id
-                => db.Playlists.Find(id)!);
-            favoriteByDifference.Apply(dbSong.FavoriteBy, id
-                => db.Users.Find(id)!);
             episodesDifference.Apply(dbSong.Episodes, id
                 => db.Episodes.Find(id)!);
             associationsDifference.Apply(dbSong.Associations, id

@@ -24,26 +24,28 @@ namespace PamelloV7.Server.Model.Difference
             Deleted = new();
         }
 
-        public static DifferenceResult<TType> From(IEnumerable<TType> ebefore, IEnumerable<TType> eafter, bool withMoved = false, bool withChanged = false) {
+        public static DifferenceResult<TType> From(IEnumerable<TType> ebefore, IEnumerable<TType> eafter, Func<TType, TType, bool>? equals = null, bool withMoved = false) {
             var result = new DifferenceResult<TType>();
 
             var before = ebefore as IList<TType> ?? ebefore.ToList();
             var after = eafter as IList<TType> ?? eafter.ToList();
 
+            equals ??= (b, a) => EqualityComparer<TType>.Default.Equals(b, a);
+
             var at = (IList<TType> collection, int position) => collection[position];
 
             var sameAt = (int posBefore, int posAfter) => {
-                if (posAfter >= after.Count()) return false;
-                if (posBefore >= before.Count()) return false;
+                if (posAfter >= after.Count) return false;
+                if (posBefore >= before.Count) return false;
 
-                return EqualityComparer<TType>.Default.Equals(at(before, posBefore), at(after, posAfter));
+                return equals(at(before, posBefore), at(after, posAfter));
             };
             var sameIn = (IList<TType> first, IList<TType> second, int position) => {
-                return EqualityComparer<TType>.Default.Equals(at(first, position), at(second, position));
+                return equals(at(first, position), at(second, position));
             };
 
-            var afterCount = after.Count();
-            var beforeCount = before.Count();
+            var afterCount = after.Count;
+            var beforeCount = before.Count;
 
             int b, a, b1, a1;
             var end = false;
