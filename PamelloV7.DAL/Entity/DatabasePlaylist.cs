@@ -6,7 +6,7 @@
         public DatabaseUser Owner { get; set; }
         public bool IsProtected { get; set; }
 
-        public List<DatabaseSong> Songs { get; set; }
+        public List<DatabasePlaylistEntry> Entries { get; set; }
         public List<DatabaseUser> FavoriteBy { get; set; }
 	}
 }

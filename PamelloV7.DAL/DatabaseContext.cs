@@ -9,7 +9,8 @@ namespace PamelloV7.DAL
         public DbSet<DatabaseSong> Songs { get; set; }
         public DbSet<DatabaseEpisode> Episodes { get; set; }
         public DbSet<DatabasePlaylist> Playlists { get; set; }
-
+        
+        public DbSet<DatabasePlaylistEntry> PlaylistEntries { get; set; }
         public DbSet<DatabaseAssociation> Associations { get; set; }
 
         public DatabaseContext() {
@@ -51,14 +52,16 @@ namespace PamelloV7.DAL
                     .WithOne(episode => episode.Song);
                 songBuilder.HasMany(song => song.Associations)
                     .WithOne(association => association.Song);
-                songBuilder.HasMany(song => song.Playlists)
-                    .WithMany(playlist => playlist.Songs)
-                    .UsingEntity(entity => {
-                        entity.Property("PlaylistsId").HasColumnName("PlaylistId");
-                        entity.Property("SongsId").HasColumnName("SongId");
-                        entity.ToTable("PlaylistsSongs");
-                    });
             });
+            
+            modelBuilder.Entity<DatabasePlaylistEntry>(entryBuilder => {
+                entryBuilder.HasKey(entry => entry.Id);
+                entryBuilder.HasOne(entry => entry.Playlist)
+                    .WithMany(playlist => playlist.Entries);
+                entryBuilder.HasOne(entry => entry.Song)
+                    .WithMany(song => song.PlaylistEntries);
+            });
+            
             modelBuilder.Entity<DatabaseAssociation>(associationBuilder => {
                 associationBuilder.HasKey(association => association.Association);
             });

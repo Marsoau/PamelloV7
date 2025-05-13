@@ -13,7 +13,7 @@
         public List<DatabaseUser> FavoriteBy { get; set; }
 
         public List<DatabaseEpisode> Episodes { get; set; }
-        public List<DatabasePlaylist> Playlists { get; set; }
+        public List<DatabasePlaylistEntry> PlaylistEntries { get; set; }
         public List<DatabaseAssociation> Associations { get; set; }
 	}
 }
