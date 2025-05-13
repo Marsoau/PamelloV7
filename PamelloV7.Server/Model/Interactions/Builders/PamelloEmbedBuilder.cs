@@ -2,6 +2,7 @@
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
+using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Model.Interactions.Builders
 {
@@ -37,7 +38,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     Text = description,
                 }
             }
-            .WithColor(0x00A795AC);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
         public static EmbedBuilder Page<T>(string header, IEnumerable<T> content, Action<StringBuilder, int, T> writeElement, int page = 0, int count = 20) {
             var sb = new StringBuilder();
@@ -67,7 +68,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     Text = $"Page {page + 1} / {totalPages} ({content.Count()})"
                 }
             }
-            .WithColor(0x00A795AC);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder SongInfo(PamelloSong song) {
@@ -96,7 +97,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     }
                 }
             }
-            .WithColor(0x00A795AC);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder PlayerInfo(PamelloPlayer player) {
@@ -166,7 +167,7 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 Title = player.Name,
                 Fields = fields
             }
-            .WithColor(0x00A795AC);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
         public static EmbedBuilder PlaylistInfo(PamelloPlaylist playlist) {
             return new EmbedBuilder() {
@@ -192,7 +193,7 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                     }
                 }
             }
-            .WithColor(0x00484848);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder Error(string message) {
@@ -200,14 +201,14 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 Title = "Error",
                 Description = message,
             }
-            .WithColor(0x00484848);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Error.Color));
         }
         public static EmbedBuilder Exception(string message) {
             return new EmbedBuilder() {
                 Title = "Exception",
                 Description = message,
             }
-            .WithColor(0x00FF3030);
+            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Exception.Color));
         }
     }
 }

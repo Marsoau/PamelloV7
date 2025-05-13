@@ -21,6 +21,8 @@ namespace PamelloV7.Server
 
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
+
             ConfigureDatabaseServices(builder.Services);
             ConfigureDiscordServices(builder.Services);
             ConfigurePamelloServices(builder.Services);
@@ -45,7 +47,7 @@ namespace PamelloV7.Server
             };
 
             services.AddSingleton(new DiscordSocketClient(discordConfig));
-            for (int i = 0; i < PamelloServerConfig.SpeakerTokens.Length; i++) {
+            for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
                 services.AddKeyedSingleton($"Speaker-{i + 1}", new DiscordSocketClient(discordConfig));
             }
             
@@ -123,13 +125,13 @@ namespace PamelloV7.Server
                 //Console.WriteLine("speaker ready");
             };
 
-            await discordClients.MainClient.LoginAsync(TokenType.Bot, PamelloServerConfig.MainBotToken);
+            await discordClients.MainClient.LoginAsync(TokenType.Bot, PamelloServerConfig.Root.Discord.Tokens.MainBotToken);
             await discordClients.MainClient.StartAsync();
 
             await mainDiscordReady.Task;
 
-            for (int i = 0; i < PamelloServerConfig.SpeakerTokens.Length; i++) {
-                await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot, PamelloServerConfig.SpeakerTokens[i]);
+            for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
+                await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot, PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens[i]);
                 await discordClients.DiscordClients[i + 1].StartAsync();
             }
         }
