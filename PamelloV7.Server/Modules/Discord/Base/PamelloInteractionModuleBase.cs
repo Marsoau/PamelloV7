@@ -483,7 +483,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
-            await Commands.SongEpisodesSkipSet(song, episodePosition, state == EBoolState.Enabled);
+            await Commands.SongEpisodeSkipSet(song, episodePosition, state == EBoolState.Enabled);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
@@ -503,7 +503,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             var song = await _songs.GetByValueRequired(songValue, Context.User);
             var newStart = AudioTime.FromStrTime(newTime);
 
-            await Commands.SongEpisodesEditTime(song, episodePosition, newStart.TotalSeconds);
+            await Commands.SongEpisodeEditTime(song, episodePosition, newStart.TotalSeconds);
 
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {

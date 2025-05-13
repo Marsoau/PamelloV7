@@ -94,17 +94,11 @@ namespace PamelloV7.Wrapper.Services
         public async Task PlayerRewind(int seconds) {
             await InvokeCommand($"PlayerRewind?seconds={seconds}");
         }
-        public async Task<RemoteSong> PlayerQueueSongAdd(string songValue) {
-            return await InvokeCommand<RemoteSong>($"PlayerQueueSongAdd?song={songValue}");
+        public async Task<RemoteSong> PlayerQueueSongAdd(string songValue, int? position = null) {
+            return await InvokeCommand<RemoteSong>($"PlayerQueueSongAdd?song={songValue}&position={position}");
         }
-        public async Task<RemoteSong> PlayerQueueSongInsert(int queuePosition, string songValue) {
-            return await InvokeCommand<RemoteSong>($"PlayerQueueSongInsert?queuePosition={queuePosition}&song={songValue}");
-        }
-        public async Task<int> PlayerQueuePlaylistAdd(string playlistValue) {
-            return await InvokeCommand<int>($"PlayerQueuePlaylistAdd?playlist={playlistValue}");
-        }
-        public async Task<int> PlayerQueuePlaylistInsert(int queuePosition, string playlistValue) {
-            return await InvokeCommand<int>($"PlayerQueuePlaylistInsert?queuePosition={queuePosition}&playlist={playlistValue}");
+        public async Task<RemotePlaylist> PlayerQueuePlaylistAdd(string playlistValue, int? position = null) {
+            return await InvokeCommand<RemotePlaylist>($"PlayerQueuePlaylistAdd?playlist={playlistValue}&position={position}");
         }
         public async Task<RemoteSong> PlayerQueueSongRemove(int position) {
             return await InvokeCommand<RemoteSong>($"PlayerQueueSongRemove?position={position}");
@@ -169,20 +163,26 @@ namespace PamelloV7.Wrapper.Services
         public async Task<int> SongEpisodeEditTime(string songValue, int episodePosition, int newTime) {
             return await InvokeCommand<int>($"SongEpisodeEditTime?song={songValue}&episodePosition={episodePosition}&newTime={newTime}");
         }
-        public async Task SongEpisodeClear(string songValue) {
-            await InvokeCommand($"SongEpisodeClear?song={songValue}");
+        public async Task SongEpisodesClear(string songValue) {
+            await InvokeCommand($"SongEpisodesClear?song={songValue}");
         }
         public async Task<RemotePlaylist> PlaylistCreate(string name, bool fillWithQueue) {
             return await InvokeCommand<RemotePlaylist>($"PlaylistCreate?name={name}&fillWithQueue={fillWithQueue}");
         }
-        public async Task<RemoteSong?> PlaylistAddSong(string playlistValue, string songValue) {
-            return await InvokeCommand<RemoteSong?>($"PlaylistAddSong?playlist={playlistValue}&song={songValue}");
+        public async Task<RemoteSong?> PlaylistAddSong(string playlistValue, string songValue, int? position = null) {
+            return await InvokeCommand<RemoteSong?>($"PlaylistAddSong?playlist={playlistValue}&song={songValue}&position={position}");
         }
-        public async Task<int> PlaylistAddPlaylistSongs(int toPlaylistId, int fromPlaylistId) {
-            return await InvokeCommand<int>($"PlaylistAddPlaylistSongs?toPlaylistId={toPlaylistId}&fromPlaylistId={fromPlaylistId}");
+        public async Task PlaylistAddPlaylistSongs(string toPlaylistValue, string fromPlaylistValue, int? position = null) {
+            await InvokeCommand($"PlaylistAddPlaylistSongs?toPlaylist={toPlaylistValue}&fromPlaylist={fromPlaylistValue}&position={position}");
         }
         public async Task<RemoteSong?> PlaylistRemoveSong(string playlistValue, string songValue) {
             return await InvokeCommand<RemoteSong?>($"PlaylistRemoveSong?playlist={playlistValue}&song={songValue}");
+        }
+        public async Task<RemoteSong?> PlaylistRemoveAt(string playlistValue, int position) {
+            return await InvokeCommand<RemoteSong?>($"PlaylistRemoveAt?playlist={playlistValue}&position={position}");
+        }
+        public async Task<RemoteSong?> PlaylistMoveSong(string playlistValue, int fromPosition, int toPosition) {
+            return await InvokeCommand<RemoteSong?>($"PlaylistMoveSong?playlist={playlistValue}&fromPosition={fromPosition}&toPosition={toPosition}");
         }
         public async Task<string> PlaylistRename(string playlistValue, string newName) {
             return await InvokeCommand<string>($"PlaylistRename?playlist={playlistValue}&newName={newName}");

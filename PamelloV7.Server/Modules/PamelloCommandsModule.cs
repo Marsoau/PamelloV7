@@ -273,14 +273,14 @@ namespace PamelloV7.Server.Modules
             return episode.Name = newName;
         }
         [PamelloCommand]
-        public async Task SongEpisodesSkipSet(PamelloSong song, int episodePosition, bool newState) {
+        public async Task SongEpisodeSkipSet(PamelloSong song, int episodePosition, bool newState) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
             episode.AutoSkip = newState;
         }
         [PamelloCommand]
-        public async Task<int> SongEpisodesEditTime(PamelloSong song, int episodePosition, int newTime) {
+        public async Task<int> SongEpisodeEditTime(PamelloSong song, int episodePosition, int newTime) {
             var episode = song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) throw new PamelloException($"cant find episode in position {episodePosition}");
 
