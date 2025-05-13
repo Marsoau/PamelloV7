@@ -10,6 +10,8 @@ namespace PamelloV7.Server.Repositories
     public class PamelloSongRepository : PamelloDatabaseRepository<PamelloSong, DatabaseSong>
     {
         private readonly YoutubeInfoService _youtube;
+        
+        private PamelloPlaylistRepository _playlists;
 
         public PamelloSongRepository(IServiceProvider services,
             YoutubeInfoService youtube
@@ -18,6 +20,8 @@ namespace PamelloV7.Server.Repositories
         }
         public override void InitServices() {
             base.InitServices();
+
+            _playlists = _services.GetRequiredService<PamelloPlaylistRepository>();
         }
 
         public PamelloSong GetByNameRequired(string name)
@@ -83,12 +87,16 @@ namespace PamelloV7.Server.Repositories
                     song = await AddAsync(youtubeId, scopeUser);
                 }
             }
+            else if (value.Contains(':')) {
+                song = await GetFromSplitValue(value, _playlists, (playlist, secondValue) => {
+                    if (!int.TryParse(secondValue, out var position))
+                        return null;
+                    
+                    return playlist?.Songs.ElementAtOrDefault(position);
+                });
+            }
             else {
-                song = GetByAssociacion(value);
-
-                if (song is null) {
-                    song = GetByName(value);
-                }
+                song = GetByAssociacion(value) ?? GetByName(value);
             }
 
             return song;

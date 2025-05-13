@@ -99,7 +99,7 @@ namespace PamelloV7.Server.Controllers
 
 
         private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository)
-            where T : class, IEntity
+            where T : class, IPamelloEntity
         {
 			var qToken = Request.Query["token"].FirstOrDefault();
 
@@ -138,7 +138,7 @@ namespace PamelloV7.Server.Controllers
         }
 
         private async Task<IActionResult> HandleBasicSearchRequest<T>(string querry, IPamelloRepository<T> repository)
-            where T : IEntity
+            where T : IPamelloEntity
         {
             RequireUser();
 

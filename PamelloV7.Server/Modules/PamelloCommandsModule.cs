@@ -173,22 +173,19 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task<PamelloSong> PlayerQueueSongAdd(PamelloSong song) {
-            return Player.Queue.AddSong(song, User);
-        }
-        [PamelloCommand]
-        public async Task<PamelloSong> PlayerQueueSongInsert(int queuePosition, PamelloSong song) {
-            return Player.Queue.InsertSong(queuePosition, song, User);
+        public async Task<PamelloSong> PlayerQueueSongAdd(PamelloSong song, int? position = null) {
+            return position is null ?
+                Player.Queue.AddSong(song, User) :
+                Player.Queue.InsertSong(position.Value, song, User);
         }
         
         [PamelloCommand]
-        public async Task<PamelloPlaylist> PlayerQueuePlaylistAdd(PamelloPlaylist playlist) {
-            return Player.Queue.AddPlaylist(playlist, User);
+        public async Task<PamelloPlaylist> PlayerQueuePlaylistAdd(PamelloPlaylist playlist, int? position = null) {
+            return position is null ?
+                Player.Queue.AddPlaylist(playlist, User) :
+                Player.Queue.InsertPlaylist(position.Value, playlist, User);
         }
-        [PamelloCommand]
-        public async Task<PamelloPlaylist> PlayerQueuePlaylistInsert(int queuePosition, PamelloPlaylist playlist) {
-            return Player.Queue.InsertPlaylist(queuePosition, playlist, User);
-        }
+        
         [PamelloCommand]
         public async Task<PamelloSong> PlayerQueueSongRemove(int position) {
             return Player.Queue.RemoveSong(position);
@@ -307,19 +304,24 @@ namespace PamelloV7.Server.Modules
             return playlist;
         }
         [PamelloCommand]
-        public async Task<PamelloSong?> PlaylistAddSong(PamelloPlaylist playlist, PamelloSong song) {
-            return playlist.AddSong(song);
+        public async Task<PamelloSong?> PlaylistAddSong(PamelloPlaylist playlist, PamelloSong song, int? position = null) {
+            return playlist.AddSong(song, position);
         }
         [PamelloCommand]
-        public async Task<int> PlaylistAddPlaylistSongs(int toPlaylistId, int fromPlaylistId) {
-            var toPlaylist = _playlists.GetRequired(toPlaylistId);
-            var fromPlaylist = _playlists.GetRequired(fromPlaylistId);
-
-            return toPlaylist.AddList(fromPlaylist.Songs);
+        public async Task PlaylistAddPlaylistSongs(PamelloPlaylist fromPlaylist, PamelloPlaylist toPlaylist, int? position = null) {
+            toPlaylist.AddList(fromPlaylist.Songs, position);
         }
         [PamelloCommand]
-        public async Task<PamelloSong> PlaylistRemoveSong(PamelloPlaylist playlist, PamelloSong song) {
-            return playlist.RemoveSong(song) ?? throw new PamelloException($"Song with id \"{song.Id}\" was not in playlist");
+        public async Task<int> PlaylistRemoveSong(PamelloPlaylist playlist, PamelloSong song) {
+            return playlist.RemoveSong(song);
+        }
+        [PamelloCommand]
+        public async Task<PamelloSong?> PlaylistRemoveAt(PamelloPlaylist playlist, int position) {
+            return playlist.RemoveAt(position);
+        }
+        [PamelloCommand]
+        public async Task<PamelloSong?> PlaylistMoveSong(PamelloPlaylist playlist, int fromPosition, int toPosition) {
+            return playlist.MoveSong(fromPosition, toPosition);
         }
         [PamelloCommand]
         public async Task<string> PlaylistRename(PamelloPlaylist playlist, string newName) {

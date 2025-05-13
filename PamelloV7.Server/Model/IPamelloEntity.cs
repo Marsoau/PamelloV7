@@ -3,7 +3,7 @@ using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model
 {
-    public interface IEntity
+    public interface IPamelloEntity
     {
         public int Id { get; }
         public string Name { get; }

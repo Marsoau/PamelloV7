@@ -7,7 +7,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model
 {
-    public abstract class PamelloEntity<TDatabaseEntity> : IEntity where TDatabaseEntity : DatabaseEntity
+    public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity where TDatabaseEntity : DatabaseEntity
     {
         protected TDatabaseEntity? DatabaseEntity { get; private set; }
 

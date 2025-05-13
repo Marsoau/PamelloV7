@@ -78,14 +78,12 @@ namespace PamelloV7.Server.Repositories
                 episode = Get(id);
             }
             else {
-                var values = value.Split(':');
-                if (values.Length != 2)
-                    throw new PamelloException("invalid episode value format");
-                if (!int.TryParse(values[1], out int position))
-                    throw new PamelloException("cant parse episode position to int");
-
-                var song = await _songs.GetByValue(values[0], scopeUser);
-                episode = song?.Episodes.ElementAtOrDefault(position);
+                episode = await GetFromSplitValue(value, _songs, (song, secondValue) => {
+                    if (!int.TryParse(secondValue, out var position))
+                        return null;
+                    
+                    return song?.Episodes.ElementAtOrDefault(position);
+                });
             }
 
             return episode;

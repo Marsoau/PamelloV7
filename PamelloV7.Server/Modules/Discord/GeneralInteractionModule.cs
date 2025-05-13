@@ -13,13 +13,15 @@ namespace PamelloV7.Server.Modules.Discord
 
         [SlashCommand("add", "Add song to the queue")]
         public async Task AddHandler(
-            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue
-        ) => await PlayerQueueSongAdd(songValue);
+            [Summary("song", "Song id/association/name/youtube-url")] string songValue,
+            [Summary("position", "Position in queue where song will be added")] int? position = null
+        ) => await PlayerQueueSongAdd(songValue, position);
 
         [SlashCommand("add-playlist", "Add playlist to the queue")]
         public async Task AddPlaylistHandler(
-            [Summary("playlist", "Playlist id or name")] string playlistValue
-        ) => await PlayerQueuePlaylistAdd(playlistValue);
+            [Summary("playlist", "Playlist id or name")] string playlistValue,
+            [Summary("position", "Position in queue where playlist songs will be added")] int? position = null
+        ) => await PlayerQueuePlaylistAdd(playlistValue, position);
 
         [SlashCommand("get-code", "Get authorization code")]
         public async Task GetCodeHandler()

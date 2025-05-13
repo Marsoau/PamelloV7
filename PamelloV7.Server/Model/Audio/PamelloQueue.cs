@@ -231,13 +231,16 @@ namespace PamelloV7.Server.Model.Audio
         }
 
 
-		private int NormalizeQueuePosition(int position, bool includeLastEmpty = false) {
-			if (_entries.Count == 0) return 0;
+        public static int NormalizePosition(int position, int size, bool includeLastEmpty = false) {
+			if (size == 0) return 0;
 
-			position %= _entries.Count + (includeLastEmpty ? 1 : 0);
-			if (position < 0) position += _entries.Count;
+			position %= size + (includeLastEmpty ? 1 : 0);
+			if (position < 0) position += size;
 
 			return position;
+        }
+		private int NormalizeQueuePosition(int position, bool includeLastEmpty = false) {
+			return NormalizePosition(position, _entries.Count, includeLastEmpty);
 		}
 
         public PamelloSong? SongAt(int position)

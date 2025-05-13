@@ -82,25 +82,15 @@ namespace PamelloV7.Server.Modules.Discord
 
             [SlashCommand("add-song", "Add song to the queue")]
             public async Task PlayerQueueSongAddHandler(
-                [Summary("song", "Song id/association/name/youtube-url")] string songValue
-            ) => await PlayerQueueSongAdd(songValue);
-
-            [SlashCommand("insert-song", "Add playlist to the queue")]
-            public async Task PlayerQueueSongInsertHandler(
-                [Summary("position", "Where song should be inserted")] int position,
-                [Summary("song", "Song id/association/name/youtube-url")] string songValue
-            ) => await PlayerQueueSongInsert(position, songValue);
+                [Summary("song", "Song id/association/name/youtube-url")] string songValue,
+                [Summary("position", "Position in queue where song will be added")] int? position = null
+            ) => await PlayerQueueSongAdd(songValue, position);
 
             [SlashCommand("add-playlist", "Add playlist to the queue")]
             public async Task PlayerQueuePlaylistAddHandler(
-                [Summary("playlist", "Playlist id or name")] string playlistValue
-            ) => await PlayerQueuePlaylistAdd(playlistValue);
-            
-            [SlashCommand("insert-playlist", "Insert playlist to the queue")]
-            public async Task PlayerQueuePlaylistInsertHandler(
-                [Summary("position", "Where song should be inserted")] int position,
-                [Summary("playlist", "Playlist id or name")] string playlistValue
-            ) => await PlayerQueuePlaylistInsert(position, playlistValue);
+                [Summary("playlist", "Playlist id or name")] string playlistValue,
+                [Summary("position", "Position in queue where playlist songs will be added")] int? position = null
+            ) => await PlayerQueuePlaylistAdd(playlistValue, position);
 
             [SlashCommand("remove", "Remove song from the queue")]
             public async Task PlayerQueueSongRemoveHandler(

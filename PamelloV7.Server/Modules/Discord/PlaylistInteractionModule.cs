@@ -19,20 +19,35 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("add-song", "Add song to the playlist")]
         public async Task PlaylistAddSongHandler(
             [Summary("playlist", "Playlist id/name")] string playlistValue,
-            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
-        ) => await PlaylistAddSong(playlistValue, songValue);
+            [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current",
+            [Summary("position", "Position where song will be added")] int? position = null
+        ) => await PlaylistAddSong(playlistValue, songValue, position);
 
         [SlashCommand("add-playlist", "Add playlist songs to another playlist")]
         public async Task PlaylistAddPlaylistSongsHandler(
             [Summary("to-playlist", "Playlist id/name")] string toPlaylistValue,
-            [Summary("from-playlist", "Playlist id/name")] string fromPlaylistValue
-        ) => await PlaylistAddPlaylistSongs(toPlaylistValue, fromPlaylistValue);
+            [Summary("from-playlist", "Playlist id/name")] string fromPlaylistValue,
+            [Summary("position", "Position where playlist songs will be added")] int? position = null
+        ) => await PlaylistAddPlaylistSongs(toPlaylistValue, fromPlaylistValue, position);
 
-        [SlashCommand("remove-song", "Show playlist info")]
+        [SlashCommand("remove-song", "Remove all copies of song from playlist")]
         public async Task PlaylistRemoveSongHandler(
             [Summary("playlist", "Playlist id/name")] string playlistValue,
-            [Summary("song", "Song id/associacion/name/youtube-url")] string songValue = "current"
+            [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
         ) => await PlaylistRemoveSong(playlistValue, songValue);
+        
+        [SlashCommand("remove-at", "Show playlist info")]
+        public async Task PlaylistRemoveAtHandler(
+            [Summary("playlist", "Playlist id/name")] string playlistValue,
+            [Summary("position", "Position where song will be removed")] int position
+        ) => await PlaylistRemoveAt(playlistValue, position);
+        
+        [SlashCommand("move-song", "Add playlist songs to another playlist")]
+        public async Task PlaylistMoveSongHandler(
+            [Summary("playlist", "Playlist id/name")] string playlistValue,
+            [Summary("from-position", "Position of the song that should be moved")] int fromPosition,
+            [Summary("to-position", "To where song should be moved")] int toPosition
+        ) => await PlaylistMoveSong(playlistValue, fromPosition, toPosition);
 
         [SlashCommand("search", "Search playlists in the database")]
         public async Task PlaylistSearchHandler(

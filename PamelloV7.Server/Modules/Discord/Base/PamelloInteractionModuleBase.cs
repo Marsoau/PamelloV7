@@ -214,42 +214,25 @@ namespace PamelloV7.Server.Modules.Discord.Base
             await RespondPlayerInfo("Player Rewind", $"Rewinded to {DiscordString.Code(time)}");
         }
 
-        public async Task PlayerQueueSongAdd(string songValue)
+        public async Task PlayerQueueSongAdd(string songValue, int? position)
         {
             var song = await _songs.GetByValue(songValue, Context.User);
             if (song is null) throw new PamelloException($"Cant get song by value \"{songValue}\"");
 
-            await Commands.PlayerQueueSongAdd(song);
+            await Commands.PlayerQueueSongAdd(song, position);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {song.ToDiscordString()}");
         }
-        public async Task PlayerQueueSongInsert(int position, string songValue)
-        {
-            var song = await _songs.GetByValue(songValue, Context.User);
-            if (song is null) throw new PamelloException($"Cant get song by value \"{songValue}\"");
-
-            await Commands.PlayerQueueSongInsert(position, song);
-
-            await RespondPlayerInfo("Insert song to the queue", $"Added {song.ToDiscordString()}");
-        }
-        public async Task PlayerQueuePlaylistAdd(string playlistValue)
+        public async Task PlayerQueuePlaylistAdd(string playlistValue, int? position)
         {
             var playlist = await _playlists.GetByValue(playlistValue);
             if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
 
-            await Commands.PlayerQueuePlaylistAdd(playlist);
+            await Commands.PlayerQueuePlaylistAdd(playlist, position);
 
             await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
         }
-        public async Task PlayerQueuePlaylistInsert(int position, string playlistValue)
-        {
-            var playlist = await _playlists.GetByValue(playlistValue);
-            if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
-
-            await Commands.PlayerQueuePlaylistInsert(position, playlist);
-
-            await RespondPlayerInfo("Add song to the queue", $"Added {playlist.ToDiscordString()}");
-        }
+        
         public async Task PlayerQueueSongRemove(int position)
         {
             var song = await Commands.PlayerQueueSongRemove(position);
@@ -566,32 +549,56 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondInfo($"Playlist {playlist.ToDiscordString()} created");
         }
 
-        public async Task PlaylistAddSong(string playlistValue, string songValue)
+        public async Task PlaylistAddSong(string playlistValue, string songValue, int? position)
         {
             var playlist = await _playlists.GetByValueRequired(playlistValue);
             var song = await _songs.GetByValueRequired(songValue);
 
-            await Commands.PlaylistAddSong(playlist, song);
+            await Commands.PlaylistAddSong(playlist, song, position);
 
             await RespondInfo($"Added {song.ToDiscordString()} to the {playlist.ToDiscordString()}");
         }
-        public async Task PlaylistAddPlaylistSongs(string toPlaylistValue, string fromPlaylistValue)
+        public async Task PlaylistAddPlaylistSongs(string toPlaylistValue, string fromPlaylistValue, int? position)
         {
             var fromPlaylist = await _playlists.GetByValueRequired(fromPlaylistValue);
             var toPlaylist = await _playlists.GetByValueRequired(toPlaylistValue);
 
-            int count = await Commands.PlaylistAddPlaylistSongs(toPlaylist.Id, fromPlaylist.Id);
+            await Commands.PlaylistAddPlaylistSongs(toPlaylist, fromPlaylist, position);
 
-            await RespondInfo($"{count} songs added to the {toPlaylist.ToDiscordString()}");
+            await RespondInfo($"Songs from {fromPlaylist.ToDiscordString()} added to the {toPlaylist.ToDiscordString()}");
+        }
+        
+        public async Task PlaylistMoveSong(string playlistValue, int fromPosition, int toPosition)
+        {
+            if (fromPosition == toPosition) {
+                throw new PamelloException("Target position should differ from starting position");
+            }
+            
+            var playlist = await _playlists.GetByValueRequired(playlistValue);
+
+            var song = await Commands.PlaylistMoveSong(playlist, fromPosition, toPosition);
+            if (song is null) throw new PamelloException("No song to move");
+
+            await RespondInfo($"Songs {song.ToDiscordString()} moved from {DiscordString.Code(fromPosition)} to {DiscordString.Code(toPosition)}");
         }
 
         public async Task PlaylistRemoveSong(string playlistValue, string songValue) {
             var playlist = await _playlists.GetByValueRequired(playlistValue);
             var song = await _songs.GetByValueRequired(songValue);
 
-            await Commands.PlaylistRemoveSong(playlist, song);
+            var count = await Commands.PlaylistRemoveSong(playlist, song);
+            if (count == 0) throw new PamelloException($"Song {song.ToDiscordString()} not found in {playlist.ToDiscordString()}");
 
-            await RespondInfo($"{song.ToDiscordString()} removed from {playlist.ToDiscordString()}");
+            await RespondInfo($"All {DiscordString.Code(count)} items of {song.ToDiscordString()} removed from {playlist.ToDiscordString()}");
+        }
+        
+        public async Task PlaylistRemoveAt(string playlistValue, int position) {
+            var playlist = await _playlists.GetByValueRequired(playlistValue);
+
+            var song = await Commands.PlaylistRemoveAt(playlist, position);
+            if (song is null) throw new PamelloException($"No song was found at {DiscordString.Code(position)} in {playlist.ToDiscordString()}");
+
+            await RespondInfo($"{song.ToDiscordString()} at {DiscordString.Code(position)} removed from {playlist.ToDiscordString()}");
         }
 
         public async Task PlaylistSearch(string querry, int page, SocketUser? addedByDiscordUser)
@@ -638,7 +645,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 $"Songs of playlist \"{playlist.Name}\"",
                 playlist.Songs,
                 (sb, pos, song) => {
-                    sb.AppendLine(song.ToDiscordString().ToString());
+                    sb.AppendLine((DiscordString.Code(pos) + " - " + song.ToDiscordString()).ToString());
                 },
                 page - 1
             );
@@ -652,6 +659,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var playlist = await _playlists.GetByValueRequired(playlistValue);
             await Commands.PlaylistRename(playlist, newName);
+
+            await RespondInfo($"Playlist {playlist.ToDiscordString()} renamed");
         }
         public async Task PlaylistFavoriteAdd(string playlistValue)
         {

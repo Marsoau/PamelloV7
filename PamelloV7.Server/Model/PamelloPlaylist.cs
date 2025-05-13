@@ -4,6 +4,7 @@ using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Difference;
 
 namespace PamelloV7.Server.Model
@@ -82,13 +83,13 @@ namespace PamelloV7.Server.Model
             _songs = orderedEntries.Select(entry => base._songs.Get(entry.SongId)).OfType<PamelloSong>().ToList();
         }
 
-        public PamelloSong? AddSong(PamelloSong song) {
-            if (_songs.Contains(song)) return null;
-
-            _songs.Add(song);
+        public PamelloSong? AddSong(PamelloSong song, int? position = null, bool fromInside = false) {
+            if (position is null) _songs.Add(song);
+            else _songs.Insert(position.Value, song);
+            
             Save();
 
-            song.AddToPlaylist(this);
+            if (!fromInside) song.AddToPlaylist(this, fromInside: true);
             _events.Broadcast(new PlaylistSongsUpdated() {
                 PlaylistId = Id,
                 SongsIds = SongsIds,
@@ -97,37 +98,75 @@ namespace PamelloV7.Server.Model
             return song;
         }
 
-        public int AddList(IReadOnlyList<PamelloSong> list) {
-            int count = 0;
-
-            foreach (var song in list) {
-                if (_songs.Contains(song)) continue;
-
-                _songs.Add(song);
-                song.AddToPlaylist(this);
-
-                count++;
+        public void AddList(IReadOnlyList<PamelloSong> list, int? position = null) {
+            if (list.Count == 0) return;
+            
+            position ??= _songs.Count;
+            
+            foreach (var song in list.Reverse()) {
+                _songs.Insert(position.Value, song);
+                song.AddToPlaylist(this, fromInside: true);
             }
 
-            if (count > 0) {
-                Save();
-            }
+            Save();
 
             _events.Broadcast(new PlaylistSongsUpdated() {
                 PlaylistId = Id,
                 SongsIds = SongsIds,
             });
-
-            return count;
         }
 
-        public PamelloSong? RemoveSong(PamelloSong song) {
-            if (!_songs.Contains(song)) return null;
+        public int RemoveSong(PamelloSong song, bool fromInside = false) {
+            if (!_songs.Contains(song)) return 0;
 
-            _songs.Remove(song);
+            var removedCount = _songs.RemoveAll(s => s == song);
+            if (removedCount == 0) return 0;
+            
             Save();
 
-            song.RemoveFromPlaylist(this);
+            if (!fromInside) song.RemoveFromPlaylist(this, true);
+            _events.Broadcast(new PlaylistSongsUpdated() {
+                PlaylistId = Id,
+                SongsIds = SongsIds,
+            });
+            
+            return removedCount;
+        }
+
+        public PamelloSong? MoveSong(int fromPosition, int toPosition) {
+			if (_songs.Count < 2) return null;
+
+			fromPosition = PamelloQueue.NormalizePosition(fromPosition, _songs.Count);
+			toPosition = PamelloQueue.NormalizePosition(toPosition, _songs.Count, true);
+
+            var song = _songs[fromPosition];
+            
+			if (fromPosition == toPosition) return song;
+
+            _songs.RemoveAt(fromPosition);
+			if (fromPosition < toPosition) toPosition--;
+            _songs.Insert(toPosition, song);
+            
+            Save();
+            _events.Broadcast(new PlaylistSongsUpdated() {
+                PlaylistId = Id,
+                SongsIds = SongsIds,
+            });
+
+            return song;
+        }
+        
+        public PamelloSong? RemoveAt(int position) {
+            var song = _songs.ElementAtOrDefault(position);
+            if (song is null) return null;
+
+            _songs.RemoveAt(position);
+            Save();
+
+            if (!_songs.Contains(song)) {
+                song.RemoveFromPlaylist(this, true);
+            }
+            
             _events.Broadcast(new PlaylistSongsUpdated() {
                 PlaylistId = Id,
                 SongsIds = SongsIds,

@@ -6,7 +6,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
 {
-    public class PamelloPlayer : IEntity
+    public class PamelloPlayer : IPamelloEntity
     {
         private readonly PamelloSpeakerService _speakers;
         private readonly PamelloEventsService _events;

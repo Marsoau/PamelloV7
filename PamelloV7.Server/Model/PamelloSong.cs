@@ -87,7 +87,7 @@ namespace PamelloV7.Server.Model
 
         private List<PamelloUser> _favoritedBy;
         private List<PamelloEpisode> _episodes;
-        private List<PamelloPlaylist> _playlists;
+        private HashSet<PamelloPlaylist> _playlists;
         private List<string> _associacions;
 
         public IReadOnlyList<PamelloUser> FavoritedBy {
@@ -99,7 +99,7 @@ namespace PamelloV7.Server.Model
         }
 
         public IReadOnlyList<PamelloPlaylist> Playlists {
-            get => _playlists;
+            get => _playlists.ToList();
         }
 
         public IReadOnlyList<string> Associacions {
@@ -149,7 +149,7 @@ namespace PamelloV7.Server.Model
             _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
             _playlists = DatabaseEntity.PlaylistEntries
                 .Where(entry => entry.PlaylistId == Id)
-                .Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToList();
+                .Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToHashSet();
             _associacions = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
         }
 
@@ -291,25 +291,23 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void AddToPlaylist(PamelloPlaylist playlist) {
-            if (_playlists.Contains(playlist)) return;
-
-            _playlists.Add(playlist);
+        public void AddToPlaylist(PamelloPlaylist playlist, int? position = null, bool fromInside = false) {
+            if (!_playlists.Add(playlist)) return;
             Save();
 
-            playlist.AddSong(this);
+            if (!fromInside) playlist.AddSong(this, position, true);
             _events.Broadcast(new SongPlaylistsIdsUpdated() {
                 SongId = Id,
                 PlaylistsIds = PlaylistsIds,
             });
         }
-        public void RemoveFromPlaylist(PamelloPlaylist playlist) {
+        public void RemoveFromPlaylist(PamelloPlaylist playlist, bool fromInside = false) {
             if (_playlists.Contains(playlist)) return;
 
-            _playlists.Remove(playlist);
+            if (!_playlists.Remove(playlist)) return;
             Save();
 
-            playlist.RemoveSong(this);
+            if (!fromInside) playlist.RemoveSong(this, true);
             _events.Broadcast(new SongPlaylistsIdsUpdated() {
                 SongId = Id,
                 PlaylistsIds = PlaylistsIds,

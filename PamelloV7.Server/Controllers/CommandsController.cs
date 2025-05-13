@@ -61,8 +61,8 @@ namespace PamelloV7.Server.Controllers
                 argStringValue = argStringValues.FirstOrDefault();
 
                 Console.WriteLine(argsInfo[i].ParameterType);
-                Console.WriteLine(typeof(IEntity).IsAssignableFrom(argsInfo[i].ParameterType));
-                if (typeof(IEntity).IsAssignableFrom(argsInfo[i].ParameterType)) {
+                Console.WriteLine(typeof(IPamelloEntity).IsAssignableFrom(argsInfo[i].ParameterType));
+                if (typeof(IPamelloEntity).IsAssignableFrom(argsInfo[i].ParameterType)) {
                     try {
                         Console.WriteLine($"cehchink for {argsInfo[i].Name}");
                         if (Nullable.GetUnderlyingType(argsInfo[i].ParameterType) is not null) {
@@ -108,7 +108,7 @@ namespace PamelloV7.Server.Controllers
                 }
                 else result = commandMethod.Invoke(User.Commands, args);
 
-                if (result is IEntity resultEntity) {
+                if (result is IPamelloEntity resultEntity) {
                     result = resultEntity.Id;
                 }
 

@@ -47,6 +47,24 @@ namespace PamelloV7.Server.Repositories
             return ProvideEntities();
         }
 
+        protected async Task<TSecondEntity?> GetFromSplitValue<TFistEntity, TSecondEntity>(
+            string wholeValue,
+            IPamelloRepository<TFistEntity> firstEntityRepository,
+            Func<TFistEntity?, string, TSecondEntity?> getSecondEntity
+        )
+            where TSecondEntity : IPamelloEntity
+            where TFistEntity : IPamelloEntity
+        {
+            var splitPosition = wholeValue.LastIndexOf(':');
+
+            var firstPart = wholeValue[..splitPosition];
+            var secondPart = wholeValue[(splitPosition + 1)..];
+            
+            var firstEntity = await firstEntityRepository.GetByValue(firstPart);
+
+            return getSecondEntity(firstEntity, secondPart);
+        }
+
         public TPamelloEntity GetRandom() {
             return _loaded[Random.Shared.Next(0, _loaded.Count)];
         }

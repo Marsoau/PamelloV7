@@ -3,7 +3,7 @@ using PamelloV7.Server.Model;
 
 namespace PamelloV7.Server.Repositories
 {
-    public interface IPamelloRepository<TEntity> where TEntity : IEntity
+    public interface IPamelloRepository<TEntity> where TEntity : IPamelloEntity
     {
         public TEntity? Get(int id);
         public Task<TEntity?> GetByValue(string value, PamelloUser? scopeUser = null);
