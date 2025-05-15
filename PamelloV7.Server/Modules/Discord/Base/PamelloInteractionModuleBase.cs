@@ -7,10 +7,12 @@ using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions;
 using PamelloV7.Server.Model.Interactions.Builders;
-using PamelloV7.Server.Repositories;
+using PamelloV7.Server.Repositories.Database;
+using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Modules.Discord.Base
@@ -21,7 +23,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private readonly DiscordClientService _discordClients;
 
         private readonly PamelloPlayerRepository _players;
-        private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloSpeakerRepository _speakers;
 
         private readonly PamelloUserRepository _users;
         private readonly PamelloSongRepository _songs;
@@ -43,7 +45,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
             _players = services.GetRequiredService<PamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
 
             _users = services.GetRequiredService<PamelloUserRepository>();
             _songs = services.GetRequiredService<PamelloSongRepository>();
@@ -101,8 +103,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         //Player
         public async Task PlayerSelect(string playerValue)
         {
-            var player = await _players.GetByValue(playerValue);
-            if (player is null) throw new PamelloException($"Cant find a player with value \"{playerValue}\"");
+            var player = await _players.GetByValue(playerValue, Context.User);
 
             await Commands.PlayerSelect(player);
 
@@ -225,7 +226,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         }
         public async Task PlayerQueuePlaylistAdd(string playlistValue, int? position)
         {
-            var playlist = await _playlists.GetByValue(playlistValue);
+            var playlist = await _playlists.GetByValue(playlistValue, Context.User);
             if (playlist is null) throw new PamelloException($"Cant get playlist by value \"{playlistValue}\"");
 
             await Commands.PlayerQueuePlaylistAdd(playlist, position);
@@ -376,7 +377,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
             await Commands.SongRename(song, newName);
 
-            var song2 = await _songs.GetByValue(songValue);
+            var song2 = await _songs.GetByValue(songValue, Context.User);
 
             await RespondInfo($"{song.ToDiscordString()} renamed; {song2?.ToDiscordString()} ({song.GetHashCode()}:{song.GetHashCode()})");
         }
@@ -408,7 +409,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 targetUser = Context.User;
             }
 
-            var results = await _songs.Search(querry, favoriteBy: targetUser);
+            var results = await _songs.Search(querry, Context.User, favoriteBy: targetUser);
 
             await RespondPage(
                 targetUser.Id == Context.User.Id ? "Favorite songs" : $"Favorite songs of {targetUser.Name}",
@@ -551,8 +552,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
         public async Task PlaylistAddSong(string playlistValue, string songValue, int? position)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
-            var song = await _songs.GetByValueRequired(songValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
+            var song = await _songs.GetByValueRequired(songValue, Context.User);
 
             await Commands.PlaylistAddSong(playlist, song, position);
 
@@ -560,8 +561,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistAddPlaylistSongs(string toPlaylistValue, string fromPlaylistValue, int? position)
         {
-            var fromPlaylist = await _playlists.GetByValueRequired(fromPlaylistValue);
-            var toPlaylist = await _playlists.GetByValueRequired(toPlaylistValue);
+            var fromPlaylist = await _playlists.GetByValueRequired(fromPlaylistValue, Context.User);
+            var toPlaylist = await _playlists.GetByValueRequired(toPlaylistValue, Context.User);
 
             await Commands.PlaylistAddPlaylistSongs(toPlaylist, fromPlaylist, position);
 
@@ -574,7 +575,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 throw new PamelloException("Target position should differ from starting position");
             }
             
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
 
             var song = await Commands.PlaylistMoveSong(playlist, fromPosition, toPosition);
             if (song is null) throw new PamelloException("No song to move");
@@ -583,8 +584,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         public async Task PlaylistRemoveSong(string playlistValue, string songValue) {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
-            var song = await _songs.GetByValueRequired(songValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
+            var song = await _songs.GetByValueRequired(songValue, Commands.User);
 
             var count = await Commands.PlaylistRemoveSong(playlist, song);
             if (count == 0) throw new PamelloException($"Song {song.ToDiscordString()} not found in {playlist.ToDiscordString()}");
@@ -593,7 +594,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         
         public async Task PlaylistRemoveAt(string playlistValue, int position) {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
 
             var song = await Commands.PlaylistRemoveAt(playlist, position);
             if (song is null) throw new PamelloException($"No song was found at {DiscordString.Code(position)} in {playlist.ToDiscordString()}");
@@ -639,7 +640,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistSongsList(string playlistValue, int page)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
 
             await RespondPage(
                 $"Songs of playlist \"{playlist.Name}\"",
@@ -652,26 +653,26 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistInfo(string playlistValue)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
             await Respond(PamelloEmbedBuilder.BuildPlaylistInfo(playlist));
         }
         public async Task PlaylistRename(string playlistValue, string newName)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
             await Commands.PlaylistRename(playlist, newName);
 
             await RespondInfo($"Playlist {playlist.ToDiscordString()} renamed");
         }
         public async Task PlaylistFavoriteAdd(string playlistValue)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
             await Commands.PlaylistFavoriteAdd(playlist);
 
             await RespondInfo($"{playlist.ToDiscordString()} added to favorites");
         }
         public async Task PlaylistFavoriteRemove(string playlistValue)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
             await Commands.PlaylistFavoriteRemove(playlist);
 
             await RespondInfo($"{playlist.ToDiscordString()} removed from favorites");
@@ -700,7 +701,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistDelete(string playlistValue)
         {
-            var playlist = await _playlists.GetByValueRequired(playlistValue);
+            var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
             await Commands.PlaylistDelete(playlist);
         }
 
@@ -720,16 +721,28 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         public async Task SpeakerConnectInternet(string? channel, bool isPublic) {
-            var speaker = await _speakers.ConnectInternet(Player, channel, isPublic);
+            var speaker = await Commands.SpeakerInternetConnect(channel, isPublic);
             
-            await RespondPlayerInfo("Connected", $"{(speaker.IsPublic ? "Public" : "Private")} internet speaker connected to internet channel " + DiscordString.Code(speaker.Channel));
+            await RespondPlayerInfo("Connected", $"{DiscordString.Bold(speaker.IsPublic ? "Public" : "Private")} internet speaker connected to internet channel " + DiscordString.Code(speaker.Channel));
         }
 
-        public async Task SpeakerInternetChangeProtection(string channel, bool isPublic) {
-            await Commands.SpeakerInternetChangeProtection(channel, isPublic);
+        public async Task SpeakerInternetChangeProtection(string speakerValue, bool isPublic) {
+            var speaker = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(speakerValue, Context.User);
+            
+            await Commands.SpeakerInternetChangeProtection(speaker, isPublic);
+            
+            await RespondInfo($"Internet speaker is now {DiscordString.Bold(speaker.IsPublic ? "public" : "private")}");
         }
 
         public async Task SpeakerList() {
+            var results = await _speakers.Search("", Context.User);
+
+            await RespondPage(
+                "Speakers",
+                results,
+                (sb, pos, speaker) =>
+                    sb.AppendLine((DiscordString.Code(pos) + " - " + speaker.ToDiscordString()).ToString())
+            );
         }
     }
 }

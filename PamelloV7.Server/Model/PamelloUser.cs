@@ -10,13 +10,14 @@ using PamelloV7.Core.Events;
 using PamelloV7.DAL;
 using Microsoft.EntityFrameworkCore;
 using PamelloV7.Server.Model.Difference;
+using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Model
 {
     public class PamelloUser : PamelloEntity<DatabaseUser>
     {
         private readonly DiscordClientService _clients;
-        private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloSpeakerRepository _speakers;
         private readonly PamelloPlayerRepository _players;
 
         public SocketUser? DiscordUser { get; private set; }
@@ -133,7 +134,7 @@ namespace PamelloV7.Server.Model
             Commands = new PamelloCommandsModule(services, this);
 
             _clients = services.GetRequiredService<DiscordClientService>();
-            _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
             _players = services.GetRequiredService<PamelloPlayerRepository>();
 
             _token = databaseUser.Token;
@@ -170,9 +171,6 @@ namespace PamelloV7.Server.Model
 
                 if (vcPlayers.Count == 1) {
                     player = vcPlayers.First();
-                }
-                if (vcPlayers.Count > 1) {
-                    throw new PamelloException("Cant automaticly select a player");
                 }
             }
 

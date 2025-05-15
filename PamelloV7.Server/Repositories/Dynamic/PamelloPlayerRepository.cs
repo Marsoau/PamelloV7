@@ -3,16 +3,18 @@ using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Dynamic
 {
     public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>
     {
         private readonly IServiceProvider _services;
 
         private DiscordClientService _discordClients;
-        private PamelloSpeakerService _speakers;
+        private PamelloSpeakerRepository _speakers;
 
         private readonly List<PamelloPlayer> _players;
+        public IReadOnlyList<PamelloPlayer> Players
+            => _players;
 
         public PamelloPlayerRepository(IServiceProvider services
 
@@ -24,14 +26,14 @@ namespace PamelloV7.Server.Repositories
 
         public void InitServices() {
             _discordClients = _services.GetRequiredService<DiscordClientService>();
-            _speakers = _services.GetRequiredService<PamelloSpeakerService>();
+            _speakers = _services.GetRequiredService<PamelloSpeakerRepository>();
         }
 
         public PamelloPlayer Create(PamelloUser creator, string name = "Player") {
-			string oldName = name;
-			for (int i = 1; _players.Any(player => player.Name == name); i++) {
-				name = $"{oldName}-{i}";
-			}
+            string oldName = name;
+            for (int i = 1; _players.Any(player => player.Name == name); i++) {
+                name = $"{oldName}-{i}";
+            }
 
             var player = new PamelloPlayer(_services, name, creator);
             _players.Add(player);
@@ -78,10 +80,10 @@ namespace PamelloV7.Server.Repositories
             return Task.FromResult((IEnumerable<PamelloPlayer>)results);
         }
 
-        public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser = null)
+        public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser)
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required player wuth id {value}");
-        public async Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser = null) {
-            PamelloPlayer? player = null;
+        public async Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser) {
+            PamelloPlayer? player;
 
             if (value == "current") {
                 player = scopeUser?.SelectedPlayer;
@@ -99,7 +101,13 @@ namespace PamelloV7.Server.Repositories
                 player = GetByName(value);
             }
 
-            return player;
+            if (player is null) return null;
+            if (player.Creator == scopeUser) return player;
+            
+            var vc = _discordClients.GetUserVoiceChannel(scopeUser);
+            var vcPlayers = vc is not null ? _speakers.GetVoicePlayers(vc.Id) : [];
+            
+            return vcPlayers.Contains(player) ? player : null;
         }
     }
 }

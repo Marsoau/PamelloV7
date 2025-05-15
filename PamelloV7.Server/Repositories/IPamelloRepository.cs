@@ -5,11 +5,13 @@ namespace PamelloV7.Server.Repositories
 {
     public interface IPamelloRepository<TEntity> where TEntity : IPamelloEntity
     {
+        public void InitServices();
+        
         public TEntity? Get(int id);
-        public Task<TEntity?> GetByValue(string value, PamelloUser? scopeUser = null);
+        public Task<TEntity?> GetByValue(string value, PamelloUser? scopeUser);
         public TEntity GetRequired(int id);
-        public Task<TEntity> GetByValueRequired(string value, PamelloUser? scopeUser = null);
+        public Task<TEntity> GetByValueRequired(string value, PamelloUser? scopeUser);
 
-        public Task<IEnumerable<TEntity>> Search(string querry, PamelloUser? scopeUser = null);
+        public Task<IEnumerable<TEntity>> Search(string querry, PamelloUser? scopeUser);
     }
 }

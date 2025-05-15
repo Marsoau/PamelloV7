@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PamelloV7.DAL.Entity;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
-using PamelloV7.Server.Model.Youtube;
 using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Database
 {
     public class PamelloSongRepository : PamelloDatabaseRepository<PamelloSong, DatabaseSong>
     {
@@ -27,7 +26,7 @@ namespace PamelloV7.Server.Repositories
         public PamelloSong GetByNameRequired(string name)
             => GetByName(name) ?? throw new PamelloException($"Cant find song by name \"{name}\"");
         public PamelloSong GetByAssociacionRequired(string associacion)
-            => GetByAssociacion(associacion) ?? throw new PamelloException($"Cant find song by associacion \"{associacion}\"");
+            => GetByAssociation(associacion) ?? throw new PamelloException($"Cant find song by associacion \"{associacion}\"");
         public PamelloSong GetByYouTubeIdRequired(string youtubeId)
             => GetByYoutubeId(youtubeId) ?? throw new PamelloException($"Cant find song by youtube id \"{youtubeId}\"");
 
@@ -43,16 +42,16 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseSong);
         }
 
-        public PamelloSong? GetByAssociacion(string ascn) {
+        public PamelloSong? GetByAssociation(string ascn) {
             var db = GetDatabase();
 
-            var databaseAssociacion = db.Associations
-                .Where(dbAssociacion => dbAssociacion.Association == ascn)
-                .Include(dbAssociacion => dbAssociacion.Song)
+            var databaseAssociation = db.Associations
+                .Where(association => association.Association == ascn)
+                .Include(dbAssociation => dbAssociation.Song)
                 .FirstOrDefault();
-            if (databaseAssociacion is null) return null;
+            if (databaseAssociation is null) return null;
 
-            return Get(databaseAssociacion.Song.Id);
+            return Get(databaseAssociation.Song.Id);
         }
 
         public PamelloSong? GetByYoutubeId(string youtubeId) {
@@ -67,7 +66,7 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseSong);
         }
 
-        public override async Task<PamelloSong?> GetByValue(string value, PamelloUser? scopeUser = null) {
+        public override async Task<PamelloSong?> GetByValue(string value, PamelloUser? scopeUser) {
             PamelloSong? song = null;
 
             if (value == "current") {
@@ -88,7 +87,7 @@ namespace PamelloV7.Server.Repositories
                 }
             }
             else if (value.Contains(':')) {
-                song = await GetFromSplitValue(value, _playlists, (playlist, secondValue) => {
+                song = await GetFromSplitValue(value, scopeUser, _playlists, (playlist, secondValue) => {
                     if (!int.TryParse(secondValue, out var position))
                         return null;
                     
@@ -96,7 +95,7 @@ namespace PamelloV7.Server.Repositories
                 });
             }
             else {
-                song = GetByAssociacion(value) ?? GetByName(value);
+                song = GetByAssociation(value) ?? GetByName(value);
             }
 
             return song;
@@ -162,7 +161,7 @@ namespace PamelloV7.Server.Repositories
 
         public override void Delete(PamelloSong song) => throw new NotImplementedException();
 
-        public async Task<IEnumerable<PamelloSong>> Search(string querry, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null, PamelloUser scopeUser = null) {
+        public async Task<IEnumerable<PamelloSong>> Search(string querry, PamelloUser scopeUser, PamelloUser? addedBy = null, PamelloUser? favoriteBy = null) {
             IEnumerable<PamelloSong> list = _loaded;
 
             if (addedBy is not null) {

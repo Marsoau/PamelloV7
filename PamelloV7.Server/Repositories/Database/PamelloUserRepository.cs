@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Database
 {
     public class PamelloUserRepository : PamelloDatabaseRepository<PamelloUser, DatabaseUser>
     {

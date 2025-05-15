@@ -3,6 +3,8 @@ using PamelloV7.Server.Config;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
+using PamelloV7.Server.Repositories.Database;
+using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Services
 {
@@ -10,7 +12,7 @@ namespace PamelloV7.Server.Services
     {
 		private readonly IServiceProvider _services;
 
-		private PamelloSpeakerService _speakers;
+		private PamelloSpeakerRepository _speakers;
 
 		private PamelloUserRepository _users;
 
@@ -34,7 +36,7 @@ namespace PamelloV7.Server.Services
 		public void SubscriveToEvents() {
 			if (_speakers is not null) return;
 
-			_speakers = _services.GetRequiredService<PamelloSpeakerService>();
+			_speakers = _services.GetRequiredService<PamelloSpeakerRepository>();
 			_users = _services.GetRequiredService<PamelloUserRepository>();
 
 			foreach (var client in DiscordClients) {

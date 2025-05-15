@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Events;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Events;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Database
 {
     public class PamelloEpisodeRepository : PamelloDatabaseRepository<PamelloEpisode, DatabaseEpisode>
     {
@@ -17,9 +16,9 @@ namespace PamelloV7.Server.Repositories
 
         }
         public override void InitServices() {
-            _songs = _services.GetRequiredService<PamelloSongRepository>();
-
             base.InitServices();
+
+            _songs = _services.GetRequiredService<PamelloSongRepository>();
         }
         public PamelloEpisode Create(PamelloSong song, AudioTime start, string name, bool skip) {
             return song.AddEpisode(start, name, skip);
@@ -78,7 +77,7 @@ namespace PamelloV7.Server.Repositories
                 episode = Get(id);
             }
             else {
-                episode = await GetFromSplitValue(value, _songs, (song, secondValue) => {
+                episode = await GetFromSplitValue(value, scopeUser, _songs, (song, secondValue) => {
                     if (!int.TryParse(secondValue, out var position))
                         return null;
                     

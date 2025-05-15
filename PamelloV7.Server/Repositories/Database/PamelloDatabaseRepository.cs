@@ -1,12 +1,10 @@
-﻿using PamelloV7.DAL;
-using PamelloV7.Server.Model;
-using PamelloV7.Core.Exceptions;
+﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
+using PamelloV7.Server.Model;
 using PamelloV7.Server.Services;
-using PamelloV7.Core.Audio;
-using Microsoft.EntityFrameworkCore;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Database
 {
     public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : IPamelloRepository<TPamelloEntity>
         where TPamelloEntity : PamelloEntity<TDatabaseEntity>
@@ -49,6 +47,7 @@ namespace PamelloV7.Server.Repositories
 
         protected async Task<TSecondEntity?> GetFromSplitValue<TFistEntity, TSecondEntity>(
             string wholeValue,
+            PamelloUser? scopeUser,
             IPamelloRepository<TFistEntity> firstEntityRepository,
             Func<TFistEntity?, string, TSecondEntity?> getSecondEntity
         )
@@ -60,7 +59,7 @@ namespace PamelloV7.Server.Repositories
             var firstPart = wholeValue[..splitPosition];
             var secondPart = wholeValue[(splitPosition + 1)..];
             
-            var firstEntity = await firstEntityRepository.GetByValue(firstPart);
+            var firstEntity = await firstEntityRepository.GetByValue(firstPart, scopeUser);
 
             return getSecondEntity(firstEntity, secondPart);
         }
@@ -82,9 +81,9 @@ namespace PamelloV7.Server.Repositories
             return Load(databaseEntity);
         }
 
-        public async Task<TPamelloEntity> GetByValueRequired(string value, PamelloUser? scopeUser = null)
+        public async Task<TPamelloEntity> GetByValueRequired(string value, PamelloUser? scopeUser)
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with value \"{value}\"");
-        public abstract Task<TPamelloEntity?> GetByValue(string value, PamelloUser? scopeUser = null);
+        public abstract Task<TPamelloEntity?> GetByValue(string value, PamelloUser? scopeUser);
 
         protected Task<IEnumerable<TPamelloEntity>> Search(IEnumerable<TPamelloEntity> list, string querry, PamelloUser? scopeUser) {
             var results = new List<TPamelloEntity>();

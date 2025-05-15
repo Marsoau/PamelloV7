@@ -3,7 +3,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 
-namespace PamelloV7.Server.Repositories
+namespace PamelloV7.Server.Repositories.Database
 {
     public class PamelloPlaylistRepository : PamelloDatabaseRepository<PamelloPlaylist, DatabasePlaylist>
     {
@@ -33,7 +33,7 @@ namespace PamelloV7.Server.Repositories
             return Load(databasePlaylist);
         }
 
-        public override async Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser = null) {
+        public override async Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser) {
             PamelloPlaylist? playlist = null;
 
             if (value == "random") {

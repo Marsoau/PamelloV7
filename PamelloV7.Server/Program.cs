@@ -11,6 +11,8 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 using System.Text;
+using PamelloV7.Server.Repositories.Database;
+using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server
 {
@@ -70,9 +72,10 @@ namespace PamelloV7.Server
             services.AddSingleton<PamelloSongRepository>();
             services.AddSingleton<PamelloEpisodeRepository>();
             services.AddSingleton<PamelloPlaylistRepository>();
+            
             services.AddSingleton<PamelloPlayerRepository>();
+            services.AddSingleton<PamelloSpeakerRepository>();
 
-            services.AddSingleton<PamelloSpeakerService>();
             services.AddSingleton<UserAuthorizationService>();
         }
 
@@ -143,7 +146,9 @@ namespace PamelloV7.Server
             var songs = services.GetRequiredService<PamelloSongRepository>();
             var episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             var playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+            
             var players = services.GetRequiredService<PamelloPlayerRepository>();
+            var speakers = services.GetRequiredService<PamelloSpeakerRepository>();
 
             songs.BeforeLoading += () => {
                 DatabaseEntityRepository_BeforeLoading("Loading songs");
@@ -195,7 +200,9 @@ namespace PamelloV7.Server
             songs.InitServices();
             episodes.InitServices();
             playlists.InitServices();
+            
             players.InitServices();
+            speakers.InitServices();
 
             await songs.LoadAllAsync();
             await episodes.LoadAllAsync();

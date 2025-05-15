@@ -3,6 +3,8 @@ using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Repositories.Database;
+using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Controllers
 {
@@ -14,14 +16,18 @@ namespace PamelloV7.Server.Controllers
         private readonly PamelloSongRepository _songs;
         private readonly PamelloEpisodeRepository _episodes;
         private readonly PamelloPlaylistRepository _playlists;
+        
         private readonly PamelloPlayerRepository _players;
+        private readonly PamelloSpeakerRepository _speakers;
 
         public DataController(IServiceProvider services) : base(services) {
             _users = services.GetRequiredService<PamelloUserRepository>();
             _songs = services.GetRequiredService<PamelloSongRepository>();
             _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+            
             _players = services.GetRequiredService<PamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
         }
 
 		[HttpGet("User")]
@@ -43,6 +49,10 @@ namespace PamelloV7.Server.Controllers
 		[HttpGet("Player")]
 		public async Task<IActionResult> GetPlayer()
 			=> await HandleGetEntityRequest(_players);
+        
+        [HttpGet("Speaker")]
+        public async Task<IActionResult> GetSpeaker()
+            => await HandleGetEntityRequest(_speakers);
 
         [HttpGet("Search/Users")]
         [HttpGet("Search/Users/{querry}")]
@@ -52,17 +62,19 @@ namespace PamelloV7.Server.Controllers
         [HttpGet("Search/Songs")]
         [HttpGet("Search/Songs/{querry}")]
         public async Task<IActionResult> SearchSongs(string querry = "", string? addedby = null, string? favoriteby = null) {
+            RequireUser();
+            
             PamelloUser? addedByUser = null;
             PamelloUser? favoriteByUser = null;
 
-            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby);
-            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby);
+            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby, User);
+            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby, User);
 
             if (addedByUser is null && favoriteByUser is null) {
                 return await HandleBasicSearchRequest(querry, _songs);
             }
 
-            var entityResults = await _songs.Search(querry, addedByUser, favoriteByUser, User);
+            var entityResults = await _songs.Search(querry, User, addedByUser, favoriteByUser);
             var idResults = entityResults.Select(entity => entity.Id);
 
             return Ok(idResults);
@@ -76,17 +88,19 @@ namespace PamelloV7.Server.Controllers
         [HttpGet("Search/Playlists")]
         [HttpGet("Search/Playlists/{querry}")]
         public async Task<IActionResult> SearchPlaylists(string querry = "", string? addedby = null, string? favoriteby = null) {
+            RequireUser();
+            
             PamelloUser? addedByUser = null;
             PamelloUser? favoriteByUser = null;
 
-            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby);
-            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby);
+            if (addedby is not null) addedByUser = await _users.GetByValueRequired(addedby, User);
+            if (favoriteby is not null) favoriteByUser = await _users.GetByValueRequired(favoriteby, User);
 
             if (addedByUser is null && favoriteByUser is null) {
                 return await HandleBasicSearchRequest(querry, _songs);
             }
 
-            var entityResults = await _songs.Search(querry, addedByUser, favoriteByUser, User);
+            var entityResults = await _songs.Search(querry, User, favoriteByUser, favoriteByUser);
             var idResults = entityResults.Select(entity => entity.Id);
 
             return Ok(idResults);
@@ -96,6 +110,11 @@ namespace PamelloV7.Server.Controllers
         [HttpGet("Search/Players/{querry}")]
         public async Task<IActionResult> SearchPlayers(string querry = "")
             => await HandleBasicSearchRequest(querry, _players);
+        
+        [HttpGet("Search/Speakers")]
+        [HttpGet("Search/Speakers/{querry}")]
+        public async Task<IActionResult> SearchSpeakers(string querry = "")
+            => await HandleBasicSearchRequest(querry, _speakers);
 
 
         private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository)
@@ -115,7 +134,7 @@ namespace PamelloV7.Server.Controllers
                 if (!Guid.TryParse(qToken, out var token))
                     throw new PamelloControllerException(BadRequest("token must be a guid"));
 
-                entity = await repository.GetByValueRequired(token.ToString());
+                entity = await repository.GetByValueRequired(token.ToString(), User);
             }
             else if (qId is not null) {
                 if (!int.TryParse(qId, out var id))

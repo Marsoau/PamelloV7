@@ -1,6 +1,9 @@
 ﻿using PamelloV7.Server.Model.Listeners;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using PamelloV7.Core.DTO;
+using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
 {
@@ -72,6 +75,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             _ = Task.Run(SlienceFiller);
         }
 
+        public override string Name { get; }
+
         public override async Task PlayBytesAsync(byte[] audio) {
             await _pcmAudioBuffer.WriteAsync(audio);
             await FlushBuffer();
@@ -119,6 +124,29 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             _listeners.Remove(listener.Id, out _);
             Console.WriteLine($"ISL-{listener.Id} removed from <{Channel}>");
         }
-        public override Task Terminate() => throw new NotImplementedException();
+
+        public override async Task Terminate() {
+            if (_ffmpeg is not null) {
+                _ffmpeg.Kill();
+                _ffmpeg.Dispose();
+                _ffmpeg = null;
+            }
+
+            InvokeOnTerminated();
+        }
+        
+        public override DiscordString ToDiscordString() {
+            return DiscordString.Code($"<{Channel}> [{Id}]");
+        }
+
+        public override IPamelloDTO GetDTO() {
+            return new PamelloInternetSpeakerDTO() {
+                Id = Id,
+                Name = Name,
+                Channel = Channel,
+                IsPublic = IsPublic,
+                ListenersCount = _listeners.Count
+            };
+        }
     }
 }

@@ -6,6 +6,9 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
 using PamelloV7.Server.Services;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using PamelloV7.Server.Model.Audio.Speakers;
+using PamelloV7.Server.Repositories.Database;
+using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Modules
 {
@@ -16,7 +19,7 @@ namespace PamelloV7.Server.Modules
         private readonly DiscordClientService _discordClients;
 
         private readonly PamelloPlayerRepository _players;
-        private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloSpeakerRepository _speakers;
 
         private readonly PamelloUserRepository _users;
         private readonly PamelloSongRepository _songs;
@@ -34,7 +37,7 @@ namespace PamelloV7.Server.Modules
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
             _players = services.GetRequiredService<PamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
 
             _users = services.GetRequiredService<PamelloUserRepository>();
             _songs = services.GetRequiredService<PamelloSongRepository>();
@@ -342,27 +345,24 @@ namespace PamelloV7.Server.Modules
         
         //speakers
         [PamelloCommand]
-        public async Task SpeakerDiscordConnect() {
+        public async Task<PamelloDiscordSpeaker> SpeakerDiscordConnect() {
             var vc = _discordClients.GetUserVoiceChannel(User);
             if (vc is null) throw new PamelloException("You have to be in voce channel to execute this command");
 
-            await _speakers.ConnectDiscord(Player, vc.Guild.Id, vc.Id);
+            return await _speakers.ConnectDiscord(Player, vc.Guild.Id, vc.Id);
         }
         [PamelloCommand]
-        public async Task<string> SpeakerInternetConnect(string? channel, bool isPublic = false) {
+        public async Task<PamelloInternetSpeaker> SpeakerInternetConnect(string? channel, bool isPublic = false) {
             var speaker = await _speakers.ConnectInternet(Player, channel, isPublic);
 
-            return speaker.Channel;
+            return speaker;
         }
         [PamelloCommand]
         public async Task SpeakerDisconnect() {
             throw new NotImplementedException();
         }
         [PamelloCommand]
-        public async Task<bool> SpeakerInternetChangeProtection(string channel, bool isPublic = false) {
-            var speaker = _speakers.GetInternetSpeaker(channel);
-            if (speaker is null) throw new PamelloException($"Cant find internet speaker on channel \"{channel}\"");
-
+        public async Task<bool> SpeakerInternetChangeProtection(PamelloInternetSpeaker speaker, bool isPublic = false) {
             return speaker.IsPublic = isPublic;
         }
     }

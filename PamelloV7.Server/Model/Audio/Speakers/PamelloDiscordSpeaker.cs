@@ -1,5 +1,9 @@
-﻿using Discord.Audio;
+﻿using System.Diagnostics;
+using System.Text;
+using Discord.Audio;
 using Discord.WebSocket;
+using PamelloV7.Core.DTO;
+using PamelloV7.Core.DTO.Speakers;
 using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
@@ -13,6 +17,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
 
         private AudioOutStream? _audioOutput;
+
+        public override string Name { get; }
 
         public override bool IsActive {
             get => _audioOutput is not null;
@@ -84,8 +90,15 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             InvokeOnTerminated();
         }
 
-        public string ToDiscordString() {
-            return "";
+        public override DiscordString ToDiscordString() {
+            return DiscordString.Bold(new DiscordString(Client.CurrentUser) + " " + DiscordString.Code($"[{Id}]"));
+        }
+
+        public override IPamelloDTO GetDTO() {
+            return new PamelloDiscordSpeakerDTO() {
+                Id = Id,
+                Name = Name,
+            };
         }
     }
 }

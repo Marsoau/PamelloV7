@@ -29,6 +29,7 @@ namespace PamelloV7.Server.Modules.Discord
             [Summary("is-public", "Is speaker available for connection without authorization")] EBoolAnswer isPublic
         ) => await SpeakerInternetChangeProtection(channel, isPublic == EBoolAnswer.Yes);
         
+        [SlashCommand("list", "List all speakers available")]
         public async Task SpeakerListHandler()
             => await SpeakerList();
     }

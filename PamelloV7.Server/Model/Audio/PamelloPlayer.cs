@@ -1,17 +1,20 @@
 ﻿using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
+using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
 {
     public class PamelloPlayer : IPamelloEntity
     {
-        private readonly PamelloSpeakerService _speakers;
+        private readonly PamelloSpeakerRepository _speakerRepository;
         private readonly PamelloEventsService _events;
 
         public readonly PamelloUser Creator;
+        public readonly PamelloSpeakerCollection Speakers;
 
         public int Id { get; }
 
@@ -70,7 +73,7 @@ namespace PamelloV7.Server.Model.Audio
             string name,
             PamelloUser creator
         ) {
-            _speakers = services.GetRequiredService<PamelloSpeakerService>();
+            _speakerRepository = services.GetRequiredService<PamelloSpeakerRepository>();
             _events = services.GetRequiredService<PamelloEventsService>();
 
             Id = _idCounter++;
@@ -82,6 +85,7 @@ namespace PamelloV7.Server.Model.Audio
             Creator = creator;
 
             Queue = new PamelloQueue(services, this);
+            Speakers = new PamelloSpeakerCollection(services, this);
 
             Task.Run(MusicRestartingLoop);
         }
@@ -120,7 +124,7 @@ namespace PamelloV7.Server.Model.Audio
 						continue;
                     }
                 }
-                if (!_speakers.DoesPlayerHasSpeakers(this)) {
+                if (!Speakers.IsAnyAvailable()) {
                     State = EPlayerState.AwaitingSpeaker;
 
                     await Task.Delay(250);
@@ -136,7 +140,7 @@ namespace PamelloV7.Server.Model.Audio
                 success = await Queue.Current.NextBytes(audio);
 
                 try {
-                    if (success) await _speakers.BroadcastBytes(this, audio);
+                    if (success) await Speakers.BroadcastBytes(this, audio);
                     else {
                         Console.WriteLine($"{Queue.Current.Song} ended");
                     

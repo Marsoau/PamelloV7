@@ -5,6 +5,7 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Repositories;
+using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
@@ -443,6 +444,12 @@ namespace PamelloV7.Server.Model.Audio
                         sb.Append(
                             (" > " + entry.Song.ToDiscordString()).Bold()
                         );
+                        sb.AppendLine();
+                        sb.Append("Added by " + (
+                            entry.Adder?.DiscordUser is not null ?
+                            new DiscordString(entry.Adder?.DiscordUser) :
+                            new DiscordString("")
+                        ));
                     }
                     else {
                         sb.Append(" - ");

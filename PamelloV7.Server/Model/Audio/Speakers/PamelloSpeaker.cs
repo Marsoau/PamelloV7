@@ -1,6 +1,9 @@
-﻿namespace PamelloV7.Server.Model.Audio.Speakers
+﻿using PamelloV7.Core.DTO;
+using PamelloV7.Server.Model.Discord;
+
+namespace PamelloV7.Server.Model.Audio.Speakers
 {
-    public abstract class PamelloSpeaker
+    public abstract class PamelloSpeaker : IPamelloEntity
     {
         public readonly PamelloPlayer Player;
 
@@ -9,8 +12,10 @@
 
         public event Action<PamelloSpeaker>? OnTerminated;
 
-        private static int _idCounter = 1;
         public int Id { get; private set; }
+        public abstract string Name { get; }
+
+        private static int _idCounter = 1;
         public PamelloSpeaker(PamelloPlayer player) {
             Player = player;
 
@@ -26,5 +31,8 @@
         protected void InvokeOnTerminated() {
             OnTerminated?.Invoke(this);
         }
+
+        public abstract DiscordString ToDiscordString();
+        public abstract IPamelloDTO GetDTO();
     }
 }
