@@ -66,6 +66,9 @@ namespace PamelloV7.Server.Services
 			if (playersToVc.Count == 1) {
 				user.SelectedPlayer = playersToVc.First();
 			}
+			else if (playersToVc.Count > 1 && user.PreviousPlayer is not null && playersToVc.Contains(user.PreviousPlayer)) {
+				user.SelectedPlayer = user.PreviousPlayer;
+			}
 			else if (user.SelectedPlayer is not null && playersFromVc.Contains(user.SelectedPlayer)) {
                 user.SelectedPlayer = null;
             }
