@@ -8,7 +8,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
 {
-    public class PamelloPlayer : IPamelloEntity
+    public class PamelloPlayer : IPamelloEntity, IDisposable
     {
         private readonly PamelloSpeakerRepository _speakerRepository;
         private readonly PamelloEventsService _events;
@@ -187,6 +187,11 @@ namespace PamelloV7.Server.Model.Audio
                 QueueIsNoLeftovers = Queue.IsNoLeftovers,
                 QueueIsFeedRandom = Queue.IsFeedRandom,
             };
+        }
+
+        public void Dispose() {
+            Queue.Dispose();
+            Speakers.Dispose();
         }
     }
 }

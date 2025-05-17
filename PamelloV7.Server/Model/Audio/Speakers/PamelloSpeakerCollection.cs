@@ -4,7 +4,7 @@ using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Model.Audio.Speakers;
 
-public class PamelloSpeakerCollection
+public class PamelloSpeakerCollection : IDisposable
 {
     private readonly IServiceProvider _services;
 
@@ -13,6 +13,8 @@ public class PamelloSpeakerCollection
     private readonly PamelloPlayer _player;
 
     private readonly List<PamelloSpeaker> _speakers;
+    
+    private bool _isDisposed;
 
     public IReadOnlyList<PamelloSpeaker> All
         => _speakers;
@@ -57,6 +59,8 @@ public class PamelloSpeakerCollection
     }
 
     public async Task BroadcastBytes(PamelloPlayer player, byte[] audio) {
+        if (_isDisposed) return;
+        
         foreach (var speaker in _speakers) {
             if (speaker.Player == player) {
                 await speaker.PlayBytesAsync(audio);
@@ -66,5 +70,14 @@ public class PamelloSpeakerCollection
 
     public bool IsAnyAvailable() {
         return _speakers.Any(speaker => speaker.IsActive);
+    }
+
+    public void Dispose() {
+        _isDisposed = true;
+        
+        var funcTasks = _speakers.Select(speaker => (Func<Task>)speaker.Terminate).ToList();
+        var tasks = funcTasks.Select(func => func()).ToList();
+
+        Task.WaitAll(tasks);
     }
 }

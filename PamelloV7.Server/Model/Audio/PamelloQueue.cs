@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Model.Audio
         }
     }
 
-    public class PamelloQueue
+    public class PamelloQueue : IDisposable
     {
         private readonly IServiceProvider _services;
 
@@ -473,6 +473,10 @@ namespace PamelloV7.Server.Model.Audio
             _events.BroadcastToPlayer(_player, new PlayerQueueEntriesDTOsUpdated() {
                 QueueEntriesDTOs = EntriesDTOs,
             });
+        }
+
+        public void Dispose() {
+            Clear();
         }
     }
 }

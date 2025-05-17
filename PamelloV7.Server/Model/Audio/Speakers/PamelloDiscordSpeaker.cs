@@ -85,6 +85,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public override async Task Terminate() {
             if (Voice is not null) await Voice.DisconnectAsync();
+            if (_audioOutput is not null) await _audioOutput.DisposeAsync();
+            
             _audioOutput = null;
 
             InvokeOnTerminated();

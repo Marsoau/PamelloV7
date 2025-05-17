@@ -1,11 +1,12 @@
 ﻿using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories.Dynamic
 {
-    public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>
+    public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>, IDisposable
     {
         private readonly IServiceProvider _services;
 
@@ -108,6 +109,12 @@ namespace PamelloV7.Server.Repositories.Dynamic
             var vcPlayers = vc is not null ? _speakers.GetVoicePlayers(vc.Id) : [];
             
             return vcPlayers.Contains(player) ? player : null;
+        }
+
+        public void Dispose() {
+            foreach (var player in _players) {
+                player.Dispose();
+            }
         }
     }
 }

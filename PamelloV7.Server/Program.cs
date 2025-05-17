@@ -18,72 +18,77 @@ namespace PamelloV7.Server
 {
     public class Program
     {
-        public static async Task Main(string[] args) {
+        private WebApplicationBuilder builder;
+        private WebApplication app;
+        
+        public static async Task Main(string[] args) => await new Program().MainAsync(args);
+        
+        public async Task MainAsync(string[] args) {
             Console.OutputEncoding = Encoding.Unicode;
 
-            var builder = WebApplication.CreateBuilder(args);
+            builder = WebApplication.CreateBuilder(args);
 
             builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
 
-            ConfigureDatabaseServices(builder.Services);
-            ConfigureDiscordServices(builder.Services);
-            ConfigurePamelloServices(builder.Services);
-            ConfigureAPIServices(builder.Services);
+            ConfigureDatabaseServices();
+            ConfigureDiscordServices();
+            ConfigurePamelloServices();
+            ConfigureAPIServices();
 
-            var app = builder.Build();
+            app = builder.Build();
 
-            await StartupDatabaseServices(app.Services);
-            await StartupDiscordServices(app.Services);
-            await StartupPamelloServices(app.Services);
-            await StartupAPIServices(app);
+            await StartupDatabaseServices();
+            await StartupDiscordServices();
+            await StartupPamelloServices();
+            await StartupAPIServices();
         }
 
-        private static void ConfigureDatabaseServices(IServiceCollection services) {
-            services.AddTransient<DatabaseContext>();
+        private void ConfigureDatabaseServices() {
+            builder.Services.AddTransient<DatabaseContext>();
         }
 
-        private static void ConfigureDiscordServices(IServiceCollection services) {
+        private void ConfigureDiscordServices() {
             var discordConfig = new DiscordSocketConfig() {
                 GatewayIntents = GatewayIntents.All,
                 AlwaysDownloadUsers = true
             };
 
-            services.AddSingleton(new DiscordSocketClient(discordConfig));
+            builder.Services.AddSingleton(new DiscordSocketClient(discordConfig));
             for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
-                services.AddKeyedSingleton($"Speaker-{i + 1}", new DiscordSocketClient(discordConfig));
+                builder.Services.AddKeyedSingleton($"Speaker-{i + 1}", new DiscordSocketClient(discordConfig));
             }
             
-            services.AddSingleton(services => new InteractionService(
+            builder.Services.AddSingleton(services => new InteractionService(
                 services.GetRequiredService<DiscordSocketClient>(),
                 new InteractionServiceConfig()
             ));
-            services.AddSingleton<InteractionHandler>();
+            builder.Services.AddSingleton<InteractionHandler>();
 
-            services.AddSingleton<DiscordClientService>();
+            builder.Services.AddSingleton<DiscordClientService>();
         }
 
-        private static void ConfigurePamelloServices(IServiceCollection services) {
-            services.AddSingleton<PamelloEventsService>();
+        private void ConfigurePamelloServices() {
+            builder.Services.AddSingleton<PamelloEventsService>();
 
-            services.AddSingleton<YoutubeInfoService>();
-            services.AddSingleton<YoutubeDownloadService>();
+            builder.Services.AddSingleton<YoutubeInfoService>();
+            builder.Services.AddSingleton<YoutubeDownloadService>();
 
-            services.AddSingleton<PamelloUserRepository>();
-            services.AddSingleton<PamelloSongRepository>();
-            services.AddSingleton<PamelloEpisodeRepository>();
-            services.AddSingleton<PamelloPlaylistRepository>();
+            builder.Services.AddSingleton<PamelloUserRepository>();
+            builder.Services.AddSingleton<PamelloSongRepository>();
+            builder.Services.AddSingleton<PamelloEpisodeRepository>();
+            builder.Services.AddSingleton<PamelloPlaylistRepository>();
             
-            services.AddSingleton<PamelloPlayerRepository>();
-            services.AddSingleton<PamelloSpeakerRepository>();
+            builder.Services.AddSingleton<PamelloPlayerRepository>();
+            builder.Services.AddSingleton<PamelloSpeakerRepository>();
 
-            services.AddSingleton<UserAuthorizationService>();
+            builder.Services.AddSingleton<UserAuthorizationService>();
         }
 
-        private static void ConfigureAPIServices(IServiceCollection services) {
-            services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
-            services.AddHttpClient();
+        private void ConfigureAPIServices() {
+            builder.Services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
+            builder.Services.AddHttpClient();
 
-			services.AddCors(options => {
+			builder.Services.AddCors(options => {
                 options.AddPolicy("AllowSpecificOrigin", builder => {
                     builder.AllowAnyOrigin()
                         .AllowAnyHeader()
@@ -92,19 +97,19 @@ namespace PamelloV7.Server
             });
         }
 
-        private static async Task StartupDatabaseServices(IServiceProvider services) {
-            services.GetRequiredService<DatabaseContext>();
+        private async Task StartupDatabaseServices() {
+            app.Services.GetRequiredService<DatabaseContext>();
         }
 
-        private static async Task StartupDiscordServices(IServiceProvider services) {
-            var discordClients = services.GetRequiredService<DiscordClientService>();
+        private async Task StartupDiscordServices() {
+            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
 
             discordClients.SubscriveToEvents();
 
-            var interactionService = services.GetRequiredService<InteractionService>();
-            var interactionHandler = services.GetRequiredService<InteractionHandler>();
+            var interactionService = app.Services.GetRequiredService<InteractionService>();
+            var interactionHandler = app.Services.GetRequiredService<InteractionHandler>();
 
-            var youtube = services.GetRequiredService<YoutubeInfoService>();
+            var youtube = app.Services.GetRequiredService<YoutubeInfoService>();
 
             await interactionHandler.InitializeAsync();
 
@@ -139,16 +144,16 @@ namespace PamelloV7.Server
             }
         }
 
-        private static async Task StartupPamelloServices(IServiceProvider services) {
-            var events = services.GetRequiredService<PamelloEventsService>();
+        private async Task StartupPamelloServices() {
+            var events = app.Services.GetRequiredService<PamelloEventsService>();
 
-            var users = services.GetRequiredService<PamelloUserRepository>();
-            var songs = services.GetRequiredService<PamelloSongRepository>();
-            var episodes = services.GetRequiredService<PamelloEpisodeRepository>();
-            var playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+            var users = app.Services.GetRequiredService<PamelloUserRepository>();
+            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
+            var episodes = app.Services.GetRequiredService<PamelloEpisodeRepository>();
+            var playlists = app.Services.GetRequiredService<PamelloPlaylistRepository>();
             
-            var players = services.GetRequiredService<PamelloPlayerRepository>();
-            var speakers = services.GetRequiredService<PamelloSpeakerRepository>();
+            var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
+            var speakers = app.Services.GetRequiredService<PamelloSpeakerRepository>();
 
             songs.BeforeLoading += () => {
                 DatabaseEntityRepository_BeforeLoading("Loading songs");
@@ -215,23 +220,41 @@ namespace PamelloV7.Server
             await users.InitAllAsync();
         }
 
-        private static void DatabaseEntityRepository_OnLoaded() {
+        private void DatabaseEntityRepository_OnLoaded() {
             Console.WriteLine("\nDone");
         }
-        private static void DatabaseEntityRepository_BeforeLoading(string name) {
+        private void DatabaseEntityRepository_BeforeLoading(string name) {
             Console.WriteLine($"{name}");
         }
-        private static void DatabaseEntityRepository_OnLoadingProgress(int loaded, int total) {
+        private void DatabaseEntityRepository_OnLoadingProgress(int loaded, int total) {
             Console.Write($"\r[{loaded}/{total}] {((double)loaded / total) * 100}%                  ");
         }
 
-        private static async Task StartupAPIServices(WebApplication app) {
+        private async Task StartupAPIServices() {
             //app.UseHttpsRedirection();
 
             app.MapControllers();
             app.UseCors("AllowSpecificOrigin");
 
+            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+            lifetime.ApplicationStopped.Register(OnStop);
+
             await app.RunAsync();
+        }
+
+        private void OnStop() {
+            Console.WriteLine("STOPPING");
+            
+            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
+            
+            var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
+            
+            players.Dispose();
+
+            foreach (var client in discordClients.DiscordClients) {
+                client.LogoutAsync().Wait();
+                client.Dispose();
+            }
         }
     }
 }
