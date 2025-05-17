@@ -109,5 +109,9 @@ namespace PamelloV7.Server.Repositories.Database
         }
 
         public override void Delete(PamelloUser user) => throw new NotImplementedException();
+        
+        public override void Dispose() {
+            Console.WriteLine("Disposing users");
+        }
     }
 }

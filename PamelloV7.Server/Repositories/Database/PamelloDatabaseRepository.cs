@@ -149,5 +149,7 @@ namespace PamelloV7.Server.Repositories.Database
         protected abstract TPamelloEntity? LoadBase(TDatabaseEntity databaseEntity);
 
         public abstract void Delete(TPamelloEntity entity);
+
+        public abstract void Dispose();
     }
 }

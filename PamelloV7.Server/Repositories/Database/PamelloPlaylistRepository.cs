@@ -80,5 +80,9 @@ namespace PamelloV7.Server.Repositories.Database
                 .ToList();
         }
         public override void Delete(PamelloPlaylist playlist) => throw new NotImplementedException();
+        
+        public override void Dispose() {
+            Console.WriteLine("Disposing playlists");
+        }
     }
 }

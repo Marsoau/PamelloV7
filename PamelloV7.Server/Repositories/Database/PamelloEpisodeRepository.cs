@@ -95,5 +95,9 @@ namespace PamelloV7.Server.Repositories.Database
             var randomPosition = Random.Shared.Next(0, episodes.Count);
             return episodes[randomPosition];
         }
+
+        public override void Dispose() {
+            Console.WriteLine("Disposing episodes");
+        }
     }
 }

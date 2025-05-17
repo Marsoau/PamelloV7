@@ -112,6 +112,8 @@ namespace PamelloV7.Server.Repositories.Dynamic
         }
 
         public void Dispose() {
+            Console.WriteLine("Disposing players");
+            
             foreach (var player in _players) {
                 player.Dispose();
             }

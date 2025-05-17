@@ -3,7 +3,7 @@ using PamelloV7.Server.Model;
 
 namespace PamelloV7.Server.Repositories
 {
-    public interface IPamelloRepository<TEntity> where TEntity : IPamelloEntity
+    public interface IPamelloRepository<TEntity> : IDisposable where TEntity : IPamelloEntity
     {
         public void InitServices();
         

@@ -194,5 +194,9 @@ namespace PamelloV7.Server.Repositories.Database
                 .AsSplitQuery()
                 .ToList();
         }
+
+        public override void Dispose() {
+            Console.WriteLine("Disposing songs");
+        }
     }
 }

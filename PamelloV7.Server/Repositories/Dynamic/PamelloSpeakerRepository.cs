@@ -7,7 +7,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories.Dynamic;
 
-public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>
+public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDisposable
 {
     private readonly IServiceProvider _services;
     
@@ -145,5 +145,9 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>
     public bool IsInternetChannelAvailable(string channel) {
         var speakers = GetSpeakers<PamelloInternetSpeaker>();
         return speakers.All(internetSpeaker => internetSpeaker.Channel != channel);
+    }
+
+    public void Dispose() {
+        Console.WriteLine("Disposing speakers");
     }
 }

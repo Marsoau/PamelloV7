@@ -245,16 +245,12 @@ namespace PamelloV7.Server
         private void OnStop() {
             Console.WriteLine("STOPPING");
             
-            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
-            
             var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
             
             players.Dispose();
+            
+            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
 
-            foreach (var client in discordClients.DiscordClients) {
-                client.LogoutAsync().Wait();
-                client.Dispose();
-            }
         }
     }
 }

@@ -8,7 +8,7 @@ using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Services
 {
-    public class DiscordClientService
+    public class DiscordClientService : IDisposable
     {
 		private readonly IServiceProvider _services;
 
@@ -131,6 +131,15 @@ namespace PamelloV7.Server.Services
 			}
 
 			return user;
+		}
+
+		public void Dispose() {
+			Console.WriteLine("Disposing discord clients");
+			
+			foreach (var client in DiscordClients) {
+				client.LogoutAsync().Wait();
+				client.Dispose();
+			}
 		}
     }
 }
