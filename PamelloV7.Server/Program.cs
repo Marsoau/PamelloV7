@@ -11,6 +11,7 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 using System.Text;
+using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
@@ -237,20 +238,38 @@ namespace PamelloV7.Server
             app.UseCors("AllowSpecificOrigin");
 
             var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+            
             lifetime.ApplicationStopped.Register(OnStop);
+            lifetime.ApplicationStarted.Register(OnStart);
 
             await app.RunAsync();
         }
 
+        private async void OnStart() {
+            var users = app.Services.GetRequiredService<PamelloUserRepository>();
+            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
+
+            var user = users.GetRequired(1);
+            var player = user.Commands.PlayerCreate("Test");
+
+            var audio = new PamelloAudio(app.Services, songs.GetRequired(434));
+            var pump = new AudioPump();
+            var copy = new AudioCopy();
+            var speaker = await user.Commands.SpeakerDiscordConnect();
+            
+            await audio.TryInitialize();
+            pump.Init();
+            copy.Init();
+
+            pump.Input.ConnectBack(audio.Output);
+            copy.Input.ConnectBack(pump.Output);
+            copy.CreateOutput().ConnectFront(speaker.Input);
+
+            _ = pump.Start();
+        }
+
         private void OnStop() {
             Console.WriteLine("STOPPING");
-            
-            var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
-            
-            players.Dispose();
-            
-            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
-
         }
     }
 }

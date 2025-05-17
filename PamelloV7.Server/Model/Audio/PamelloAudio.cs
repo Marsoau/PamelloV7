@@ -3,6 +3,7 @@ using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
+using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Audio
 {
@@ -33,6 +34,8 @@ namespace PamelloV7.Server.Model.Audio
 
         private AudioTime _chunkSize;
 
+        public AudioPullPoint Output;
+
         public PamelloAudio(IServiceProvider services,
             PamelloSong song
         ) {
@@ -44,6 +47,9 @@ namespace PamelloV7.Server.Model.Audio
             Duration = new AudioTime(0);
 
             _chunkSize = new AudioTime(12);
+            
+            Output = new AudioPullPoint();
+            Output.OnRequest += NextBytes;
         }
 
 		public void Clean() {

@@ -4,6 +4,7 @@ using Discord.Audio;
 using Discord.WebSocket;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
@@ -24,6 +25,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             get => _audioOutput is not null;
         }
 
+        public readonly AudioPushPoint Input;
+
         public PamelloDiscordSpeaker(IServiceProvider services,
             DiscordSocketClient client,
             ulong guildId,
@@ -34,6 +37,10 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
+            
+            var input = new AudioPushPoint();
+            input.Process += PlayBytesAsync;
+            Input = input;
         }
 
         private async Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState fromVc, SocketVoiceState toVc) {
@@ -58,7 +65,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         private Task AudioClient_Connected() {
             Console.WriteLine("creating stream");
-            _audioOutput = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
+            _audioOutput = Guild.AudioClient.CreateDirectPCMStream(AudioApplication.Music);
             Console.WriteLine("creted");
             return Task.CompletedTask;
         }

@@ -1,0 +1,48 @@
+using System.Diagnostics.CodeAnalysis;
+using PamelloV7.Server.Data;
+using PamelloV7.Server.Model.Audio.Points;
+
+namespace PamelloV7.Server.Model.Audio.Modules.Basic;
+
+public class AudioBuffer : AudioModule<AudioPushPoint, AudioPullPoint>
+{
+    protected override int MinInputs => 1;
+    protected override int MaxInputs => 1;
+
+    protected override int MinOutputs => 1;
+    protected override int MaxOutputs => 1;
+
+    private readonly CircularBuffer<byte> _circle;
+    public int Size => _circle.Buffer.Length;
+
+    public AudioPushPoint Input;
+    public AudioPullPoint Output;
+
+    public AudioBuffer(int size) {
+        _circle = new CircularBuffer<byte>(size);
+    }
+    
+    public override AudioPushPoint CreateInput() {
+        Input = base.CreateInput();
+        
+        Input.Process = Provide;
+
+        return Input;
+    }
+
+    public override AudioPullPoint CreateOutput() {
+        Output = base.CreateOutput();
+        
+        Output.OnRequest = OnRequest;
+        
+        return Output;
+    }
+
+    private async Task OnRequest(byte[] buffer) {
+        _circle.ReadPair(buffer);
+    }
+    
+    private async Task Provide(byte[] audio) {
+        _circle.WritePair(audio);
+    }
+}

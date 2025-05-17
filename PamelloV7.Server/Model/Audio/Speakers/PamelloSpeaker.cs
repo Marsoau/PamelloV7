@@ -1,4 +1,5 @@
 ﻿using PamelloV7.Core.DTO;
+using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
