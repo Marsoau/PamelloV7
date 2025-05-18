@@ -46,7 +46,7 @@ public class PamelloSpeakerCollection : IDisposable
         if (!_repository.IsInternetChannelAvailable(channel)) throw new PamelloException($"Channel \"{channel}\" is not available");
         
         var internetSpeaker = new PamelloInternetSpeaker(_player, channel, isPublic);
-        await internetSpeaker.InitialConnection();
+        //await internetSpeaker.InitialConnection();
 
         _speakers.Add(internetSpeaker);
         internetSpeaker.OnTerminated += Speaker_Terminated;

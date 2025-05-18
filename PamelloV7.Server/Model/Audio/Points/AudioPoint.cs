@@ -12,6 +12,10 @@ public abstract class AudioPoint : IAudioPoint
     
     public void ConnectBack(IAudioPoint point) {
         if (_backPoint is not null) return;
+        if (point is null) {
+            Console.WriteLine("WARNING: Attempted to connect to a null back point");
+            return;
+        }
         
         _backPoint = point;
         
@@ -20,6 +24,10 @@ public abstract class AudioPoint : IAudioPoint
 
     public void ConnectFront(IAudioPoint point) {
         if (_frontPoint is not null) return;
+        if (point is null) {
+            Console.WriteLine("WARNING: Attempted to connect to a null front point");
+            return;
+        }
         
         _frontPoint = point;
         

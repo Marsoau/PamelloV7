@@ -1,16 +1,17 @@
 using System.Diagnostics.CodeAnalysis;
 using PamelloV7.Server.Data;
+using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Basic;
 
-public class AudioBuffer : AudioModule<AudioPushPoint, AudioPullPoint>
+public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWithOutputs<AudioPullPoint>
 {
-    protected override int MinInputs => 1;
-    protected override int MaxInputs => 1;
+    public int MinInputs => 1;
+    public int MaxInputs => 1;
 
-    protected override int MinOutputs => 1;
-    protected override int MaxOutputs => 1;
+    public int MinOutputs => 1;
+    public int MaxOutputs => 1;
 
     private readonly CircularBuffer<byte> _circle;
     public int Size => _circle.Buffer.Length;
@@ -22,16 +23,16 @@ public class AudioBuffer : AudioModule<AudioPushPoint, AudioPullPoint>
         _circle = new CircularBuffer<byte>(size);
     }
     
-    public override AudioPushPoint CreateInput() {
-        Input = base.CreateInput();
+    public AudioPushPoint CreateInput() {
+        Input = new AudioPushPoint();
         
         Input.Process = Provide;
 
         return Input;
     }
 
-    public override AudioPullPoint CreateOutput() {
-        Output = base.CreateOutput();
+    public AudioPullPoint CreateOutput() {
+        Output = new AudioPullPoint();
         
         Output.OnRequest = OnRequest;
         
@@ -44,5 +45,8 @@ public class AudioBuffer : AudioModule<AudioPushPoint, AudioPullPoint>
     
     private async Task Provide(byte[] audio) {
         _circle.WritePair(audio);
+    }
+
+    public void InitModule() {
     }
 }

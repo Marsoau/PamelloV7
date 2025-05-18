@@ -1,26 +1,43 @@
+using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Basic;
 
-public class AudioCopy : AudioModule<AudioPushPoint, AudioPushPoint>
+public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWithOutputs<AudioPushPoint>
 {
-    protected override int MinInputs => 1;
-    protected override int MaxInputs => 1;
+    public int MinInputs => 1;
+    public int MaxInputs => 1;
     
-    protected override int MinOutputs => 0;
-    protected override int MaxOutputs => 10;
+    public int MinOutputs => 0;
+    public int MaxOutputs => 100;
 
     public AudioPushPoint Input;
+    public List<AudioPushPoint> Outputs;
+
+    public AudioCopy() {
+        Outputs = [];
+    }
     
-    public override AudioPushPoint CreateInput() {
-        Input = base.CreateInput();
+    public AudioPushPoint CreateInput() {
+        Input = new AudioPushPoint();
 
         Input.Process = ProcessInput;
 
         return Input;
     }
 
+    public AudioPushPoint CreateOutput() {
+        var output = new AudioPushPoint();
+        
+        Outputs.Add(output);
+        
+        return output;
+    }
+
     private Task ProcessInput(byte[] audio) {
         return Task.WhenAll(Outputs.Select(o => o.Push(audio)));
+    }
+
+    public void InitModule() {
     }
 }

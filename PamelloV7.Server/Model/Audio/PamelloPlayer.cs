@@ -1,20 +1,35 @@
 ﻿using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Server.Model.Audio.Interfaces;
+using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
+using PamelloV7.Server.Model.Listeners;
+using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio
 {
-    public class PamelloPlayer : IPamelloEntity, IDisposable
+    public class PamelloPlayer : IPamelloEntity, IAudioModuleWithModel, IDisposable
     {
+        private readonly IServiceProvider _services;
+        
+        private readonly PamelloSongRepository _songs;
+        private readonly PamelloUserRepository _users;
+        
         private readonly PamelloSpeakerRepository _speakerRepository;
         private readonly PamelloEventsService _events;
 
         public readonly PamelloUser Creator;
         public readonly PamelloSpeakerCollection Speakers;
+
+        public AudioModel Model { get; }
+
+        private PamelloAudio _testSongAudio;
+        private AudioPump _pump;
+        private PamelloInternetSpeaker _testSpeaker;
 
         public int Id { get; }
 
@@ -73,6 +88,11 @@ namespace PamelloV7.Server.Model.Audio
             string name,
             PamelloUser creator
         ) {
+            _services = services;
+            
+            _songs = services.GetRequiredService<PamelloSongRepository>();
+            _users = services.GetRequiredService<PamelloUserRepository>();
+            
             _speakerRepository = services.GetRequiredService<PamelloSpeakerRepository>();
             _events = services.GetRequiredService<PamelloEventsService>();
 
@@ -87,7 +107,8 @@ namespace PamelloV7.Server.Model.Audio
             Queue = new PamelloQueue(services, this);
             Speakers = new PamelloSpeakerCollection(services, this);
 
-            Task.Run(MusicRestartingLoop);
+            Model = new AudioModel();
+            //Task.Run(MusicRestartingLoop);
         }
 
         public async Task MusicRestartingLoop() {
@@ -192,6 +213,34 @@ namespace PamelloV7.Server.Model.Audio
         public void Dispose() {
             Queue.Dispose();
             Speakers.Dispose();
+        }
+        public void InitModel() {
+            var testSong = _songs.GetRequired(12);
+            var testUser = _users.GetRequired(1);
+            
+            Model.AddModules([
+                _testSongAudio = new PamelloAudio(_services, testSong),
+                _pump = new AudioPump(),
+                _testSpeaker = testUser.Commands.SpeakerInternetConnect("test", true).Result
+            ]);
+        }
+        public void InitModule() {
+            Console.WriteLine("starting pump in...");
+            
+            Console.WriteLine("3");
+            Task.Delay(1000).Wait();
+            Console.WriteLine("2");
+            Task.Delay(1000).Wait();
+            Console.WriteLine("1");
+            Task.Delay(1000).Wait();
+            Console.WriteLine("0");
+            
+            _pump.Input.ConnectFront(_testSongAudio.Output);
+            _pump.Output.ConnectBack(_testSpeaker.Input);
+            
+            Console.WriteLine("starting pump");
+
+            _ = _pump.Start();
         }
     }
 }

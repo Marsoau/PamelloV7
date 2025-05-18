@@ -3,11 +3,12 @@ using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
+using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Audio
 {
-    public class PamelloAudio
+    public class PamelloAudio : IAudioModuleWithOutputs<AudioPullPoint>
     {
         private readonly YoutubeDownloadService _downloader;
 
@@ -34,6 +35,9 @@ namespace PamelloV7.Server.Model.Audio
 
         private AudioTime _chunkSize;
 
+        public int MinOutputs => 1;
+        public int MaxOutputs => 1;
+
         public AudioPullPoint Output;
 
         public PamelloAudio(IServiceProvider services,
@@ -47,9 +51,6 @@ namespace PamelloV7.Server.Model.Audio
             Duration = new AudioTime(0);
 
             _chunkSize = new AudioTime(12);
-            
-            Output = new AudioPullPoint();
-            Output.OnRequest += NextBytes;
         }
 
 		public void Clean() {
@@ -99,6 +100,7 @@ namespace PamelloV7.Server.Model.Audio
         }
 
 		public async Task<bool> NextBytes(byte[] result) {
+            //Console.WriteLine("next bytes");
             if (_rewinding is not null) await _rewinding;
 			if (_currentChunk is null) return false;
 
@@ -122,7 +124,7 @@ namespace PamelloV7.Server.Model.Audio
             _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
 			if (_currentChunk.Read(result, 0, 2) == 2) {
 				Position.TimeValue += 2;
-
+                //Console.WriteLine($"TRUE: {result[0]}, {result[1]}");
 				return true;
 			}
 
@@ -339,6 +341,18 @@ namespace PamelloV7.Server.Model.Audio
             }
             
             return null;
+        }
+
+        public AudioPullPoint CreateOutput() {
+            Console.WriteLine("creating output for audio");
+            Output = new AudioPullPoint();
+            
+            Output.OnRequest += NextBytes;
+            
+            return Output;
+        }
+
+        public void InitModule() {
         }
     }
 }

@@ -78,10 +78,12 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
 
         public override async Task PlayBytesAsync(byte[] audio) {
+            Console.WriteLine($"output START: {audio[0]}, {audio[1]}");
             if (_audioOutput is null) return;
 
             try {
                 await _audioOutput.WriteAsync(audio);
+                Console.WriteLine($"output END: {audio[0]}, {audio[1]}");
             }
             catch {
                 Console.WriteLine("async x");

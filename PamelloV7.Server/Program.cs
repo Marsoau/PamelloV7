@@ -21,9 +21,9 @@ namespace PamelloV7.Server
     {
         private WebApplicationBuilder builder;
         private WebApplication app;
-        
+
         public static async Task Main(string[] args) => await new Program().MainAsync(args);
-        
+
         public async Task MainAsync(string[] args) {
             Console.OutputEncoding = Encoding.Unicode;
 
@@ -58,7 +58,7 @@ namespace PamelloV7.Server
             for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
                 builder.Services.AddKeyedSingleton($"Speaker-{i + 1}", new DiscordSocketClient(discordConfig));
             }
-            
+
             builder.Services.AddSingleton(services => new InteractionService(
                 services.GetRequiredService<DiscordSocketClient>(),
                 new InteractionServiceConfig()
@@ -78,7 +78,7 @@ namespace PamelloV7.Server
             builder.Services.AddSingleton<PamelloSongRepository>();
             builder.Services.AddSingleton<PamelloEpisodeRepository>();
             builder.Services.AddSingleton<PamelloPlaylistRepository>();
-            
+
             builder.Services.AddSingleton<PamelloPlayerRepository>();
             builder.Services.AddSingleton<PamelloSpeakerRepository>();
 
@@ -89,7 +89,7 @@ namespace PamelloV7.Server
             builder.Services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
             builder.Services.AddHttpClient();
 
-			builder.Services.AddCors(options => {
+            builder.Services.AddCors(options => {
                 options.AddPolicy("AllowSpecificOrigin", builder => {
                     builder.AllowAnyOrigin()
                         .AllowAnyHeader()
@@ -134,13 +134,15 @@ namespace PamelloV7.Server
                 //Console.WriteLine("speaker ready");
             };
 
-            await discordClients.MainClient.LoginAsync(TokenType.Bot, PamelloServerConfig.Root.Discord.Tokens.MainBotToken);
+            await discordClients.MainClient.LoginAsync(TokenType.Bot,
+                PamelloServerConfig.Root.Discord.Tokens.MainBotToken);
             await discordClients.MainClient.StartAsync();
 
             await mainDiscordReady.Task;
 
             for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
-                await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot, PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens[i]);
+                await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot,
+                    PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens[i]);
                 await discordClients.DiscordClients[i + 1].StartAsync();
             }
         }
@@ -152,22 +154,14 @@ namespace PamelloV7.Server
             var songs = app.Services.GetRequiredService<PamelloSongRepository>();
             var episodes = app.Services.GetRequiredService<PamelloEpisodeRepository>();
             var playlists = app.Services.GetRequiredService<PamelloPlaylistRepository>();
-            
+
             var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
             var speakers = app.Services.GetRequiredService<PamelloSpeakerRepository>();
 
-            songs.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("Loading songs");
-            };
-            episodes.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("Loading episodes");
-            };
-            playlists.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("Loading playlists");
-            };
-            users.BeforeLoading += () => {
-                DatabaseEntityRepository_BeforeLoading("Loading users");
-            };
+            songs.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading songs"); };
+            episodes.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading episodes"); };
+            playlists.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading playlists"); };
+            users.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading users"); };
 
             songs.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
             episodes.OnLoadingProgress += DatabaseEntityRepository_OnLoadingProgress;
@@ -179,18 +173,10 @@ namespace PamelloV7.Server
             playlists.OnLoaded += DatabaseEntityRepository_OnLoaded;
             users.OnLoaded += DatabaseEntityRepository_OnLoaded;
 
-            songs.BeforeInit += () => {
-                DatabaseEntityRepository_BeforeLoading("Initializing songs");
-            };
-            episodes.BeforeInit += () => {
-                DatabaseEntityRepository_BeforeLoading("Initializing episodes");
-            };
-            playlists.BeforeInit += () => {
-                DatabaseEntityRepository_BeforeLoading("Initializing playlists");
-            };
-            users.BeforeInit += () => {
-                DatabaseEntityRepository_BeforeLoading("Initializing users");
-            };
+            songs.BeforeInit += () => { DatabaseEntityRepository_BeforeLoading("Initializing songs"); };
+            episodes.BeforeInit += () => { DatabaseEntityRepository_BeforeLoading("Initializing episodes"); };
+            playlists.BeforeInit += () => { DatabaseEntityRepository_BeforeLoading("Initializing playlists"); };
+            users.BeforeInit += () => { DatabaseEntityRepository_BeforeLoading("Initializing users"); };
 
             songs.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
             episodes.OnInitProgress += DatabaseEntityRepository_OnLoadingProgress;
@@ -206,7 +192,7 @@ namespace PamelloV7.Server
             songs.InitServices();
             episodes.InitServices();
             playlists.InitServices();
-            
+
             players.InitServices();
             speakers.InitServices();
 
@@ -224,9 +210,11 @@ namespace PamelloV7.Server
         private void DatabaseEntityRepository_OnLoaded() {
             Console.WriteLine("\nDone");
         }
+
         private void DatabaseEntityRepository_BeforeLoading(string name) {
             Console.WriteLine($"{name}");
         }
+
         private void DatabaseEntityRepository_OnLoadingProgress(int loaded, int total) {
             Console.Write($"\r[{loaded}/{total}] {((double)loaded / total) * 100}%                  ");
         }
@@ -238,7 +226,7 @@ namespace PamelloV7.Server
             app.UseCors("AllowSpecificOrigin");
 
             var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-            
+
             lifetime.ApplicationStopped.Register(OnStop);
             lifetime.ApplicationStarted.Register(OnStart);
 
@@ -247,25 +235,48 @@ namespace PamelloV7.Server
 
         private async void OnStart() {
             var users = app.Services.GetRequiredService<PamelloUserRepository>();
-            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
 
             var user = users.GetRequired(1);
-            var player = user.Commands.PlayerCreate("Test");
+            var player = await user.Commands.PlayerCreate("Test");
 
-            var audio = new PamelloAudio(app.Services, songs.GetRequired(434));
+            var model = new AudioModel();
+
+            model.AddModule(player);
+
+            Console.WriteLine("end model");
+
+            /*
+            var audio = new PamelloAudio(app.Services, songs.GetRequired(1));
             var pump = new AudioPump();
             var copy = new AudioCopy();
-            var speaker = await user.Commands.SpeakerDiscordConnect();
-            
-            await audio.TryInitialize();
-            pump.Init();
-            copy.Init();
+            var speaker = await user.Commands.SpeakerInternetConnect("test", true);
+            var speaker2 = await user.Commands.SpeakerInternetConnect("test2", true);
+            var speaker3 = await user.Commands.SpeakerInternetConnect("test3", true);
+
+            Console.WriteLine(await audio.TryInitialize());
+            pump.InitModule();
+            copy.InitModule();
 
             pump.Input.ConnectBack(audio.Output);
-            copy.Input.ConnectBack(pump.Output);
+            pump.Output.ConnectFront(copy.Input);
+
             copy.CreateOutput().ConnectFront(speaker.Input);
+            copy.CreateOutput().ConnectFront(speaker2.Input);
+            copy.CreateOutput().ConnectFront(speaker3.Input);
+            while (true) {
+                await audio.NextBytes(pair);
+                await player.Speakers.BroadcastBytes(player, pair);
+            }
+            var pair = new byte[2];
+            await audio.Output.Pull(pair);
+            Console.WriteLine($"sample: {pair[0]}, {pair[1]}");
+            await audio.NextBytes(pair);
+            Console.WriteLine($"sample: {pair[0]}, {pair[1]}");
+
+            Task.Delay(1000).Wait();
 
             _ = pump.Start();
+            */
         }
 
         private void OnStop() {
