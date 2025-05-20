@@ -2,6 +2,8 @@ namespace PamelloV7.Server.Model.Audio.Interfaces;
 
 public interface IAudioPoint
 {
+    public int Id { get; }
+    
     IAudioPoint? BackPoint { get; }
     IAudioPoint? FrontPoint { get; }
 

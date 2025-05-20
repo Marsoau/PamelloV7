@@ -15,6 +15,8 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
     public AudioPullPoint Input;
     public AudioPushPoint Output;
 
+    public Func<Task<bool>>? Condition;
+
     public int ChunkSize;
 
     public AudioPump() : this(2) {}
@@ -37,9 +39,36 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
     public async Task Start() {
         var pair = new byte[ChunkSize];
         
+        if (Condition is null) Condition = () => Task.FromResult(true);
         while (true) {
-            await Input.Pull(pair);
-            await Output.Push(pair);
+            if (!await Condition.Invoke())
+            {
+                Console.WriteLine("Condition was false, pump waits");
+                await Task.Delay(1000);
+            }
+
+            try
+            {
+                if (!await Input.Pull(pair, true))
+                {
+                    Console.WriteLine("PUMP Failed to puLL audio from input");
+                    await Task.Delay(1000);
+                }
+                else if (!await Output.Push(pair, true))
+                {
+                    Console.WriteLine("PUMP Failed to puSH audio to output");
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Audio pump exception, some info:");
+                Console.WriteLine($"Input: {Input}");
+                Console.WriteLine($"Output: {Output}");
+                Console.WriteLine($"Error info: {ex}");
+                Console.WriteLine("Retrying in 3 seconds");
+                await Task.Delay(3000);
+            }
         }
     }
 

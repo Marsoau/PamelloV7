@@ -34,7 +34,15 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     public void InitModule() {
     }
 
-    private Task Request(byte[] arg) {
-        throw new NotImplementedException();
+    private async Task<bool> Request(byte[] buffer, bool wait) {
+        for (var i = 0; i < Inputs.Count; i++)
+        {
+            if (await Inputs[i].Pull(buffer, wait && Inputs.Count - 1 == i))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

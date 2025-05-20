@@ -39,7 +39,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
             
             var input = new AudioPushPoint();
-            input.Process += PlayBytesAsync;
+            //input.Process += PlayBytesAsync;
             Input = input;
         }
 

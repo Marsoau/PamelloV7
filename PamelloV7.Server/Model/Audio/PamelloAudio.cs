@@ -50,7 +50,7 @@ namespace PamelloV7.Server.Model.Audio
             Position = new AudioTime(0);
             Duration = new AudioTime(0);
 
-            _chunkSize = new AudioTime(12);
+            _chunkSize = new AudioTime(64);
         }
 
 		public void Clean() {
@@ -99,18 +99,21 @@ namespace PamelloV7.Server.Model.Audio
             return true;
         }
 
-		public async Task<bool> NextBytes(byte[] result) {
-            //Console.WriteLine("next bytes");
+		public async Task<bool> NextBytes(byte[] result, bool wait) {
+            Console.WriteLine("next bytes");
             if (_rewinding is not null) await _rewinding;
 			if (_currentChunk is null) return false;
+            Console.WriteLine("next bytes 2");
 
             if (Position.TimeValue >= Duration.TimeValue) {
+                Console.WriteLine("false 1");
                 return false;
             }
 
 			if (Position.TotalSeconds == _nextBreakPoint) {
                 if (_nextJumpPoint is null) {
                     await RewindTo(Duration);
+                    Console.WriteLine("false 2");
                     return false;
                 }
 
@@ -122,12 +125,13 @@ namespace PamelloV7.Server.Model.Audio
             }
 
             _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
-			if (_currentChunk.Read(result, 0, 2) == 2) {
-				Position.TimeValue += 2;
-                //Console.WriteLine($"TRUE: {result[0]}, {result[1]}");
+			if (_currentChunk.Read(result) == result.Length) {
+				Position.TimeValue += result.Length;
+                Console.WriteLine($"TRUE: {result.All(x => x == 0)}");
 				return true;
 			}
 
+            Console.WriteLine("false 3");
 			return false;
 		}
 

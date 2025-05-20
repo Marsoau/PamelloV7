@@ -158,7 +158,7 @@ namespace PamelloV7.Server.Model.Audio
 
 				State = EPlayerState.Active;
 
-                success = await Queue.Current.NextBytes(audio);
+                success = await Queue.Current.NextBytes(audio, true);
 
                 try {
                     if (success) await Speakers.BroadcastBytes(this, audio);
@@ -215,32 +215,62 @@ namespace PamelloV7.Server.Model.Audio
             Speakers.Dispose();
         }
         public void InitModel() {
-            var testSong = _songs.GetRequired(12);
+            var testSong = _songs.GetRequired(434);
             var testUser = _users.GetRequired(1);
             
             Model.AddModules([
                 _testSongAudio = new PamelloAudio(_services, testSong),
-                _pump = new AudioPump(),
+                _pump = new AudioPump(48000),
                 _testSpeaker = testUser.Commands.SpeakerInternetConnect("test", true).Result
             ]);
         }
-        public void InitModule() {
-            Console.WriteLine("starting pump in...");
+        public void InitModule()
+        {
+            _testSongAudio.TryInitialize().Wait();
+            Console.WriteLine("starting player pump");
+
+            Console.WriteLine("before connection:");
+            Console.WriteLine($"Pump input: {_pump.Input}");
+            Console.WriteLine($"Pump output: {_pump.Output}");
+            _pump.Input.ConnectBack(_testSongAudio.Output);
+            _pump.Output.ConnectFront(_testSpeaker.Input);
+            _pump.Condition = PumpCondition;
             
-            Console.WriteLine("3");
-            Task.Delay(1000).Wait();
-            Console.WriteLine("2");
-            Task.Delay(1000).Wait();
-            Console.WriteLine("1");
-            Task.Delay(1000).Wait();
-            Console.WriteLine("0");
-            
-            _pump.Input.ConnectFront(_testSongAudio.Output);
-            _pump.Output.ConnectBack(_testSpeaker.Input);
-            
-            Console.WriteLine("starting pump");
+            Console.WriteLine("after connection:");
+            Console.WriteLine($"Pump input: {_pump.Input}");
+            Console.WriteLine($"Pump output: {_pump.Output}");
 
             _ = _pump.Start();
+            
+            Console.WriteLine("pump started");
+        }
+
+        private async Task<bool> PumpCondition()
+        {
+            Console.WriteLine($"pump condition called. result: {_testSpeaker.Listenets.Count > 0}");
+            return _testSpeaker.Listenets.Count > 0;
+            if (Queue.Current is null) {
+                State = EPlayerState.AwaitingSong;
+                return false;
+            }
+            if (!Queue.Current.IsInitialized) {
+                State = EPlayerState.AwaitingSongInitialization;
+                if (!await Queue.Current.TryInitialize()) {
+                    Console.WriteLine("failed to initialize");
+                    Queue.GoToNextSong(true);
+                    return false;
+                }
+            }
+            if (!Speakers.IsAnyAvailable()) {
+                State = EPlayerState.AwaitingSpeaker;
+                return false;
+            }
+            if (IsPaused)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

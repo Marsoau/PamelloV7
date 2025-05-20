@@ -24,18 +24,22 @@ namespace PamelloV7.Server.Model.Listeners
             await _response.Body.FlushAsync();
         }
 
-        public async Task SendAudio(byte[] audio) {
+        public async Task<bool> SendAudio(byte[] audio, bool wait) {
             try {
                 if (!IsClosed) {
                     await _response.Body.WriteAsync(audio);
                     await _response.Body.FlushAsync();
-                    Console.WriteLine($"Sent {audio.Length} bytes of audio to listener");
+                    //Console.WriteLine($"Sent {audio.Length} bytes of audio to listener");
+                    //Console.WriteLine($"Is al audio 0: {audio.All(x => x == 0)}");;
+                    return true;
                 }
             }
             catch (Exception ex) {
                 Console.WriteLine($"Error sending audio: {ex.Message}");
                 await CloseConnection();
             }
+
+            return false;
         }
         
         protected override async Task CloseConnectionBase() {

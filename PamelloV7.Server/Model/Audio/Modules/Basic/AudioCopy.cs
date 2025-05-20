@@ -28,14 +28,17 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
 
     public AudioPushPoint CreateOutput() {
         var output = new AudioPushPoint();
-        
+        Console.WriteLine("create copy output");
         Outputs.Add(output);
         
         return output;
     }
 
-    private Task ProcessInput(byte[] audio) {
-        return Task.WhenAll(Outputs.Select(o => o.Push(audio)));
+    private async Task<bool> ProcessInput(byte[] audio, bool wait)
+    {
+        var currentOutputs = new List<AudioPushPoint>(Outputs);
+        await Task.WhenAll(currentOutputs.Select(o => o.Push(audio, wait)));
+        return true;
     }
 
     public void InitModule() {

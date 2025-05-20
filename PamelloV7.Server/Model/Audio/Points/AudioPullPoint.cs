@@ -5,18 +5,16 @@ namespace PamelloV7.Server.Model.Audio.Points;
 
 public class AudioPullPoint : AudioPoint, IAudioPullPoint
 {
-    public Func<byte[], Task>? OnRequest;
-    public Func<byte[], Task<bool>>? OnTryRequest;
+    public Func<byte[], bool, Task<bool>>? OnRequest;
 
-    public Task<bool> TryPull(byte[] buffer) {
-        if (OnTryRequest is not null) return OnTryRequest.Invoke(buffer);
-        
-        return ((AudioPullPoint)BackPoint!).TryPull(buffer);
-    }
+    public Task<bool> Pull(byte[] buffer, bool wait) {
+        if (OnRequest is not null)
+        {
+            //Console.WriteLine("requesting custom pull on point");
+            return OnRequest.Invoke(buffer, wait);
+        }
 
-    public Task Pull(byte[] buffer) {
-        if (OnRequest is not null) return OnRequest.Invoke(buffer);
-        
-        return ((AudioPullPoint)BackPoint!).Pull(buffer);
+        //Console.WriteLine("pulling from point");
+        return ((AudioPullPoint)BackPoint!).Pull(buffer, wait);
     }
 }

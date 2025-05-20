@@ -6,6 +6,7 @@ using PamelloV7.Core.DTO.Speakers;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
+using PamelloV7.Server.Model.Audio.Modules.Pipes;
 using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 
@@ -30,6 +31,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         private AudioSilence _silence;
         private AudioChoise _choise;
         private AudioPump _pump;
+        private AudioFFmpeg _ffmpeg;
         private AudioCopy _copy;
 
         public readonly List<PamelloInternetSpeakerListener> Listenets;
@@ -50,6 +52,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                 _silence = new AudioSilence(),
                 _choise = new AudioChoise(),
                 _pump = new AudioPump(),
+                _ffmpeg = new AudioFFmpeg(),
                 _copy = new AudioCopy()
             ]);
         }
@@ -57,9 +60,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public AudioPushPoint CreateInput() {
             Input = new AudioPushPoint();
             
-            Input.Process = audio => {
-                return _copy.Input.Push(audio);
-            };
+            Input.ConnectFront(_ffmpeg.Input);
         
             return Input;
         }
@@ -67,6 +68,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public void InitModule() {
             // _choise.CreateInput().ConnectBack(_buffer.Output);
             // _choise.CreateInput().ConnectBack(_silence.Output);
+            
+            _copy.Input.ConnectBack(_ffmpeg.Output);
         
             // _pump.Input.ConnectFront(_buffer.Output);
             // _pump.Output.ConnectBack(_copy.Input);
