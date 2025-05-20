@@ -1,11 +1,20 @@
 namespace PamelloV7.Server.Data;
 
+public class AwaitingOperation
+{
+    public int Size;
+    public TaskCompletionSource Completion;
+}
+
 public class CircularBuffer<TType>
 {
     public int Tail { get; set; }
     public int Head { get; set; }
     
     public TType[] Buffer { get; set; }
+    
+    private List<AwaitingOperation> AwaitingWrites { get; set; }
+    private List<AwaitingOperation> AwaitingReads { get; set; }
 
     public CircularBuffer(int size) {
         Buffer = new TType[size];
@@ -25,32 +34,92 @@ public class CircularBuffer<TType>
         return value;
     }
 
-    public void WritePair(TType[] pair) {
-        Write(pair[0]);
-        Write(pair[1]);
+    public int Available()
+    {
+        var distance = Head - Tail;
+        return distance < 0 ? -distance : Buffer.Length - distance;
     }
-    public void ReadPair(TType[] pair) {
-        pair[0] = Read();
-        pair[1] = Read();
+    public int Used()
+    {
+        var distance = Head - Tail;
+        return distance < 0 ? Buffer.Length - -distance : distance;
     }
     
-    public void WriteRange(TType[] values) {
-        var partSize = values.Length < Buffer.Length - Head ?
-            Buffer.Length - Head :
-            values.Length;
-
-        for (var i = 0; i < partSize; i++) {
-            Buffer[Head + i] = values[i];
+    public async Task<bool> WriteRange(TType[] values, bool wait)
+    {
+        var count = values.Length;
+        if (count < Available())
+        {
+            if (!wait) return false;
+            
+            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource()};
+            AwaitingWrites.Add(operation);
+            await operation.Completion.Task;
         }
         
-        Head = 0;
-        
-        if (partSize < values.Length) {
-            for (var i = 0; i < values.Length - partSize; i++) {
-                Buffer[Head + i] = values[partSize + i];
+        var capacity = Buffer.Length;
+
+        var firstPart = Math.Min(count, capacity - Head);
+        Array.Copy(values, 0, Buffer, Head, firstPart);
+
+        var secondPart = count - firstPart;
+        if (secondPart > 0)
+        {
+            Array.Copy(values, firstPart, Buffer, 0, secondPart);
+        }
+
+        Head = (Head + count) % capacity;
+
+        if (AwaitingReads.Count > 0) _ = Task.Run(() => {
+            foreach (var item in AwaitingReads)
+            {
+                if (item.Size > Available()) continue;
+            
+                AwaitingReads.Remove(item);
+                item.Completion.SetResult();
+                break;
             }
+        });
+
+        return true;
+    }
+    
+    public async Task<bool> ReadRange(TType[] destination, bool wait)
+    {
+        var count = destination.Length;
+        if (count > Available())
+        {
+            if (!wait) return false;
+            
+            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource()};
+            AwaitingReads.Add(operation);
+            await operation.Completion.Task;
+        }
+        
+        var capacity = Buffer.Length;
+
+        var firstPart = Math.Min(count, capacity - Tail);
+        Array.Copy(Buffer, Tail, destination, 0, firstPart);
+
+        var secondPart = count - firstPart;
+        if (secondPart > 0)
+        {
+            Array.Copy(Buffer, 0, destination, firstPart, secondPart);
         }
 
-        Head = values.Length - partSize;
+        Tail = (Tail + count) % capacity;
+        
+        if (AwaitingReads.Count > 0) _ = Task.Run(() => {
+            foreach (var item in AwaitingReads)
+            {
+                if (item.Size > Available()) continue;
+            
+                AwaitingReads.Remove(item);
+                item.Completion.SetResult();
+                break;
+            }
+        });
+        
+        return true;
     }
 }
