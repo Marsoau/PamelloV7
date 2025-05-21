@@ -9,6 +9,7 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.DAL;
 using Microsoft.EntityFrameworkCore;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Difference;
 using PamelloV7.Server.Repositories.Dynamic;
 

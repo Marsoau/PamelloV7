@@ -15,9 +15,12 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
     public AudioPushPoint Input;
     public ConcurrentDictionary<int, AudioPushPoint> Outputs;
 
+    public AudioModel ParentModel { get; }
     public bool IsDisposed { get; private set; }
 
-    public AudioCopy() {
+    public AudioCopy(AudioModel parentModel) {
+        ParentModel = parentModel;
+        
         Outputs = [];
     }
     
@@ -40,16 +43,23 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
 
     private async Task<bool> ProcessInput(byte[] audio, bool wait)
     {
-        await Task.WhenAll(Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait)));
-        return true;
+        if (Outputs.Count == 0) return false;
+
+        var tasks = Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait));
+        await Task.WhenAll(tasks);
+        var result = tasks.Any(task => task.Result);
+        // Console.WriteLine($"Result of copy {GetHashCode()}: {result}");
+        return result;
     }
 
-    private async Task PushToPoint(AudioPushPoint point, byte[] audio, bool wait)
+    private async Task<bool> PushToPoint(AudioPushPoint point, byte[] audio, bool wait)
     {
-        if (await point.Push(audio, wait)) return;
+        if (await point.Push(audio, wait)) return true;
         
         Outputs.TryRemove(point.Id, out _);
         point.Dispose();
+
+        return false;
     }
 
     public void InitModule() {

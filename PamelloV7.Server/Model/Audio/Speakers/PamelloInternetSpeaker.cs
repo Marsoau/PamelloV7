@@ -6,6 +6,7 @@ using PamelloV7.Core.DTO.Speakers;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Modules.Pipes;
 using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
@@ -25,12 +26,9 @@ namespace PamelloV7.Server.Model.Audio.Speakers
     
         public AudioPushPoint Input;
 
+        public AudioModel ParentModel { get; }
         public AudioModel Model { get; }
     
-        private AudioBuffer _buffer;
-        private AudioSilence _silence;
-        private AudioChoise _choise;
-        private AudioPump _pump;
         private AudioFFmpeg _ffmpeg;
         private AudioCopy _copy;
 
@@ -42,7 +40,14 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public bool IsDisposed { get; private set; }
 
-        public PamelloInternetSpeaker(PamelloPlayer player, string channel, bool isPublic) : base(player) {
+        public PamelloInternetSpeaker(
+            AudioModel parentModel,
+            PamelloPlayer player,
+            string channel,
+            bool isPublic
+        ) : base(player) {
+            ParentModel = parentModel;
+            
             Channel = channel;
 
             IsPublic = isPublic;
@@ -52,12 +57,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public void InitModel() {
             Model.AddModules([
-                _buffer = new AudioBuffer(48000),
-                _silence = new AudioSilence(),
-                _choise = new AudioChoise(),
-                _pump = new AudioPump(4800),
-                _ffmpeg = new AudioFFmpeg(),
-                _copy = new AudioCopy()
+                _ffmpeg = new AudioFFmpeg(Model),
+                _copy = new AudioCopy(Model)
             ]);
         }
         
@@ -87,10 +88,9 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public override string Name { get; }
 
         public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) {
-            var listener = new PamelloInternetSpeakerListener(response, cancellationToken, user);
+            var listener = Model.AddModule(new PamelloInternetSpeakerListener(Model, response, cancellationToken, user));
             await listener.InitializeConnecion();
-
-            Model.AddModule(listener);
+            
             var output = _copy.CreateOutput();
             output.ConnectFront(listener.Input);
             

@@ -8,7 +8,14 @@ public class AudioSilence : IAudioModuleWithOutputs<AudioPullPoint>
     public int MinOutputs => 1;
     public int MaxOutputs => 1;
     
+    public AudioModel ParentModel { get; }
+    
     public AudioPullPoint Output;
+
+    public AudioSilence(AudioModel parentModel)
+    {
+        ParentModel = parentModel;
+    }
 
     public AudioPullPoint CreateOutput() {
         Output = new AudioPullPoint(this);

@@ -12,10 +12,17 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     public int MinOutputs { get; }
     public int MaxOutputs { get; }
     
+    public AudioModel ParentModel { get; }
+    
     public List<AudioPullPoint> Inputs;
     public AudioPullPoint Output;
 
     public bool IsDisposed { get; private set; }
+
+    public AudioChoise(AudioModel parentModel)
+    {
+        ParentModel = parentModel;
+    }
     
     public AudioPullPoint CreateInput() {
         var input = new AudioPullPoint(this);

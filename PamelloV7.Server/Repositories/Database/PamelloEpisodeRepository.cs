@@ -68,10 +68,10 @@ namespace PamelloV7.Server.Repositories.Database
             PamelloEpisode? episode = null;
 
             if (value == "current") {
-                episode = scopeUser?.SelectedPlayer?.Queue.Current?.GetCurrentEpisode();
+                episode = scopeUser?.SelectedPlayer?.Queue.Audio?.GetCurrentEpisode();
             }
             else if (value == "random") {
-                episode = GetRandom(scopeUser?.SelectedPlayer?.Queue.Current?.Song);
+                episode = GetRandom(scopeUser?.SelectedPlayer?.Queue.Audio?.Song);
             }
             else if (int.TryParse(value, out var id)) {
                 episode = Get(id);

@@ -7,6 +7,7 @@ using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions;
@@ -185,7 +186,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         public async Task PlayerGoToEpisode(int episodePosition)
         {
             await Commands.PlayerGoToEpisode(episodePosition);
-            var episode = Player.Queue.Current?.GetCurrentEpisode();
+            var episode = Player.Queue.Audio?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
             await RespondPlayerInfo("Go To Episode", $"Playing {episode.ToDiscordString()}");
@@ -193,7 +194,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         public async Task PlayerNextEpisode()
         {
             await Commands.PlayerNextEpisode();
-            var episode = Player.Queue.Current?.GetCurrentEpisode();
+            var episode = Player.Queue.Audio?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
             await RespondPlayerInfo("Next Episode", $"Playing {episode.ToDiscordString()}");
@@ -201,7 +202,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         public async Task PlayerPrevEpisode()
         {
             await Commands.PlayerPrevEpisode();
-            var episode = Player.Queue.Current?.GetCurrentEpisode();
+            var episode = Player.Queue.Audio?.GetCurrentEpisode();
             if (episode is null) throw new Exception("Unexpected episode null exception");
 
             await RespondPlayerInfo("Previous Episode", $"Playing {episode.ToDiscordString()}");

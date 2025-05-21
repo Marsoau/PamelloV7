@@ -17,6 +17,7 @@ public class AudioPullPoint : AudioPoint, IAudioPullPoint
         }
         
         if (BackPoint is null) return Task.FromResult(false);
+        Debug.Assert(BackPoint is AudioPullPoint, "Pull point was connected to push point");
 
         //Console.WriteLine("pulling from point");
         return ((AudioPullPoint)BackPoint!).Pull(buffer, wait);

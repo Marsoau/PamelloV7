@@ -1,4 +1,5 @@
-﻿using PamelloV7.Server.Model.Audio.Interfaces;
+﻿using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Listeners
@@ -7,6 +8,8 @@ namespace PamelloV7.Server.Model.Listeners
     {
         public int MinInputs => 1;
         public int MaxInputs => 1;
+        
+        public AudioModel ParentModel { get; }
 
         public AudioPushPoint Input;
         
@@ -15,7 +18,14 @@ namespace PamelloV7.Server.Model.Listeners
         public readonly CancellationToken Cancellation;
         public bool IsDisposed { get; private set; }
         
-        public PamelloInternetSpeakerListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) : base(response) {
+        public PamelloInternetSpeakerListener(
+            AudioModel parentModel,
+            HttpResponse response,
+            CancellationToken cancellationToken,
+            PamelloUser? user
+        ) : base(response) {
+            ParentModel = parentModel;
+            
             User = user;
             Cancellation = cancellationToken;
 

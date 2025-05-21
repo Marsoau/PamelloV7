@@ -2,6 +2,7 @@ using Discord.WebSocket;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Services;
 
@@ -13,10 +14,13 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
     
     private DiscordClientService _discordClients;
     private PamelloPlayerRepository _players;
-    
+
+    private List<PamelloSpeaker> _speakers;
 
     public PamelloSpeakerRepository(IServiceProvider services) {
         _services = services;
+
+        _speakers = [];
     }
     
     public void InitServices() {
@@ -26,7 +30,7 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
 
     private IEnumerable<TSpeaker> GetSpeakers<TSpeaker>()
     where TSpeaker : PamelloSpeaker
-        => _players.Players.SelectMany(player => player.Speakers.All).OfType<TSpeaker>();
+        => _speakers.OfType<TSpeaker>();
 
     public PamelloSpeaker GetRequired(int id)
         => GetRequired<PamelloSpeaker>(id);
@@ -73,14 +77,10 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
     }
     public Task<IEnumerable<TSpeaker>> Search<TSpeaker>(string querry, PamelloUser? scopeUser = null)
         where TSpeaker : PamelloSpeaker {
-        var scopeSpeakers = new List<PamelloSpeaker>();
+        return Task.FromResult(_speakers.OfType<TSpeaker>());
+        var scopeSpeakers = new HashSet<PamelloSpeaker>();
         
-        if (scopeUser?.SelectedPlayer is not null) {
-            scopeSpeakers.AddRange(scopeUser.SelectedPlayer.Speakers.All);
-        }
-        
-        var speakers = GetSpeakers<PamelloSpeaker>().ToList();
-        foreach (var speaker in speakers) {
+        foreach (var speaker in _speakers) {
             if (speaker is PamelloInternetSpeaker { IsPublic: false } internetSpeaker && !(internetSpeaker.Player == scopeUser?.SelectedPlayer || internetSpeaker.Player.Creator == scopeUser)) continue;
             
             scopeSpeakers.Add(speaker);
@@ -92,7 +92,7 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 speaker.Name.Contains(querry, StringComparison.CurrentCultureIgnoreCase));
         }
         
-        return Task.FromResult(results);
+        return Task.FromResult(_speakers.OfType<TSpeaker>());
     }
     
     public List<PamelloPlayer> GetVoicePlayers(ulong vcId) {
@@ -120,7 +120,7 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 continue;
             }
             
-            if ((newSpeaker = await player.Speakers.AddDiscord(speakerClient, guildId, vcId)) is not null) return newSpeaker;
+            //if ((newSpeaker = await player.Speakers.AddDiscord(speakerClient, guildId, vcId)) is not null) return newSpeaker;
         }
 
         throw new PamelloException("No available speakers left");
@@ -139,7 +139,11 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
             }
         }
 
-        return await player.Speakers.AddInternet(channel, isPublic);
+        var speaker = await player.AddInternet(channel, isPublic);
+        
+        _speakers.Add(speaker);
+
+        return speaker;
     }
     
     public bool IsInternetChannelAvailable(string channel) {

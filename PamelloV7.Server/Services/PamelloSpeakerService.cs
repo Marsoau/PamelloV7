@@ -2,6 +2,7 @@
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Repositories.Dynamic;
 

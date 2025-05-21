@@ -70,7 +70,7 @@ namespace PamelloV7.Server.Repositories.Database
             PamelloSong? song = null;
 
             if (value == "current") {
-                song = scopeUser?.SelectedPlayer?.Queue.Current?.Song;
+                song = scopeUser?.SelectedPlayer?.Queue.Audio?.Song;
             }
             else if (value == "random") {
                 song = GetRandom();

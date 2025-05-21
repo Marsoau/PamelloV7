@@ -9,16 +9,20 @@ public class AudioPushPoint : AudioPoint, IAudioPushPoint
 
     public AudioPushPoint(IAudioModule parentModule) : base(parentModule) { }
 
-    public Task<bool> Push(byte[] audio, bool wait) {
+    public async Task<bool> Push(byte[] audio, bool wait) {
         if (Process is not null)
         {
             //Console.WriteLine("using custom push on point");
-            return Process.Invoke(audio, wait);
+            if (await Process.Invoke(audio, wait)) return true;
+
+            // Console.WriteLine("was push false");
+            return false;
         }
         
-        if (FrontPoint is null) return Task.FromResult(false);
+        if (FrontPoint is null) return await Task.FromResult(false);
+        Debug.Assert(FrontPoint is AudioPushPoint, "Push point was connected to pull point");
         
         //Console.WriteLine("pushing to point");
-        return ((AudioPushPoint)FrontPoint!).Push(audio, wait);
+        return await ((AudioPushPoint)FrontPoint!).Push(audio, wait);
     }
 }

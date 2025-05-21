@@ -1,6 +1,7 @@
 ﻿using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Services;
 
@@ -9,6 +10,8 @@ namespace PamelloV7.Server.Repositories.Dynamic
     public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>, IDisposable
     {
         private readonly IServiceProvider _services;
+
+        private AudioModel _globalAudio;
 
         private DiscordClientService _discordClients;
         private PamelloSpeakerRepository _speakers;
@@ -21,6 +24,8 @@ namespace PamelloV7.Server.Repositories.Dynamic
 
         ) {
             _services = services;
+            
+            _globalAudio = services.GetRequiredService<AudioModel>();
             
             _players = new List<PamelloPlayer>();
         }
@@ -36,7 +41,7 @@ namespace PamelloV7.Server.Repositories.Dynamic
                 name = $"{oldName}-{i}";
             }
 
-            var player = new PamelloPlayer(_services, name, creator);
+            var player = _globalAudio.AddModule(new PamelloPlayer(_globalAudio, _services, name, creator));
             _players.Add(player);
 
             return player;

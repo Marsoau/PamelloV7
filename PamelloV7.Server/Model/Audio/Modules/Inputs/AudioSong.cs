@@ -1,14 +1,14 @@
-﻿using PamelloV7.Core.Audio;
+﻿using System.Diagnostics;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Server.Extensions;
-using PamelloV7.Server.Services;
-using System.Diagnostics;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
+using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Model.Audio
+namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 {
-    public class PamelloAudio : IAudioModuleWithOutputs<AudioPullPoint>
+    public class AudioSong : IAudioModuleWithOutputs<AudioPullPoint>
     {
         private readonly YoutubeDownloadService _downloader;
 
@@ -37,14 +37,20 @@ namespace PamelloV7.Server.Model.Audio
 
         public int MinOutputs => 1;
         public int MaxOutputs => 1;
+        
+        public AudioModel ParentModel { get; }
 
         public AudioPullPoint Output;
 
         public bool IsDisposed { get; private set; }
 
-        public PamelloAudio(IServiceProvider services,
+        public AudioSong(
+            AudioModel parentModel,
+            IServiceProvider services,
             PamelloSong song
         ) {
+            ParentModel = parentModel;
+            
             _downloader = services.GetRequiredService<YoutubeDownloadService>();
 
             Song = song;
@@ -102,20 +108,20 @@ namespace PamelloV7.Server.Model.Audio
         }
 
 		public async Task<bool> NextBytes(byte[] result, bool wait) {
-            Console.WriteLine("next bytes");
+            // Console.WriteLine("next bytes");
             if (_rewinding is not null) await _rewinding;
 			if (_currentChunk is null) return false;
-            Console.WriteLine("next bytes 2");
+            // Console.WriteLine("next bytes 2");
 
             if (Position.TimeValue >= Duration.TimeValue) {
-                Console.WriteLine("false 1");
+                // Console.WriteLine("false 1");
                 return false;
             }
 
 			if (Position.TotalSeconds == _nextBreakPoint) {
                 if (_nextJumpPoint is null) {
                     await RewindTo(Duration);
-                    Console.WriteLine("false 2");
+                    // Console.WriteLine("false 2");
                     return false;
                 }
 
@@ -129,11 +135,11 @@ namespace PamelloV7.Server.Model.Audio
             _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
 			if (_currentChunk.Read(result) == result.Length) {
 				Position.TimeValue += result.Length;
-                Console.WriteLine($"TRUE: {result.All(x => x == 0)}");
+                // Console.WriteLine($"TRUE: {result.All(x => x == 0)}");
 				return true;
 			}
 
-            Console.WriteLine("false 3");
+            // Console.WriteLine("false 3");
 			return false;
 		}
 

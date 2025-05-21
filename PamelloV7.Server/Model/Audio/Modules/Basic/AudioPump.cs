@@ -12,6 +12,8 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
     public int MinOutputs => 1;
     public int MaxOutputs => 1;
     
+    public AudioModel ParentModel { get; }
+    
     public AudioPullPoint Input;
     public AudioPushPoint Output;
 
@@ -21,8 +23,10 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
 
     public bool IsDisposed { get; private set; }
 
-    public AudioPump() : this(2) {}
-    public AudioPump(int chunkSize) {
+    public AudioPump(AudioModel parentModel) : this(parentModel, 2) {}
+    public AudioPump(AudioModel parentModel, int chunkSize) {
+        ParentModel = parentModel;
+        
         ChunkSize = chunkSize;
     }
     
@@ -52,14 +56,14 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
 
             try
             {
-                if (!await Input.Pull(pair, true))
+                while (!await Input.Pull(pair, true))
                 {
-                    Console.WriteLine("PUMP Failed to puLL audio from input");
+                    Console.WriteLine($"PUMP Failed to puLL audio from input {GetHashCode()}");
                     await Task.Delay(1000);
                 }
-                else if (!await Output.Push(pair, true))
+                while (!await Output.Push(pair, true))
                 {
-                    Console.WriteLine("PUMP Failed to puSH audio to output");
+                    Console.WriteLine($"PUMP Failed to puSH audio to output {GetHashCode()}");
                     await Task.Delay(1000);
                 }
             }

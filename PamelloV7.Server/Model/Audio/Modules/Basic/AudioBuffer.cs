@@ -13,6 +13,8 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     public int MinOutputs => 1;
     public int MaxOutputs => 1;
 
+    public AudioModel ParentModel { get; }
+
     private readonly CircularBuffer<byte> _circle;
     public int Size => _circle.Buffer.Length;
 
@@ -21,8 +23,10 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
 
     public bool IsDisposed { get; private set; }
 
-    public AudioBuffer(int size) {
+    public AudioBuffer(AudioModel parentModel, int size) {
         _circle = new CircularBuffer<byte>(size);
+        
+        ParentModel = parentModel;
     }
     
     public AudioPushPoint CreateInput() {

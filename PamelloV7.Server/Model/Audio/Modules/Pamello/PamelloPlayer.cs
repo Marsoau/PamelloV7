@@ -1,16 +1,17 @@
 ﻿using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
+using PamelloV7.Server.Model.Audio.Modules.Inputs;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
-using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Model.Audio
+namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 {
     public class PamelloPlayer : IPamelloEntity, IAudioModuleWithModel, IDisposable
     {
@@ -23,13 +24,12 @@ namespace PamelloV7.Server.Model.Audio
         private readonly PamelloEventsService _events;
 
         public readonly PamelloUser Creator;
-        public readonly PamelloSpeakerCollection Speakers;
 
+        public AudioModel ParentModel { get; }
         public AudioModel Model { get; }
 
-        private PamelloAudio _testSongAudio;
         private AudioPump _pump;
-        private PamelloInternetSpeaker _testSpeaker;
+        private AudioCopy _speakersCopy;
 
         public int Id { get; }
 
@@ -82,14 +82,18 @@ namespace PamelloV7.Server.Model.Audio
 
         public bool IsDisposed { get; private set; }
 
-        public readonly PamelloQueue Queue;
+        public PamelloQueue Queue { get; private set; }
 
         private static int _idCounter = 1;
 
-        public PamelloPlayer(IServiceProvider services,
+        public PamelloPlayer(
+            AudioModel parentModel,
+            IServiceProvider services,
+            
             string name,
             PamelloUser creator
         ) {
+            ParentModel = parentModel;
             _services = services;
             
             _songs = services.GetRequiredService<PamelloSongRepository>();
@@ -105,9 +109,6 @@ namespace PamelloV7.Server.Model.Audio
             _isProtected = true;
 
             Creator = creator;
-
-            Queue = new PamelloQueue(services, this);
-            Speakers = new PamelloSpeakerCollection(services, this);
 
             Model = new AudioModel();
             //Task.Run(MusicRestartingLoop);
@@ -126,6 +127,7 @@ namespace PamelloV7.Server.Model.Audio
             Console.WriteLine("MusicLoop ended");
         }
         public async Task MusicLoop() {
+            /*
             byte[] audio = new byte[2];
             bool success = false;
 
@@ -173,6 +175,7 @@ namespace PamelloV7.Server.Model.Audio
                     Console.WriteLine($"Play bytes exception: {x}");
                 }
             }
+            */
         }
 
         public override string ToString() {
@@ -196,14 +199,14 @@ namespace PamelloV7.Server.Model.Audio
                 OwnerId = Creator.Id,
                 IsProtected = IsProtected,
 
-                CurrentSongId = Queue.Current?.Song.Id,
+                CurrentSongId = Queue.Audio?.Song.Id,
                 QueueEntriesDTOs = Queue.EntriesDTOs,
                 QueuePosition = Queue.Position,
-                CurrentEpisodePosition = Queue.Current?.GetCurrentEpisodePosition(),
+                CurrentEpisodePosition = Queue.Audio?.GetCurrentEpisodePosition(),
                 NextPositionRequest = Queue.NextPositionRequest,
 
-                CurrentSongTimePassed = Queue.Current?.Position.TotalSeconds ?? 0,
-                CurrentSongTimeTotal = Queue.Current?.Duration.TotalSeconds ?? 0,
+                CurrentSongTimePassed = Queue.Audio?.Position.TotalSeconds ?? 0,
+                CurrentSongTimeTotal = Queue.Audio?.Duration.TotalSeconds ?? 0,
                 
                 QueueIsRandom = Queue.IsRandom,
                 QueueIsReversed = Queue.IsReversed,
@@ -215,31 +218,27 @@ namespace PamelloV7.Server.Model.Audio
         public void Dispose() {
             IsDisposed = true;
             
-            Queue.Dispose();
-            Speakers.Dispose();
+            Model.Dispose();
         }
         public void InitModel() {
-            var testSong = _songs.GetRequired(434);
-            var testUser = _users.GetRequired(1);
-            
             Model.AddModules([
-                _testSongAudio = new PamelloAudio(_services, testSong),
-                _pump = new AudioPump(48000),
-                _testSpeaker = testUser.Commands.SpeakerInternetConnect("test", true).Result
+                Queue = new PamelloQueue(Model, _services, this),
+                _pump = new AudioPump(Model, 48000),
+                _speakersCopy = new AudioCopy(Model),
             ]);
         }
 
         public void InitModule()
         {
-            _testSongAudio.TryInitialize().Wait();
-            Console.WriteLine("starting player pump");
+            Console.WriteLine($"starting player pump {_pump.GetHashCode()}");
 
             Console.WriteLine("before connection:");
             Console.WriteLine($"Pump input: {_pump.Input}");
             Console.WriteLine($"Pump output: {_pump.Output}");
-            _pump.Input.ConnectBack(_testSongAudio.Output);
-            _pump.Output.ConnectFront(_testSpeaker.Input);
-            _pump.Condition = PumpCondition;
+            
+            _pump.Input.ConnectBack(Queue.Output);
+            //_pump.Output.ConnectFront(_speakersCopy.Input);
+            // _pump.Condition = PumpCondition;
             
             Console.WriteLine("after connection:");
             Console.WriteLine($"Pump input: {_pump.Input}");
@@ -249,33 +248,16 @@ namespace PamelloV7.Server.Model.Audio
             
             Console.WriteLine("pump started");
         }
+        
+        public async Task<PamelloInternetSpeaker> AddInternet(string channel, bool isPublic) {
+            //if (!_repository.IsInternetChannelAvailable(channel)) throw new PamelloException($"Channel \"{channel}\" is not available");
+        
+            var internetSpeaker = Model.AddModule(new PamelloInternetSpeaker(Model, this, channel, isPublic));
+            //await internetSpeaker.InitialConnection();
+            //_speakersCopy.CreateOutput().ConnectFront(internetSpeaker.Input);
+            _pump.Output.ConnectFront(internetSpeaker.Input);
 
-        private async Task<bool> PumpCondition()
-        {
-            Console.WriteLine($"pump condition called. result: {_testSpeaker.ListenersCount > 0}");
-            return _testSpeaker.ListenersCount > 0;
-            if (Queue.Current is null) {
-                State = EPlayerState.AwaitingSong;
-                return false;
-            }
-            if (!Queue.Current.IsInitialized) {
-                State = EPlayerState.AwaitingSongInitialization;
-                if (!await Queue.Current.TryInitialize()) {
-                    Console.WriteLine("failed to initialize");
-                    Queue.GoToNextSong(true);
-                    return false;
-                }
-            }
-            if (!Speakers.IsAnyAvailable()) {
-                State = EPlayerState.AwaitingSpeaker;
-                return false;
-            }
-            if (IsPaused)
-            {
-                return false;
-            }
-
-            return true;
+            return internetSpeaker;
         }
     }
 }

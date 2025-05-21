@@ -5,6 +5,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Audio;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Difference;
 
 namespace PamelloV7.Server.Model

@@ -24,7 +24,7 @@ public abstract class AudioPoint : IAudioPoint
     }
     
     public void ConnectBack(IAudioPoint point) {
-        if (_backPoint is not null) return;
+        if (_backPoint is not null) DisconnectBack();
         if (point is null) {
             Console.WriteLine("WARNING: Attempted to connect to a null back point");
             return;
@@ -32,11 +32,11 @@ public abstract class AudioPoint : IAudioPoint
         
         _backPoint = point;
         
-        point.ConnectFront(this);
+        if (point.FrontPoint != this) point.ConnectFront(this);
     }
 
     public void ConnectFront(IAudioPoint point) {
-        if (_frontPoint is not null) return;
+        if (_frontPoint is not null) DisconnectFront();
         if (point is null) {
             Console.WriteLine("WARNING: Attempted to connect to a null front point");
             return;
@@ -44,7 +44,7 @@ public abstract class AudioPoint : IAudioPoint
         
         _frontPoint = point;
         
-        point.ConnectBack(this);
+        if (point.BackPoint != this) point.ConnectBack(this);
     }
 
     public void DisconnectBack() {

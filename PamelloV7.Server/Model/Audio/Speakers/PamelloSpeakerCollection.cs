@@ -1,8 +1,9 @@
 using Discord.WebSocket;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Repositories.Dynamic;
 
-namespace PamelloV7.Server.Model.Audio.Speakers;
+namespace PamelloV7.Server.Model.Audio.Speakers.Deleted;
 
 public class PamelloSpeakerCollection : IDisposable
 {
@@ -45,7 +46,7 @@ public class PamelloSpeakerCollection : IDisposable
     public async Task<PamelloInternetSpeaker> AddInternet(string channel, bool isPublic) {
         if (!_repository.IsInternetChannelAvailable(channel)) throw new PamelloException($"Channel \"{channel}\" is not available");
         
-        var internetSpeaker = new PamelloInternetSpeaker(_player, channel, isPublic);
+        var internetSpeaker = new PamelloInternetSpeaker(null, _player, channel, isPublic);
         //await internetSpeaker.InitialConnection();
 
         _speakers.Add(internetSpeaker);

@@ -1,14 +1,16 @@
 ﻿using Discord;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.DTO;
+using PamelloV7.Server.Model.Audio.Interfaces;
+using PamelloV7.Server.Model.Audio.Modules.Inputs;
+using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions.Builders;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Services;
 
-namespace PamelloV7.Server.Model.Audio
+namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 {
     public class PamelloQueueEntry {
         public readonly PamelloSong Song;
@@ -20,7 +22,7 @@ namespace PamelloV7.Server.Model.Audio
         }
     }
 
-    public class PamelloQueue : IDisposable
+    public class PamelloQueue : IAudioModuleWithModel, IAudioModuleWithOutputs<AudioPullPoint>
     {
         private readonly IServiceProvider _services;
 
@@ -36,6 +38,16 @@ namespace PamelloV7.Server.Model.Audio
         private bool _isReversed;
         private bool _isNoLeftovers;
         private bool _isFeedRandom;
+        
+        public AudioModel ParentModel { get; }
+        public AudioModel Model { get; }
+
+        public int MinOutputs => 1;
+        public int MaxOutputs => 1;
+
+        public AudioPullPoint Output;
+
+        public bool IsDisposed { get; private set; }
 
         public bool IsRandom {
             get => _isRandom;
@@ -134,9 +146,9 @@ namespace PamelloV7.Server.Model.Audio
             }
         }
 
-        private PamelloAudio? _current;
-        public PamelloAudio? Current {
-            get => _current;
+        private AudioSong? _audio;
+        public AudioSong? Audio {
+            get => _audio;
         }
 
         public PamelloUser? CurrentAdder { get; private set; }
@@ -161,35 +173,45 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         public void SetCurrent(PamelloQueueEntry? entry) {
-            if (_current is not null) {
+            if (_audio is not null) {
                 UnsubscribeCurrentAudioEvents();
             }
 
-            _current?.Clean();
+            _audio?.Dispose();
+            
             if (entry?.Song is null) {
-                _current = null;
+                _audio = null;
                 CurrentAdder = null;
             }
             else {
-                _current = new PamelloAudio(_services, entry.Song);
+                _audio = Model.AddModule(new AudioSong(Model, _services, entry.Song));
+                _ = Task.Run(async () =>
+                {
+                    if (!await _audio.TryInitialize()) SetCurrent(null);
+                });
+                _audio.Output.ConnectFront(Output);
                 CurrentAdder = entry.Adder;
             }
 
-            if (_current is not null) {
+            if (_audio is not null) {
                 SubscribeCurrentAudioEvents();
             }
 
             if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
 
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongIdUpdated() {
-                CurrentSongId = _current?.Song.Id
+                CurrentSongId = _audio?.Song.Id
             });
 
             Current_Position_OnSecondTick();
             Current_Duration_OnSecondTick();
         }
 
-        public PamelloQueue(IServiceProvider services, PamelloPlayer parrentPlayer) {
+        public PamelloQueue(
+            AudioModel parentModel,
+            IServiceProvider services,
+            PamelloPlayer parrentPlayer
+        ) {
             _services = services;
 
             _users = services.GetRequiredService<PamelloUserRepository>();
@@ -203,31 +225,49 @@ namespace PamelloV7.Server.Model.Audio
             _isFeedRandom = false;
 
             _entries = new List<PamelloQueueEntry>();
+            
+            ParentModel = parentModel;
+            Model = new AudioModel();
+        }
+
+        public void InitModel()
+        {
+        }
+
+        public AudioPullPoint CreateOutput()
+        {
+            Output = new AudioPullPoint(this);
+            
+            return Output;
+        }
+
+        public void InitModule()
+        {
         }
 
         public void SubscribeCurrentAudioEvents() {
-            if (Current is null) return;
+            if (Audio is null) return;
 
-            Current.Position.OnSecondTick += Current_Position_OnSecondTick;
-            Current.Duration.OnSecondTick += Current_Duration_OnSecondTick;
+            Audio.Position.OnSecondTick += Current_Position_OnSecondTick;
+            Audio.Duration.OnSecondTick += Current_Duration_OnSecondTick;
         }
 
         public void UnsubscribeCurrentAudioEvents() {
-            if (Current is null) return;
+            if (Audio is null) return;
 
-            Current.Position.OnSecondTick -= Current_Position_OnSecondTick;
-            Current.Duration.OnSecondTick -= Current_Duration_OnSecondTick;
+            Audio.Position.OnSecondTick -= Current_Position_OnSecondTick;
+            Audio.Duration.OnSecondTick -= Current_Duration_OnSecondTick;
         }
 
         private void Current_Duration_OnSecondTick() {
 			//Console.WriteLine($"tick {Current?.Duration.TotalSeconds}");
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongTimeTotalUpdated() {
-                CurrentSongTimeTotal = Current?.Duration.TotalSeconds ?? 0,
+                CurrentSongTimeTotal = Audio?.Duration.TotalSeconds ?? 0,
             });
         }
         private void Current_Position_OnSecondTick() {
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongTimePassedUpdated() {
-                CurrentSongTimePassed = Current?.Position.TotalSeconds ?? 0,
+                CurrentSongTimePassed = Audio?.Position.TotalSeconds ?? 0,
             });
         }
 
@@ -407,7 +447,7 @@ namespace PamelloV7.Server.Model.Audio
 			else if (IsReversed) nextPosition = Position - 1;
 			else nextPosition = Position + 1;
 
-			if (forceRemoveCurrentSong || IsNoLeftovers && Current is not null) {
+			if (forceRemoveCurrentSong || IsNoLeftovers && Audio is not null) {
                 _entries.RemoveAt(Position);
 				if (nextPosition > Position) nextPosition--;
 

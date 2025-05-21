@@ -1,5 +1,4 @@
 using Discord;
-using Discord.Audio;
 using Discord.Interactions;
 using Discord.WebSocket;
 using PamelloV7.DAL;
@@ -11,7 +10,6 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 using System.Text;
-using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
@@ -83,6 +81,8 @@ namespace PamelloV7.Server
             builder.Services.AddSingleton<PamelloSpeakerRepository>();
 
             builder.Services.AddSingleton<UserAuthorizationService>();
+            
+            builder.Services.AddSingleton<AudioModel>();
         }
 
         private void ConfigureAPIServices() {
@@ -234,49 +234,6 @@ namespace PamelloV7.Server
         }
 
         private async void OnStart() {
-            var users = app.Services.GetRequiredService<PamelloUserRepository>();
-
-            var user = users.GetRequired(1);
-            var player = await user.Commands.PlayerCreate("Test");
-
-            var model = new AudioModel();
-
-            model.AddModule(player);
-
-            Console.WriteLine("end model");
-
-            /*
-            var audio = new PamelloAudio(app.Services, songs.GetRequired(1));
-            var pump = new AudioPump();
-            var copy = new AudioCopy();
-            var speaker = await user.Commands.SpeakerInternetConnect("test", true);
-            var speaker2 = await user.Commands.SpeakerInternetConnect("test2", true);
-            var speaker3 = await user.Commands.SpeakerInternetConnect("test3", true);
-
-            Console.WriteLine(await audio.TryInitialize());
-            pump.InitModule();
-            copy.InitModule();
-
-            pump.Input.ConnectBack(audio.Output);
-            pump.Output.ConnectFront(copy.Input);
-
-            copy.CreateOutput().ConnectFront(speaker.Input);
-            copy.CreateOutput().ConnectFront(speaker2.Input);
-            copy.CreateOutput().ConnectFront(speaker3.Input);
-            while (true) {
-                await audio.NextBytes(pair);
-                await player.Speakers.BroadcastBytes(player, pair);
-            }
-            var pair = new byte[2];
-            await audio.Output.Pull(pair);
-            Console.WriteLine($"sample: {pair[0]}, {pair[1]}");
-            await audio.NextBytes(pair);
-            Console.WriteLine($"sample: {pair[0]}, {pair[1]}");
-
-            Task.Delay(1000).Wait();
-
-            _ = pump.Start();
-            */
         }
 
         private void OnStop() {

@@ -3,6 +3,7 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 
 namespace PamelloV7.Server.Model.Interactions.Builders
 {
@@ -103,7 +104,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static EmbedBuilder PlayerInfo(PamelloPlayer player) {
             var fields = new List<EmbedFieldBuilder>();
 
-            var currentAudio = player.Queue.Current;
+            var currentAudio = player.Queue.Audio;
 
             if (currentAudio is not null) {
                 var positionSb = new StringBuilder();

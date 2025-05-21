@@ -12,10 +12,17 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     public int MinOutputs => 1;
     public int MaxOutputs => 1;
     
-    private Process? _ffmpeg;
+    public AudioModel ParentModel { get; }
     
     public AudioPushPoint Input;
     public AudioPushPoint Output;
+    
+    private Process? _ffmpeg;
+    
+    public AudioFFmpeg(AudioModel parentModel)
+    {
+        ParentModel = parentModel;
+    }
     
     public AudioPushPoint CreateInput()
     {
@@ -42,6 +49,7 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
                 FileName = "ffmpeg",
                 Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
                             "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
+                            // "-acodec libmp3lame -b:a 320k -q:a 0 -compression_level 0 -f mp3 pipe:1",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

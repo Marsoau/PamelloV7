@@ -12,6 +12,7 @@ using PamelloV7.Core.Exceptions;
 using System.ComponentModel;
 using System.Reflection;
 using PamelloV7.Server.Extensions;
+using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
