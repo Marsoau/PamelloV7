@@ -1,6 +1,4 @@
-﻿
-
-using PamelloV7.Server.Model.Audio.Interfaces;
+﻿using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Listeners
@@ -13,24 +11,34 @@ namespace PamelloV7.Server.Model.Listeners
         public AudioPushPoint Input;
         
         public readonly PamelloUser? User;
+
+        public readonly CancellationToken Cancellation;
+        public bool IsDisposed { get; private set; }
         
-        public PamelloInternetSpeakerListener(HttpResponse response, PamelloUser? user) : base(response) {
+        public PamelloInternetSpeakerListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) : base(response) {
             User = user;
+            Cancellation = cancellationToken;
+
+            Cancellation.Register(Dispose);
         }
 
         public override async Task InitializeConnecion() {
             _response.ContentType = "audio/mpeg";
             _response.Headers.CacheControl = "no-cache";
-            await _response.Body.FlushAsync();
+            await _response.Body.FlushAsync(Cancellation);
         }
 
-        public async Task<bool> SendAudio(byte[] audio, bool wait) {
+        private async Task<bool> SendAudio(byte[] audio, bool wait) {
             try {
-                if (!IsClosed) {
-                    await _response.Body.WriteAsync(audio);
-                    await _response.Body.FlushAsync();
-                    //Console.WriteLine($"Sent {audio.Length} bytes of audio to listener");
-                    //Console.WriteLine($"Is al audio 0: {audio.All(x => x == 0)}");;
+                if (!IsClosed && !Cancellation.IsCancellationRequested) {
+                    try {
+                        await _response.Body.WriteAsync(audio, Cancellation);
+                        await _response.Body.FlushAsync(Cancellation);
+                    }
+                    catch {
+                        return false;
+                    }
+                    
                     return true;
                 }
             }
@@ -46,6 +54,7 @@ namespace PamelloV7.Server.Model.Listeners
             IsClosed = true;
             try {
                 await _response.CompleteAsync();
+                Dispose();
             }
             catch (ObjectDisposedException x) {
                 // Already disposed, ignore
@@ -53,7 +62,7 @@ namespace PamelloV7.Server.Model.Listeners
         }
 
         public AudioPushPoint CreateInput() {
-            Input = new AudioPushPoint();
+            Input = new AudioPushPoint(this);
 
             Input.Process = SendAudio;
             
@@ -61,6 +70,21 @@ namespace PamelloV7.Server.Model.Listeners
         }
 
         public void InitModule() {
+        }
+
+        public void Dispose()
+        {
+            IsDisposed = true;
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            Console.WriteLine("disposing listener");
+            
+            Input.Dispose();
         }
     }
 }

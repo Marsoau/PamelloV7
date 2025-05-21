@@ -19,19 +19,21 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
 
     public int ChunkSize;
 
+    public bool IsDisposed { get; private set; }
+
     public AudioPump() : this(2) {}
     public AudioPump(int chunkSize) {
         ChunkSize = chunkSize;
     }
     
     public AudioPullPoint CreateInput() {
-        Input = new AudioPullPoint();
+        Input = new AudioPullPoint(this);
         
         return Input;
     }
 
     public AudioPushPoint CreateOutput() {
-        Output = new AudioPushPoint();
+        Output = new AudioPushPoint(this);
         
         return Output;
     }
@@ -45,6 +47,7 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
             {
                 Console.WriteLine("Condition was false, pump waits");
                 await Task.Delay(1000);
+                continue;
             }
 
             try
@@ -73,5 +76,13 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
     }
 
     public void InitModule() {
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        Input.Dispose();
+        Output.Dispose();
     }
 }

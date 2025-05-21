@@ -75,9 +75,7 @@ public class PamelloSpeakerCollection : IDisposable
     public void Dispose() {
         _isDisposed = true;
         
-        var funcTasks = _speakers.Select(speaker => (Func<Task>)speaker.Terminate).ToList();
+        var funcTasks = _speakers.Select(speaker => (Func<ValueTask>)speaker.DisposeAsync).ToList();
         var tasks = funcTasks.Select(func => func()).ToList();
-
-        Task.WaitAll(tasks);
     }
 }

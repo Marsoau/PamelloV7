@@ -4,7 +4,7 @@ using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
 {
-    public abstract class PamelloSpeaker : IPamelloEntity
+    public abstract class PamelloSpeaker : IPamelloEntity, IDisposable, IAsyncDisposable
     {
         public readonly PamelloPlayer Player;
 
@@ -27,13 +27,14 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public abstract Task PlayBytesAsync(byte[] audio);
 
-        public abstract Task Terminate();
-
-        protected void InvokeOnTerminated() {
+        protected void InvokeOnDisposed() {
             OnTerminated?.Invoke(this);
         }
 
         public abstract DiscordString ToDiscordString();
         public abstract IPamelloDTO GetDTO();
+        
+        public abstract void Dispose();
+        public abstract ValueTask DisposeAsync();
     }
 }

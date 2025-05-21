@@ -36,7 +36,7 @@ namespace PamelloV7.Server.Services.Deleted
                 if (speaker is not PamelloDiscordSpeaker discordSpeaker) continue;
 
                 if (discordSpeaker.Player == player && discordSpeaker.Voice.Id == vcId) {
-                    await speaker.Terminate();
+                    await speaker.DisposeAsync();
                     return;
                 }
             }

@@ -19,7 +19,7 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     
     public AudioPushPoint CreateInput()
     {
-        Input = new AudioPushPoint();
+        Input = new AudioPushPoint(this);
         
         Input.Process = Process;
         
@@ -28,10 +28,13 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
 
     public AudioPushPoint CreateOutput()
     {
-        Output = new AudioPushPoint();
+        Output = new AudioPushPoint(this);
         
         return Output;
     }
+
+    public bool IsDisposed { get; private set; }
+
     public void InitModule()
     {
         _ffmpeg = new Process {
@@ -41,13 +44,14 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
                             "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             }
         };
         _ffmpeg.Start();
         
-        _ = Start();
+        _ = Writing();
     }
 
     private async Task<bool> Process(byte[] audio, bool wait)
@@ -60,7 +64,7 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
         return true;
     }
 
-    private async Task Start()
+    private async Task Writing()
     {
         var buffer = new byte[4096];
         var stream = _ffmpeg!.StandardOutput.BaseStream;
@@ -78,5 +82,14 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
         catch (Exception ex) {
             Console.WriteLine($"Stream error: {ex}");
         }
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        _ffmpeg?.Dispose();
+        Input.Dispose();
+        Output.Dispose();
     }
 }

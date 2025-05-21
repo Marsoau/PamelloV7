@@ -18,7 +18,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public string Channel { get; }
 
-        public override bool IsActive => Listenets.Count > 0;
+        public override bool IsActive => Listeners.Count > 0;
 
         public int MinInputs => 1;
         public int MaxInputs => 1;
@@ -34,14 +34,18 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         private AudioFFmpeg _ffmpeg;
         private AudioCopy _copy;
 
-        public readonly List<PamelloInternetSpeakerListener> Listenets;
+        public int ListenersCount => _copy.Outputs.Count;
+        public List<PamelloInternetSpeakerListener> Listeners
+        {
+            get => _copy.Outputs.Select(kvp => kvp.Value.FrontPoint?.ParentModule).OfType<PamelloInternetSpeakerListener>().ToList();
+        }
+
+        public bool IsDisposed { get; private set; }
 
         public PamelloInternetSpeaker(PamelloPlayer player, string channel, bool isPublic) : base(player) {
             Channel = channel;
 
             IsPublic = isPublic;
-
-            Listenets = [];
             
             Model = new AudioModel();
         }
@@ -51,16 +55,14 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                 _buffer = new AudioBuffer(48000),
                 _silence = new AudioSilence(),
                 _choise = new AudioChoise(),
-                _pump = new AudioPump(),
+                _pump = new AudioPump(4800),
                 _ffmpeg = new AudioFFmpeg(),
                 _copy = new AudioCopy()
             ]);
         }
         
         public AudioPushPoint CreateInput() {
-            Input = new AudioPushPoint();
-            
-            Input.ConnectFront(_ffmpeg.Input);
+            Input = new AudioPushPoint(this);
         
             return Input;
         }
@@ -69,34 +71,37 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             // _choise.CreateInput().ConnectBack(_buffer.Output);
             // _choise.CreateInput().ConnectBack(_silence.Output);
             
+            Input.ConnectFront(_ffmpeg.Input);
+            
+            /*
+            _pump.Input.ConnectBack(_buffer.Output);
+            _pump.Output.ConnectFront(_copy.Input);
+            _pump.Condition = () => Task.FromResult(ListenersCount > 0);
+            */
+            
             _copy.Input.ConnectBack(_ffmpeg.Output);
-        
-            // _pump.Input.ConnectFront(_buffer.Output);
-            // _pump.Output.ConnectBack(_copy.Input);
+
+            // _ = _pump.Start();
         }
 
         public override string Name { get; }
 
-        public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, PamelloUser? user) {
-            var listener = new PamelloInternetSpeakerListener(response, user);
+        public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) {
+            var listener = new PamelloInternetSpeakerListener(response, cancellationToken, user);
             await listener.InitializeConnecion();
 
             Model.AddModule(listener);
             var output = _copy.CreateOutput();
             output.ConnectFront(listener.Input);
             
-            Listenets.Add(listener);
-            Console.WriteLine($"Added listener. Total listeners: {Listenets.Count}");
+            Listeners.Add(listener);
+            Console.WriteLine($"Added listener. Total listeners: {Listeners.Count}");
 
             return listener;
         }
 
         public override Task PlayBytesAsync(byte[] audio) {
             return Task.CompletedTask;
-        }
-
-        public override async Task Terminate() {
-            InvokeOnTerminated();
         }
         
         public override DiscordString ToDiscordString() {
@@ -109,8 +114,22 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                 Name = Name,
                 Channel = Channel,
                 IsPublic = IsPublic,
-                ListenersCount = Listenets.Count
+                ListenersCount = Listeners.Count
             };
+        }
+
+        public override void Dispose()
+        {
+            IsDisposed = true;
+            
+            Input.Dispose();
+            Model.Dispose();
+        }
+
+        public override ValueTask DisposeAsync()
+        {
+            Dispose();
+            return ValueTask.CompletedTask;
         }
     }
 }

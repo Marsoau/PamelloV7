@@ -80,6 +80,8 @@ namespace PamelloV7.Server.Model.Audio
             }
         }
 
+        public bool IsDisposed { get; private set; }
+
         public readonly PamelloQueue Queue;
 
         private static int _idCounter = 1;
@@ -211,6 +213,8 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         public void Dispose() {
+            IsDisposed = true;
+            
             Queue.Dispose();
             Speakers.Dispose();
         }
@@ -224,6 +228,7 @@ namespace PamelloV7.Server.Model.Audio
                 _testSpeaker = testUser.Commands.SpeakerInternetConnect("test", true).Result
             ]);
         }
+
         public void InitModule()
         {
             _testSongAudio.TryInitialize().Wait();
@@ -247,8 +252,8 @@ namespace PamelloV7.Server.Model.Audio
 
         private async Task<bool> PumpCondition()
         {
-            Console.WriteLine($"pump condition called. result: {_testSpeaker.Listenets.Count > 0}");
-            return _testSpeaker.Listenets.Count > 0;
+            Console.WriteLine($"pump condition called. result: {_testSpeaker.ListenersCount > 0}");
+            return _testSpeaker.ListenersCount > 0;
             if (Queue.Current is null) {
                 State = EPlayerState.AwaitingSong;
                 return false;

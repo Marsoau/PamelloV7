@@ -14,9 +14,11 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     
     public List<AudioPullPoint> Inputs;
     public AudioPullPoint Output;
+
+    public bool IsDisposed { get; private set; }
     
     public AudioPullPoint CreateInput() {
-        var input = new AudioPullPoint();
+        var input = new AudioPullPoint(this);
         
         Inputs.Add(input);
         
@@ -24,13 +26,13 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     }
 
     public AudioPullPoint CreateOutput() {
-        Output = new AudioPullPoint();
+        Output = new AudioPullPoint(this);
         
         Output.OnRequest += Request;
         
         return Output;
     }
-    
+
     public void InitModule() {
     }
 
@@ -44,5 +46,13 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
         }
 
         return false;
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        Output.Dispose();
+        Inputs.ForEach(i => i.Dispose());
     }
 }

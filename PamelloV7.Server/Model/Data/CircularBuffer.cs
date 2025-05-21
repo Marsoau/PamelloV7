@@ -1,12 +1,12 @@
-namespace PamelloV7.Server.Data;
+namespace PamelloV7.Server.Model.Data;
 
 public class AwaitingOperation
 {
     public int Size;
-    public TaskCompletionSource Completion;
+    public TaskCompletionSource<bool> Completion;
 }
 
-public class CircularBuffer<TType>
+public class CircularBuffer<TType> : IDisposable
 {
     public int Tail { get; set; }
     public int Head { get; set; }
@@ -18,6 +18,9 @@ public class CircularBuffer<TType>
 
     public CircularBuffer(int size) {
         Buffer = new TType[size];
+        
+        AwaitingWrites = [];
+        AwaitingReads = [];
     }
 
     public void Write(TType value) {
@@ -52,9 +55,9 @@ public class CircularBuffer<TType>
         {
             if (!wait) return false;
             
-            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource()};
+            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
             AwaitingWrites.Add(operation);
-            await operation.Completion.Task;
+            if (!await operation.Completion.Task) return false;
         }
         
         var capacity = Buffer.Length;
@@ -76,7 +79,7 @@ public class CircularBuffer<TType>
                 if (item.Size > Available()) continue;
             
                 AwaitingReads.Remove(item);
-                item.Completion.SetResult();
+                item.Completion.SetResult(true);
                 break;
             }
         });
@@ -91,9 +94,9 @@ public class CircularBuffer<TType>
         {
             if (!wait) return false;
             
-            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource()};
+            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
             AwaitingReads.Add(operation);
-            await operation.Completion.Task;
+            if (!await operation.Completion.Task) return false;
         }
         
         var capacity = Buffer.Length;
@@ -115,11 +118,23 @@ public class CircularBuffer<TType>
                 if (item.Size > Available()) continue;
             
                 AwaitingReads.Remove(item);
-                item.Completion.SetResult();
+                item.Completion.SetResult(true);
                 break;
             }
         });
         
         return true;
+    }
+
+    public void Dispose()
+    {
+        foreach (var item in AwaitingWrites)
+        {
+            item.Completion.SetResult(false);
+        }
+        foreach (var item in AwaitingReads)
+        {
+            item.Completion.SetResult(false);
+        }
     }
 }

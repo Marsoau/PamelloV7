@@ -23,6 +23,7 @@
     <ProjectReference Include="..\PamelloV7.DAL\PamelloV7.DAL.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="Model\Audio\Modules\Outputs\" />
   </ItemGroup>
 </Project>

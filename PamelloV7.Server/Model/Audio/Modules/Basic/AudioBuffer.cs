@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using PamelloV7.Server.Data;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
+using PamelloV7.Server.Model.Data;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Basic;
 
@@ -19,12 +19,14 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     public AudioPushPoint Input;
     public AudioPullPoint Output;
 
+    public bool IsDisposed { get; private set; }
+
     public AudioBuffer(int size) {
         _circle = new CircularBuffer<byte>(size);
     }
     
     public AudioPushPoint CreateInput() {
-        Input = new AudioPushPoint();
+        Input = new AudioPushPoint(this);
         
         Input.Process = Process;
 
@@ -32,7 +34,7 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     }
 
     public AudioPullPoint CreateOutput() {
-        Output = new AudioPullPoint();
+        Output = new AudioPullPoint(this);
         
         Output.OnRequest = OnRequest;
         
@@ -48,5 +50,14 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     }
 
     public void InitModule() {
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        Input.Dispose();
+        Output.Dispose();
+        _circle.Dispose();
     }
 }

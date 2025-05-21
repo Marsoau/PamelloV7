@@ -11,7 +11,7 @@ public class AudioSilence : IAudioModuleWithOutputs<AudioPullPoint>
     public AudioPullPoint Output;
 
     public AudioPullPoint CreateOutput() {
-        Output = new AudioPullPoint();
+        Output = new AudioPullPoint(this);
         
         Output.OnRequest += Request;
         
@@ -23,6 +23,15 @@ public class AudioSilence : IAudioModuleWithOutputs<AudioPullPoint>
         return true;
     }
 
+    public bool IsDisposed { get; private set; }
+
     public void InitModule() {
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        Output.Dispose();
     }
 }

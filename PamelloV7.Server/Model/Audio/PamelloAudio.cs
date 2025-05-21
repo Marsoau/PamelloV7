@@ -40,6 +40,8 @@ namespace PamelloV7.Server.Model.Audio
 
         public AudioPullPoint Output;
 
+        public bool IsDisposed { get; private set; }
+
         public PamelloAudio(IServiceProvider services,
             PamelloSong song
         ) {
@@ -349,7 +351,7 @@ namespace PamelloV7.Server.Model.Audio
 
         public AudioPullPoint CreateOutput() {
             Console.WriteLine("creating output for audio");
-            Output = new AudioPullPoint();
+            Output = new AudioPullPoint(this);
             
             Output.OnRequest += NextBytes;
             
@@ -357,6 +359,19 @@ namespace PamelloV7.Server.Model.Audio
         }
 
         public void InitModule() {
+        }
+
+        public void Dispose()
+        {
+            IsDisposed = true;
+            Clean();
+            
+            _currentChunk?.Dispose();
+            _nextChunk?.Dispose();
+            _ffmpeg?.Dispose();
+            _rewinding?.Dispose();
+            
+            Output.Dispose();
         }
     }
 }

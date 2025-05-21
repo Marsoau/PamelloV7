@@ -5,12 +5,23 @@ using System.Collections.Generic;
 
 namespace PamelloV7.Server.Model.Audio;
 
-public class AudioModel
+public class AudioModel : IDisposable
 {
     public readonly List<IAudioModule> Modules;
 
     public AudioModel() {
         Modules = [];
+
+        _ = GarbageCollecting();
+    }
+
+    private async Task GarbageCollecting()
+    {
+        while (true)
+        {
+            await Task.Delay(3000);
+            ClearGarbage();
+        }
     }
     
     public TModule AddModule<TModule>(TModule module)
@@ -107,5 +118,23 @@ public class AudioModel
                 genericOutputModule.CreateOutput();
             }
         }
+    }
+
+    public void ClearGarbage()
+    {
+        var disposed = Modules.Where(module => module.IsDisposed);
+        
+        foreach (var module in disposed) {
+            Console.WriteLine("removing disposed module");
+            Modules.Remove(module);
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var module in Modules) {
+            module.Dispose();
+        }
+        ClearGarbage();
     }
 }

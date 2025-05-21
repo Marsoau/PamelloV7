@@ -38,7 +38,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
             
-            var input = new AudioPushPoint();
+            var input = new AudioPushPoint(null);
             //input.Process += PlayBytesAsync;
             Input = input;
         }
@@ -47,7 +47,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             if (user.Id != Client.CurrentUser.Id) return;
             Console.WriteLine("> UVSU <");
 
-            if (toVc.VoiceChannel is null) await Terminate();
+            if (toVc.VoiceChannel is null) await DisposeAsync();
         }
 
         private async Task Client_VoiceServerUpdated(SocketVoiceServer voiceServer) {
@@ -56,7 +56,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
             //Console.WriteLine($"voice server changed, audio client: {Guild.AudioClient?.ConnectionState.ToString() ?? "No audio client"}; Audio stream is not null: {_audioOutput is not null};");
             if (Guild.AudioClient is null) {
-                await Terminate();
+                await DisposeAsync();
                 return;
             }
 
@@ -88,17 +88,22 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             catch {
                 Console.WriteLine("async x");
 
-                await Terminate();
+                await DisposeAsync();
             }
         }
 
-        public override async Task Terminate() {
+        public override void Dispose()
+        {
+            _ = DisposeAsync();
+        }
+
+        public override async ValueTask DisposeAsync() {
             if (Voice is not null) await Voice.DisconnectAsync();
             if (_audioOutput is not null) await _audioOutput.DisposeAsync();
             
             _audioOutput = null;
 
-            InvokeOnTerminated();
+            InvokeOnDisposed();
         }
 
         public override DiscordString ToDiscordString() {

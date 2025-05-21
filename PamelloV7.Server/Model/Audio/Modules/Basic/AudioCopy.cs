@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
@@ -12,14 +13,16 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
     public int MaxOutputs => 100;
 
     public AudioPushPoint Input;
-    public List<AudioPushPoint> Outputs;
+    public ConcurrentDictionary<int, AudioPushPoint> Outputs;
+
+    public bool IsDisposed { get; private set; }
 
     public AudioCopy() {
         Outputs = [];
     }
     
     public AudioPushPoint CreateInput() {
-        Input = new AudioPushPoint();
+        Input = new AudioPushPoint(this);
 
         Input.Process = ProcessInput;
 
@@ -27,20 +30,36 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
     }
 
     public AudioPushPoint CreateOutput() {
-        var output = new AudioPushPoint();
+        var output = new AudioPushPoint(this);
         Console.WriteLine("create copy output");
-        Outputs.Add(output);
+        var atempts = 3;
+        while (atempts > 0 && !Outputs.TryAdd(output.Id, output)) atempts--;
         
         return output;
     }
 
     private async Task<bool> ProcessInput(byte[] audio, bool wait)
     {
-        var currentOutputs = new List<AudioPushPoint>(Outputs);
-        await Task.WhenAll(currentOutputs.Select(o => o.Push(audio, wait)));
+        await Task.WhenAll(Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait)));
         return true;
     }
 
+    private async Task PushToPoint(AudioPushPoint point, byte[] audio, bool wait)
+    {
+        if (await point.Push(audio, wait)) return;
+        
+        Outputs.TryRemove(point.Id, out _);
+        point.Dispose();
+    }
+
     public void InitModule() {
+    }
+
+    public void Dispose()
+    {
+        IsDisposed = true;
+        
+        Input.Dispose();
+        foreach (var output in Outputs.Values) output.Dispose();
     }
 }
