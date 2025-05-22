@@ -58,21 +58,28 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public void InitModel() {
             Model.AddModules([
                 _ffmpeg = new AudioFFmpeg(Model),
-                _copy = new AudioCopy(Model)
+                _copy = new AudioCopy(Model, true)
             ]);
         }
         
         public AudioPushPoint CreateInput() {
             Input = new AudioPushPoint(this);
+
+            Input.Process = ProcessInput;
+            //Input.ConnectFront(_ffmpeg.Input);
         
             return Input;
+        }
+
+        private async Task<bool> ProcessInput(byte[] audio, bool wait)
+        {
+            if (ListenersCount > 0) return await _ffmpeg.Input.Push(audio, wait);
+            return false;
         }
 
         public void InitModule() {
             // _choise.CreateInput().ConnectBack(_buffer.Output);
             // _choise.CreateInput().ConnectBack(_silence.Output);
-            
-            Input.ConnectFront(_ffmpeg.Input);
             
             /*
             _pump.Input.ConnectBack(_buffer.Output);

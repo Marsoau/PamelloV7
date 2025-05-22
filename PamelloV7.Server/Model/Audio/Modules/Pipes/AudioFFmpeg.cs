@@ -48,8 +48,8 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
             StartInfo = new ProcessStartInfo {
                 FileName = "ffmpeg",
                 Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
-                            "-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
-                            // "-acodec libmp3lame -b:a 320k -q:a 0 -compression_level 0 -f mp3 pipe:1",
+                            //"-acodec libmp3lame -b:a 128k -f mp3 pipe:1",
+                            "-acodec libmp3lame -b:a 320k -q:a 0 -compression_level 0 -f mp3 pipe:1",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -65,7 +65,6 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     private async Task<bool> Process(byte[] audio, bool wait)
     {
         if (_ffmpeg is null) return false;
-        //Console.WriteLine($"ffmpeg got audio, is all 0: {audio.All(x => x == 0)}");
         
         await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio);
         await _ffmpeg.StandardInput.BaseStream.FlushAsync();

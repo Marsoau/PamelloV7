@@ -46,6 +46,8 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
         var pair = new byte[ChunkSize];
         
         if (Condition is null) Condition = () => Task.FromResult(true);
+        await Task.Delay(1000);
+        
         while (true) {
             if (!await Condition.Invoke())
             {

@@ -224,7 +224,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             Model.AddModules([
                 Queue = new PamelloQueue(Model, _services, this),
                 _pump = new AudioPump(Model, 48000),
-                _speakersCopy = new AudioCopy(Model),
+                _speakersCopy = new AudioCopy(Model, false),
             ]);
         }
 
@@ -237,8 +237,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             Console.WriteLine($"Pump output: {_pump.Output}");
             
             _pump.Input.ConnectBack(Queue.Output);
-            //_pump.Output.ConnectFront(_speakersCopy.Input);
-            // _pump.Condition = PumpCondition;
+            _pump.Output.ConnectFront(_speakersCopy.Input);
+            _pump.Condition = async () => !IsPaused;
             
             Console.WriteLine("after connection:");
             Console.WriteLine($"Pump input: {_pump.Input}");
@@ -254,8 +254,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
         
             var internetSpeaker = Model.AddModule(new PamelloInternetSpeaker(Model, this, channel, isPublic));
             //await internetSpeaker.InitialConnection();
-            //_speakersCopy.CreateOutput().ConnectFront(internetSpeaker.Input);
-            _pump.Output.ConnectFront(internetSpeaker.Input);
+            _speakersCopy.CreateOutput().ConnectFront(internetSpeaker.Input);
 
             return internetSpeaker;
         }

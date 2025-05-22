@@ -12,17 +12,30 @@ public class AudioPushPoint : AudioPoint, IAudioPushPoint
     public async Task<bool> Push(byte[] audio, bool wait) {
         if (Process is not null)
         {
-            //Console.WriteLine("using custom push on point");
-            if (await Process.Invoke(audio, wait)) return true;
-
-            // Console.WriteLine("was push false");
-            return false;
+            try
+            {
+                return await Process.Invoke(audio, wait);
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine($"Exception in custom push: {x}");
+                await Task.Delay(1000);
+                return false;
+            }
         }
         
         if (FrontPoint is null) return await Task.FromResult(false);
         Debug.Assert(FrontPoint is AudioPushPoint, "Push point was connected to pull point");
         
-        //Console.WriteLine("pushing to point");
-        return await ((AudioPushPoint)FrontPoint!).Push(audio, wait);
+        try
+        {
+            return await ((AudioPushPoint)FrontPoint!).Push(audio, wait);
+        }
+        catch (Exception x)
+        {
+            Console.WriteLine($"Exception in push: {x}");
+            await Task.Delay(1000);
+            return false;
+        }
     }
 }

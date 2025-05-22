@@ -18,8 +18,11 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
     public AudioModel ParentModel { get; }
     public bool IsDisposed { get; private set; }
 
-    public AudioCopy(AudioModel parentModel) {
+    public bool DeleteOnFail;
+
+    public AudioCopy(AudioModel parentModel, bool deleteOnFail) {
         ParentModel = parentModel;
+        DeleteOnFail = deleteOnFail;
         
         Outputs = [];
     }
@@ -43,18 +46,20 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
 
     private async Task<bool> ProcessInput(byte[] audio, bool wait)
     {
-        if (Outputs.Count == 0) return false;
-
-        var tasks = Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait));
-        await Task.WhenAll(tasks);
-        var result = tasks.Any(task => task.Result);
-        // Console.WriteLine($"Result of copy {GetHashCode()}: {result}");
-        return result;
+        var anySuccess = false;
+        foreach (var output in Outputs.Values)
+        {
+           if (await PushToPoint(output, audio, wait) && !anySuccess) anySuccess = true;
+        }
+        
+        return anySuccess;
+        // old // await Task.WhenAll(Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait)));
     }
 
     private async Task<bool> PushToPoint(AudioPushPoint point, byte[] audio, bool wait)
     {
         if (await point.Push(audio, wait)) return true;
+        if (!DeleteOnFail) return false;
         
         Outputs.TryRemove(point.Id, out _);
         point.Dispose();
