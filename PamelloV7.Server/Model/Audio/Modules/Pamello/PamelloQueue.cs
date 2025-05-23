@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Diagnostics;
+using Discord;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
@@ -299,7 +300,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             => InsertPlaylist(_entries.Count, playlist, adder);
 
         public PamelloSong InsertSong(int position, PamelloSong song, PamelloUser? adder) {
-            if (song is null) return null;
+            Debug.Assert(song is not null, "Null song was inserted into queue");
 
             var insertPosition = NormalizeQueuePosition(position, true);
             _entries.Insert(insertPosition, new PamelloQueueEntry(song, adder));
@@ -434,11 +435,11 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             return entry.Song;
 		}
 		public PamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
-			if (_entries.Count == 0) {
-                if (IsFeedRandom) {
-                    return AddSong(_songs.GetRandomPV5(_users.GetRequired(1)).Result, null);
-                }
-                else return null;
+			if (_entries.Count == 0)
+            {
+                if (!IsFeedRandom) return null;
+                
+                return AddSong(_songs.GetRandom(), null);
             }
 
             int nextPosition;
@@ -466,12 +467,11 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
 			if (_entries.Count == 0) {
                 if (IsFeedRandom) {
-                    return AddSong(_songs.GetRandomPV5(_users.GetRequired(1)).Result, null);
+                    return AddSong(_songs.GetRandom(), null);
                 }
-                else {
-                    SetCurrent(null);
-                    return null;
-                }
+                
+                SetCurrent(null);
+                return null;
 			}
 
             var entry = _entries[Position];
