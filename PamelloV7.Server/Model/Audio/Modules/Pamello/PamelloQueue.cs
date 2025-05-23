@@ -250,6 +250,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
             Audio.Position.OnSecondTick += Current_Position_OnSecondTick;
             Audio.Duration.OnSecondTick += Current_Duration_OnSecondTick;
+            Audio.OnEnded += Current_OnEnded;
         }
 
         public void UnsubscribeCurrentAudioEvents() {
@@ -257,6 +258,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
             Audio.Position.OnSecondTick -= Current_Position_OnSecondTick;
             Audio.Duration.OnSecondTick -= Current_Duration_OnSecondTick;
+            Audio.OnEnded -= Current_OnEnded;
         }
 
         private void Current_Duration_OnSecondTick() {
@@ -269,6 +271,10 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             _events.BroadcastToPlayer(_player, new PlayerCurrentSongTimePassedUpdated() {
                 CurrentSongTimePassed = Audio?.Position.TotalSeconds ?? 0,
             });
+        }
+        private void Current_OnEnded()
+        {
+            GoToNextSong();
         }
 
 

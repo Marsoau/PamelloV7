@@ -29,6 +29,10 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public AudioModel ParentModel { get; }
         public AudioModel Model { get; }
     
+        private AudioBuffer _buffer;
+        private AudioSilence _silence;
+        private AudioChoise _choise;
+        private AudioPump _pump;
         private AudioFFmpeg _ffmpeg;
         private AudioCopy _copy;
 
@@ -57,39 +61,39 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public void InitModel() {
             Model.AddModules([
+                _buffer = new AudioBuffer(Model, 256000),
+                _silence = new AudioSilence(Model),
+                _choise = new AudioChoise(Model),
+                _pump = new AudioPump(Model, 4096),
                 _ffmpeg = new AudioFFmpeg(Model),
                 _copy = new AudioCopy(Model, true)
             ]);
+            
+            //_choise.CreateInput().ConnectBack(_buffer.Output);
+            //_choise.CreateInput().ConnectBack(_silence.Output);
+            
+            _pump.Input.ConnectBack(_buffer.Output);
+            _pump.Output.ConnectFront(_ffmpeg.Input);
+            
+            _copy.Input.ConnectBack(_ffmpeg.Output);
         }
         
         public AudioPushPoint CreateInput() {
             Input = new AudioPushPoint(this);
 
             Input.Process = ProcessInput;
-            //Input.ConnectFront(_ffmpeg.Input);
         
             return Input;
         }
 
         private async Task<bool> ProcessInput(byte[] audio, bool wait)
         {
-            if (ListenersCount > 0) return await _ffmpeg.Input.Push(audio, wait);
+            if (ListenersCount > 0) return await _buffer.Input.Push(audio, wait);
             return false;
         }
 
         public void InitModule() {
-            // _choise.CreateInput().ConnectBack(_buffer.Output);
-            // _choise.CreateInput().ConnectBack(_silence.Output);
-            
-            /*
-            _pump.Input.ConnectBack(_buffer.Output);
-            _pump.Output.ConnectFront(_copy.Input);
-            _pump.Condition = () => Task.FromResult(ListenersCount > 0);
-            */
-            
-            _copy.Input.ConnectBack(_ffmpeg.Output);
-
-            // _ = _pump.Start();
+            _ = _pump.Start();
         }
 
         public override string Name { get; }

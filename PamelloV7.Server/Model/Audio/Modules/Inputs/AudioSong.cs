@@ -42,6 +42,9 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
         public AudioPullPoint Output;
 
+        public bool IsEnded { get; private set; }
+        public event Action OnEnded;
+
         public bool IsDisposed { get; private set; }
 
         public AudioSong(
@@ -59,6 +62,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             Duration = new AudioTime(0);
 
             _chunkSize = new AudioTime(64);
+            
+            IsEnded = false;
         }
 
 		public void Clean() {
@@ -114,7 +119,10 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             // Console.WriteLine("next bytes 2");
 
             if (Position.TimeValue >= Duration.TimeValue) {
-                // Console.WriteLine("false 1");
+                if (IsEnded) return false;
+                
+                IsEnded = true;
+                OnEnded?.Invoke();
                 return false;
             }
 

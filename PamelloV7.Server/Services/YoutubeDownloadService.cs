@@ -74,7 +74,7 @@ namespace PamelloV7.Server.Services
 			using var process = new Process();
 			process.StartInfo = new ProcessStartInfo() {
 				FileName = $@"yt-dlp",
-				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{AppContext.BaseDirectory}Data/Music/{song.Id}"" --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={song.YoutubeId}",
+				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{AppContext.BaseDirectory}Data/Music/{song.Id}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={song.YoutubeId}",
 				StandardOutputEncoding = Encoding.Unicode,
 				UseShellExecute = false,
 				RedirectStandardOutput = true

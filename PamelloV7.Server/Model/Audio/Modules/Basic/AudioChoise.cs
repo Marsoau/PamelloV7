@@ -6,11 +6,11 @@ namespace PamelloV7.Server.Model.Audio.Modules.Basic;
 
 public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWithOutputs<AudioPullPoint>
 {
-    public int MinInputs { get; }
-    public int MaxInputs { get; }
-    
-    public int MinOutputs { get; }
-    public int MaxOutputs { get; }
+    public int MinInputs => 0;
+    public int MaxInputs => 100;
+
+    public int MinOutputs => 1;
+    public int MaxOutputs => 1;
     
     public AudioModel ParentModel { get; }
     
@@ -22,6 +22,8 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     public AudioChoise(AudioModel parentModel)
     {
         ParentModel = parentModel;
+
+        Inputs = [];
     }
     
     public AudioPullPoint CreateInput() {

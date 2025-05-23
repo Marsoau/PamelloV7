@@ -16,34 +16,42 @@ public class CircularBuffer<TType> : IDisposable
     private List<AwaitingOperation> AwaitingWrites { get; set; }
     private List<AwaitingOperation> AwaitingReads { get; set; }
 
+    private bool afterWrite;
+
     public CircularBuffer(int size) {
         Buffer = new TType[size];
         
         AwaitingWrites = [];
         AwaitingReads = [];
+        
+        afterWrite = false;
     }
 
     public void Write(TType value) {
         Buffer[Head] = value;
         
         if (++Head == Buffer.Length) Head = 0;
+        afterWrite = true;
     }
     
     public TType Read() {
         var value = Buffer[Tail];
         
         if (++Tail == Buffer.Length) Tail = 0;
+        afterWrite = false;
         
         return value;
     }
 
     public int Available()
     {
+        if (Tail == Head) return afterWrite ? 0 : Buffer.Length;
         var distance = Head - Tail;
         return distance < 0 ? -distance : Buffer.Length - distance;
     }
     public int Used()
     {
+        if (Tail == Head) return afterWrite ? Buffer.Length : 0;
         var distance = Head - Tail;
         return distance < 0 ? Buffer.Length - -distance : distance;
     }
@@ -51,7 +59,7 @@ public class CircularBuffer<TType> : IDisposable
     public async Task<bool> WriteRange(TType[] values, bool wait)
     {
         var count = values.Length;
-        if (count < Available())
+        if (count > Available())
         {
             if (!wait) return false;
             
@@ -72,11 +80,12 @@ public class CircularBuffer<TType> : IDisposable
         }
 
         Head = (Head + count) % capacity;
+        afterWrite = true;
 
         if (AwaitingReads.Count > 0) _ = Task.Run(() => {
             foreach (var item in AwaitingReads)
             {
-                if (item.Size > Available()) continue;
+                if (item.Size > Used()) continue;
             
                 AwaitingReads.Remove(item);
                 item.Completion.SetResult(true);
@@ -90,7 +99,7 @@ public class CircularBuffer<TType> : IDisposable
     public async Task<bool> ReadRange(TType[] destination, bool wait)
     {
         var count = destination.Length;
-        if (count > Available())
+        if (count > Used())
         {
             if (!wait) return false;
             
@@ -111,13 +120,14 @@ public class CircularBuffer<TType> : IDisposable
         }
 
         Tail = (Tail + count) % capacity;
+        afterWrite = false;
         
-        if (AwaitingReads.Count > 0) _ = Task.Run(() => {
-            foreach (var item in AwaitingReads)
+        if (AwaitingWrites.Count > 0) _ = Task.Run(() => {
+            foreach (var item in AwaitingWrites)
             {
                 if (item.Size > Available()) continue;
             
-                AwaitingReads.Remove(item);
+                AwaitingWrites.Remove(item);
                 item.Completion.SetResult(true);
                 break;
             }

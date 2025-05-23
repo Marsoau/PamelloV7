@@ -226,27 +226,16 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
                 _pump = new AudioPump(Model, 48000),
                 _speakersCopy = new AudioCopy(Model, false),
             ]);
-        }
-
-        public void InitModule()
-        {
-            Console.WriteLine($"starting player pump {_pump.GetHashCode()}");
-
-            Console.WriteLine("before connection:");
-            Console.WriteLine($"Pump input: {_pump.Input}");
-            Console.WriteLine($"Pump output: {_pump.Output}");
             
             _pump.Input.ConnectBack(Queue.Output);
             _pump.Output.ConnectFront(_speakersCopy.Input);
             _pump.Condition = async () => !IsPaused;
-            
-            Console.WriteLine("after connection:");
-            Console.WriteLine($"Pump input: {_pump.Input}");
-            Console.WriteLine($"Pump output: {_pump.Output}");
+        }
 
+        public void InitModule()
+        {
             _ = _pump.Start();
-            
-            Console.WriteLine("pump started");
+            Console.WriteLine("player pump started");
         }
         
         public async Task<PamelloInternetSpeaker> AddInternet(string channel, bool isPublic) {
