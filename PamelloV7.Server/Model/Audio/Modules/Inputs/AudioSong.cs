@@ -35,6 +35,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
         private AudioTime _chunkSize;
 
+        private Task<MemoryStream?>? _nextChunkTask;
+
         public int MinOutputs => 1;
         public int MaxOutputs => 1;
         
@@ -249,13 +251,28 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         }
 
         public async Task LoadChunksAtAsync(int position) {
+            if (_nextChunkTask is not null) await _nextChunkTask;
+            
             _currentChunkPosition = position;
-            _currentChunk = await LoadChunkAsync(position);
-            _nextChunk = await LoadChunkAsync(position + 1);
+            _currentChunk = await LoadChunkAsync(_currentChunkPosition);
+            _nextChunkTask = LoadChunkAsync(_currentChunkPosition + 1);
+            
+            _ = Task.Run(async () =>
+            {
+                _nextChunk = await _nextChunkTask;
+                _nextChunkTask = null;
+            });
         }
         private async Task MoveForwardAsync() {
+            if (_nextChunkTask is not null) await _nextChunkTask;
             _currentChunk = _nextChunk;
-            _nextChunk = await LoadChunkAsync(++_currentChunkPosition + 1);
+            _nextChunkTask = LoadChunkAsync(++_currentChunkPosition + 1);
+            
+            _ = Task.Run(async () =>
+            {
+                _nextChunk = await _nextChunkTask;
+                _nextChunkTask = null;
+            });
         }
 
         private void CreateFFMpeg() {
@@ -270,12 +287,16 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 				//Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				Arguments = $@"-hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				UseShellExecute = false,
-				RedirectStandardOutput = true
+				RedirectStandardOutput = true,
+                RedirectStandardError = true
 			});
         }
 
         private async Task<MemoryStream?> LoadChunkAsync(int position) {
-            //Console.WriteLine($"->\n-> loading chunk at {position}\n->");
+            return await Task.Run(() => LoadChunk(position));
+        }
+        private MemoryStream? LoadChunk(int position) {
+            Console.WriteLine($"->\n-> loading chunk at {position}\n->");
 
             if (_ffmpeg is null) {
                 //Console.WriteLine("ffmpeg creating 1");
@@ -316,7 +337,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             while (_ffmpegPosition < endPos) {
                 if (_ffmpeg.StandardOutput.EndOfStream) {
                     if (chunkStream.Length > 0) {
-                        //Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
+                        Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
                         return chunkStream;
                     }
                     else {
@@ -333,7 +354,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 			_ffmpeg.Suspend();
             //_ffmpeg.Suspend();
 
-            //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
+            Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
             return chunkStream;
         }
 
