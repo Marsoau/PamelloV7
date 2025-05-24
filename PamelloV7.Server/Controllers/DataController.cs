@@ -30,29 +30,29 @@ namespace PamelloV7.Server.Controllers
             _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
         }
 
-		[HttpGet("User")]
-		public async Task<IActionResult> GetUser()
-			=> await HandleGetEntityRequest(_users);
+		[HttpGet("User/{value}")]
+		public async Task<IActionResult> GetUser(string value)
+			=> await HandleGetEntityRequest(_users, value);
 
-		[HttpGet("Song")]
-		public async Task<IActionResult> GetSong()
-			=> await HandleGetEntityRequest(_songs);
+		[HttpGet("Song/{value}")]
+		public async Task<IActionResult> GetSong(string value)
+			=> await HandleGetEntityRequest(_songs, value);
 
-		[HttpGet("Episode")]
-		public async Task<IActionResult> GetEpisode()
-			=> await HandleGetEntityRequest(_episodes);
+		[HttpGet("Episode/{value}")]
+		public async Task<IActionResult> GetEpisode(string value)
+			=> await HandleGetEntityRequest(_episodes, value);
 
-		[HttpGet("Playlist")]
-		public async Task<IActionResult> GetPlaylist()
-			=> await HandleGetEntityRequest(_playlists);
+		[HttpGet("Playlist/{value}")]
+		public async Task<IActionResult> GetPlaylist(string value)
+			=> await HandleGetEntityRequest(_playlists, value);
 
-		[HttpGet("Player")]
-		public async Task<IActionResult> GetPlayer()
-			=> await HandleGetEntityRequest(_players);
+		[HttpGet("Player/{value}")]
+		public async Task<IActionResult> GetPlayer(string value)
+			=> await HandleGetEntityRequest(_players, value);
         
-        [HttpGet("Speaker")]
-        public async Task<IActionResult> GetSpeaker()
-            => await HandleGetEntityRequest(_speakers);
+        [HttpGet("Speaker/{value}")]
+        public async Task<IActionResult> GetSpeaker(string value)
+            => await HandleGetEntityRequest(_speakers, value);
 
         [HttpGet("Search/Users")]
         [HttpGet("Search/Users/{querry}")]
@@ -117,39 +117,14 @@ namespace PamelloV7.Server.Controllers
             => await HandleBasicSearchRequest(querry, _speakers);
 
 
-        private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository)
+        private async Task<IActionResult> HandleGetEntityRequest<T>(IPamelloRepository<T> repository, string value)
             where T : class, IPamelloEntity
         {
-			var qToken = Request.Query["token"].FirstOrDefault();
+            RequireUser();
 
-            if (qToken is null) RequireUser();
-
-			var qId = Request.Query["id"].FirstOrDefault();
-			var qValue = Request.Query["value"].FirstOrDefault();
-
-            T entity;
-            if (qToken is not null) {
-                if (typeof(T) != typeof(PamelloUser))
-                    throw new PamelloControllerException(BadRequest("only user can be requested by token"));
-                if (!Guid.TryParse(qToken, out var token))
-                    throw new PamelloControllerException(BadRequest("token must be a guid"));
-
-                entity = await repository.GetByValueRequired(token.ToString(), User);
-            }
-            else if (qId is not null) {
-                if (!int.TryParse(qId, out var id))
-                    throw new PamelloControllerException(BadRequest("id must be an integer number"));
-
-                entity = repository.Get(id) ??
-                    throw new PamelloControllerException(NotFound($"entity with id {id} not found"));
-            }
-            else if (qValue is not null) {
-                entity = await repository.GetByValue(qValue, User) ??
-                    throw new PamelloControllerException(NotFound($"entity with value \"{qValue}\" not found"));
-            }
-            else {
-                throw new PamelloControllerException(BadRequest("id or value required"));
-            }
+            var entity = await repository.GetByValue(value, User) ??
+                throw new PamelloControllerException(NotFound($"entity with value \"{value}\" not found"));
+            //throw new PamelloControllerException(BadRequest("id or value required"));
 
             Console.WriteLine($"[Data Get {entity.GetType().Name}] {User?.ToString() ?? "Unknown User"}: {entity}");
 
