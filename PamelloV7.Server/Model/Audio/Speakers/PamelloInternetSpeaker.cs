@@ -69,10 +69,10 @@ namespace PamelloV7.Server.Model.Audio.Speakers
                 _copy = new AudioCopy(Model, true)
             ]);
             
-            //_choise.CreateInput().ConnectBack(_buffer.Output);
-            //_choise.CreateInput().ConnectBack(_silence.Output);
+            _choise.CreateInput().ConnectBack(_buffer.Output);
+            _choise.CreateInput().ConnectBack(_silence.Output);
             
-            _pump.Input.ConnectBack(_buffer.Output);
+            _pump.Input.ConnectBack(_choise.Output);
             _pump.Output.ConnectFront(_ffmpeg.Input);
             
             _copy.Input.ConnectBack(_ffmpeg.Output);
