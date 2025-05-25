@@ -72,12 +72,10 @@ namespace PamelloV7.Wrapper.Repositories
             return GetFromDTO(await GetDTO(token));
         }
 
-        protected override Task<PamelloUserDTO?> GetDTO(int id)
-            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?id={id}");
         protected override Task<PamelloUserDTO?> GetDTO(string value)
-            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?value={value}");
+            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User/{value}");
         protected Task<PamelloUserDTO?> GetDTO(Guid token)
-            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User?token={token}");
+            => _client.HttpGetAsync<PamelloUserDTO>($"Data/User/current", token);
         protected override RemoteUser CreateRemoteEntity(PamelloUserDTO dto)
             => new RemoteUser(dto, _client);
     }

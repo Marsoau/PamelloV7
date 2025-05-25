@@ -32,10 +32,8 @@ namespace PamelloV7.Wrapper.Repositories
             };
         }
 
-        protected override Task<PamelloEpisodeDTO?> GetDTO(int id)
-            => _client.HttpGetAsync<PamelloEpisodeDTO>($"Data/Episode?id={id}");
         protected override Task<PamelloEpisodeDTO?> GetDTO(string value)
-            => _client.HttpGetAsync<PamelloEpisodeDTO>($"Data/Episode?value={value}");
+            => _client.HttpGetAsync<PamelloEpisodeDTO>($"Data/Episode/{value}");
         protected override RemoteEpisode CreateRemoteEntity(PamelloEpisodeDTO dto)
             => new RemoteEpisode(dto, _client);
     }

@@ -27,29 +27,18 @@ namespace PamelloV7.Wrapper.Repositories
 
         public async Task<TRemoteEntity> GetRequired(int id)
             => await Get(id) ?? throw new PamelloException($"Cant get user by id \"{id}\"");
-        public async Task<TRemoteEntity> GetNewRequired(int id)
-            => await GetNew(id) ?? throw new PamelloException($"Cant get new user by id \"{id}\"");
         public async Task<TRemoteEntity> GetNewRequired(string value)
             => await GetNew(value) ?? throw new PamelloException($"Cant get new user by value \"{value}\"");
 
         public async Task<TRemoteEntity?> Get(int id, bool requestNewIfNotFound = true) {
-            if (!_client.Events.IsConnected) return await GetNew(id);
+            if (!_client.Events.IsConnected) return await GetNew(id.ToString());
             
             var remoteEntity = _loaded.FirstOrDefault(entity => entity.Id == id);
             if (remoteEntity is not null) return remoteEntity;
 
             if (!requestNewIfNotFound) return null;
 
-            return await GetNew(id);
-        }
-
-        public async Task<TRemoteEntity?> GetNew(int id, bool fullUpdateIfExists = true) {
-            try {
-                return GetFromDTO(await GetDTO(id), fullUpdateIfExists);
-            }
-            catch {
-                return null;
-            }
+            return await GetNew(id.ToString());
         }
 
         public async Task<TRemoteEntity?> GetNew(string value, bool fullUpdateIfExists = true) {
@@ -100,7 +89,6 @@ namespace PamelloV7.Wrapper.Repositories
             return await _client.HttpGetAsync<IEnumerable<int>>(sb.ToString()) ?? [];
         }
 
-        protected abstract Task<TPamelloDTO?> GetDTO(int id);
         protected abstract Task<TPamelloDTO?> GetDTO(string value);
         protected abstract TRemoteEntity CreateRemoteEntity(TPamelloDTO dto);
 
