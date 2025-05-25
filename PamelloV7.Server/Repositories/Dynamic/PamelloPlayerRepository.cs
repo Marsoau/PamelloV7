@@ -57,7 +57,7 @@ namespace PamelloV7.Server.Repositories.Dynamic
             return _players.FirstOrDefault(player => player.Name == name);
         }
 
-        public Task<IEnumerable<PamelloPlayer>> Search(string querry, PamelloUser? scopeUser) {
+        public Task<IEnumerable<PamelloPlayer>> SearchAsync(string querry, PamelloUser? scopeUser) {
             var results = new List<PamelloPlayer>();
             if (scopeUser is null) return Task.FromResult((IEnumerable<PamelloPlayer>)results);
 
@@ -95,7 +95,7 @@ namespace PamelloV7.Server.Repositories.Dynamic
                 player = scopeUser?.SelectedPlayer;
             }
             else if (value == "random") {
-                var availablePlayers = (await Search("", scopeUser)).ToList();
+                var availablePlayers = (await SearchAsync("", scopeUser)).ToList();
                 var i = Random.Shared.Next(0, availablePlayers.Count);
 
                 player = availablePlayers[i];

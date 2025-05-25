@@ -12,6 +12,6 @@ namespace PamelloV7.Server.Repositories
         public TEntity GetRequired(int id);
         public Task<TEntity> GetByValueRequired(string value, PamelloUser? scopeUser);
 
-        public Task<IEnumerable<TEntity>> Search(string querry, PamelloUser? scopeUser);
+        public Task<IEnumerable<TEntity>> SearchAsync(string querry, PamelloUser? scopeUser);
     }
 }

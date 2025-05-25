@@ -19,15 +19,14 @@ namespace PamelloV7.Server.Modules.Discord
         
         [SlashCommand("connect-internet", "Connect internet speaker")]
         public async Task SpeakerConnectInternetHandler(
-            [Summary("channel", "Internet speaker channel name")] string? channel = null,
-            [Summary("is-public", "Is speaker available for connection without authorization")] EBoolAnswer isPublic = EBoolAnswer.No
-        ) => await SpeakerConnectInternet(channel, isPublic == EBoolAnswer.Yes);
+            [Summary("name", "Internet speaker public name")] string? name = null
+        ) => await SpeakerConnectInternet(name);
         
-        [SlashCommand("channel-protection", "Change protection of internet speaker channel")]
-        public async Task SpeakerInternetChangeProtectionHandler(
-            [Summary("channel", "Internet speaker channel name")] string channel,
-            [Summary("is-public", "Is speaker available for connection without authorization")] EBoolAnswer isPublic
-        ) => await SpeakerInternetChangeProtection(channel, isPublic == EBoolAnswer.Yes);
+        [SlashCommand("rename-internet", "Change protection of internet speaker channel")]
+        public async Task SpeakerInternetRenameHandler(
+            [Summary("speaker", "Internet speaker name/id")] string speakerValue,
+            [Summary("new-name", "New public name for the speaker")] string name
+        ) => await SpeakerInternetRename(speakerValue, name);
         
         [SlashCommand("list", "List all speakers available")]
         public async Task SpeakerListHandler()

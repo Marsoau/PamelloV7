@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         private AudioOutStream? _audioOutput;
 
-        public override string Name { get; }
+        public override string Name { get; set; }
 
         public override bool IsActive {
             get => _audioOutput is not null;

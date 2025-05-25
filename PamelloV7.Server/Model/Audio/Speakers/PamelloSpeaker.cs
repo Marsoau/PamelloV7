@@ -15,7 +15,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public event Action<PamelloSpeaker>? OnTerminated;
 
         public int Id { get; private set; }
-        public abstract string Name { get; }
+        public abstract string Name { get; set; }
 
         private static int _idCounter = 1;
         public PamelloSpeaker(PamelloPlayer player) {

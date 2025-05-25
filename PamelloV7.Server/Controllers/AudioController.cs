@@ -28,10 +28,9 @@ namespace PamelloV7.Server.Controllers
             TryGetUser();
             
             var speaker = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(value, User);
-            Debug.Assert(!(!speaker.IsPublic && User is null), "Unknown user got private speaker");
             
             var listener = await speaker.AddListener(Response, HttpContext.RequestAborted, User);
-            Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to {(speaker.IsPublic ? "PUBLIC!" : "PRIVATE")} channel <{speaker.Channel}>");
+            Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to <{speaker.Name}>");
 
             await listener.Completion.Task;
         }

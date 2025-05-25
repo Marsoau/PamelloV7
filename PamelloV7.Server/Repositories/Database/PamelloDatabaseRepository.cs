@@ -99,7 +99,7 @@ namespace PamelloV7.Server.Repositories.Database
 
             return Task.FromResult<IEnumerable<TPamelloEntity>>(results);
         }
-        public async Task<IEnumerable<TPamelloEntity>> Search(string querry, PamelloUser? scopeUser = null) {
+        public async Task<IEnumerable<TPamelloEntity>> SearchAsync(string querry, PamelloUser? scopeUser = null) {
             return await Search(_loaded, querry, scopeUser);
         }
 

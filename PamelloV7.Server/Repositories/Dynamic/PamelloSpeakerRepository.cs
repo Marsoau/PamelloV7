@@ -56,34 +56,42 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
     }
     public async Task<TSpeaker?> GetByValue<TSpeaker>(string value, PamelloUser? scopeUser)
         where TSpeaker : PamelloSpeaker {
-        var scopeSpeakers = await Search<TSpeaker>("", scopeUser);
+        var scopeSpeakers = _speakers.OfType<TSpeaker>();
         
         TSpeaker? speaker = null;
 
         if (int.TryParse(value, out var id)) {
-            if (scopeUser is not null) {
+            if (scopeUser is not null)
+            {
                 speaker = scopeSpeakers.FirstOrDefault(s => s.Id == id);
             }
         }
         else {
-            speaker = scopeSpeakers.OfType<PamelloInternetSpeaker>().FirstOrDefault(s => s.Channel == value) as TSpeaker;
+            speaker = scopeSpeakers.OfType<PamelloInternetSpeaker>().FirstOrDefault(s => s.Name == value) as TSpeaker;
         }
 
         return speaker;
     }
 
-    public Task<IEnumerable<PamelloSpeaker>> Search(string querry, PamelloUser? scopeUser = null) {
-        return Search<PamelloSpeaker>(querry, scopeUser);
-    }
-    public Task<IEnumerable<TSpeaker>> Search<TSpeaker>(string querry, PamelloUser? scopeUser = null)
-        where TSpeaker : PamelloSpeaker {
-        return Task.FromResult(_speakers.OfType<TSpeaker>());
-        var scopeSpeakers = new HashSet<PamelloSpeaker>();
+    public Task<IEnumerable<PamelloSpeaker>> SearchAsync(string querry, PamelloUser? scopeUser = null)
+        => SearchAsync<PamelloSpeaker>(querry, scopeUser);
+    public Task<IEnumerable<TSpeaker>> SearchAsync<TSpeaker>(string querry, PamelloUser? scopeUser = null)
+        where TSpeaker : PamelloSpeaker
+        => Task.Run(() => Search<TSpeaker>(querry, scopeUser));
+    public IEnumerable<PamelloSpeaker> Search(string querry, PamelloUser? scopeUser = null)
+        => Search<PamelloSpeaker>(querry, scopeUser);
+    public IEnumerable<TSpeaker> Search<TSpeaker>(string querry, PamelloUser? scopeUser = null)
+        where TSpeaker : PamelloSpeaker
+    {
+        if (scopeUser is null) return [];
         
-        foreach (var speaker in _speakers) {
-            if (speaker is PamelloInternetSpeaker { IsPublic: false } internetSpeaker && !(internetSpeaker.Player == scopeUser?.SelectedPlayer || internetSpeaker.Player.Creator == scopeUser)) continue;
-            
-            scopeSpeakers.Add(speaker);
+        var scopeSpeakers = new HashSet<PamelloSpeaker>();
+
+        if (scopeUser.SelectedPlayer is not null)
+        {
+            foreach (var speaker in _speakers) {
+                if (speaker.Player == scopeUser.SelectedPlayer) scopeSpeakers.Add(speaker);
+            }
         }
 
         var results = scopeSpeakers.OfType<TSpeaker>();
@@ -92,7 +100,7 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 speaker.Name.Contains(querry, StringComparison.CurrentCultureIgnoreCase));
         }
         
-        return Task.FromResult(_speakers.OfType<TSpeaker>());
+        return results;
     }
     
     public List<PamelloPlayer> GetVoicePlayers(ulong vcId) {
@@ -126,29 +134,22 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
         throw new PamelloException("No available speakers left");
     }
     
-    public async Task<PamelloInternetSpeaker> ConnectInternet(PamelloPlayer player, string? channel = null, bool isPublic = false) {
-        if (channel is null) {
-            var channelN = 1;
-            while (!IsInternetChannelAvailable($"c-{channelN++}"));
-                
-            channel = $"c-{channelN}";
-        }
-        else {
-            if (!IsInternetChannelAvailable(channel)) {
-                throw new Exception($"Channel {channel} is unavailable");
+    public async Task<PamelloInternetSpeaker> ConnectInternet(PamelloPlayer player, string? name) {
+        if (name is not null) {
+            if (!IsInternetSpeakerNameAvailable(name)) {
+                throw new Exception($"Speaker name {name} is unavailable");
             }
         }
 
-        var speaker = await player.AddInternet(channel, isPublic);
-        
+        var speaker = await player.AddInternet(name);
         _speakers.Add(speaker);
 
         return speaker;
     }
     
-    public bool IsInternetChannelAvailable(string channel) {
+    public bool IsInternetSpeakerNameAvailable(string name) {
         var speakers = GetSpeakers<PamelloInternetSpeaker>();
-        return speakers.All(internetSpeaker => internetSpeaker.Channel != channel);
+        return speakers.All(internetSpeaker => internetSpeaker.Name != name);
     }
 
     public void Dispose() {

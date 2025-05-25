@@ -238,10 +238,10 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             Console.WriteLine("player pump started");
         }
         
-        public async Task<PamelloInternetSpeaker> AddInternet(string channel, bool isPublic) {
+        public async Task<PamelloInternetSpeaker> AddInternet(string? name) {
             //if (!_repository.IsInternetChannelAvailable(channel)) throw new PamelloException($"Channel \"{channel}\" is not available");
         
-            var internetSpeaker = Model.AddModule(new PamelloInternetSpeaker(Model, this, channel, isPublic));
+            var internetSpeaker = Model.AddModule(new PamelloInternetSpeaker(Model, this, name));
             //await internetSpeaker.InitialConnection();
             _speakersCopy.CreateOutput().ConnectFront(internetSpeaker.Input);
 

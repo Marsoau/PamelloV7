@@ -15,10 +15,6 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 {
     public class PamelloInternetSpeaker : PamelloSpeaker, IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWithModel
     {
-        public bool IsPublic { get; set; }
-
-        public string Channel { get; }
-
         public override bool IsActive => Listeners.Count > 0;
 
         public int MinInputs => 1;
@@ -42,19 +38,18 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             get => _copy.Outputs.Select(kvp => kvp.Value.FrontPoint?.ParentModule).OfType<PamelloInternetSpeakerListener>().ToList();
         }
 
+        public sealed override string Name { get; set; }
+
         public bool IsDisposed { get; private set; }
 
         public PamelloInternetSpeaker(
             AudioModel parentModel,
             PamelloPlayer player,
-            string channel,
-            bool isPublic
+            string? name
         ) : base(player) {
             ParentModel = parentModel;
-            
-            Channel = channel;
 
-            IsPublic = isPublic;
+            Name = name ?? Guid.NewGuid().ToString();
             
             Model = new AudioModel();
         }
@@ -96,8 +91,6 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             _ = _pump.Start();
         }
 
-        public override string Name { get; }
-
         public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) {
             var listener = Model.AddModule(new PamelloInternetSpeakerListener(Model, response, cancellationToken, user));
             await listener.InitializeConnecion();
@@ -116,15 +109,13 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
         
         public override DiscordString ToDiscordString() {
-            return DiscordString.Code($"<{Channel}> [{Id}]");
+            return DiscordString.Code($"<{Name}> [{Id}]");
         }
 
         public override IPamelloDTO GetDTO() {
             return new PamelloInternetSpeakerDTO() {
                 Id = Id,
                 Name = Name,
-                Channel = Channel,
-                IsPublic = IsPublic,
                 ListenersCount = Listeners.Count
             };
         }

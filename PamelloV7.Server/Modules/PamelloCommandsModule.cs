@@ -353,8 +353,8 @@ namespace PamelloV7.Server.Modules
             return await _speakers.ConnectDiscord(Player, vc.Guild.Id, vc.Id);
         }
         [PamelloCommand]
-        public async Task<PamelloInternetSpeaker> SpeakerInternetConnect(string? channel, bool isPublic = false) {
-            var speaker = await _speakers.ConnectInternet(Player, channel, isPublic);
+        public async Task<PamelloInternetSpeaker> SpeakerInternetConnect(string? name) {
+            var speaker = await _speakers.ConnectInternet(Player, name);
 
             return speaker;
         }
@@ -363,8 +363,8 @@ namespace PamelloV7.Server.Modules
             throw new NotImplementedException();
         }
         [PamelloCommand]
-        public async Task<bool> SpeakerInternetChangeProtection(PamelloInternetSpeaker speaker, bool isPublic = false) {
-            return speaker.IsPublic = isPublic;
+        public async Task<string> SpeakerInternetRename(PamelloInternetSpeaker speaker, string newName) {
+            return speaker.Name = newName;
         }
     }
 }

@@ -135,7 +135,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
         public async Task PlayerList(string querry, int page)
         {
-            var results = await _players.Search(querry, Context.User);
+            var results = await _players.SearchAsync(querry, Context.User);
 
             await RespondPage(
                 querry.Length == 0 ? "Players" : $"Players search \"{querry}\"",
@@ -721,22 +721,22 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondPlayerInfo("Disconnected");
         }
 
-        public async Task SpeakerConnectInternet(string? channel, bool isPublic) {
-            var speaker = await Commands.SpeakerInternetConnect(channel, isPublic);
+        public async Task SpeakerConnectInternet(string? name) {
+            var speaker = await Commands.SpeakerInternetConnect(name);
             
-            await RespondPlayerInfo("Connected", $"{DiscordString.Bold(speaker.IsPublic ? "Public" : "Private")} internet speaker connected to internet channel " + DiscordString.Code(speaker.Channel));
+            await RespondPlayerInfo("Connected", $"Internet speaker {speaker.ToDiscordString()} connected");
         }
 
-        public async Task SpeakerInternetChangeProtection(string speakerValue, bool isPublic) {
+        public async Task SpeakerInternetRename(string speakerValue, string newName) {
             var speaker = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(speakerValue, Context.User);
             
-            await Commands.SpeakerInternetChangeProtection(speaker, isPublic);
+            await Commands.SpeakerInternetRename(speaker, newName);
             
-            await RespondInfo($"Internet speaker is now {DiscordString.Bold(speaker.IsPublic ? "public" : "private")}");
+            await RespondInfo($"Internet speaker {speaker.ToDiscordString()} renamed");
         }
 
         public async Task SpeakerList() {
-            var results = await _speakers.Search("", Context.User);
+            var results = await _speakers.SearchAsync("", Context.User);
 
             await RespondPage(
                 "Speakers",

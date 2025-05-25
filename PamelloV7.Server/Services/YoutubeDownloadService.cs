@@ -6,10 +6,11 @@ using System.Text;
 
 namespace PamelloV7.Server.Services
 {
-	public class YoutubeDownloadItem {
-		public PamelloSong Song { get; set; }
-		public Task<EDownloadResult> Task { get; set; }
-		public double Progress { get; set; }
+	public record YoutubeDownloadItem
+	{
+		public required PamelloSong Song;
+		public required Task<EDownloadResult> Task;
+		public double Progress;
 	}
 
     public class YoutubeDownloadService
@@ -28,7 +29,7 @@ namespace PamelloV7.Server.Services
 
 		private YoutubeDownloadItem? GetDownload(PamelloSong song) {
 			foreach (var download in _downloads) {
-                if (download.Song.Id == song.Id) {
+                if (download.Song == song) {
 					return download;
                 }
             }
