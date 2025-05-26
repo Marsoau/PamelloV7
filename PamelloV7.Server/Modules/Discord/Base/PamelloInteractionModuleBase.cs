@@ -39,6 +39,9 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private PamelloPlayer Player {
             get => Context.User.RequiredSelectedPlayer;
         }
+        private PamelloPlayer RequiredPlayer {
+            get => Context.User.SelectedPlayer ?? throw new PamelloException("Selected player is required for this command");
+        }
 
         public PamelloInteractionModuleBase(IServiceProvider services)
         {
@@ -133,12 +136,12 @@ namespace PamelloV7.Server.Modules.Discord.Base
             await Respond(PamelloEmbedBuilder.BuildPlayerInfo(Player));
         }
 
-        public async Task PlayerList(string querry, int page)
+        public async Task PlayerSearch(string query, int page)
         {
-            var results = await _players.SearchAsync(querry, Context.User);
+            var results = await _players.SearchAsync(query, Context.User);
 
             await RespondPage(
-                querry.Length == 0 ? "Players" : $"Players search \"{querry}\"",
+                query.Length == 0 ? "Players" : $"Players search \"{query}\"",
                 results,
                 (sb, pos, player) => sb.AppendLine((player.ToDiscordString() + (player.IsProtected ? " " + DiscordString.Italic("(pivate)") : new DiscordString(""))).ToString()),
                 page - 1
@@ -707,7 +710,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         //speakers
-        public async Task SpeakerConnect() {
+        public async Task SpeakerDiscordConnect() {
             Context.User.TryLoadLastPlayer();
 
             await Commands.SpeakerDiscordConnect();
@@ -715,7 +718,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondPlayerInfo("Connected");
         }
 
-        public async Task SpeakerDisconnect() {
+        public async Task SpeakerDiscordDisconnect() {
             await Commands.SpeakerDisconnect();
 
             await RespondPlayerInfo("Disconnected");
@@ -735,14 +738,21 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             await RespondInfo($"Internet speaker {speaker.ToDiscordString()} renamed");
         }
 
-        public async Task SpeakerList() {
-            var results = await _speakers.SearchAsync("", Context.User);
+        public async Task SpeakerSearch(string query, int page, ESearchSpeakerType? type)
+        {
+            var results = type switch
+            {
+                ESearchSpeakerType.Internet => await _speakers.SearchAsync<PamelloInternetSpeaker>(query, Context.User),
+                ESearchSpeakerType.Discord => await _speakers.SearchAsync<PamelloDiscordSpeaker>(query, Context.User),
+                _ => await _speakers.SearchAsync(query, Context.User)
+            };
 
             await RespondPage(
-                "Speakers",
+                (query?.Length > 0 ? $"Search \"{query}\" in player" : "Player") + $" {RequiredPlayer} speakers" + (type is not null ? $" ({type} only)" : ""),
                 results,
                 (sb, pos, speaker) =>
-                    sb.AppendLine((DiscordString.Code(pos) + " - " + speaker.ToDiscordString()).ToString())
+                    sb.AppendLine(speaker.ToDiscordString().ToString()),
+                page
             );
         }
     }

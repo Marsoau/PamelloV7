@@ -96,6 +96,8 @@ namespace PamelloV7.Server
                         .AllowAnyMethod();
                 });
             });
+            
+            builder.Services.AddHttpContextAccessor();
         }
 
         private async Task StartupDatabaseServices() {
@@ -233,7 +235,12 @@ namespace PamelloV7.Server
             await app.RunAsync();
         }
 
-        private async void OnStart() {
+        private void OnStart() {
+            var accessor = app.Services.GetRequiredService<IHttpContextAccessor>();
+            Console.WriteLine($": {accessor.HttpContext is null}");
+            Console.WriteLine(accessor.HttpContext?.Request.Scheme);
+            Console.WriteLine(accessor.HttpContext?.Request.Host);
+            Console.WriteLine(".");
         }
 
         private void OnStop() {

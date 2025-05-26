@@ -2,8 +2,10 @@
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
+using PamelloV7.Server.Model.Audio.Speakers;
 
 namespace PamelloV7.Server.Model.Interactions.Builders
 {
@@ -29,6 +31,9 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         }
         public static Embed BuildPlaylistInfo(PamelloPlaylist playlist) {
             return PlaylistInfo(playlist).Build();
+        }
+        public static Embed BuildSpeakerInfo(PamelloSpeaker speaker) {
+            return SpeakerInfo(speaker).Build();
         }
 
         public static EmbedBuilder Info(string header, string message, string description = "") {
@@ -80,7 +85,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 Footer = new EmbedFooterBuilder() {
                     Text = $"Id: {song.Id} | Added: {song.AddedAt.ToLocalTime()}"
                 },
-                Fields = new List<EmbedFieldBuilder>() {
+                Fields = [
                     new EmbedFieldBuilder() {
                         Name = "Played",
                         Value = song.PlayCount,
@@ -96,7 +101,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                         Value = new DiscordString(song.AddedBy),
                         IsInline = true,
                     }
-                }
+                ]
             }
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
@@ -144,10 +149,20 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             }
             fields.Add(new EmbedFieldBuilder() {
                 Name = "Queue Modes",
-                Value = $@"Random: {DiscordString.Code(player.Queue.IsRandom ? "Enabled" : "Disabled")}
-Reversed: {DiscordString.Code(player.Queue.IsReversed ? "Enabled" : "Disabled")}
-No Leftovers: {DiscordString.Code(player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
-Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}"
+                Value = $"""
+                         Random: {DiscordString.Code(player.Queue.IsRandom ? "Enabled" : "Disabled")}
+                         Reversed: {DiscordString.Code(player.Queue.IsReversed ? "Enabled" : "Disabled")}
+                         No Leftovers: {DiscordString.Code(player.Queue.IsNoLeftovers ? "Enabled" : "Disabled")}
+                         Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabled")}
+                         """
+            });
+            fields.Add(new EmbedFieldBuilder()
+            {
+                Name = "Speakers",
+                Value = $"""
+                         Discord: {DiscordString.Code(0)} Speakers
+                         Internet: {DiscordString.Code(0)} Speakers ({DiscordString.Code(0)} Listeners)
+                         """
             });
             fields.Add(new EmbedFieldBuilder() {
                 Name = "Status",
@@ -176,15 +191,15 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 Footer = new EmbedFooterBuilder() {
                     Text = $"Id: {playlist.Id}"
                 },
-                Fields = new List<EmbedFieldBuilder>() {
-                    new EmbedFieldBuilder() {
+                Fields = [
+                    new EmbedFieldBuilder {
                         Name = "Songs Count",
                         Value = playlist.Songs.Count,
                         IsInline = true,
                     },
                     new EmbedFieldBuilder() {
                         Name = "Protected",
-                        Value = playlist,
+                        Value = playlist.IsProtected,
                         IsInline = true,
                     },
                     new EmbedFieldBuilder() {
@@ -192,9 +207,51 @@ Feed Random: {DiscordString.Code(player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                         Value = new DiscordString(playlist.OwnedBy),
                         IsInline = true,
                     }
-                }
+                ]
             }
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+        }
+
+        public static EmbedBuilder SpeakerInfo(PamelloSpeaker speaker)
+        {
+            EmbedBuilder? embedBuilder = null;
+            if (speaker is PamelloDiscordSpeaker discordSpeaker)
+            {
+                embedBuilder = new EmbedBuilder()
+                {
+                    Title = "Discord speaker",
+                    Fields = [
+                        new EmbedFieldBuilder() {
+                            Name = "Player",
+                            Value = speaker.Player
+                        }
+                    ]
+                };
+            }
+            else if (speaker is PamelloInternetSpeaker internetSpeaker)
+            {
+                embedBuilder = new EmbedBuilder()
+                {
+                    Title = "Internet speaker",
+                    Fields = [
+                        new EmbedFieldBuilder() {
+                            Name = "Player",
+                            Value = speaker.Player
+                        },
+                        new EmbedFieldBuilder() {
+                            Name = "Listeners",
+                            Value = internetSpeaker.ListenersCount
+                        }
+                    ],
+                    Footer = new EmbedFooterBuilder()
+                    {
+                        Text = $"Id: {speaker.Id}"
+                    }
+                };
+            }
+            else throw new PamelloException("Unknown speaker type, cant build embed");
+            
+            return embedBuilder.WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder Error(string message) {

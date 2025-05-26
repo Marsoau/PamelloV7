@@ -28,11 +28,11 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("info", "Get current player info")]
         public async Task PlayerInfoHandler() => await PlayerInfo();
 
-        [SlashCommand("list", "Create new player")]
-        public async Task PlayerListHandler(
-            [Summary("querry", "Player list search querry")] string querry = "",
+        [SlashCommand("search", "Create new player")]
+        public async Task PlayerSearchHandler(
+            [Summary("query", "Player list search query")] string query = "",
             [Summary("page", "Page of the players list")] int page = 0
-        ) => await PlayerList(querry, page);
+        ) => await PlayerSearch(query, page);
 
         [SlashCommand("delete", "Delete player")]
         public async Task PlayerDeleteHandler(
