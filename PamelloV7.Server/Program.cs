@@ -126,9 +126,15 @@ namespace PamelloV7.Server
                 mainDiscordReady.SetResult();
                 Console.WriteLine($"Main discord client {discordClients.MainClient.CurrentUser.Username} is ready");;
 
-                var guild = discordClients.MainClient.GetGuild(1304142495453548646);
-                //await guild.DeleteApplicationCommandsAsync();
-                await interactionService.RegisterCommandsToGuildAsync(guild.Id);
+                if (PamelloServerConfig.Root.Discord.Commands.GlobalRegistration)
+                {
+                    await interactionService.RegisterCommandsGloballyAsync();
+                }
+                else foreach (var guildId in PamelloServerConfig.Root.Discord.Commands.GuildsIds)
+                {
+                    var guild = discordClients.MainClient.GetGuild(guildId);
+                    await interactionService.RegisterCommandsToGuildAsync(guild.Id);
+                }
             };
 
             foreach (var speakerClient in discordClients.DiscordClients.Skip(1)) {
