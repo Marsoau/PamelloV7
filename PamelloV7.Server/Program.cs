@@ -124,29 +124,32 @@ namespace PamelloV7.Server
 
             discordClients.MainClient.Ready += async () => {
                 mainDiscordReady.SetResult();
+                Console.WriteLine($"Main discord client {discordClients.MainClient.CurrentUser.Username} is ready");;
 
                 var guild = discordClients.MainClient.GetGuild(1304142495453548646);
                 //await guild.DeleteApplicationCommandsAsync();
                 await interactionService.RegisterCommandsToGuildAsync(guild.Id);
             };
-            discordClients.DiscordClients[1].Log += async (message) => {
-                //Console.WriteLine($">speaker<: {message}");
-            };
-            discordClients.DiscordClients[1].Ready += async () => {
-                //Console.WriteLine("speaker ready");
-            };
 
+            foreach (var speakerClient in discordClients.DiscordClients.Skip(1)) {
+                speakerClient.Ready += () => SpeakerClient_OnReady(speakerClient);
+            }
+            
             await discordClients.MainClient.LoginAsync(TokenType.Bot,
                 PamelloServerConfig.Root.Discord.Tokens.MainBotToken);
             await discordClients.MainClient.StartAsync();
 
             await mainDiscordReady.Task;
 
-            for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
+            for (var i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
                 await discordClients.DiscordClients[i + 1].LoginAsync(TokenType.Bot,
                     PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens[i]);
                 await discordClients.DiscordClients[i + 1].StartAsync();
             }
+        }
+
+        private async Task SpeakerClient_OnReady(DiscordSocketClient client) {
+            Console.WriteLine($"Speaker discord client {client.CurrentUser.Username} is ready");
         }
 
         private async Task StartupPamelloServices() {
