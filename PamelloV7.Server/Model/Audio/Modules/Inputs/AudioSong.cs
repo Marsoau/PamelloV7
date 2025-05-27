@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Server.Config;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
@@ -359,7 +360,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         }
 
         public static string GetSongAudioPath(PamelloSong song)
-            => $@"{AppContext.BaseDirectory}Data/Music/{song.Id}.opus";
+            => $@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus";
         public static AudioTime? GetSongDuration(PamelloSong song) {
             if (!song.IsDownloaded) {
                 return null;

@@ -43,7 +43,7 @@ namespace PamelloV7.Server
         }
 
         private void ConfigureDatabaseServices() {
-            builder.Services.AddTransient<DatabaseContext>();
+            builder.Services.AddTransient(_ => new DatabaseContext(PamelloServerConfig.Root.DataPath));
         }
 
         private void ConfigureDiscordServices() {

@@ -7,6 +7,7 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.DAL;
 using Microsoft.EntityFrameworkCore;
+using PamelloV7.Server.Config;
 using PamelloV7.Server.Model.Difference;
 
 namespace PamelloV7.Server.Model
@@ -71,7 +72,7 @@ namespace PamelloV7.Server.Model
 
         public bool IsDownloaded {
             get {
-                var file = new FileInfo($@"{AppContext.BaseDirectory}Data/Music/{Id}.opus");
+                var file = new FileInfo($@"{PamelloServerConfig.Root.DataPath}/Music/{Id}.opus");
 
                 if (!file.Exists) return false;
                 if (_downloader.IsDownloading(this)) return false;

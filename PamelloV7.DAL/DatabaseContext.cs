@@ -12,17 +12,21 @@ namespace PamelloV7.DAL
         
         public DbSet<DatabasePlaylistEntry> PlaylistEntries { get; set; }
         public DbSet<DatabaseAssociation> Associations { get; set; }
+        
+        private readonly string _dataPath;
 
-        public DatabaseContext() {
-            if (!Directory.Exists($"{AppContext.BaseDirectory}Data")) {
-                Directory.CreateDirectory($"{AppContext.BaseDirectory}Data");
+        public DatabaseContext(string dataPath) {
+            _dataPath = dataPath;
+            
+            if (!Directory.Exists(_dataPath)) {
+                Directory.CreateDirectory(_dataPath);
             }
 
             Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlite(@$"Data Source={AppContext.BaseDirectory}Data/data.db");
+            optionsBuilder.UseSqlite(@$"Data Source={_dataPath}/data.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
