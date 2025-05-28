@@ -59,7 +59,9 @@ namespace PamelloV7.Server.Repositories.Database
             db.Users.Add(databaseUser);
             db.SaveChanges();
 
-            pamelloUser = new PamelloUser(_services, databaseUser);
+            pamelloUser = Load(databaseUser);
+            if (pamelloUser is null) return null;
+            
             _loaded.Add(pamelloUser);
 
             //_events.UserCreated(pamelloUser);
