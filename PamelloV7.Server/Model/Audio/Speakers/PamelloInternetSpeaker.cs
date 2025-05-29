@@ -22,7 +22,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
     
         public AudioPushPoint Input;
 
-        public AudioModel ParentModel { get; }
+        public override AudioModel ParentModel { get; }
         public AudioModel Model { get; }
     
         private AudioBuffer _buffer;
@@ -40,7 +40,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public sealed override string Name { get; set; }
 
-        public bool IsDisposed { get; private set; }
+        public override bool IsDisposed { get; protected set; }
 
         public PamelloInternetSpeaker(
             AudioModel parentModel,
@@ -73,7 +73,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             _copy.Input.ConnectBack(_ffmpeg.Output);
         }
         
-        public AudioPushPoint CreateInput() {
+        public override AudioPushPoint CreateInput() {
             Input = new AudioPushPoint(this);
 
             Input.Process = ProcessInput;
@@ -87,8 +87,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             return false;
         }
 
-        public void InitModule() {
-            _ = _pump.Start();
+        public override void InitModule() {
+            _pump.Start();
         }
 
         public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) {
@@ -102,10 +102,6 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             Console.WriteLine($"Added listener. Total listeners: {Listeners.Count}");
 
             return listener;
-        }
-
-        public override Task PlayBytesAsync(byte[] audio) {
-            return Task.CompletedTask;
         }
         
         public override DiscordString ToDiscordString() {

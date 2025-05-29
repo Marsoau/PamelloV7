@@ -122,7 +122,7 @@ public class AudioModel : IDisposable
 
     public void ClearGarbage()
     {
-        var disposed = Modules.Where(module => module.IsDisposed);
+        var disposed = Modules.Where(module => module.IsDisposed).ToList();
         
         foreach (var module in disposed) {
             Console.WriteLine("removing disposed module");

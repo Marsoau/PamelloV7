@@ -4,7 +4,10 @@ using Discord.Audio;
 using Discord.WebSocket;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Server.Model.Audio.Interfaces;
+using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
+using PamelloV7.Server.Model.Audio.Modules.Pipes;
 using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 
@@ -14,6 +17,9 @@ namespace PamelloV7.Server.Model.Audio.Speakers
     {
         public readonly DiscordSocketClient Client;
         public readonly SocketGuild Guild;
+
+        public override AudioModel ParentModel => Player.Model;
+        
         public SocketVoiceChannel Voice {
             get => Guild.GetUser(Client.CurrentUser.Id).VoiceChannel;
         }
@@ -26,7 +32,9 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             get => _audioOutput is not null;
         }
 
-        public readonly AudioPushPoint Input;
+        public AudioPushPoint Input { get; private set; }
+        
+        public override bool IsDisposed { get; protected set; }
 
         public PamelloDiscordSpeaker(IServiceProvider services,
             DiscordSocketClient client,
@@ -38,10 +46,19 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
             Client.VoiceServerUpdated += Client_VoiceServerUpdated;
             Client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
-            
-            var input = new AudioPushPoint(null);
-            //input.Process += PlayBytesAsync;
-            Input = input;
+        }
+        
+        public override AudioPushPoint CreateInput()
+        {
+            Input = new AudioPushPoint(this);
+
+            Input.Process = ProcessAudio;
+        
+            return Input;
+        }
+        
+        public override void InitModule()
+        {
         }
 
         private async Task Client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState fromVc, SocketVoiceState toVc) {
@@ -66,7 +83,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         private Task AudioClient_Connected() {
             Console.WriteLine("creating stream");
-            _audioOutput = Guild.AudioClient.CreateDirectPCMStream(AudioApplication.Music);
+            _audioOutput = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
             Console.WriteLine("creted");
             return Task.CompletedTask;
         }
@@ -78,27 +95,30 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             await vc.ConnectAsync();
         }
 
-        public override async Task PlayBytesAsync(byte[] audio) {
-            Console.WriteLine($"output START: {audio[0]}, {audio[1]}");
-            if (_audioOutput is null) return;
+        public async Task<bool> ProcessAudio(byte[] audio, bool wait) {
+            if (_audioOutput is null) return false;
 
             try {
+                Console.WriteLine("write");
                 await _audioOutput.WriteAsync(audio);
-                Console.WriteLine($"output END: {audio[0]}, {audio[1]}");
+                return true;
             }
             catch {
-                Console.WriteLine("async x");
-
+                Console.WriteLine("discord speaker x");
                 await DisposeAsync();
+                return false;
             }
         }
 
         public override void Dispose()
         {
-            _ = DisposeAsync();
+            Task.Run(DisposeAsync).Wait();
         }
 
         public override async ValueTask DisposeAsync() {
+            if (!IsDisposed) IsDisposed = true;
+            else return;
+            
             if (Voice is not null) await Voice.DisconnectAsync();
             if (_audioOutput is not null) await _audioOutput.DisposeAsync();
             

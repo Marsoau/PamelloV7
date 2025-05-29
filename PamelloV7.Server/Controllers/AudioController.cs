@@ -32,7 +32,7 @@ namespace PamelloV7.Server.Controllers
             var listener = await speaker.AddListener(Response, HttpContext.RequestAborted, User);
             Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to <{speaker.Name}>");
 
-            await listener.Completion.Task;
+            await Task.Run(() => listener.Completion.Task.Wait(), HttpContext.RequestAborted);
         }
     }
 }

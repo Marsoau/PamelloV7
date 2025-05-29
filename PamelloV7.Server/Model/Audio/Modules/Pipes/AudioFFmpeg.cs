@@ -19,9 +19,13 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     
     private Process? _ffmpeg;
     
+    private CancellationTokenSource _cts;
+    
     public AudioFFmpeg(AudioModel parentModel)
     {
         ParentModel = parentModel;
+        
+        _cts = new CancellationTokenSource();
     }
     
     public AudioPushPoint CreateInput()
@@ -65,24 +69,20 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     {
         if (_ffmpeg is null) return false;
         
-        await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio);
-        await _ffmpeg.StandardInput.BaseStream.FlushAsync();
+        await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio, _cts.Token);
+        await _ffmpeg.StandardInput.BaseStream.FlushAsync(_cts.Token);
         return true;
     }
 
     private async Task Writing()
     {
         var buffer = new byte[4096];
-        var stream = _ffmpeg!.StandardOutput.BaseStream;
 
         try {
-            while (true) {
-                var read = await stream.ReadAsync(buffer);
-                if (read == 0) break;
+            while (!(_ffmpeg?.HasExited ?? true)) {
+                await _ffmpeg.StandardOutput.BaseStream.ReadAtLeastAsync(buffer, buffer.Length, true, _cts.Token);
 
-                var data = buffer[..read];
-
-                await Output.Push(data, true);
+                await Output.Push(buffer, true);
             }
         }
         catch (Exception ex) {
@@ -94,6 +94,8 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     {
         IsDisposed = true;
         
+        _cts.Cancel();
+        _ffmpeg?.Kill();
         _ffmpeg?.Dispose();
         Input.Dispose();
         Output.Dispose();

@@ -1,4 +1,5 @@
-﻿using PamelloV7.Core.DTO;
+﻿using Discord.WebSocket;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
@@ -234,7 +235,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
         public void InitModule()
         {
-            _ = _pump.Start();
+            _pump.Start();
             Console.WriteLine("player pump started");
         }
         
@@ -246,6 +247,19 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             _speakersCopy.CreateOutput().ConnectFront(internetSpeaker.Input);
 
             return internetSpeaker;
+        }
+        public async Task<PamelloDiscordSpeaker?> AddDiscord(DiscordSocketClient client, ulong guildId, ulong vcId) {
+            var guild = client.GetGuild(guildId);
+            if (guild is null) return null;
+
+            var speaker = Model.AddModule(
+                new PamelloDiscordSpeaker(_services, client, guild.Id, this)
+            );
+            await speaker.InitialConnect(vcId);
+
+            _speakersCopy.CreateOutput().ConnectFront(speaker.Input);
+
+            return speaker;
         }
     }
 }

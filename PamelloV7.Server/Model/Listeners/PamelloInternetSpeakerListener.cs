@@ -86,13 +86,6 @@ namespace PamelloV7.Server.Model.Listeners
         {
             IsDisposed = true;
             Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
-            Console.WriteLine("disposing listener");
             
             Input.Dispose();
         }

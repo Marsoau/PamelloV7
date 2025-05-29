@@ -119,16 +119,16 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
     public async Task<PamelloDiscordSpeaker> ConnectDiscord(PamelloPlayer player, ulong guildId, ulong vcId) {
         PamelloDiscordSpeaker? newSpeaker;
 
-        SocketGuildUser speakerUser;
+        SocketGuildUser? speakerUser;
         foreach (var speakerClient in _discordClients.DiscordClients) {
-            speakerUser = speakerClient.GetGuild(guildId).GetUser(speakerClient.CurrentUser.Id);
+            speakerUser = speakerClient.GetGuild(guildId)?.GetUser(speakerClient.CurrentUser.Id);
             if (speakerUser is null) continue;
 
             if (speakerUser.VoiceChannel is not null) {
                 continue;
             }
             
-            //if ((newSpeaker = await player.Speakers.AddDiscord(speakerClient, guildId, vcId)) is not null) return newSpeaker;
+            if ((newSpeaker = await player.AddDiscord(speakerClient, guildId, vcId)) is not null) return newSpeaker;
         }
 
         throw new PamelloException("No available speakers left");

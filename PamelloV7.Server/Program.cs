@@ -10,6 +10,9 @@ using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
 using System.Diagnostics;
 using System.Text;
+using Discord.Audio;
+using PamelloV7.Server.Model.Audio.Modules.Basic;
+using PamelloV7.Server.Model.Audio.Modules.Inputs;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
@@ -245,11 +248,32 @@ namespace PamelloV7.Server
         }
 
         private void OnStart() {
-            var accessor = app.Services.GetRequiredService<IHttpContextAccessor>();
-            Console.WriteLine($": {accessor.HttpContext is null}");
-            Console.WriteLine(accessor.HttpContext?.Request.Scheme);
-            Console.WriteLine(accessor.HttpContext?.Request.Host);
-            Console.WriteLine(".");
+            Console.WriteLine("STARTING");
+            return;
+            
+            var model = app.Services.GetRequiredService<AudioModel>();
+            
+            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
+            
+            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
+
+            var audio = model.AddModule(new AudioSong(model, app.Services, songs.GetRequired(1640)));
+            var pump = model.AddModule(new AudioPump(model, 4096));
+            audio.TryInitialize().Wait();
+            
+            var guild = discordClients.MainClient.GetGuild(PamelloServerConfig.Root.Discord.Commands.GuildsIds[0]);
+            var ac = guild.GetVoiceChannel(1304142495453548650).ConnectAsync().Result;
+
+            var audioStream = ac.CreatePCMStream(AudioApplication.Music);
+            
+            pump.Input.ConnectBack(audio.Output);
+            pump.Output.Process = async (audio, wait) =>
+            {
+                await audioStream.WriteAsync(audio);
+                return true;
+            };
+            
+            pump.Start();
         }
 
         private void OnStop() {

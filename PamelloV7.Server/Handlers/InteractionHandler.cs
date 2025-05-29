@@ -81,14 +81,17 @@ namespace PamelloV7.Server.Handlers
                 if (executionResult.Exception?.InnerException is PamelloException pamelloException) {
                     await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildError(pamelloException.Message));
                 }
-				else if (executionResult.Exception?.InnerException is NotImplementedException) {
-                    await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Command is not implemented yet"));
-				}
                 else {
-                    await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Exception occured"));
-                    Console.WriteLine($"|| EXCEPTION OCCURED IN COMMAND\n|| {commandInfo.Name}\n|| DESCRIPTION:");
-                    Console.WriteLine(executionResult.Exception?.InnerException);
-                    Console.WriteLine($"|| DESCRIPTION END\n||\n||");
+	                if (executionResult.Exception?.InnerException is NotImplementedException) {
+		                await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Command is not implemented yet"));
+	                }
+	                else {
+		                await interaction.RespondWithEmbedAsync(PamelloEmbedBuilder.BuildException("Exception occured"));
+	                }
+	                
+	                Console.WriteLine($"|| EXCEPTION OCCURED IN COMMAND\n|| {commandInfo.Name}\n|| DESCRIPTION:");
+	                Console.WriteLine(executionResult.Exception?.InnerException);
+	                Console.WriteLine($"|| DESCRIPTION END\n||\n||");
                 }
             }
 		}
