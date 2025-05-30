@@ -142,6 +142,7 @@ namespace PamelloV7.Wrapper.Services
         }
 
         private async Task PamelloEventsService_OnDisconnect() {
+            IsConnected = false;
             await _client.Cleanup();
             
             if (AutoReconnect) {
@@ -414,7 +415,6 @@ namespace PamelloV7.Wrapper.Services
                 OnPamelloEvent.Invoke(pamelloEvent);
             }
 
-            IsConnected = false;
             OnDisconnect.Invoke();
         }
 
