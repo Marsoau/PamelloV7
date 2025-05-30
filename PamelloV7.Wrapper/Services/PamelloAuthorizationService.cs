@@ -10,8 +10,6 @@ namespace PamelloV7.Wrapper.Services
     {
         private readonly PamelloClient _client;
 
-        public Guid? UserToken { get; internal set; }
-
         public PamelloAuthorizationService(PamelloClient client) {
             _client = client;
 
@@ -39,22 +37,21 @@ namespace PamelloV7.Wrapper.Services
 
             if (userToken is null) return false;
 
-            await WithTokenAsync(userToken.Value, authorizeEvents);
+            await WithTokenAsync(userToken.Value);
 
             return true;
         }
-        public async Task WithTokenAsync(Guid token, bool authorizeEvents = true) {
+        public async Task WithTokenAsync(Guid token) {
             await Unauthorize();
 
-            UserToken = token;
+            _client.UserToken = token;
             await _client.Users.UpdateCurrentUser();
-
-            if (authorizeEvents) await _client.Events.Authorize();
+            await _client.Events.Authorize();
         }
         public async Task Unauthorize(bool eventsOnly = false) {
-            await _client.Events.UnAuthorize();
+            await _client.Events.Unauthorize();
 
-            if (!eventsOnly) UserToken = null;
+            if (!eventsOnly) _client.UserToken = null;
 
             await _client.Users.UpdateCurrentUser();
         }

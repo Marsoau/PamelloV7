@@ -241,6 +241,7 @@ namespace PamelloV7.Server
 
             var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
+            lifetime.ApplicationStopping.Register(OnStopping);
             lifetime.ApplicationStopped.Register(OnStop);
             lifetime.ApplicationStarted.Register(OnStart);
 
@@ -277,7 +278,11 @@ namespace PamelloV7.Server
         }
 
         private void OnStop() {
-            Console.WriteLine("STOPPING");
+            Console.WriteLine("STOP");
+        }
+        private void OnStopping() {
+            var events = app.Services.GetRequiredService<PamelloEventsService>();
+            events.Dispose();
         }
     }
 }

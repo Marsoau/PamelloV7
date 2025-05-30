@@ -18,12 +18,18 @@ namespace PamelloV7.Server.Model.Listeners
 
         private readonly AutoResetEvent _eventsWait;
 
-        public PamelloEventListener(HttpResponse response) : base(response) {
+        private CancellationToken _cancellationToken;
+        public TaskCompletionSource Completion;
+
+        public PamelloEventListener(HttpResponse response, CancellationToken cancellationToken) : base(response) {
             Token = Guid.NewGuid();
 
             _eventsQueue = new Queue<PamelloEvent>();
 
             _eventsWait = new AutoResetEvent(false);
+            
+            _cancellationToken = cancellationToken;
+            Completion = new TaskCompletionSource();
 
             Task.Run(EventsSendingThread);
         }
@@ -269,7 +275,14 @@ namespace PamelloV7.Server.Model.Listeners
         }
 
         public void Close() {
-            IsClosed = true;
+            if (IsClosed) return;
+            else IsClosed = true;
+            
+            Completion.SetResult();
+        }
+
+        public override void Dispose() {
+            Close();
         }
     }
 }

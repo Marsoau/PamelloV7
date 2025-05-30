@@ -21,7 +21,7 @@ namespace PamelloV7.Wrapper.Services
                 await _client.HttpGetAsync<object>($"Command/{commandStr}");
             }
             catch (Exception x) {
-                Console.WriteLine($"Exceprion in command \"{commandStr}\": {x}");
+                _client.Log(($"Exceprion in command \"{commandStr}\": {x}"));
             }
         }
         public async Task<TReturnType> InvokeCommand<TReturnType>(string commandStr) {

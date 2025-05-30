@@ -22,6 +22,7 @@ namespace PamelloV7.Wrapper
         public event Action<string?>? OnLog;
 
         public string? ServerHost;
+        public Guid? UserToken { get; set; }
 
         public PamelloClient() {
             _http = new HttpClient();
@@ -39,14 +40,25 @@ namespace PamelloV7.Wrapper
 
         internal Task HttpGetAsync(string url, Guid? customToken = null)
             => HttpGetAsync<object?>(url, customToken);
+
+        public async Task<bool> CheckConnection() {
+            try {
+                var response = await _http.GetAsync($"http://{ServerHost}/Ping");
+                return response.IsSuccessStatusCode;
+            }
+            catch {
+                return false;
+            }
+        }
+        
         internal async Task<T> HttpGetAsync<T>(string url, Guid? customToken = null) {
             if (ServerHost is null) throw new PamelloException("ServerHost of PamelloClient wasnt set trying to make a request");
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"http://{ServerHost}/{url}");
-            if (Authorization.UserToken is not null) {
+            if (UserToken is not null) {
                 request.Headers.Add("user", (
                     customToken ??
-                    Authorization.UserToken ??
+                    UserToken ??
                     throw new PamelloException("UserToken is null")
                 ).ToString());
             }
@@ -69,12 +81,13 @@ namespace PamelloV7.Wrapper
             OnLog?.Invoke(obj.ToString());
         }
 
-        internal void Cleanup() {
+        internal async Task Cleanup() {
             Episodes.Cleanup();
             Players.Cleanup();
             Playlists.Cleanup();
             Songs.Cleanup();
             Users.Cleanup();
+            await Events.Cleanup();
         }
     }
 }

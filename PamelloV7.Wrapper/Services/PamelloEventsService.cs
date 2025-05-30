@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Wrapper.Services
 {
@@ -34,18 +35,25 @@ namespace PamelloV7.Wrapper.Services
             }
         }
 
+        private readonly PamelloClient _client;
+
         private HttpClient? _http;
         private Stream? _eventStream;
-
-        private readonly PamelloClient _client;
 
         public Guid? EventsToken { get; internal set; }
 
         public bool IsConnected { get; private set; }
-
+        public bool AutoReconnect { get; set; }
+        public int ReconnectDelay { get; set; }
+        
+        private CancellationTokenSource _eventsCTS;
+        private CancellationTokenSource _reconnectionCTS;
+        private Task? _eventStreamTask;
+        private Task? _reconnectionTask;
 
         public event Func<Task>? OnConnect;
         public event Func<Task> OnDisconnect;
+        public event Action<int>? OnReconnectAttepmt;
 
         public event Func<PamelloEvent, Task> OnPamelloEvent;
 
@@ -117,18 +125,28 @@ namespace PamelloV7.Wrapper.Services
 
             _http = null;
             _eventStream = null;
+            
+            _eventsCTS = new CancellationTokenSource();
+            _reconnectionCTS = new CancellationTokenSource();
 
             OnPamelloEvent += PamelloEventsService_OnPamelloEvent;
 
             OnEventsConnected += PamelloEventsService_OnEventsConnected;
 
             OnDisconnect += PamelloEventsService_OnDisconnect;
+
+            IsConnected = false;
+            
+            AutoReconnect = false;
+            ReconnectDelay = 3000;
         }
 
         private async Task PamelloEventsService_OnDisconnect() {
-            EventsToken = null;
-
-            _client.Cleanup();
+            await _client.Cleanup();
+            
+            if (AutoReconnect) {
+                _reconnectionTask = ReconnectionLoop();
+            }
         }
 
         private async Task PamelloEventsService_OnEventsConnected(EventsConnected arg) {
@@ -326,24 +344,54 @@ namespace PamelloV7.Wrapper.Services
 
             return true;
         }
+
+        public async Task ConnectRequired(string? serverHost = null) {
+            _reconnectionCTS.Cancel();
+            if (_reconnectionTask is not null) await _reconnectionTask;
+            _reconnectionCTS = new CancellationTokenSource();
+            
+            if (serverHost is not null) _client.ServerHost = serverHost;
+            
+            _reconnectionTask = ReconnectionLoop();
+        }
+        
         public async Task<bool> Connect(string? serverHost = null) {
             if (serverHost is null) serverHost = _client.ServerHost;
+            if (!await _client.CheckConnection()) return false;
 
             if (_http is not null || _eventStream is not null) {
                 _http?.Dispose();
                 _eventStream?.Dispose();
             }
-
+            
             _http = new HttpClient();
 
-            _eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
+            try {
+                _eventStream = await _http.GetStreamAsync($"http://{serverHost}/Events");
+            }
+            catch {
+                return false;
+            }
+            
             if (_eventStream is null) return false;
 
             _client.ServerHost = serverHost;
 
-            _ = Task.Run(() => ListenEventStream(_eventStream));
+            _eventStreamTask = Task.Run(() => ListenEventStream(_eventStream));
 
             return true;
+        }
+
+        public async Task ReconnectionLoop() {
+            var count = 0;
+            try {
+                while (!_reconnectionCTS.IsCancellationRequested && !await Connect()) {
+                    OnReconnectAttepmt?.Invoke(count++);
+                    await Task.Delay(ReconnectDelay);
+                }
+            }
+            catch {
+            }
         }
 
         public async Task Disconnect() {
@@ -356,7 +404,7 @@ namespace PamelloV7.Wrapper.Services
             SseEvent? sseEvent;
             PamelloEvent? pamelloEvent;
 
-            while (!sr.EndOfStream) {
+            while (!sr.EndOfStream && !_eventsCTS.IsCancellationRequested) {
                 sseEvent = ReadEvent(sr);
                 if (sseEvent is null) continue;
 
@@ -378,7 +426,7 @@ namespace PamelloV7.Wrapper.Services
 
             SseEvent? sseEvent = null;
 
-            while (!sr.EndOfStream) {
+            while (!sr.EndOfStream && !_eventsCTS.IsCancellationRequested) {
                 sr.Read(buffer, 0, 1);
 
                 if (buffer[0] == '\r') {
@@ -410,197 +458,93 @@ namespace PamelloV7.Wrapper.Services
         }
 
         private PamelloEvent? ConvertToPamelloEvent(SseEvent sseEvent) {
-            PamelloEvent? pamelloEvent = null;
-
-            switch (sseEvent.EventName) {
-                case EEventName.EventsConnected:
-                    pamelloEvent = JsonSerializer.Deserialize<EventsConnected>(sseEvent.Data);
-                    break;
-                case EEventName.EventsAuthorized:
-                    pamelloEvent = JsonSerializer.Deserialize<EventsAuthorized>(sseEvent.Data);
-                    break;
-                case EEventName.EventsUnAuthorized:
-                    pamelloEvent = JsonSerializer.Deserialize<EventsUnAuthorized>(sseEvent.Data);
-                    break;
-                case EEventName.UserCreated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserCreated>(sseEvent.Data);
-                    break;
-                case EEventName.UserUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserNameUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserNameUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserAvatarUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserAvatarUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserSelectedPlayerIdUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserSelectedPlayerIdUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserSongsPlayedUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserSongsPlayedUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserAddedSongsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserAddedSongsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserAddedPlaylistsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserAddedPlaylistsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserFavoriteSongsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserFavoriteSongsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserFavoritePlaylistsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserFavoritePlaylistsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.UserIsAdministratorUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<UserIsAdministratorUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongCreated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongCreated>(sseEvent.Data);
-                    break;
-                case EEventName.SongUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongNameUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongNameUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongCoverUrlUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongCoverUrlUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongPlayCountUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongPlayCountUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongAssociacionsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongAssociacionsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongFavoriteByIdsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongFavoriteByIdsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongEpisodesIdsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongEpisodesIdsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongPlaylistsIdsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongPlaylistsIdsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongDownloadStarted:
-                    pamelloEvent = JsonSerializer.Deserialize<SongDownloadStarted>(sseEvent.Data);
-                    break;
-                case EEventName.SongDownloadProgeressUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<SongDownloadProgeressUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.SongDownloadFinished:
-                    pamelloEvent = JsonSerializer.Deserialize<SongDownloadFinished>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeCreated:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeCreated>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeDeleted:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeDeleted>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeNameUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeNameUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeStartUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeStartUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.EpisodeSkipUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<EpisodeSkipUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistCreated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistCreated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistDeleted:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistDeleted>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistNameUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistNameUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistProtectionUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistProtectionUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistSongsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistSongsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlaylistFavoriteByIdsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlaylistFavoriteByIdsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerAvailable:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerAvailable>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerRemoved:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerRemoved>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerNameUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerNameUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerStateUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerStateUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerIsPausedUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerIsPausedUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerProtectionUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerProtectionUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerCurrentSongIdUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentSongIdUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueueEntriesDTOsUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueEntriesDTOsUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueuePositionUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueuePositionUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerCurrentEpisodePositionUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentEpisodePositionUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerNextPositionRequestUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerNextPositionRequestUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerCurrentSongTimePassedUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentSongTimePassedUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerCurrentSongTimeTotalUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerCurrentSongTimeTotalUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueueIsRandomUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueIsRandomUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueueIsReversedUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueIsReversedUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueueIsNoLeftoversUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueIsNoLeftoversUpdated>(sseEvent.Data);
-                    break;
-                case EEventName.PlayerQueueIsFeedRandomUpdated:
-                    pamelloEvent = JsonSerializer.Deserialize<PlayerQueueIsFeedRandomUpdated>(sseEvent.Data);
-                    break;
-            }
+            PamelloEvent? pamelloEvent = sseEvent.EventName switch {
+                EEventName.EventsConnected => JsonSerializer.Deserialize<EventsConnected>(sseEvent.Data),
+                EEventName.EventsAuthorized => JsonSerializer.Deserialize<EventsAuthorized>(sseEvent.Data),
+                EEventName.EventsUnAuthorized => JsonSerializer.Deserialize<EventsUnAuthorized>(sseEvent.Data),
+                EEventName.UserCreated => JsonSerializer.Deserialize<UserCreated>(sseEvent.Data),
+                EEventName.UserUpdated => JsonSerializer.Deserialize<UserUpdated>(sseEvent.Data),
+                EEventName.UserNameUpdated => JsonSerializer.Deserialize<UserNameUpdated>(sseEvent.Data),
+                EEventName.UserAvatarUpdated => JsonSerializer.Deserialize<UserAvatarUpdated>(sseEvent.Data),
+                EEventName.UserSelectedPlayerIdUpdated => JsonSerializer.Deserialize<UserSelectedPlayerIdUpdated>(sseEvent.Data),
+                EEventName.UserSongsPlayedUpdated => JsonSerializer.Deserialize<UserSongsPlayedUpdated>(sseEvent.Data),
+                EEventName.UserAddedSongsUpdated => JsonSerializer.Deserialize<UserAddedSongsUpdated>(sseEvent.Data),
+                EEventName.UserAddedPlaylistsUpdated => JsonSerializer.Deserialize<UserAddedPlaylistsUpdated>(sseEvent.Data),
+                EEventName.UserFavoriteSongsUpdated => JsonSerializer.Deserialize<UserFavoriteSongsUpdated>(sseEvent.Data),
+                EEventName.UserFavoritePlaylistsUpdated => JsonSerializer.Deserialize<UserFavoritePlaylistsUpdated>(sseEvent.Data),
+                EEventName.UserIsAdministratorUpdated => JsonSerializer.Deserialize<UserIsAdministratorUpdated>(sseEvent.Data),
+                EEventName.SongCreated => JsonSerializer.Deserialize<SongCreated>(sseEvent.Data),
+                EEventName.SongUpdated => JsonSerializer.Deserialize<SongUpdated>(sseEvent.Data),
+                EEventName.SongNameUpdated => JsonSerializer.Deserialize<SongNameUpdated>(sseEvent.Data),
+                EEventName.SongCoverUrlUpdated => JsonSerializer.Deserialize<SongCoverUrlUpdated>(sseEvent.Data),
+                EEventName.SongPlayCountUpdated => JsonSerializer.Deserialize<SongPlayCountUpdated>(sseEvent.Data),
+                EEventName.SongAssociacionsUpdated => JsonSerializer.Deserialize<SongAssociacionsUpdated>(sseEvent.Data),
+                EEventName.SongFavoriteByIdsUpdated => JsonSerializer.Deserialize<SongFavoriteByIdsUpdated>(sseEvent.Data),
+                EEventName.SongEpisodesIdsUpdated => JsonSerializer.Deserialize<SongEpisodesIdsUpdated>(sseEvent.Data),
+                EEventName.SongPlaylistsIdsUpdated =>JsonSerializer.Deserialize<SongPlaylistsIdsUpdated>(sseEvent.Data),
+                EEventName.SongDownloadStarted => JsonSerializer.Deserialize<SongDownloadStarted>(sseEvent.Data),
+                EEventName.SongDownloadProgeressUpdated => JsonSerializer.Deserialize<SongDownloadProgeressUpdated>(sseEvent.Data),
+                EEventName.SongDownloadFinished => JsonSerializer.Deserialize<SongDownloadFinished>(sseEvent.Data),
+                EEventName.EpisodeCreated => JsonSerializer.Deserialize<EpisodeCreated>(sseEvent.Data),
+                EEventName.EpisodeUpdated => JsonSerializer.Deserialize<EpisodeUpdated>(sseEvent.Data),
+                EEventName.EpisodeDeleted => JsonSerializer.Deserialize<EpisodeDeleted>(sseEvent.Data),
+                EEventName.EpisodeNameUpdated => JsonSerializer.Deserialize<EpisodeNameUpdated>(sseEvent.Data),
+                EEventName.EpisodeStartUpdated => JsonSerializer.Deserialize<EpisodeStartUpdated>(sseEvent.Data),
+                EEventName.EpisodeSkipUpdated => JsonSerializer.Deserialize<EpisodeSkipUpdated>(sseEvent.Data),
+                EEventName.PlaylistCreated => JsonSerializer.Deserialize<PlaylistCreated>(sseEvent.Data),
+                EEventName.PlaylistUpdated => JsonSerializer.Deserialize<PlaylistUpdated>(sseEvent.Data),
+                EEventName.PlaylistDeleted => JsonSerializer.Deserialize<PlaylistDeleted>(sseEvent.Data),
+                EEventName.PlaylistNameUpdated => JsonSerializer.Deserialize<PlaylistNameUpdated>(sseEvent.Data),
+                EEventName.PlaylistProtectionUpdated => JsonSerializer.Deserialize<PlaylistProtectionUpdated>(sseEvent.Data),
+                EEventName.PlaylistSongsUpdated => JsonSerializer.Deserialize<PlaylistSongsUpdated>(sseEvent.Data),
+                EEventName.PlaylistFavoriteByIdsUpdated => JsonSerializer.Deserialize<PlaylistFavoriteByIdsUpdated>(sseEvent.Data),
+                EEventName.PlayerAvailable => JsonSerializer.Deserialize<PlayerAvailable>(sseEvent.Data),
+                EEventName.PlayerRemoved => JsonSerializer.Deserialize<PlayerRemoved>(sseEvent.Data),
+                EEventName.PlayerUpdated => JsonSerializer.Deserialize<PlayerUpdated>(sseEvent.Data),
+                EEventName.PlayerNameUpdated => JsonSerializer.Deserialize<PlayerNameUpdated>(sseEvent.Data),
+                EEventName.PlayerStateUpdated => JsonSerializer.Deserialize<PlayerStateUpdated>(sseEvent.Data),
+                EEventName.PlayerIsPausedUpdated => JsonSerializer.Deserialize<PlayerIsPausedUpdated>(sseEvent.Data),
+                EEventName.PlayerProtectionUpdated => JsonSerializer.Deserialize<PlayerProtectionUpdated>(sseEvent.Data),
+                EEventName.PlayerCurrentSongIdUpdated => JsonSerializer.Deserialize<PlayerCurrentSongIdUpdated>(sseEvent.Data),
+                EEventName.PlayerQueueEntriesDTOsUpdated => JsonSerializer.Deserialize<PlayerQueueEntriesDTOsUpdated>(sseEvent.Data),
+                EEventName.PlayerQueuePositionUpdated => JsonSerializer.Deserialize<PlayerQueuePositionUpdated>(sseEvent.Data),
+                EEventName.PlayerCurrentEpisodePositionUpdated => JsonSerializer.Deserialize<PlayerCurrentEpisodePositionUpdated>(sseEvent.Data),
+                EEventName.PlayerNextPositionRequestUpdated => JsonSerializer.Deserialize<PlayerNextPositionRequestUpdated>(sseEvent.Data),
+                EEventName.PlayerCurrentSongTimePassedUpdated => JsonSerializer.Deserialize<PlayerCurrentSongTimePassedUpdated>(sseEvent.Data),
+                EEventName.PlayerCurrentSongTimeTotalUpdated => JsonSerializer.Deserialize<PlayerCurrentSongTimeTotalUpdated>(sseEvent.Data),
+                EEventName.PlayerQueueIsRandomUpdated => JsonSerializer.Deserialize<PlayerQueueIsRandomUpdated>(sseEvent.Data),
+                EEventName.PlayerQueueIsReversedUpdated => JsonSerializer.Deserialize<PlayerQueueIsReversedUpdated>(sseEvent.Data),
+                EEventName.PlayerQueueIsNoLeftoversUpdated => JsonSerializer.Deserialize<PlayerQueueIsNoLeftoversUpdated>(sseEvent.Data),
+                EEventName.PlayerQueueIsFeedRandomUpdated => JsonSerializer.Deserialize<PlayerQueueIsFeedRandomUpdated>(sseEvent.Data),
+                _ => null
+            };
 
             return pamelloEvent;
         }
 
         public async Task<bool> Authorize() {
-            if (EventsToken is null) return false;
-            if (_client.Authorization.UserToken is null) return false;
+            if (!IsConnected || EventsToken is null) throw new PamelloException("Events is not connected (connect to events before authorizing)");;
+            if (_client.UserToken is null) throw new PamelloException("No user token (please set PamelloClient.UserToken before calling this)");
 
-            await _client.HttpGetAsync($"Authorization/Events/{EventsToken}/WithToken/{_client.Authorization.UserToken}");
-
-            return true;
+            return await _client.HttpGetAsync<Guid>($"Authorization/Events/{EventsToken}/WithToken/{_client.UserToken}") != Guid.Empty;
         }
-        public async Task UnAuthorize() {
+        public async Task Unauthorize() {
             if (EventsToken is null) return;
 
             await _client.HttpGetAsync($"Authorization/Events/{EventsToken}/Unauthorize");
+        }
+        
+        internal async Task Cleanup() {
+            EventsToken = null;
+            
+            _eventsCTS.Cancel();
+            _reconnectionCTS.Cancel();
+            
+            if (_eventStreamTask is not null) await _eventStreamTask;
+            if (_reconnectionTask is not null) await _reconnectionTask;
+            
+            _eventsCTS = new CancellationTokenSource();
+            _reconnectionCTS = new CancellationTokenSource();
         }
     }
 }

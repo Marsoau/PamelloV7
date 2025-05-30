@@ -1,6 +1,6 @@
 ﻿namespace PamelloV7.Server.Model.Listeners
 {
-    public abstract class PamelloListener
+    public abstract class PamelloListener: IDisposable
     {
         protected readonly HttpResponse _response;
 
@@ -28,5 +28,7 @@
             Completion.SetResult();
             OnClosed?.Invoke(this);
         }
+
+        public abstract void Dispose();
     }
 }

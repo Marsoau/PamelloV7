@@ -10,7 +10,7 @@ using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Services
 {
-    public class PamelloEventsService
+    public class PamelloEventsService: IDisposable
     {
         private readonly UserAuthorizationService _userAuthorization;
         private readonly PamelloUserRepository _users;
@@ -47,8 +47,8 @@ namespace PamelloV7.Server.Services
             Console.WriteLine($"removed \"{listener.Token}\" events");
         }
 
-        public async Task<PamelloEventListener> AddListener(HttpResponse response) {
-            var listener = new PamelloEventListener(response);
+        public async Task<PamelloEventListener> AddListener(HttpResponse response, CancellationToken cancellationToken) {
+            var listener = new PamelloEventListener(response, cancellationToken);
             await listener.InitializeConnecion();
 
             _listeners.Add(listener);
@@ -117,6 +117,12 @@ namespace PamelloV7.Server.Services
 
             events.AbandonUser();
             events.Close();
+        }
+
+        public void Dispose() {
+            foreach (var listener in _listeners) {
+                listener.Dispose();
+            }
         }
     }
 }

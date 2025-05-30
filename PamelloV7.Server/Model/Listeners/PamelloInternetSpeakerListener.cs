@@ -82,7 +82,7 @@ namespace PamelloV7.Server.Model.Listeners
         public void InitModule() {
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             IsDisposed = true;
             Console.WriteLine("disposing listener");

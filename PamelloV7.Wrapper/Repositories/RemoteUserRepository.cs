@@ -10,12 +10,21 @@ namespace PamelloV7.Wrapper.Repositories
 {
     public class RemoteUserRepository : RemoteRepository<RemoteUser, PamelloUserDTO>
     {
-        public RemoteUser Current { get; protected set; }
+        private RemoteUser? _current;
+
+        public RemoteUser Current {
+            get {
+                if (_current is not null) return _current;
+                UpdateCurrentUser().Wait();
+                
+                return _current;
+            }
+        }
 
         protected override string ControllerName => "User";
 
         public RemoteUserRepository(PamelloClient client) : base(client) {
-            Current = null;
+            _current = null;
 
             SubscribeToEventsDataUpdates();
         }
@@ -60,11 +69,11 @@ namespace PamelloV7.Wrapper.Repositories
         }
 
         internal async Task UpdateCurrentUser() {
-            if (_client.Authorization.UserToken is null) {
-                Current = null;
+            if (_client.UserToken is null) {
+                _current = null;
             }
             else {
-                Current = await GetNew(_client.Authorization.UserToken.Value);
+                _current = await GetNew(_client.UserToken.Value);
             }
         }
 

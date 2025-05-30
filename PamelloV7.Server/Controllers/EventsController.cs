@@ -21,17 +21,13 @@ namespace PamelloV7.Server.Controllers
         [HttpGet]
         public async Task Connect() {
             Console.WriteLine("test con");
-            var listener = await _events.AddListener(Response);
+            var listener = await _events.AddListener(Response, HttpContext.RequestAborted);
 
             Console.WriteLine($"created \"{listener.Token}\" events connection");
 
-            while (!HttpContext.RequestAborted.IsCancellationRequested) {
-                await Task.Delay(1000);
-            }
+            await listener.Completion.Task;
 
             Console.WriteLine($"closed \"{listener.Token}\" events connection");
-
-            listener.Close();
         }
 
         [HttpGet("{eventsToken}/Close")]
