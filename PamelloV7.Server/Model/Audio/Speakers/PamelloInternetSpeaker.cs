@@ -118,7 +118,8 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public override void Dispose()
         {
-            IsDisposed = true;
+            if (!IsDisposed) IsDisposed = true;
+            else return;
             
             Input.Dispose();
             Model.Dispose();

@@ -128,7 +128,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
 
         public override DiscordString ToDiscordString() {
-            return DiscordString.Bold(new DiscordString(Client.CurrentUser) + " " + DiscordString.Code($"[{Id}]"));
+            return new DiscordString(Client.CurrentUser) + " " + DiscordString.Code($"[{Id}]");
         }
 
         public override IPamelloDTO GetDTO() {

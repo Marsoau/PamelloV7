@@ -4,7 +4,7 @@ using PamelloV7.Server.Modules.Discord.Base;
 
 namespace PamelloV7.Server.Modules.Discord
 {
-    public enum ESearchSpeakerType
+    public enum ESpeakerType
     {
         Discord,
         Internet
@@ -23,10 +23,6 @@ namespace PamelloV7.Server.Modules.Discord
             [SlashCommand("connect", "Connect speaker to your voice channel")]
             public async Task SpeakerDiscordConnectHandler()
                 => await SpeakerDiscordConnect();
-
-            [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
-            public async Task SpeakerDiscordDisconnectHandler()
-                => await SpeakerDiscordDisconnect();
         }
         
         [Group("internet", "Commands for internet speakers interactions")]
@@ -50,7 +46,17 @@ namespace PamelloV7.Server.Modules.Discord
         public async Task SpeakerSearchHandler(
             [Summary("query", "Player list search query")] string query = "",
             [Summary("page", "Page of the players list")] int page = 0,
-            [Summary("type", "Type of the search")] ESearchSpeakerType? type = null
+            [Summary("type", "Type of the search")] ESpeakerType? type = null
         ) => await SpeakerSearch(query, page, type);
+        
+        [SlashCommand("info", "Disconnect speaker from your voice channel")]
+        public async Task SpeakerInfoHandler(
+            [Summary("speaker", "Internet speaker name/id/discord-id")] string speakerValue
+        ) => await SpeakerInfo();
+        
+        [SlashCommand("disconnect", "Disconnect speaker from your voice channel")]
+        public async Task SpeakerDisconnectHandler(
+            [Summary("speaker", "Internet speaker name/id/discord-id")] string speakerValue = "current"
+        ) => await SpeakerDisconnect(speakerValue);
     }
 }

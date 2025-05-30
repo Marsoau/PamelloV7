@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Reflection;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
+using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
@@ -27,6 +28,7 @@ namespace PamelloV7.Server.Controllers
         private readonly PamelloEpisodeRepository _episodes;
         private readonly PamelloPlaylistRepository _playlists;
         private readonly PamelloPlayerRepository _players;
+        private readonly PamelloSpeakerRepository _speakers;
 
         public CommandsController(IServiceProvider services) : base(services) {
             _users = services.GetRequiredService<PamelloUserRepository>();
@@ -34,6 +36,7 @@ namespace PamelloV7.Server.Controllers
             _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
             _players = services.GetRequiredService<PamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
         }
 
         [HttpGet]
@@ -85,6 +88,15 @@ namespace PamelloV7.Server.Controllers
                         }
                         else if (argsInfo[i].ParameterType == typeof(PamelloPlayer)) {
                             argValue = await _players.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
+                        }
+                        else if (argsInfo[i].ParameterType == typeof(PamelloSpeaker)) {
+                            argValue = await _speakers.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
+                        }
+                        else if (argsInfo[i].ParameterType == typeof(PamelloDiscordSpeaker)) {
+                            argValue = await _speakers.GetByValueRequired<PamelloDiscordSpeaker>(argStringValues.FirstOrDefault() ?? "", User);
+                        }
+                        else if (argsInfo[i].ParameterType == typeof(PamelloInternetSpeaker)) {
+                            argValue = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(argStringValues.FirstOrDefault() ?? "", User);
                         }
                     }
                     catch (PamelloException x) {

@@ -66,6 +66,12 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 speaker = scopeSpeakers.FirstOrDefault(s => s.Id == id);
             }
         }
+        else if (value == "current") {
+            var userVc = _discordClients.GetUserVoiceChannel(scopeUser);
+            if (userVc is null) return null;
+            
+            speaker = scopeSpeakers.OfType<PamelloDiscordSpeaker>().FirstOrDefault(s => s.Voice.Id == userVc.Id) as TSpeaker;
+        }
         else {
             speaker = scopeSpeakers.OfType<PamelloInternetSpeaker>().FirstOrDefault(s => s.Name == value) as TSpeaker;
         }
@@ -128,7 +134,10 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 continue;
             }
             
-            if ((newSpeaker = await player.AddDiscord(speakerClient, guildId, vcId)) is not null) return newSpeaker;
+            if ((newSpeaker = await player.AddDiscord(speakerClient, guildId, vcId)) is null) break;
+            
+            _speakers.Add(newSpeaker);
+            return newSpeaker;
         }
 
         throw new PamelloException("No available speakers left");
@@ -152,7 +161,14 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
         return speakers.All(internetSpeaker => internetSpeaker.Name != name);
     }
 
+    public async Task Delete(PamelloSpeaker speaker) {
+        await speaker.DisposeAsync();
+        _speakers.Remove(speaker);
+    }
+
     public void Dispose() {
-        Console.WriteLine("Disposing speakers");
+        foreach (var speaker in _speakers) {
+            speaker.Dispose();
+        }
     }
 }

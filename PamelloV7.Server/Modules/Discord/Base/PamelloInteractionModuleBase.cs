@@ -713,15 +713,22 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SpeakerDiscordConnect() {
             Context.User.TryLoadLastPlayer();
 
-            await Commands.SpeakerDiscordConnect();
+            var speaker = await Commands.SpeakerDiscordConnect();
 
-            await RespondPlayerInfo("Connected");
+            await RespondPlayerInfo("Connected", $"speaker {speaker.ToDiscordString()} connected to your vc");
         }
 
-        public async Task SpeakerDiscordDisconnect() {
-            await Commands.SpeakerDisconnect();
+        public async Task SpeakerInfo() {
+            throw new NotImplementedException();
+        }
 
-            await RespondPlayerInfo("Disconnected");
+        public async Task SpeakerDisconnect(string speakerValue)
+        {
+            var speaker = await _speakers.GetByValueRequired(speakerValue, Context.User);
+            
+            await Commands.SpeakerDisconnect(speaker);
+
+            await RespondPlayerInfo("Disconnected", $"Speaker {speaker.ToDiscordString()} disconnected");
         }
 
         public async Task SpeakerConnectInternet(string? name) {
@@ -731,19 +738,20 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         public async Task SpeakerInternetRename(string speakerValue, string newName) {
-            var speaker = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(speakerValue, Context.User);
+            var speaker = await _speakers.GetByValueRequired(speakerValue, Context.User);
+            if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloException($"Speaker {speaker.ToDiscordString()} is not internet speaker");
             
-            await Commands.SpeakerInternetRename(speaker, newName);
+            await Commands.SpeakerInternetRename(internetSpeaker, newName);
             
             await RespondInfo($"Internet speaker {speaker.ToDiscordString()} renamed");
         }
 
-        public async Task SpeakerSearch(string query, int page, ESearchSpeakerType? type)
+        public async Task SpeakerSearch(string query, int page, ESpeakerType? type)
         {
             var results = type switch
             {
-                ESearchSpeakerType.Internet => await _speakers.SearchAsync<PamelloInternetSpeaker>(query, Context.User),
-                ESearchSpeakerType.Discord => await _speakers.SearchAsync<PamelloDiscordSpeaker>(query, Context.User),
+                ESpeakerType.Internet => await _speakers.SearchAsync<PamelloInternetSpeaker>(query, Context.User),
+                ESpeakerType.Discord => await _speakers.SearchAsync<PamelloDiscordSpeaker>(query, Context.User),
                 _ => await _speakers.SearchAsync(query, Context.User)
             };
 

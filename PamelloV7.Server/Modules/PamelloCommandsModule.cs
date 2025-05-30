@@ -359,8 +359,9 @@ namespace PamelloV7.Server.Modules
             return speaker;
         }
         [PamelloCommand]
-        public async Task SpeakerDisconnect() {
-            throw new NotImplementedException();
+        public async Task SpeakerDisconnect(PamelloSpeaker speaker)
+        {
+            await _speakers.Delete(speaker);
         }
         [PamelloCommand]
         public async Task<string> SpeakerInternetRename(PamelloInternetSpeaker speaker, string newName) {
