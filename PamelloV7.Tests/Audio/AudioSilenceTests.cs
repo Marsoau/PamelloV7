@@ -21,7 +21,7 @@ public class AudioSilenceTests
         var model = new AudioModel();
         var silence = model.AddModule(new AudioSilence(model));
 
-        await silence.Output.Pull(buffer, true);
+        await silence.Output.Pull(buffer, true, CancellationToken.None);
         
         Assert.Equal([0, 0, 0, 0], buffer);
     }

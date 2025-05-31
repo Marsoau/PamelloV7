@@ -268,9 +268,9 @@ namespace PamelloV7.Server
             var audioStream = ac.CreatePCMStream(AudioApplication.Music);
             
             pump.Input.ConnectBack(audio.Output);
-            pump.Output.Process = async (audio, wait) =>
+            pump.Output.Process = async (audio, wait, token) =>
             {
-                await audioStream.WriteAsync(audio);
+                await audioStream.WriteAsync(audio, token);
                 return true;
             };
             
@@ -282,7 +282,10 @@ namespace PamelloV7.Server
         }
         private void OnStopping() {
             var events = app.Services.GetRequiredService<PamelloEventsService>();
+            var audio = app.Services.GetRequiredService<AudioModel>();
+            
             events.Dispose();
+            audio.Dispose();
         }
     }
 }

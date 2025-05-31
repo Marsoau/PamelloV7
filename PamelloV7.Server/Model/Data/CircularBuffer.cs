@@ -56,7 +56,7 @@ public class CircularBuffer<TType> : IDisposable
         return distance < 0 ? Buffer.Length - -distance : distance;
     }
     
-    public async Task<bool> WriteRange(TType[] values, bool wait)
+    public async Task<bool> WriteRange(TType[] values, bool wait, CancellationToken token = default)
     {
         var count = values.Length;
         if (count > Available())
@@ -64,7 +64,10 @@ public class CircularBuffer<TType> : IDisposable
             if (!wait) return false;
             
             var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
+            token.Register(() => operation.Completion.SetResult(false));
+            
             AwaitingWrites.Add(operation);
+            
             if (!await operation.Completion.Task) return false;
         }
         
@@ -96,7 +99,7 @@ public class CircularBuffer<TType> : IDisposable
         return true;
     }
     
-    public async Task<bool> ReadRange(TType[] destination, bool wait)
+    public async Task<bool> ReadRange(TType[] destination, bool wait, CancellationToken token = default)
     {
         var count = destination.Length;
         if (count > Used())
@@ -104,7 +107,10 @@ public class CircularBuffer<TType> : IDisposable
             if (!wait) return false;
             
             var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
+            token.Register(() => operation.Completion.SetResult(false));
+            
             AwaitingReads.Add(operation);
+            
             if (!await operation.Completion.Task) return false;
         }
         

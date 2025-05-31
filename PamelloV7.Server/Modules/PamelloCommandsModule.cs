@@ -173,7 +173,7 @@ namespace PamelloV7.Server.Modules
         [PamelloCommand]
         public async Task PlayerRewind(int seconds) {
             if (Player.Queue.Audio is null) throw new PamelloException("There is no song to rewind");
-            await Player.Queue.Audio.RewindTo(new AudioTime(seconds));
+            await Player.Queue.Audio.RewindTo(new AudioTime(seconds), true, CancellationToken.None);
         }
 
         [PamelloCommand]

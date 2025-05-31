@@ -64,7 +64,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             Position = new AudioTime(0);
             Duration = new AudioTime(0);
 
-            _chunkSize = new AudioTime(64);
+            _chunkSize = new AudioTime(8);
             
             IsEnded = false;
         }
@@ -90,7 +90,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 			Duration.TimeValue = 0;
 		}
 
-        public async Task<bool> TryInitialize() {
+        public async Task<bool> TryInitialize(CancellationToken token = default) {
             if (IsInitialized) return true;
 
             if (!Song.IsDownloaded) {
@@ -102,7 +102,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
             Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
 
-            await LoadChunksAtAsync(0);
+            await LoadChunksAtAsync(0, token);
             if (_currentChunk is null) {
 				Console.WriteLine("interesting");
 				return false;
@@ -115,7 +115,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             return true;
         }
 
-		public async Task<bool> NextBytes(byte[] result, bool wait) {
+		private async Task<bool> NextBytes(byte[] result, bool wait, CancellationToken token) {
             // Console.WriteLine("next bytes");
             if (_rewinding is not null) await _rewinding;
 			if (_currentChunk is null) return false;
@@ -131,28 +131,26 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
 			if (Position.TotalSeconds == _nextBreakPoint) {
                 if (_nextJumpPoint is null) {
-                    await RewindTo(Duration);
+                    await RewindTo(Duration, true, token);
                     // Console.WriteLine("false 2");
                     return false;
                 }
 
-				await RewindTo(new AudioTime(_nextJumpPoint.Value));
+				await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
             }
             
             if (Position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
-                await MoveForwardAsync();
+                await MoveForwardAsync(token);
             }
 
             _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
-			if (_currentChunk.Read(result) == result.Length) {
-				Position.TimeValue += result.Length;
-                // Console.WriteLine($"TRUE: {result.All(x => x == 0)}");
-				return true;
-			}
-
-            // Console.WriteLine("false 3");
-			return false;
-		}
+            var count = await _currentChunk.ReadAsync(result, token);
+            //Console.WriteLine($"{count}, {result.Length}, {_currentChunk.Length}");
+            if (count != result.Length) return false;
+            
+            Position.TimeValue += result.Length;
+            return true;
+        }
 
         public void UpdatePlaybackPoints(bool excludeCurrent = false) {
             int? closestBreakPoint = null;
@@ -183,7 +181,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             //Console.WriteLine($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
         }
 
-        public async Task RewindTo(AudioTime time, bool forceEpisodePlayback = true) {
+        public async Task RewindTo(AudioTime time, bool forceEpisodePlayback, CancellationToken token) {
             var rewindCompletion = new TaskCompletionSource();
             while (_rewinding is not null) {
                 await _rewinding;
@@ -197,10 +195,10 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             long timeDifferece = time.TimeValue % _chunkSize.TimeValue;
 
             if (timePosition == _currentChunkPosition + 1) {
-                await MoveForwardAsync();
+                await MoveForwardAsync(token);
             }
             else if (timePosition != _currentChunkPosition) {
-                await LoadChunksAtAsync((int)timePosition);
+                await LoadChunksAtAsync((int)timePosition, token);
             }
 
             Position.TimeValue = time.TimeValue;
@@ -214,16 +212,16 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
                 if (episodePosition > 0) {
-                    await RewindTo(Duration, forceEpisodePlayback);
+                    await RewindTo(Duration, forceEpisodePlayback, CancellationToken.None);
                 }
                 else {
-                    await RewindTo(new AudioTime(0), forceEpisodePlayback);
+                    await RewindTo(new AudioTime(0), forceEpisodePlayback, CancellationToken.None);
                 }
 
                 return null;
             }
 
-            await RewindTo(episode.Start, forceEpisodePlayback);
+            await RewindTo(episode.Start, forceEpisodePlayback, CancellationToken.None);
             return episode;
         }
 
@@ -251,12 +249,12 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             return Song.Episodes.ElementAtOrDefault(currentPosition.Value);
         }
 
-        public async Task LoadChunksAtAsync(int position) {
+        public async Task LoadChunksAtAsync(int position, CancellationToken token) {
             if (_nextChunkTask is not null) await _nextChunkTask;
             
             _currentChunkPosition = position;
-            _currentChunk = await LoadChunkAsync(_currentChunkPosition);
-            _nextChunkTask = LoadChunkAsync(_currentChunkPosition + 1);
+            _currentChunk = await LoadChunkAsync(_currentChunkPosition, token);
+            _nextChunkTask = LoadChunkAsync(_currentChunkPosition + 1, token);
             
             _ = Task.Run(async () =>
             {
@@ -264,16 +262,16 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
                 _nextChunkTask = null;
             });
         }
-        private async Task MoveForwardAsync() {
+        private async Task MoveForwardAsync(CancellationToken token) {
             if (_nextChunkTask is not null) await _nextChunkTask;
             _currentChunk = _nextChunk;
-            _nextChunkTask = LoadChunkAsync(++_currentChunkPosition + 1);
+            _nextChunkTask = LoadChunkAsync(++_currentChunkPosition + 1, token);
             
             _ = Task.Run(async () =>
             {
                 _nextChunk = await _nextChunkTask;
                 _nextChunkTask = null;
-            });
+            }, token);
         }
 
         private void CreateFFMpeg() {
@@ -293,11 +291,12 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 			});
         }
 
-        private async Task<MemoryStream?> LoadChunkAsync(int position) {
-            return await Task.Run(() => LoadChunk(position));
+        private async Task<MemoryStream?> LoadChunkAsync(int position, CancellationToken token) {
+            return await Task.Run(() => LoadChunk(position, token));
         }
-        private MemoryStream? LoadChunk(int position) {
-            Console.WriteLine($"->\n-> loading chunk at {position}\n->");
+        
+        private async Task<MemoryStream?> LoadChunk(int position, CancellationToken token) {
+            //Console.WriteLine($"->\n-> loading chunk at {position}\n->");
 
             if (_ffmpeg is null) {
                 //Console.WriteLine("ffmpeg creating 1");
@@ -314,8 +313,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
             long startPos = _chunkSize.TimeValue * position;
             long endPos = _chunkSize.TimeValue * (position + 1);
-
-            byte[] buffer = new byte[2];
+            //Console.WriteLine($"Next length: {endPos - startPos}");
 
             if (_ffmpegPosition > startPos) {
                 //Console.WriteLine("ffmpeg creating 2");
@@ -323,39 +321,36 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
                 //Console.WriteLine("ffmpeg created 2");
             }
 
-            //Console.WriteLine($"seeking to the start from {_ffmpegPosition} to {startPos}");
-            while (_ffmpegPosition < startPos) {
-                if (_ffmpeg.StandardOutput.EndOfStream) return null;
-
+            while (
+                _ffmpegPosition < startPos &&
+                !_ffmpeg.StandardOutput.EndOfStream &&
+                !token.IsCancellationRequested
+            ) {
                 _ffmpeg.StandardOutput.BaseStream.ReadByte();
-                _ffmpeg.StandardOutput.BaseStream.ReadByte();
-                _ffmpegPosition += 2;
+                _ffmpegPosition += 1;
             }
 
             var chunkStream = new MemoryStream();
 
-            //Console.WriteLine($"seeking to the end from {_ffmpegPosition} to {endPos}");
-            while (_ffmpegPosition < endPos) {
+            while (_ffmpegPosition < endPos && !token.IsCancellationRequested) {
                 if (_ffmpeg.StandardOutput.EndOfStream) {
                     if (chunkStream.Length > 0) {
-                        Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
+                        //Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
                         return chunkStream;
                     }
                     else {
-						//Console.WriteLine($"failed to load chunk stream at {position}");
-						return null;
-					}
+                        //Console.WriteLine($"failed to load chunk stream at {position}");
+                        return null;
+                    }
                 }
 
-                _ffmpeg.StandardOutput.BaseStream.Read(buffer);
-                chunkStream.Write(buffer);
-                _ffmpegPosition += 2;
+                chunkStream.WriteByte((byte)_ffmpeg.StandardOutput.BaseStream.ReadByte());
+                _ffmpegPosition++;
             }
-
+            
 			_ffmpeg.Suspend();
-            //_ffmpeg.Suspend();
 
-            Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
+            //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
             return chunkStream;
         }
 

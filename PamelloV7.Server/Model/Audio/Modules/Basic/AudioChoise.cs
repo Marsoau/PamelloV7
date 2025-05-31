@@ -45,10 +45,10 @@ public class AudioChoise : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleW
     public void InitModule() {
     }
 
-    private async Task<bool> Request(byte[] buffer, bool wait) {
+    private async Task<bool> Request(byte[] buffer, bool wait, CancellationToken token) {
         for (var i = 0; i < Inputs.Count; i++)
         {
-            if (await Inputs[i].Pull(buffer, wait && Inputs.Count - 1 == i))
+            if (await Inputs[i].Pull(buffer, wait && Inputs.Count - 1 == i, token))
             {
                 return true;
             }

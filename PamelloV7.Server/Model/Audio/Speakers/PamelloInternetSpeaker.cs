@@ -81,9 +81,9 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             return Input;
         }
 
-        private async Task<bool> ProcessInput(byte[] audio, bool wait)
+        private async Task<bool> ProcessInput(byte[] audio, bool wait, CancellationToken token)
         {
-            if (ListenersCount > 0) return await _buffer.Input.Push(audio, wait);
+            if (ListenersCount > 0) return await _buffer.Input.Push(audio, wait, token);
             return false;
         }
 

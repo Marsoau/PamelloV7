@@ -48,7 +48,7 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
 
     public void Start()
     {
-        _pumpTask = StartAsync();
+        _pumpTask = Task.Run(StartAsync, _cts.Token);
     }
     private async Task StartAsync() {
         var pair = new byte[ChunkSize];
@@ -63,18 +63,20 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
                 continue;
             }
 
-            try
-            {
-                while (!await Input.Pull(pair, true))
-                {
+            try {
+                while (!await Input.Pull(pair, true, _cts.Token)) {
                     Console.WriteLine($"PUMP Failed to puLL audio from input {GetHashCode()}");
                     await Task.Delay(1000, _cts.Token);
                 }
-                while (!await Output.Push(pair, true))
-                {
+
+                while (!await Output.Push(pair, true, _cts.Token)) {
                     Console.WriteLine($"PUMP Failed to puSH audio to output {GetHashCode()}");
                     await Task.Delay(1000, _cts.Token);
                 }
+            }
+            catch (TaskCanceledException) {
+                Console.WriteLine("Pump task was canceled");
+                return;
             }
             catch (Exception ex)
             {

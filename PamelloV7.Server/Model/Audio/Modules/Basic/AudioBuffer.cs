@@ -45,12 +45,12 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
         return Output;
     }
 
-    private Task<bool> OnRequest(byte[] buffer, bool wait) {
-        return _circle.ReadRange(buffer, wait);
+    private Task<bool> OnRequest(byte[] buffer, bool wait, CancellationToken token) {
+        return _circle.ReadRange(buffer, wait, token);
     }
     
-    private Task<bool> Process(byte[] audio, bool wait) {
-        return _circle.WriteRange(audio, wait);
+    private Task<bool> Process(byte[] audio, bool wait, CancellationToken token) {
+        return _circle.WriteRange(audio, wait, token);
     }
 
     public void InitModule() {

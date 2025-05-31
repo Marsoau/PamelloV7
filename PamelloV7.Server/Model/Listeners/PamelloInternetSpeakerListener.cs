@@ -38,7 +38,7 @@ namespace PamelloV7.Server.Model.Listeners
             await _response.Body.FlushAsync(Cancellation);
         }
 
-        private async Task<bool> SendAudio(byte[] audio, bool wait) {
+        private async Task<bool> SendAudio(byte[] audio, bool wait, CancellationToken token) {
             try {
                 if (!IsClosed && !Cancellation.IsCancellationRequested) {
                     try {

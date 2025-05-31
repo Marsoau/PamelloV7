@@ -19,13 +19,14 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     
     private Process? _ffmpeg;
     
-    private CancellationTokenSource _cts;
+    private CancellationTokenSource _writingCTS;
+    private Task _writingTask;
     
     public AudioFFmpeg(AudioModel parentModel)
     {
         ParentModel = parentModel;
         
-        _cts = new CancellationTokenSource();
+        _writingCTS = new CancellationTokenSource();
     }
     
     public AudioPushPoint CreateInput()
@@ -62,15 +63,20 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
         };
         _ffmpeg.Start();
         
-        _ = Writing();
+        _writingTask = Writing();
     }
 
-    private async Task<bool> Process(byte[] audio, bool wait)
+    private async Task<bool> Process(byte[] audio, bool wait, CancellationToken token)
     {
         if (_ffmpeg is null) return false;
-        
-        await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio, _cts.Token);
-        await _ffmpeg.StandardInput.BaseStream.FlushAsync(_cts.Token);
+
+        try {
+            await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio, token);
+            await _ffmpeg.StandardInput.BaseStream.FlushAsync(token);
+        }
+        catch (OperationCanceledException) {
+            return false;
+        }
         return true;
     }
 
@@ -80,10 +86,15 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
 
         try {
             while (!(_ffmpeg?.HasExited ?? true)) {
-                await _ffmpeg.StandardOutput.BaseStream.ReadAtLeastAsync(buffer, buffer.Length, true, _cts.Token);
+                await _ffmpeg.StandardOutput.BaseStream.ReadAtLeastAsync(buffer, buffer.Length, true,
+                    _writingCTS.Token);
 
-                await Output.Push(buffer, true);
+                await Output.Push(buffer, true, _writingCTS.Token);
             }
+        }
+        catch (OperationCanceledException) {
+            Console.WriteLine("FFMpeg writing task was canceled");
+            return;
         }
         catch (Exception ex) {
             Console.WriteLine($"Stream error: {ex}");
@@ -92,12 +103,16 @@ public class AudioFFmpeg : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
 
     public void Dispose()
     {
-        IsDisposed = true;
+        if (IsDisposed) return;
+        else IsDisposed = true;
         
-        _cts.Cancel();
+        _writingCTS.Cancel();
+        
         _ffmpeg?.Kill();
         _ffmpeg?.Dispose();
         Input.Dispose();
         Output.Dispose();
+        
+        _writingTask.Wait();
     }
 }

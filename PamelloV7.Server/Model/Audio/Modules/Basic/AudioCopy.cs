@@ -44,21 +44,21 @@ public class AudioCopy : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWit
         return output;
     }
 
-    private async Task<bool> ProcessInput(byte[] audio, bool wait)
+    private async Task<bool> ProcessInput(byte[] audio, bool wait, CancellationToken token)
     {
         var anySuccess = false;
         foreach (var output in Outputs.Values)
         {
-           if (await PushToPoint(output, audio, wait) && !anySuccess) anySuccess = true;
+           if (await PushToPoint(output, audio, wait, token) && !anySuccess) anySuccess = true;
         }
         
         return anySuccess;
         // old // await Task.WhenAll(Outputs.Select(kvp => PushToPoint(kvp.Value, audio, wait)));
     }
 
-    private async Task<bool> PushToPoint(AudioPushPoint point, byte[] audio, bool wait)
+    private async Task<bool> PushToPoint(AudioPushPoint point, byte[] audio, bool wait, CancellationToken token)
     {
-        if (await point.Push(audio, wait)) return true;
+        if (await point.Push(audio, wait, token)) return true;
         if (!DeleteOnFail) return false;
         
         Outputs.TryRemove(point.Id, out _);

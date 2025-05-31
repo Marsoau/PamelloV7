@@ -25,7 +25,7 @@ public class AudioSilence : IAudioModuleWithOutputs<AudioPullPoint>
         return Output;
     }
 
-    private async Task<bool> Request(byte[] buffer, bool wait) {
+    private async Task<bool> Request(byte[] buffer, bool wait, CancellationToken token) {
         buffer.AsSpan().Clear();
         return true;
     }

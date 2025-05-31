@@ -95,12 +95,11 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             await vc.ConnectAsync();
         }
 
-        public async Task<bool> ProcessAudio(byte[] audio, bool wait) {
+        public async Task<bool> ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
             if (_audioOutput is null) return false;
 
             try {
-                Console.WriteLine("write");
-                await _audioOutput.WriteAsync(audio);
+                await _audioOutput.WriteAsync(audio, token);
                 return true;
             }
             catch {
