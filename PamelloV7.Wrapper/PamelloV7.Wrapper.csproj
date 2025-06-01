@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>PamelloV7.Wrapper</PackageId>
-		<Version>0.1.1</Version>
+		<Version>0.1.2</Version>
 		<Authors>Marsoau</Authors>
 		<Description>API wrapper for PamelloV7</Description>
 	</PropertyGroup>

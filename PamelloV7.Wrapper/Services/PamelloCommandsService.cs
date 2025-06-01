@@ -196,17 +196,18 @@ namespace PamelloV7.Wrapper.Services
         public async Task PlaylistDelete(string playlistValue) {
             await InvokeCommand($"PlaylistDelete?playlist={playlistValue}");
         }
+        
         public async Task SpeakerDiscordConnect() {
             await InvokeCommand($"SpeakerDiscordConnect");
         }
-        public async Task SpeakerDisconnect() {
-            await InvokeCommand($"SpeakerDisconnect");
+        public async Task SpeakerDisconnect(string speakerValue) {
+            await InvokeCommand($"SpeakerDisconnect?speaker={speakerValue}");;
         }
-        public async Task<string> SpeakerInternetConnect(string? channel = null, bool isPublic = false) {
-            return await InvokeCommand<string>($"SpeakerInternetConnect?channel={channel}&isPublic={isPublic}");
+        public async Task<string> SpeakerInternetConnect(string? name = null) {
+            return await InvokeCommand<string>($"SpeakerInternetConnect?name={name}");
         }
-        public async Task<bool> SpeakerInternetChangeProtection(string channel, bool isPublic = false) {
-            return await InvokeCommand<bool>($"SpeakerInternetChangeProtection?channel={channel}&isPublic={isPublic}");
+        public async Task<bool> SpeakerInternetRename(string speakerValue, string newName) {
+            return await InvokeCommand<bool>($"SpeakerInternetChangeProtection?speaker={speakerValue}&newName={newName}");
         }
     }
 }
