@@ -35,8 +35,6 @@ namespace PamelloV7.Wrapper.Repositories
             };
         }
 
-        protected override Task<PamelloPlaylistDTO?> GetDTO(string value)
-            => _client.HttpGetAsync<PamelloPlaylistDTO>($"Data/Playlist/{value}");
         protected override RemotePlaylist CreateRemoteEntity(PamelloPlaylistDTO dto)
             => new RemotePlaylist(dto, _client);
     }

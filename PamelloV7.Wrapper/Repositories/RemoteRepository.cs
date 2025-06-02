@@ -89,7 +89,8 @@ namespace PamelloV7.Wrapper.Repositories
             return await _client.HttpGetAsync<IEnumerable<int>>(sb.ToString()) ?? [];
         }
 
-        protected abstract Task<TPamelloDTO?> GetDTO(string value);
+        protected Task<TPamelloDTO?> GetDTO(string value)
+            => _client.HttpGetAsync<TPamelloDTO?>($"Data/{ControllerName}/{value}");
         protected abstract TRemoteEntity CreateRemoteEntity(TPamelloDTO dto);
 
         internal void Cleanup() {

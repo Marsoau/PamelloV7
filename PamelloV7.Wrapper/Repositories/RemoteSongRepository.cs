@@ -69,8 +69,6 @@ namespace PamelloV7.Wrapper.Repositories
             return await GetSearch(querry, atributes);
         }
 
-        protected override Task<PamelloSongDTO?> GetDTO(string value)
-            => _client.HttpGetAsync<PamelloSongDTO>($"Data/Song/{value}");
         protected override RemoteSong CreateRemoteEntity(PamelloSongDTO dto)
             => new RemoteSong(dto, _client);
     }
