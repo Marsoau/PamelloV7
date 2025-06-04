@@ -65,12 +65,12 @@ public class AudioPump : IAudioModuleWithInputs<AudioPullPoint>, IAudioModuleWit
 
             try {
                 while (!await Input.Pull(pair, true, _cts.Token)) {
-                    Console.WriteLine($"PUMP Failed to puLL audio from input {GetHashCode()}");
+                    //Console.WriteLine($"PUMP Failed to puLL audio from input {GetHashCode()}");
                     await Task.Delay(1000, _cts.Token);
                 }
 
                 while (!await Output.Push(pair, true, _cts.Token)) {
-                    Console.WriteLine($"PUMP Failed to puSH audio to output {GetHashCode()}");
+                    //Console.WriteLine($"PUMP Failed to puSH audio to output {GetHashCode()}");
                     await Task.Delay(1000, _cts.Token);
                 }
             }
