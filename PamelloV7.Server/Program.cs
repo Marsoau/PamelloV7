@@ -249,32 +249,7 @@ namespace PamelloV7.Server
         }
 
         private void OnStart() {
-            Console.WriteLine("STARTING");
-            return;
-            
-            var model = app.Services.GetRequiredService<AudioModel>();
-            
-            var discordClients = app.Services.GetRequiredService<DiscordClientService>();
-            
-            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
-
-            var audio = model.AddModule(new AudioSong(model, app.Services, songs.GetRequired(1640)));
-            var pump = model.AddModule(new AudioPump(model, 4096));
-            audio.TryInitialize().Wait();
-            
-            var guild = discordClients.MainClient.GetGuild(PamelloServerConfig.Root.Discord.Commands.GuildsIds[0]);
-            var ac = guild.GetVoiceChannel(1304142495453548650).ConnectAsync().Result;
-
-            var audioStream = ac.CreatePCMStream(AudioApplication.Music);
-            
-            pump.Input.ConnectBack(audio.Output);
-            pump.Output.Process = async (audio, wait, token) =>
-            {
-                await audioStream.WriteAsync(audio, token);
-                return true;
-            };
-            
-            pump.Start();
+            Console.WriteLine("STARTED");
         }
 
         private void OnStop() {
