@@ -256,6 +256,8 @@ namespace PamelloV7.Server
             Console.WriteLine("STOP");
         }
         private void OnStopping() {
+            Console.WriteLine("STOPPING");
+            
             var events = app.Services.GetRequiredService<PamelloEventsService>();
             var audio = app.Services.GetRequiredService<AudioModel>();
             
