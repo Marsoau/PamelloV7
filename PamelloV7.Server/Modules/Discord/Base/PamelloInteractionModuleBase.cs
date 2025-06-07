@@ -327,7 +327,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
             song = await _songs.AddAsync(youtubeId, Context.User);
             if (song is null) throw new PamelloException("Cant add this song");
 
-            await RespondPlayerInfo($"{song.ToDiscordString()} added to database");
+            await RespondPlayerInfo($"Song added", $"Song {song.ToDiscordString()} added to the database");
         }
         public async Task SongSearch(string querry, int page, SocketUser? addedByDiscordUser)
         {
