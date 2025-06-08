@@ -26,5 +26,9 @@ namespace PamelloV7.Server.Modules.Discord
         [SlashCommand("get-code", "Get authorization code")]
         public async Task GetCodeHandler()
             => await GetCode();
+        
+        [SlashCommand("get-client", "Get client download link")]
+        public async Task GetClientHandler()
+            => await GetClient();
     }
 }

@@ -103,6 +103,17 @@ namespace PamelloV7.Server.Modules.Discord.Base
         {
             await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User.DiscordId).ToString());
         }
+        public async Task GetClient()
+        {
+            await RespondInfo("Pamello Client", 
+                """
+                You can download the client from [github releases](https://surl.lu/cyfdca) page
+                - [Windows](https://surl.lu/cyfdca)
+                - [Linux](https://surl.lu/cyfdca)
+                - [Android](https://surl.lu/cyfdca)
+                """
+            );
+        }
 
         //Player
         public async Task PlayerSelect(string playerValue)
