@@ -6,6 +6,7 @@
         public Guid Token { get; set; }
 
         public DateTime JoinedAt { get; set; }
+        
         public int SongsPlayed { get; set; }
 
         public bool IsAdministrator { get; set; }
