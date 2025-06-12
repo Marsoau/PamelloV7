@@ -401,6 +401,11 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var song = await _songs.GetByValueRequired(songValue, Context.User);
 
+            if (Context.User.FavoriteSongs.Contains(song)) {
+                await RespondInfo($"{song.ToDiscordString()} is already favorite");;
+                return;
+            }
+
             await Commands.SongFavoriteAdd(song);
 
             await RespondInfo($"{song.ToDiscordString()} added to favorites");
@@ -681,6 +686,12 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task PlaylistFavoriteAdd(string playlistValue)
         {
             var playlist = await _playlists.GetByValueRequired(playlistValue, Context.User);
+
+            if (Context.User.FavoritePlaylists.Contains(playlist)) {
+                await RespondInfo($"{playlist.ToDiscordString()} is already favorite");;
+                return;
+            }
+            
             await Commands.PlaylistFavoriteAdd(playlist);
 
             await RespondInfo($"{playlist.ToDiscordString()} added to favorites");
