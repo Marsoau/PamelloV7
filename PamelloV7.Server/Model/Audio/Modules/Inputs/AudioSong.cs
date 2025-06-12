@@ -274,17 +274,17 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             }, token);
         }
 
-        private void CreateFFMpeg() {
+        private void CreateFFMpeg(AudioTime start = default) {
             if (_ffmpeg is not null) {
                 _ffmpeg.Dispose();
                 _ffmpeg = null;
-                _ffmpegPosition = 0;
+                _ffmpegPosition = start.TimeValue;
             }
 
 			_ffmpeg = Process.Start(new ProcessStartInfo {
 				FileName = "ffmpeg",
 				//Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
-				Arguments = $@"-hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
+				Arguments = $@"-hide_banner -loglevel panic -ss {start} -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
 				UseShellExecute = false,
 				RedirectStandardOutput = true,
                 RedirectStandardError = true
@@ -315,9 +315,9 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             long endPos = _chunkSize.TimeValue * (position + 1);
             //Console.WriteLine($"Next length: {endPos - startPos}");
 
-            if (_ffmpegPosition > startPos) {
+            if (_ffmpegPosition != startPos) {
                 //Console.WriteLine("ffmpeg creating 2");
-                CreateFFMpeg();
+                CreateFFMpeg(new AudioTime(startPos));
                 //Console.WriteLine("ffmpeg created 2");
             }
 
