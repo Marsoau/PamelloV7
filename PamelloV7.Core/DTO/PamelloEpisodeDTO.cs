@@ -9,7 +9,6 @@ namespace PamelloV7.Core.DTO
 {
     public class PamelloEpisodeDTO : IPamelloDTO
     {
-
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
