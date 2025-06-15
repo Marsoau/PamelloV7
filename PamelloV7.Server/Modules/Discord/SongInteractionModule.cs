@@ -101,7 +101,7 @@ namespace PamelloV7.Server.Modules.Discord
             ) => await SongEpisodesRename(songValue, episodePosition, newName);
 
             [SlashCommand("skip", "Change episode skip state")]
-            public async Task SongEpisodesChangeStartHandler(
+            public async Task SongEpisodesChangeSkipHandler(
                 [Summary("skip", "New episode skip state")] EBoolState state,
                 [Summary("episode-position", "Episode position in song")] int episodePosition,
                 [Summary("song", "Song id/association/name/youtube-url")] string songValue = "current"
