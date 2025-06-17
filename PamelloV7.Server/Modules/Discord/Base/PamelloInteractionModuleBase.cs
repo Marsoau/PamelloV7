@@ -237,7 +237,11 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
             await Commands.PlayerQueueSongAdd(song, position);
 
-            await RespondPlayerInfo("Add song to the queue", $"Added {song.ToDiscordString()}");
+            await Respond(
+                PamelloEmbedBuilder.Info("Add song to the queue", $"Added {song.ToDiscordString()}", Player.ToDiscordFooterString())
+                    .WithThumbnailUrl(song.CoverUrl)
+                    .Build()
+            );
         }
         public async Task PlayerQueuePlaylistAdd(string playlistValue, int? position)
         {
