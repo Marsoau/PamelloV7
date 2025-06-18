@@ -11,6 +11,8 @@ namespace PamelloV7.Server.Repositories.Database
         private readonly YoutubeInfoService _youtube;
         
         private PamelloPlaylistRepository _playlists;
+        
+        private YoutubeDownloadService _downloader;
 
         public PamelloSongRepository(IServiceProvider services,
             YoutubeInfoService youtube
@@ -21,6 +23,8 @@ namespace PamelloV7.Server.Repositories.Database
             base.InitServices();
 
             _playlists = _services.GetRequiredService<PamelloPlaylistRepository>();
+            
+            _downloader = _services.GetRequiredService<YoutubeDownloadService>();
         }
 
         public PamelloSong GetByNameRequired(string name)
@@ -143,6 +147,8 @@ namespace PamelloV7.Server.Repositories.Database
             if (pamelloSong is null) return null;
             
             adder._addedSongs.Add(pamelloSong);
+
+            _ = _downloader.DownloadFromYoutubeAsync(pamelloSong);
 
             return pamelloSong;
 		}
