@@ -4,6 +4,7 @@
     {
         public string Name { get; set; }
         public string Channel { get; set; }
+        public string CoverUrl { get; set; }
         public List<YoutubeEpisodeInfo> Episodes { get; set; }
 
         public override string ToString() {

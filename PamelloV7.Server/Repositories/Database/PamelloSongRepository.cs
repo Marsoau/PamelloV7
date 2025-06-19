@@ -122,7 +122,7 @@ namespace PamelloV7.Server.Repositories.Database
 
 			var databaseSong = new DatabaseSong {
 				Name = youtubeInfo.Name,
-				CoverUrl = $"https://img.youtube.com/vi/{youtubeId}/maxresdefault.jpg",
+				CoverUrl = youtubeInfo.CoverUrl,
 				YoutubeId = youtubeId,
 				PlayCount = 0,
                 AddedAt = DateTime.UtcNow,

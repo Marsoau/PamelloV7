@@ -75,15 +75,38 @@ namespace PamelloV7.Server.Services
             var link = span.QuerySelectorAll("link").First(l => l.GetAttribute("itemprop") == "name");
 
             youtubeVideoInfo.Channel = link.GetAttribute("content") ?? "";
+            
+            youtubeVideoInfo.CoverUrl = GetVideoCoverUrl(html) ?? $"https://img.youtube.com/vi/{youtubeId}/maxresdefault.jpg";
 
-            var json = GetVideoJson(html);
+            var json = GetVideoBigJson(html);
 
             youtubeVideoInfo.Episodes = await GetVideoEpisodes(json);
 
             return youtubeVideoInfo;
         }
 
-        private JsonDocument GetVideoJson(IDocument videoHtml)
+        private string? GetVideoCoverUrl(IDocument videoHtml) {
+            string? jsonStr = null;
+            IHtmlCollection<IElement> scriptElements = videoHtml.QuerySelectorAll("script");
+            foreach (IElement scriptElement in scriptElements) {
+                if (scriptElement.InnerHtml.StartsWith("{\"@context\"")) {
+                    jsonStr = scriptElement.InnerHtml;
+                    break;
+                }
+            }
+
+            if (jsonStr is null) return null;
+            
+            var smallJson = JsonDocument.Parse(jsonStr ?? "{}");
+
+            try {
+                return smallJson.RootElement.GetProperty("thumbnailUrl").ToString();
+            }
+            catch {
+                return null;
+            }
+        }
+        private JsonDocument GetVideoBigJson(IDocument videoHtml)
         {
             string? jsonStr = null;
             IHtmlCollection<IElement> scriptElements = videoHtml.QuerySelectorAll("script");
