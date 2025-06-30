@@ -122,8 +122,8 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
             await Commands.PlayerSelect(player);
 
-            if (Player is null) {
-                await RespondInfo($"Player selection reseted");
+            if (player is null) {
+                await RespondInfo($"Player with value {DiscordString.Code(playerValue)} not found, selection reseted");
             }
             else {
                 await RespondInfo($"Player {player?.ToDiscordString()} selected");
