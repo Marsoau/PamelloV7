@@ -396,9 +396,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
             await Commands.SongRename(song, newName);
 
-            var song2 = await _songs.GetByValue(songValue, Context.User);
-
-            await RespondInfo($"{song.ToDiscordString()} renamed; {song2?.ToDiscordString()} ({song.GetHashCode()}:{song.GetHashCode()})");
+            await RespondInfo($"{song.ToDiscordString()} renamed");
         }
 
         public async Task SongFavoriteAdd(string songValue)
