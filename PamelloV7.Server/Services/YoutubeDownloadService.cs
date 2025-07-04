@@ -45,20 +45,31 @@ namespace PamelloV7.Server.Services
 			return download?.Progress ?? 0;
 		}
 
-		public async Task<EDownloadResult> DownloadFromYoutubeAsync(PamelloSong song, bool forceDownload = false) {
+		public Task<EDownloadResult> DownloadFromYoutubeAsync(PamelloSong song, bool forceDownload = false) {
 			var download = GetDownload(song);
 			if (download is not null) {
-				return await download.Task;
+				return download.Task;
 			}
+			if (song.IsDownloaded) {
+				if (!forceDownload) return Task.FromResult(EDownloadResult.Success);
+
+				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
+					File.Delete($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus");
+			}
+
+			return Task.Run(() => DownloadFromYoutube(song, forceDownload));
+		}
+		public EDownloadResult DownloadFromYoutube(PamelloSong song, bool forceDownload = false) {
 			if (song.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
-				File.Delete($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus");
+				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
+					File.Delete($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus");
 			}
-
+			
 			var downloadTask = new TaskCompletionSource<EDownloadResult>();
 
-			download = new YoutubeDownloadItem() {
+			var download = new YoutubeDownloadItem() {
 				Song = song,
 				Task = downloadTask.Task,
 				Progress = 0
@@ -93,7 +104,7 @@ namespace PamelloV7.Server.Services
 			long bytesTotal = 0;
 
 			while (!sr.EndOfStream) {
-				progress = (await sr.ReadLineAsync())?.Split('/') ?? ["0", "0"];
+				progress = (sr.ReadLine())?.Split('/') ?? ["0", "0"];
 				if (!long.TryParse(progress[0], out bytesDownloaded)) bytesDownloaded = 0;
 				if (!long.TryParse(progress[1], out bytesTotal)) bytesTotal = 0;
 
@@ -103,7 +114,7 @@ namespace PamelloV7.Server.Services
 				});
 			}
 
-			await process.WaitForExitAsync();
+			process.WaitForExit();
 
 			var finalResult = process.ExitCode == 0 ? EDownloadResult.Success : EDownloadResult.UnknownError;
 
