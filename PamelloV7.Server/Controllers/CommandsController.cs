@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PamelloV7.Server.Attributes;
+using PamelloV7.Core.Attributes;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Modules;
 using PamelloV7.Server.Exceptions;

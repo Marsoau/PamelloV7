@@ -1,4 +1,4 @@
-﻿using PamelloV7.Server.Attributes;
+﻿using PamelloV7.Core.Attributes;
 using PamelloV7.Server.Model;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio;
