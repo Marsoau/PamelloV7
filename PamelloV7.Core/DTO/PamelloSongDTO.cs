@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PamelloV7.Core.DTO
 {
-    public class PamelloSongDTO : IPamelloDTO
+    public record PamelloSongDTO : IPamelloDTO
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
