@@ -8,6 +8,7 @@ using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Services;
 using Discord;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Handlers
@@ -16,7 +17,7 @@ namespace PamelloV7.Server.Handlers
 		private readonly DiscordClientService _clients;
 		private readonly InteractionService _commands;
 
-		private readonly PamelloUserRepository _users;
+		private readonly IPamelloUserRepository _users;
 
 		private readonly IServiceProvider _services;
 
@@ -24,7 +25,7 @@ namespace PamelloV7.Server.Handlers
 			DiscordClientService clients,
 			InteractionService discordCommands,
 
-			PamelloUserRepository users,
+			IPamelloUserRepository users,
 
 			IServiceProvider services
 		) {

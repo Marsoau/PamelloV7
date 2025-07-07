@@ -1,4 +1,7 @@
 ﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Repositories.Base;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
@@ -7,7 +10,7 @@ using PamelloV7.Server.Services;
 namespace PamelloV7.Server.Repositories.Database
 {
     public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : IPamelloRepository<TPamelloEntity>
-        where TPamelloEntity : PamelloEntity<TDatabaseEntity>
+        where TPamelloEntity : class, IPamelloEntity
         where TDatabaseEntity : DatabaseEntity
     {
         protected readonly IServiceProvider _services;
@@ -47,7 +50,7 @@ namespace PamelloV7.Server.Repositories.Database
 
         protected async Task<TSecondEntity?> GetFromSplitValue<TFistEntity, TSecondEntity>(
             string wholeValue,
-            PamelloUser? scopeUser,
+            IPamelloUser? scopeUser,
             IPamelloRepository<TFistEntity> firstEntityRepository,
             Func<TFistEntity?, string, TSecondEntity?> getSecondEntity
         )
@@ -81,26 +84,29 @@ namespace PamelloV7.Server.Repositories.Database
             return Load(databaseEntity);
         }
 
-        public async Task<TPamelloEntity> GetByValueRequired(string value, PamelloUser? scopeUser)
+        public async Task<TPamelloEntity> GetByValueRequired(string value, IPamelloUser? scopeUser)
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required {typeof(TPamelloEntity).Name} with value \"{value}\"");
-        public abstract Task<TPamelloEntity?> GetByValue(string value, PamelloUser? scopeUser);
 
-        protected Task<IEnumerable<TPamelloEntity>> Search(IEnumerable<TPamelloEntity> list, string querry, PamelloUser? scopeUser) {
+        public Task<TPamelloEntity?> GetByValue(string value, IPamelloUser? scopeUser)
+            => Task.Run(() => GetByValueSync(value, scopeUser));
+        public abstract TPamelloEntity? GetByValueSync(string value, IPamelloUser? scopeUser);
+
+        protected IEnumerable<TPamelloEntity> Search(IEnumerable<TPamelloEntity> list, string query, IPamelloUser? scopeUser) {
             var results = new List<TPamelloEntity>();
-            querry = querry.ToLower();
+            query = query.ToLower();
 
             foreach (var pamelloEntity in list) {
                 if (pamelloEntity is null) continue;
 
-                if (pamelloEntity.Name.ToLower().Contains(querry)) {
+                if (pamelloEntity.Name.ToLower().Contains(query)) {
                     results.Add(pamelloEntity);
                 }
             }
 
-            return Task.FromResult<IEnumerable<TPamelloEntity>>(results);
+            return results;
         }
-        public async Task<IEnumerable<TPamelloEntity>> SearchAsync(string querry, PamelloUser? scopeUser = null) {
-            return await Search(_loaded, querry, scopeUser);
+        public Task<IEnumerable<TPamelloEntity>> SearchAsync(string query, IPamelloUser? scopeUser = null) {
+            return Task.Run(() => Search(_loaded, query, scopeUser));
         }
 
         public void LoadAll() {

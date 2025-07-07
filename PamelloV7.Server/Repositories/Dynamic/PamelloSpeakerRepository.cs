@@ -1,5 +1,10 @@
 using Discord.WebSocket;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
@@ -8,54 +13,69 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories.Dynamic;
 
-public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDisposable
+public class PamelloSpeakerRepository : IPamelloSpeakerRepository, IDisposable
 {
     private readonly IServiceProvider _services;
     
     private DiscordClientService _discordClients;
-    private PamelloPlayerRepository _players;
+    private IPamelloPlayerRepository _players;
 
-    private List<PamelloSpeaker> _speakers;
+    private List<IPamelloSpeaker> _speakers;
 
     public PamelloSpeakerRepository(IServiceProvider services) {
         _services = services;
 
         _speakers = [];
     }
-    
+
+    public event Action? BeforeLoading;
+    public event Action<int, int>? OnLoadingProgress;
+    public event Action? OnLoaded;
+    public event Action? BeforeInit;
+    public event Action<int, int>? OnInitProgress;
+    public event Action? OnInit;
+
     public void InitServices() {
         _discordClients = _services.GetRequiredService<DiscordClientService>();
-        _players = _services.GetRequiredService<PamelloPlayerRepository>();
+        _players = _services.GetRequiredService<IPamelloPlayerRepository>();
+    }
+
+    public Task LoadAllAsync() {
+        throw new NotImplementedException();
+    }
+
+    public Task InitAllAsync() {
+        throw new NotImplementedException();
     }
 
     private IEnumerable<TSpeaker> GetSpeakers<TSpeaker>()
-    where TSpeaker : PamelloSpeaker
+        where TSpeaker : IPamelloSpeaker
         => _speakers.OfType<TSpeaker>();
 
-    public PamelloSpeaker GetRequired(int id)
-        => GetRequired<PamelloSpeaker>(id);
-    public PamelloSpeaker GetRequired<TSpeaker>(int id)
-        where TSpeaker : PamelloSpeaker
+    public IPamelloSpeaker GetRequired(int id)
+        => GetRequired<IPamelloSpeaker>(id);
+    public TSpeaker GetRequired<TSpeaker>(int id)
+        where TSpeaker : IPamelloSpeaker
         => Get<TSpeaker>(id) ?? throw new PamelloException($"Speaker with id \"{id}\" was not found");
-    public PamelloSpeaker? Get(int id) {
-        return Get<PamelloSpeaker>(id);
+    public IPamelloSpeaker? Get(int id) {
+        return Get<IPamelloSpeaker>(id);
     }
-    public PamelloSpeaker? Get<TSpeaker>(int id)
-        where TSpeaker : PamelloSpeaker
+    public TSpeaker? Get<TSpeaker>(int id)
+        where TSpeaker : IPamelloSpeaker
     {
         return GetSpeakers<TSpeaker>().FirstOrDefault(speaker => speaker.Id == id);
     }
 
-    public async Task<PamelloSpeaker> GetByValueRequired(string value, PamelloUser? scopeUser)
-        => await GetByValueRequired<PamelloSpeaker>(value, scopeUser);
-    public async Task<TSpeaker> GetByValueRequired<TSpeaker>(string value, PamelloUser? scopeUser)
-    where TSpeaker : PamelloSpeaker
+    public async Task<IPamelloSpeaker> GetByValueRequired(string value, IPamelloUser? scopeUser)
+        => await GetByValueRequired<IPamelloSpeaker>(value, scopeUser);
+    public async Task<TSpeaker> GetByValueRequired<TSpeaker>(string value, IPamelloUser? scopeUser)
+        where TSpeaker : class, IPamelloSpeaker
         => await GetByValue<TSpeaker>(value, scopeUser) ?? throw new PamelloException($"Speaker with value \"{value}\" was not found");
-    public Task<PamelloSpeaker?> GetByValue(string value, PamelloUser? scopeUser) {
-        return GetByValue<PamelloSpeaker>(value, scopeUser);
+    public Task<IPamelloSpeaker?> GetByValue(string value, IPamelloUser? scopeUser) {
+        return GetByValue<IPamelloSpeaker>(value, scopeUser);
     }
-    public async Task<TSpeaker?> GetByValue<TSpeaker>(string value, PamelloUser? scopeUser)
-        where TSpeaker : PamelloSpeaker {
+    public async Task<TSpeaker?> GetByValue<TSpeaker>(string value, IPamelloUser? scopeUser)
+        where TSpeaker : class, IPamelloSpeaker {
         var scopeSpeakers = _speakers.OfType<TSpeaker>();
         
         TSpeaker? speaker = null;
@@ -66,37 +86,39 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
                 speaker = scopeSpeakers.FirstOrDefault(s => s.Id == id);
             }
         }
+        /*
         else if (value == "current") {
             var userVc = _discordClients.GetUserVoiceChannel(scopeUser);
             if (userVc is null) return null;
             
             speaker = scopeSpeakers.OfType<PamelloDiscordSpeaker>().FirstOrDefault(s => s.Voice.Id == userVc.Id) as TSpeaker;
         }
+        */
         else {
-            speaker = scopeSpeakers.OfType<PamelloInternetSpeaker>().FirstOrDefault(s => s.Name == value) as TSpeaker;
+            speaker = scopeSpeakers.OfType<IPamelloInternetSpeaker>().FirstOrDefault(s => s.Name == value) as TSpeaker;
         }
 
         return speaker;
     }
 
-    public Task<IEnumerable<PamelloSpeaker>> SearchAsync(string querry, PamelloUser? scopeUser = null)
-        => SearchAsync<PamelloSpeaker>(querry, scopeUser);
-    public Task<IEnumerable<TSpeaker>> SearchAsync<TSpeaker>(string querry, PamelloUser? scopeUser = null)
-        where TSpeaker : PamelloSpeaker
+    public Task<IEnumerable<IPamelloSpeaker>> SearchAsync(string querry, IPamelloUser? scopeUser = null)
+        => SearchAsync<IPamelloSpeaker>(querry, scopeUser);
+    public Task<IEnumerable<TSpeaker>> SearchAsync<TSpeaker>(string querry, IPamelloUser? scopeUser = null)
+        where TSpeaker : IPamelloSpeaker
         => Task.Run(() => Search<TSpeaker>(querry, scopeUser));
-    public IEnumerable<PamelloSpeaker> Search(string querry, PamelloUser? scopeUser = null)
-        => Search<PamelloSpeaker>(querry, scopeUser);
-    public IEnumerable<TSpeaker> Search<TSpeaker>(string querry, PamelloUser? scopeUser = null)
-        where TSpeaker : PamelloSpeaker
+    public IEnumerable<IPamelloSpeaker> Search(string querry, IPamelloUser? scopeUser = null)
+        => Search<IPamelloSpeaker>(querry, scopeUser);
+    public IEnumerable<TSpeaker> Search<TSpeaker>(string querry, IPamelloUser? scopeUser = null)
+        where TSpeaker : IPamelloSpeaker
     {
         if (scopeUser is null) return [];
         
-        var scopeSpeakers = new HashSet<PamelloSpeaker>();
+        var scopeSpeakers = new HashSet<IPamelloSpeaker>();
 
         if (scopeUser.SelectedPlayer is not null)
         {
             foreach (var speaker in _speakers) {
-                if (speaker.Player == scopeUser.SelectedPlayer) scopeSpeakers.Add(speaker);
+                if (((PamelloSpeaker)speaker).Player == scopeUser.SelectedPlayer) scopeSpeakers.Add(speaker);
             }
         }
 
@@ -109,8 +131,10 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
         return results;
     }
     
-    public List<PamelloPlayer> GetVoicePlayers(ulong vcId) {
-        var players = new HashSet<PamelloPlayer>();
+    public List<IPamelloPlayer> GetVoicePlayers(ulong vcId) {
+        return [];
+        /*
+        var players = new HashSet<IPamelloPlayer>();
 
         var speakers = GetSpeakers<PamelloDiscordSpeaker>();
         foreach (var discordSpeaker in speakers) {
@@ -120,9 +144,11 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
         }
 
         return players.ToList();
+        */
     }
     
-    public async Task<PamelloDiscordSpeaker> ConnectDiscord(PamelloPlayer player, ulong guildId, ulong vcId) {
+    /* DISCORD SPEAKERS
+    public async Task<IPamelloDiscordSpeaker> ConnectDiscord(IPamelloPlayer player, ulong guildId, ulong vcId) {
         PamelloDiscordSpeaker? newSpeaker;
 
         SocketGuildUser? speakerUser;
@@ -142,8 +168,9 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
 
         throw new PamelloException("No available speakers left");
     }
+    */
     
-    public async Task<PamelloInternetSpeaker> ConnectInternet(PamelloPlayer player, string? name) {
+    public async Task<IPamelloInternetSpeaker> ConnectInternet(IPamelloPlayer player, string? name) {
         if (name is not null) {
             if (!IsInternetSpeakerNameAvailable(name)) {
                 throw new Exception($"Speaker name {name} is unavailable");
@@ -157,18 +184,18 @@ public class PamelloSpeakerRepository : IPamelloRepository<PamelloSpeaker>, IDis
     }
     
     public bool IsInternetSpeakerNameAvailable(string name) {
-        var speakers = GetSpeakers<PamelloInternetSpeaker>();
+        var speakers = GetSpeakers<IPamelloInternetSpeaker>();
         return speakers.All(internetSpeaker => internetSpeaker.Name != name);
     }
 
-    public async Task Delete(PamelloSpeaker speaker) {
-        await speaker.DisposeAsync();
+    public void Delete(IPamelloSpeaker speaker) {
+        ((PamelloSpeaker)speaker).Dispose();
         _speakers.Remove(speaker);
     }
 
     public void Dispose() {
         foreach (var speaker in _speakers) {
-            speaker.Dispose();
+            ((PamelloSpeaker)speaker).Dispose();
         }
     }
 }

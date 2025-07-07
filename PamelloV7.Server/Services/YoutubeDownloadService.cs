@@ -3,13 +3,14 @@ using PamelloV7.Core.Events;
 using PamelloV7.Server.Model;
 using System.Diagnostics;
 using System.Text;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Services
 {
 	public record YoutubeDownloadItem
 	{
-		public required PamelloSong Song;
+		public required IPamelloSong Song;
 		public required Task<EDownloadResult> Task;
 		public double Progress;
 	}
@@ -28,7 +29,7 @@ namespace PamelloV7.Server.Services
 			_downloads = new List<YoutubeDownloadItem>();
 		}
 
-		private YoutubeDownloadItem? GetDownload(PamelloSong song) {
+		private YoutubeDownloadItem? GetDownload(IPamelloSong song) {
 			foreach (var download in _downloads) {
                 if (download.Song == song) {
 					return download;
@@ -37,15 +38,15 @@ namespace PamelloV7.Server.Services
 			return null;
 		}
 
-		public bool IsDownloading(PamelloSong song) {
+		public bool IsDownloading(IPamelloSong song) {
 			return GetDownload(song) is not null;
 		}
-		public double GetProgress(PamelloSong song) {
+		public double GetProgress(IPamelloSong song) {
 			var download = GetDownload(song);
 			return download?.Progress ?? 0;
 		}
 
-		public Task<EDownloadResult> DownloadFromYoutubeAsync(PamelloSong song, bool forceDownload = false) {
+		public Task<EDownloadResult> DownloadFromYoutubeAsync(IPamelloSong song, bool forceDownload = false) {
 			var download = GetDownload(song);
 			if (download is not null) {
 				return download.Task;
@@ -59,7 +60,7 @@ namespace PamelloV7.Server.Services
 
 			return Task.Run(() => DownloadFromYoutube(song, forceDownload));
 		}
-		public EDownloadResult DownloadFromYoutube(PamelloSong song, bool forceDownload = false) {
+		public EDownloadResult DownloadFromYoutube(IPamelloSong song, bool forceDownload = false) {
 			if (song.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 

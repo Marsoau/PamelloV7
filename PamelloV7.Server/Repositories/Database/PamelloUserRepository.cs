@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories.Database
 {
-    public class PamelloUserRepository : PamelloDatabaseRepository<PamelloUser, DatabaseUser>
+    public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, DatabaseUser>, IPamelloUserRepository
     {
         private readonly DiscordClientService _discordClients;
 
@@ -18,7 +20,7 @@ namespace PamelloV7.Server.Repositories.Database
             base.InitServices();
         }
 
-        public PamelloUser? GetByToken(Guid token) {
+        public IPamelloUser? GetByToken(Guid token) {
             var pamelloEntity = _loaded.FirstOrDefault(e => e.Token == token);
             if (pamelloEntity is not null) return pamelloEntity;
 
@@ -30,7 +32,7 @@ namespace PamelloV7.Server.Repositories.Database
             return Load(databaseEntity);
         }
 
-        public PamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
+        public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
             var pamelloUser = _loaded.FirstOrDefault(user => user.DiscordId == discordId);
             if (pamelloUser is not null) return pamelloUser;
 
@@ -70,8 +72,8 @@ namespace PamelloV7.Server.Repositories.Database
             return pamelloUser;
         }
 
-        public override Task<PamelloUser?> GetByValue(string value, PamelloUser? scopeUser) {
-            PamelloUser? user = null;
+        public override IPamelloUser? GetByValueSync(string value, IPamelloUser? scopeUser) {
+            IPamelloUser? user = null;
 
             if (value == "current") {
                 user = scopeUser;
@@ -86,10 +88,10 @@ namespace PamelloV7.Server.Repositories.Database
                 user = GetByToken(token);
             }
 
-            return Task.FromResult(user);
+            return user;
         }
 
-        protected override PamelloUser? LoadBase(DatabaseUser databaseUser) {
+        protected override IPamelloUser? LoadBase(DatabaseUser databaseUser) {
             var pamelloUser = _loaded.FirstOrDefault(user => user.Id == databaseUser.Id);
             if (pamelloUser is not null) return pamelloUser;
 
@@ -110,7 +112,7 @@ namespace PamelloV7.Server.Repositories.Database
                 .ToList();
         }
 
-        public override void Delete(PamelloUser user) => throw new NotImplementedException();
+        public override void Delete(IPamelloUser user) => throw new NotImplementedException();
         
         public override void Dispose() {
             Console.WriteLine("Disposing users");

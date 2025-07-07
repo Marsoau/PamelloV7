@@ -7,12 +7,14 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.DAL;
 using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Model.Difference;
+using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Model
 {
-    public class PamelloSong : PamelloEntity<DatabaseSong>
+    public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     {
         private readonly YoutubeDownloadService _downloader;
 
@@ -21,7 +23,7 @@ namespace PamelloV7.Server.Model
         private string _coverUrl;
         private int _playCount;
         private DateTime _addedAt;
-        private PamelloUser _addedBy;
+        private IPamelloUser _addedBy;
 
         public override string Name {
             get => _name;
@@ -82,29 +84,29 @@ namespace PamelloV7.Server.Model
             }
         }
 
-        public PamelloUser AddedBy {
+        public IPamelloUser AddedBy {
             get => _addedBy;
         }
 
-        private List<PamelloUser> _favoritedBy;
-        private List<PamelloEpisode> _episodes;
-        private HashSet<PamelloPlaylist> _playlists;
-        private List<string> _associacions;
+        private List<IPamelloUser> _favoritedBy;
+        private List<IPamelloEpisode> _episodes;
+        private HashSet<IPamelloPlaylist> _playlists;
+        private List<string> _associations;
 
-        public IReadOnlyList<PamelloUser> FavoritedBy {
+        public IReadOnlyList<IPamelloUser> FavoritedBy {
             get => _favoritedBy;
         }
 
-        public IReadOnlyList<PamelloEpisode> Episodes {
+        public IReadOnlyList<IPamelloEpisode> Episodes {
             get => _episodes;
         }
 
-        public IReadOnlyList<PamelloPlaylist> Playlists {
+        public IReadOnlyList<IPamelloPlaylist> Playlists {
             get => _playlists.ToList();
         }
 
-        public IReadOnlyList<string> Associacions {
-            get => _associacions;
+        public IReadOnlyList<string> Associations {
+            get => _associations;
         }
 
         public IEnumerable<int> FavoriteByIds {
@@ -112,7 +114,7 @@ namespace PamelloV7.Server.Model
         }
         public IEnumerable<int> EpisodesIds {
             get {
-                var list = new List<PamelloEpisode>(_episodes);
+                var list = new List<IPamelloEpisode>(_episodes);
                 list.Sort((a, b) => {
                     if (a == null && b == null) return 0;
                     if (a == null) return -1;
@@ -146,12 +148,12 @@ namespace PamelloV7.Server.Model
 
             _addedBy = _users.GetRequired(DatabaseEntity.AddedBy.Id);
 
-            _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.Get(e.Id)).OfType<PamelloUser>().ToList();
-            _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<PamelloEpisode>().ToList();
+            _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.Get(e.Id)).OfType<IPamelloUser>().ToList();
+            _episodes = DatabaseEntity.Episodes.Select(e => base._episodes.Get(e.Id)).OfType<IPamelloEpisode>().ToList();
             _playlists = DatabaseEntity.PlaylistEntries
                 .Where(entry => entry.PlaylistId == Id)
-                .Select(e => base._playlists.Get(e.Id)).OfType<PamelloPlaylist>().ToHashSet();
-            _associacions = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
+                .Select(e => base._playlists.Get(e.Id)).OfType<IPamelloPlaylist>().ToHashSet();
+            _associations = DatabaseEntity.Associations.Where(e => e.Song.Id == Id).Select(e => e.Association).ToList();
         }
 
         public void AddAssociation(string association) {
@@ -175,18 +177,18 @@ namespace PamelloV7.Server.Model
             db.Associations.Add(databaseAssociation);
             db.SaveChanges();
 
-            _associacions.Add(association);
+            _associations.Add(association);
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
-                Associacions = Associacions
+                Associacions = Associations
             });
         }
 
         public void RemoveAssociation(string association) {
             var db = GetDatabase();
 
-            if (!_associacions.Contains(association)) {
+            if (!_associations.Contains(association)) {
                 throw new PamelloException("This song doesnt contain that association");
             }
 
@@ -197,15 +199,15 @@ namespace PamelloV7.Server.Model
                 db.SaveChanges();
             }
 
-            _associacions.Remove(association);
+            _associations.Remove(association);
 
             _events.Broadcast(new SongAssociacionsUpdated() {
                 SongId = Id,
-                Associacions = Associacions
+                Associacions = Associations
             });
         }
 
-        public PamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip) {
+        public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip) {
             var db = GetDatabase();
 
             var dbSong = db.Songs.Find(Id);
@@ -221,7 +223,7 @@ namespace PamelloV7.Server.Model
             db.Episodes.Add(databaseEpisode);
             db.SaveChanges();
 
-            var episode = base._episodes.Load(databaseEpisode);
+            var episode = ((PamelloEpisodeRepository)base._episodes).Load(databaseEpisode); //CHANGEEEE
             episode.Init();
 
             _episodes.Add(episode);
@@ -242,7 +244,7 @@ namespace PamelloV7.Server.Model
 
             RemoveEpisode(episode);
         }
-        public void RemoveEpisode(PamelloEpisode episode) {
+        public void RemoveEpisode(IPamelloEpisode episode) {
             if (!_episodes.Remove(episode)) return;
 
             base._episodes.Delete(episode);
@@ -267,7 +269,7 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void MakeFavorite(PamelloUser user) {
+        public void MakeFavorite(IPamelloUser user) {
             if (_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Add(user);
@@ -279,7 +281,7 @@ namespace PamelloV7.Server.Model
                 FavoriteByIds = FavoriteByIds
             });
         }
-        public void UnmakeFavorite(PamelloUser user) {
+        public void UnmakeFavorite(IPamelloUser user) {
             if (!_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Remove(user);
@@ -292,7 +294,7 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void AddToPlaylist(PamelloPlaylist playlist, int? position = null, bool fromInside = false) {
+        public void AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
             if (!_playlists.Add(playlist)) return;
             Save();
 
@@ -302,7 +304,7 @@ namespace PamelloV7.Server.Model
                 PlaylistsIds = PlaylistsIds,
             });
         }
-        public void RemoveFromPlaylist(PamelloPlaylist playlist, bool fromInside = false) {
+        public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false) {
             if (_playlists.Contains(playlist)) return;
 
             if (!_playlists.Remove(playlist)) return;
@@ -325,7 +327,7 @@ namespace PamelloV7.Server.Model
                 AddedById = AddedBy.Id,
                 AddedAt = AddedAt,
 
-                Associations = Associacions,
+                Associations = Associations,
                 FavoriteByIds = FavoriteByIds,
                 PlaylistsIds = PlaylistsIds,
                 EpisodesIds = EpisodesIds,
@@ -367,7 +369,7 @@ namespace PamelloV7.Server.Model
             );
             var associationsDifference = DifferenceResult<string>.From(
                 dbAssociationsValues, 
-                Associacions,
+                Associations,
                 withMoved: true
             );
 

@@ -11,6 +11,7 @@ using PamelloV7.Server.Services;
 using System.Diagnostics;
 using System.Text;
 using Discord.Audio;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
 using PamelloV7.Server.Repositories.Database;
@@ -75,13 +76,13 @@ namespace PamelloV7.Server
             builder.Services.AddSingleton<YoutubeInfoService>();
             builder.Services.AddSingleton<YoutubeDownloadService>();
 
-            builder.Services.AddSingleton<PamelloUserRepository>();
-            builder.Services.AddSingleton<PamelloSongRepository>();
-            builder.Services.AddSingleton<PamelloEpisodeRepository>();
-            builder.Services.AddSingleton<PamelloPlaylistRepository>();
+            builder.Services.AddSingleton<IPamelloUserRepository, PamelloUserRepository>();
+            builder.Services.AddSingleton<IPamelloSongRepository, PamelloSongRepository>();
+            builder.Services.AddSingleton<IPamelloEpisodeRepository, PamelloEpisodeRepository>();
+            builder.Services.AddSingleton<IPamelloPlaylistRepository, PamelloPlaylistRepository>();
 
-            builder.Services.AddSingleton<PamelloPlayerRepository>();
-            builder.Services.AddSingleton<PamelloSpeakerRepository>();
+            builder.Services.AddSingleton<IPamelloPlayerRepository, PamelloPlayerRepository>();
+            builder.Services.AddSingleton<IPamelloSpeakerRepository, PamelloSpeakerRepository>();
 
             builder.Services.AddSingleton<UserAuthorizationService>();
             
@@ -164,13 +165,13 @@ namespace PamelloV7.Server
         private async Task StartupPamelloServices() {
             var events = app.Services.GetRequiredService<PamelloEventsService>();
 
-            var users = app.Services.GetRequiredService<PamelloUserRepository>();
-            var songs = app.Services.GetRequiredService<PamelloSongRepository>();
-            var episodes = app.Services.GetRequiredService<PamelloEpisodeRepository>();
-            var playlists = app.Services.GetRequiredService<PamelloPlaylistRepository>();
+            var users = app.Services.GetRequiredService<IPamelloUserRepository>();
+            var songs = app.Services.GetRequiredService<IPamelloSongRepository>();
+            var episodes = app.Services.GetRequiredService<IPamelloEpisodeRepository>();
+            var playlists = app.Services.GetRequiredService<IPamelloPlaylistRepository>();
 
-            var players = app.Services.GetRequiredService<PamelloPlayerRepository>();
-            var speakers = app.Services.GetRequiredService<PamelloSpeakerRepository>();
+            var players = app.Services.GetRequiredService<IPamelloPlayerRepository>();
+            var speakers = app.Services.GetRequiredService<IPamelloSpeakerRepository>();
 
             songs.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading songs"); };
             episodes.BeforeLoading += () => { DatabaseEntityRepository_BeforeLoading("Loading episodes"); };

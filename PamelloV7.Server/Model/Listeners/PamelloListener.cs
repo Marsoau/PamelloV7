@@ -1,17 +1,19 @@
-﻿namespace PamelloV7.Server.Model.Listeners
+﻿using PamelloV7.Core.Model.Audio;
+
+namespace PamelloV7.Server.Model.Listeners
 {
-    public abstract class PamelloListener: IDisposable
+    public abstract class PamelloListener : IPamelloListener, IDisposable
     {
         protected readonly HttpResponse _response;
 
         public bool IsClosed { get; protected set; }
 
-        public readonly TaskCompletionSource Completion;
+        public TaskCompletionSource Completion { get; }
 
         public event Action<PamelloListener>? OnClosed;
 
         private static int _idCounter = 1;
-        public int Id { get; private set; }
+        public int Id { get; }
         public PamelloListener(HttpResponse response) {
             _response = response;
 
@@ -20,7 +22,6 @@
             Id = _idCounter++;
         }
 
-        public abstract Task InitializeConnecion();
         protected abstract Task CloseConnectionBase();
         public async Task CloseConnection() {
             await CloseConnectionBase();
@@ -30,5 +31,6 @@
         }
 
         public abstract void Dispose();
+        public abstract Task InitializeConnection();
     }
 }

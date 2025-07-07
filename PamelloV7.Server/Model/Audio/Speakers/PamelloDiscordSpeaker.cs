@@ -2,8 +2,10 @@
 using System.Text;
 using Discord.Audio;
 using Discord.WebSocket;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
@@ -11,14 +13,15 @@ using PamelloV7.Server.Model.Audio.Modules.Pipes;
 using PamelloV7.Server.Model.Audio.Points;
 using PamelloV7.Server.Model.Discord;
 
+/*
 namespace PamelloV7.Server.Model.Audio.Speakers
 {
-    public class PamelloDiscordSpeaker : PamelloSpeaker
+    public class PamelloDiscordSpeaker : PamelloSpeaker, IPamelloDiscordSpeaker
     {
         public readonly DiscordSocketClient Client;
         public readonly SocketGuild Guild;
 
-        public override AudioModel ParentModel => Player.Model;
+        public override AudioModel ParentModel => ((PamelloPlayer)Player).Model;
         
         public SocketVoiceChannel Voice {
             get => Guild.GetUser(Client.CurrentUser.Id).VoiceChannel;
@@ -39,7 +42,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public PamelloDiscordSpeaker(IServiceProvider services,
             DiscordSocketClient client,
             ulong guildId,
-            PamelloPlayer player
+            IPamelloPlayer player
         ) : base(player) {
             Client = client;
             Guild = client.GetGuild(guildId);
@@ -138,3 +141,5 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
     }
 }
+
+*/

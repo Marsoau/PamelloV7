@@ -4,18 +4,20 @@ using PamelloV7.Server.Model;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Controllers.Base
 {
     public class PamelloControllerBase : ControllerBase {
-        private readonly PamelloUserRepository _users;
+        private readonly IPamelloUserRepository _users;
 
-        protected new PamelloUser? User;
+        protected new IPamelloUser? User;
 
         public PamelloControllerBase(IServiceProvider services) {
-            _users = services.GetRequiredService<PamelloUserRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 
         [MemberNotNull(nameof(User))]

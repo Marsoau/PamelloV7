@@ -1,8 +1,12 @@
 ﻿using Discord.WebSocket;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
@@ -14,17 +18,17 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 {
-    public class PamelloPlayer : IPamelloEntity, IAudioModuleWithModel, IDisposable
+    public class PamelloPlayer : IPamelloPlayer, IAudioModuleWithModel
     {
         private readonly IServiceProvider _services;
         
-        private readonly PamelloSongRepository _songs;
-        private readonly PamelloUserRepository _users;
+        private readonly IPamelloSongRepository _songs;
+        private readonly IPamelloUserRepository _users;
         
-        private readonly PamelloSpeakerRepository _speakerRepository;
+        private readonly IPamelloSpeakerRepository _speakerRepository;
         private readonly PamelloEventsService _events;
 
-        public readonly PamelloUser Creator;
+        public IPamelloUser Creator { get; }
 
         public AudioModel ParentModel { get; }
         public AudioModel Model { get; }
@@ -37,9 +41,11 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
         private string _name;
         public string Name {
             get => _name;
+            set => throw new NotImplementedException();
         }
 
         private EPlayerState _status;
+
         public EPlayerState State {
             get => _status;
             set {
@@ -83,7 +89,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
         public bool IsDisposed { get; private set; }
 
-        public PamelloQueue Queue { get; private set; }
+        public IPamelloQueue Queue { get; private set; }
 
         private static int _idCounter = 1;
 
@@ -92,15 +98,15 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             IServiceProvider services,
             
             string name,
-            PamelloUser creator
+            IPamelloUser creator
         ) {
             ParentModel = parentModel;
             _services = services;
             
-            _songs = services.GetRequiredService<PamelloSongRepository>();
-            _users = services.GetRequiredService<PamelloUserRepository>();
+            _songs = services.GetRequiredService<IPamelloSongRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
             
-            _speakerRepository = services.GetRequiredService<PamelloSpeakerRepository>();
+            _speakerRepository = services.GetRequiredService<IPamelloSpeakerRepository>();
             _events = services.GetRequiredService<PamelloEventsService>();
 
             Id = _idCounter++;
@@ -216,6 +222,9 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             };
         }
 
+        public void Init() {
+        }
+
         public void Dispose() {
             IsDisposed = true;
             
@@ -223,12 +232,12 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
         }
         public void InitModel() {
             Model.AddModules([
-                Queue = new PamelloQueue(Model, _services, this),
+                (PamelloQueue)(Queue = new PamelloQueue(Model, _services, this)),
                 _pump = new AudioPump(Model, 48000),
                 _speakersCopy = new AudioCopy(Model, false),
             ]);
             
-            _pump.Input.ConnectBack(Queue.Output);
+            _pump.Input.ConnectBack(((PamelloQueue)Queue).Output);
             _pump.Output.ConnectFront(_speakersCopy.Input);
             _pump.Condition = async () => !IsPaused;
         }
@@ -239,7 +248,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             Console.WriteLine("player pump started");
         }
         
-        public async Task<PamelloInternetSpeaker> AddInternet(string? name) {
+        public async Task<IPamelloInternetSpeaker> AddInternet(string? name) {
             //if (!_repository.IsInternetChannelAvailable(channel)) throw new PamelloException($"Channel \"{channel}\" is not available");
         
             var internetSpeaker = Model.AddModule(new PamelloInternetSpeaker(Model, this, name));
@@ -248,6 +257,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
             return internetSpeaker;
         }
+        /*
         public async Task<PamelloDiscordSpeaker?> AddDiscord(DiscordSocketClient client, ulong guildId, ulong vcId) {
             var guild = client.GetGuild(guildId);
             if (guild is null) return null;
@@ -261,5 +271,6 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
             return speaker;
         }
+        */
     }
 }

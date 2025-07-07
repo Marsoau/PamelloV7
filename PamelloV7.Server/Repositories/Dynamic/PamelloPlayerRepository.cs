@@ -1,4 +1,7 @@
 ﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
@@ -7,17 +10,17 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Repositories.Dynamic
 {
-    public class PamelloPlayerRepository : IPamelloRepository<PamelloPlayer>, IDisposable
+    public class PamelloPlayerRepository : IPamelloPlayerRepository, IDisposable
     {
         private readonly IServiceProvider _services;
 
         private AudioModel _globalAudio;
 
         private DiscordClientService _discordClients;
-        private PamelloSpeakerRepository _speakers;
+        private IPamelloSpeakerRepository _speakers;
 
-        private readonly List<PamelloPlayer> _players;
-        public IReadOnlyList<PamelloPlayer> Players
+        private readonly List<IPamelloPlayer> _players;
+        public IReadOnlyList<IPamelloPlayer> Players
             => _players;
 
         public PamelloPlayerRepository(IServiceProvider services
@@ -27,15 +30,34 @@ namespace PamelloV7.Server.Repositories.Dynamic
             
             _globalAudio = services.GetRequiredService<AudioModel>();
             
-            _players = new List<PamelloPlayer>();
+            _players = new List<IPamelloPlayer>();
         }
+
+        //
+        //TO DELETE
+        public event Action? BeforeLoading;
+        public event Action<int, int>? OnLoadingProgress;
+        public event Action? OnLoaded;
+        public event Action? BeforeInit;
+        public event Action<int, int>? OnInitProgress;
+        public event Action? OnInit;
+        //TO DELETE
+        //
 
         public void InitServices() {
             _discordClients = _services.GetRequiredService<DiscordClientService>();
-            _speakers = _services.GetRequiredService<PamelloSpeakerRepository>();
+            _speakers = _services.GetRequiredService<IPamelloSpeakerRepository>();
         }
 
-        public PamelloPlayer Create(PamelloUser creator, string name = "Player") {
+        public Task LoadAllAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task InitAllAsync() {
+            throw new NotImplementedException();
+        }
+
+        public IPamelloPlayer Create(IPamelloUser creator, string name = "Player") {
             string oldName = name;
             for (int i = 1; _players.Any(player => player.Name == name); i++) {
                 name = $"{oldName}-{i}";
@@ -47,23 +69,30 @@ namespace PamelloV7.Server.Repositories.Dynamic
             return player;
         }
 
-        public PamelloPlayer GetRequired(int id)
+        public IPamelloPlayer GetRequired(int id)
             => Get(id) ?? throw new PamelloException($"Cant find required player wuth id {id}");
-        public PamelloPlayer? Get(int id) {
+        public IPamelloPlayer? Get(int id) {
             return _players.FirstOrDefault(player => player.Id == id);
         }
 
-        public PamelloPlayer? GetByName(string name) {
+        public IPamelloPlayer? GetByName(string name) {
             return _players.FirstOrDefault(player => player.Name == name);
         }
 
-        public Task<IEnumerable<PamelloPlayer>> SearchAsync(string querry, PamelloUser? scopeUser) {
-            var results = new List<PamelloPlayer>();
-            if (scopeUser is null) return Task.FromResult((IEnumerable<PamelloPlayer>)results);
+        public Task<IEnumerable<IPamelloPlayer>> SearchAsync(string querry, IPamelloUser? scopeUser)
+            => Task.Run(() => Search(querry, scopeUser));
+
+        public void Delete(IPamelloPlayer entity) {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<IPamelloPlayer> Search(string querry, IPamelloUser? scopeUser) {
+            var results = new List<IPamelloPlayer>();
+            if (scopeUser is null) return results;
 
             querry = querry.ToLower();
 
-            List<PamelloPlayer> vcPlayers = null;
+            List<IPamelloPlayer> vcPlayers = null;
 
             var vc = _discordClients.GetUserVoiceChannel(scopeUser);
             vcPlayers = vc is not null ? _speakers.GetVoicePlayers(vc.Id) : [];
@@ -83,19 +112,21 @@ namespace PamelloV7.Server.Repositories.Dynamic
                 results.Add(pamelloPlayer);
             }
 
-            return Task.FromResult((IEnumerable<PamelloPlayer>)results);
+            return results;
         }
 
-        public async Task<PamelloPlayer> GetByValueRequired(string value, PamelloUser? scopeUser)
+        public async Task<IPamelloPlayer> GetByValueRequired(string value, IPamelloUser? scopeUser)
             => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Cant find required player wuth id {value}");
-        public async Task<PamelloPlayer?> GetByValue(string value, PamelloUser? scopeUser) {
-            PamelloPlayer? player;
+        public Task<IPamelloPlayer?> GetByValue(string value, IPamelloUser? scopeUser)
+            => Task.Run(() => GetByValueSync(value, scopeUser));
+        public IPamelloPlayer? GetByValueSync(string value, IPamelloUser? scopeUser) {
+            IPamelloPlayer? player;
 
             if (value == "current") {
                 player = scopeUser?.SelectedPlayer;
             }
             else if (value == "random") {
-                var availablePlayers = (await SearchAsync("", scopeUser)).ToList();
+                var availablePlayers = (SearchAsync("", scopeUser).Result).ToList();
                 var i = Random.Shared.Next(0, availablePlayers.Count);
 
                 player = availablePlayers[i];
@@ -120,7 +151,7 @@ namespace PamelloV7.Server.Repositories.Dynamic
             Console.WriteLine("Disposing players");
             
             foreach (var player in _players) {
-                player.Dispose();
+                ((PamelloPlayer)player).Dispose();
             }
         }
     }

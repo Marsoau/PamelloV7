@@ -9,20 +9,24 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.DAL;
 using Microsoft.EntityFrameworkCore;
+using PamelloV7.Core;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Difference;
+using PamelloV7.Server.Repositories.Database;
 using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Model
 {
-    public class PamelloUser : PamelloEntity<DatabaseUser>
+    public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     {
         private readonly DiscordClientService _clients;
-        private readonly PamelloSpeakerRepository _speakers;
-        private readonly PamelloPlayerRepository _players;
+        private readonly IPamelloSpeakerRepository _speakers;
+        private readonly IPamelloPlayerRepository _players;
 
         public SocketUser? DiscordUser { get; private set; }
-        public readonly PamelloCommandsModule Commands;
+        public IPamelloCommandsModule Commands { get; }
 
         private ulong _discordId;
         private Guid _token;
@@ -75,21 +79,21 @@ namespace PamelloV7.Server.Model
             }
         }
 
-        public List<PamelloSong> _addedSongs;
-        public List<PamelloPlaylist> _addedPlaylists;
-        public List<PamelloSong> _favoriteSongs;
-        public List<PamelloPlaylist> _favoritePlaylists;
+        public List<IPamelloSong> _addedSongs;
+        public List<IPamelloPlaylist> _addedPlaylists;
+        public List<IPamelloSong> _favoriteSongs;
+        public List<IPamelloPlaylist> _favoritePlaylists;
 
-        public IReadOnlyList<PamelloSong> AddedSongs {
+        public IReadOnlyList<IPamelloSong> AddedSongs {
             get => _addedSongs;
         }
-        public IReadOnlyList<PamelloPlaylist> AddedPlaylists {
+        public IReadOnlyList<IPamelloPlaylist> AddedPlaylists {
             get => _addedPlaylists;
         }
-        public IReadOnlyList<PamelloSong> FavoriteSongs {
+        public IReadOnlyList<IPamelloSong> FavoriteSongs {
             get => _favoriteSongs;
         }
-        public IReadOnlyList<PamelloPlaylist> FavoritePlaylists {
+        public IReadOnlyList<IPamelloPlaylist> FavoritePlaylists {
             get => _favoritePlaylists;
         }
 
@@ -106,9 +110,9 @@ namespace PamelloV7.Server.Model
             get => _favoritePlaylists.Select(entity => entity.Id);
         }
 
-        public PamelloPlayer? PreviousPlayer { get; private set; }
-        private PamelloPlayer? _selectedPlayer;
-        public PamelloPlayer? SelectedPlayer {
+        public IPamelloPlayer? PreviousPlayer { get; private set; }
+        private IPamelloPlayer? _selectedPlayer;
+        public IPamelloPlayer? SelectedPlayer {
             get => _selectedPlayer;
             set {
                 if (_selectedPlayer == value) return;
@@ -125,7 +129,7 @@ namespace PamelloV7.Server.Model
                 });
             }
         }
-        public PamelloPlayer RequiredSelectedPlayer {
+        public IPamelloPlayer RequiredSelectedPlayer {
             get => EnsurePlayerExist();
         }
 
@@ -135,8 +139,8 @@ namespace PamelloV7.Server.Model
             Commands = new PamelloCommandsModule(services, this);
 
             _clients = services.GetRequiredService<DiscordClientService>();
-            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
-            _players = services.GetRequiredService<PamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
+            _players = services.GetRequiredService<IPamelloPlayerRepository>();
 
             _token = databaseUser.Token;
             _discordId = databaseUser.DiscordId;
@@ -161,10 +165,10 @@ namespace PamelloV7.Server.Model
                 SelectedPlayer = PreviousPlayer;
             }
         }
-        private PamelloPlayer EnsurePlayerExist() {
+        private IPamelloPlayer EnsurePlayerExist() {
             if (SelectedPlayer is not null) return SelectedPlayer;
 
-            PamelloPlayer? player = null;
+            IPamelloPlayer? player = null;
 
             var vc = _clients.GetUserVoiceChannel(this);
             if (vc is not null) {
@@ -183,7 +187,7 @@ namespace PamelloV7.Server.Model
             return player;
         }
 
-        public bool TrySelectPlayer(PamelloPlayer? player) {
+        public bool TrySelectPlayer(IPamelloPlayer? player) {
             if (player is null) {
                 SelectedPlayer = null;
                 return true;
@@ -203,11 +207,11 @@ namespace PamelloV7.Server.Model
             SelectedPlayer = player;
             return true;
         }
-        public void RequireSelectPlayer(PamelloPlayer? player) {
+        public void RequireSelectPlayer(IPamelloPlayer? player) {
             if (!TrySelectPlayer(player)) throw new PamelloException("Player is ");
         }
 
-        public void AddFavoriteSong(PamelloSong song) {
+        public void AddFavoriteSong(IPamelloSong song) {
             if (_favoriteSongs.Contains(song)) return;
 
             _favoriteSongs.Add(song);
@@ -219,7 +223,7 @@ namespace PamelloV7.Server.Model
                 FavoriteSongsIds = FavoriteSongsIds,
             });
         }
-        public void RemoveFavoriteSong(PamelloSong song) {
+        public void RemoveFavoriteSong(IPamelloSong song) {
             if (!_favoriteSongs.Contains(song)) return;
 
             _favoriteSongs.Remove(song);
@@ -232,36 +236,36 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public void AddFavoritePlaylist(PamelloPlaylist playlist) {
+        public void AddFavoritePlaylist(IPamelloPlaylist playlist) {
             if (_favoritePlaylists.Contains(playlist)) return;
 
             _favoritePlaylists.Add(playlist);
             Save();
 
-            playlist.MakeFavorited(this);
+            playlist.MakeFavorite(this);
             _events.Broadcast(new UserFavoritePlaylistsUpdated() {
                 UserId = Id,
                 FavoritePlaylistsIds = FavoritePlaylistsIds,
             });
         }
-        public void RemoveFavoritePlaylist(PamelloPlaylist playlist) {
+        public void RemoveFavoritePlaylist(IPamelloPlaylist playlist) {
             if (!_favoritePlaylists.Contains(playlist)) return;
 
             _favoritePlaylists.Remove(playlist);
             Save();
 
-            playlist.UnmakeFavorited(this);
+            playlist.UnmakeFavorite(this);
             _events.Broadcast(new UserFavoritePlaylistsUpdated() {
                 UserId = Id,
                 FavoritePlaylistsIds = FavoritePlaylistsIds,
             });
             _events.Broadcast(new PlaylistFavoriteByIdsUpdated() {
                 PlaylistId = playlist.Id,
-                FavoriteByIds = playlist.FavoriteByIds
+                FavoriteByIds = ((PamelloPlaylist)playlist).FavoriteByIds
             });
         }
 
-        public PamelloPlaylist CreatePlaylist(string name) {
+        public IPamelloPlaylist CreatePlaylist(string name) {
             if (name.Length == 0) throw new PamelloException("Playlist name cant be empty");
 
             var db = GetDatabase();
@@ -280,7 +284,7 @@ namespace PamelloV7.Server.Model
             db.Playlists.Add(databasePlaylist);
             db.SaveChanges();
 
-            var playlist = _playlists.Load(databasePlaylist);
+            var playlist = ((PamelloPlaylistRepository)_playlists).Load(databasePlaylist); //CHANSDASDASD
             playlist.Init();
 
             _addedPlaylists.Add(playlist);

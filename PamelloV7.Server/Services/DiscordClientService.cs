@@ -1,4 +1,6 @@
 ﻿using Discord.WebSocket;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
@@ -13,9 +15,9 @@ namespace PamelloV7.Server.Services
     {
 		private readonly IServiceProvider _services;
 
-		private PamelloSpeakerRepository _speakers;
+		private IPamelloSpeakerRepository _speakers;
 
-		private PamelloUserRepository _users;
+		private IPamelloUserRepository _users;
 
 		public DiscordSocketClient[] DiscordClients;
 
@@ -37,8 +39,8 @@ namespace PamelloV7.Server.Services
 		public void SubscriveToEvents() {
 			if (_speakers is not null) return;
 
-			_speakers = _services.GetRequiredService<PamelloSpeakerRepository>();
-			_users = _services.GetRequiredService<PamelloUserRepository>();
+			_speakers = _services.GetRequiredService<IPamelloSpeakerRepository>();
+			_users = _services.GetRequiredService<IPamelloUserRepository>();
 
 			foreach (var client in DiscordClients) {
                 client.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
@@ -48,8 +50,8 @@ namespace PamelloV7.Server.Services
         private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
 			if (_speakers is null) return;
 
-			List<PamelloPlayer>? playersFromVc = null;
-			List<PamelloPlayer>? playersToVc = null;
+			List<IPamelloPlayer>? playersFromVc = null;
+			List<IPamelloPlayer>? playersToVc = null;
 
 			var user = _users.GetByDiscord(discordUser.Id);
 			if (user is null) return;
@@ -61,8 +63,8 @@ namespace PamelloV7.Server.Services
 				playersToVc = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
 			}
 
-			playersFromVc ??= new List<PamelloPlayer>();
-			playersToVc ??= new List<PamelloPlayer>();
+			playersFromVc ??= new List<IPamelloPlayer>();
+			playersToVc ??= new List<IPamelloPlayer>();
 
 			if (playersToVc.Count == 1) {
 				user.SelectedPlayer = playersToVc.First();
@@ -97,7 +99,7 @@ namespace PamelloV7.Server.Services
 			return DiscordClients.Any(client => client.CurrentUser.Id == userId);
 		}
 
-        public SocketVoiceChannel? GetUserVoiceChannel(PamelloUser user) {
+        public SocketVoiceChannel? GetUserVoiceChannel(IPamelloUser user) {
 			SocketVoiceChannel? vc = null;
 			foreach (var client in DiscordClients) {
 				foreach (var guild in client.Guilds) {
@@ -109,10 +111,10 @@ namespace PamelloV7.Server.Services
 			return null;
 		}
 
-        public List<PamelloUser> GetVoiceChannelUsers(SocketVoiceChannel vc) {
-			var users = new List<PamelloUser>();
+        public List<IPamelloUser> GetVoiceChannelUsers(SocketVoiceChannel vc) {
+			var users = new List<IPamelloUser>();
 
-			PamelloUser? pamelloUser = null;
+			IPamelloUser? pamelloUser = null;
 			foreach (var discordUser in vc.ConnectedUsers) {
 				pamelloUser = _users.GetByDiscord(discordUser.Id, false);
 				if (pamelloUser is null) continue;

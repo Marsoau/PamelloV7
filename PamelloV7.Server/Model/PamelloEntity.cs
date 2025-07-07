@@ -1,4 +1,6 @@
 ﻿using PamelloV7.Core.DTO;
+using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Repositories;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
@@ -16,10 +18,10 @@ namespace PamelloV7.Server.Model
 
         protected readonly PamelloEventsService _events;
 
-        protected readonly PamelloSongRepository _songs;
-        protected readonly PamelloEpisodeRepository _episodes;
-        protected readonly PamelloPlaylistRepository _playlists;
-        protected readonly PamelloUserRepository _users;
+        protected readonly IPamelloSongRepository _songs;
+        protected readonly IPamelloEpisodeRepository _episodes;
+        protected readonly IPamelloPlaylistRepository _playlists;
+        protected readonly IPamelloUserRepository _users;
 
         public int Id { get; }
         public abstract string Name { get; set; }
@@ -29,10 +31,10 @@ namespace PamelloV7.Server.Model
 
             _events = services.GetRequiredService<PamelloEventsService>();
 
-            _songs = services.GetRequiredService<PamelloSongRepository>();
-            _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
-            _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
-            _users = services.GetRequiredService<PamelloUserRepository>();
+            _songs = services.GetRequiredService<IPamelloSongRepository>();
+            _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+            _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
 
             Id = databaseEntity.Id;
 

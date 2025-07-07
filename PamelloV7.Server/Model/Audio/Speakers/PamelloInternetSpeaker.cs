@@ -1,8 +1,11 @@
 ﻿using PamelloV7.Server.Model.Listeners;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
@@ -13,7 +16,7 @@ using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.Audio.Speakers
 {
-    public class PamelloInternetSpeaker : PamelloSpeaker, IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWithModel
+    public class PamelloInternetSpeaker : PamelloSpeaker, IPamelloInternetSpeaker, IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleWithModel
     {
         public override bool IsActive => Listeners.Count > 0;
 
@@ -44,7 +47,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public PamelloInternetSpeaker(
             AudioModel parentModel,
-            PamelloPlayer player,
+            IPamelloPlayer player,
             string? name
         ) : base(player) {
             ParentModel = parentModel;
@@ -91,9 +94,11 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             _pump.Start();
         }
 
-        public async Task<PamelloInternetSpeakerListener> AddListener(HttpResponse response, CancellationToken cancellationToken, PamelloUser? user) {
+        public async Task<IPamelloInternetSpeakerListener> AddListener(object responseObject, CancellationToken cancellationToken, IPamelloUser? user) {
+            var response = (HttpResponse)responseObject;
+            
             var listener = Model.AddModule(new PamelloInternetSpeakerListener(Model, response, cancellationToken, user));
-            await listener.InitializeConnecion();
+            await listener.InitializeConnection();
             
             var output = _copy.CreateOutput();
             output.ConnectFront(listener.Input);

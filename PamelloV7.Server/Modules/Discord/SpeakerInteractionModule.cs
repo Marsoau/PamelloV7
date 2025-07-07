@@ -20,9 +20,11 @@ namespace PamelloV7.Server.Modules.Discord
         {
             public SpeakerDiscordInteractionModule(IServiceProvider services) : base(services) { }
             
+            /*
             [SlashCommand("connect", "Connect speaker to your voice channel")]
             public async Task SpeakerDiscordConnectHandler()
                 => await SpeakerDiscordConnect();
+            */
         }
         
         [Group("internet", "Commands for internet speakers interactions")]
@@ -42,12 +44,14 @@ namespace PamelloV7.Server.Modules.Discord
             ) => await SpeakerInternetRename(speakerValue, name);
         }
 
+        /*
         [SlashCommand("search", "Search in selected player speakers")]
         public async Task SpeakerSearchHandler(
             [Summary("query", "Player list search query")] string query = "",
             [Summary("page", "Page of the players list")] int page = 0,
             [Summary("type", "Type of the search")] ESpeakerType? type = null
         ) => await SpeakerSearch(query, page, type);
+        */
         
         [SlashCommand("info", "Disconnect speaker from your voice channel")]
         public async Task SpeakerInfoHandler(

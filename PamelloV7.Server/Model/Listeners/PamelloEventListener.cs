@@ -2,13 +2,14 @@
 using PamelloV7.Core.Events;
 using System.Text.Json;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
 
 namespace PamelloV7.Server.Model.Listeners
 {
     public class PamelloEventListener : PamelloListener
     {
         public Guid Token { get; }
-        public PamelloUser? User { get; private set; }
+        public IPamelloUser? User { get; private set; }
 
         public bool IsAuthorized { get => User is not null; }
 
@@ -227,7 +228,7 @@ namespace PamelloV7.Server.Model.Listeners
             }
         }
 
-        public override async Task InitializeConnecion() {
+        public override async Task InitializeConnection() {
             _response.ContentType = "text/event-stream";
             _response.Headers.CacheControl = "no-cache";
             await _response.Body.FlushAsync();
@@ -257,7 +258,7 @@ namespace PamelloV7.Server.Model.Listeners
             _eventsWait.Set();
         }
 
-        public void AssighnUser(PamelloUser user) {
+        public void AssighnUser(IPamelloUser user) {
             if (User is not null) throw new PamelloException("User is already assighned for that events");
 
             User = user;

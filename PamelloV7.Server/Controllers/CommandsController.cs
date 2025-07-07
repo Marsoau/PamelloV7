@@ -5,12 +5,13 @@ using PamelloV7.Server.Modules;
 using PamelloV7.Server.Exceptions;
 using Microsoft.Extensions.Primitives;
 using PamelloV7.Server.Model;
-using PamelloV7.DAL.Entity;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
 using System.ComponentModel;
 using System.Reflection;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
@@ -23,20 +24,20 @@ namespace PamelloV7.Server.Controllers
     [ApiController]
     public class CommandsController : PamelloControllerBase
     {
-        private readonly PamelloUserRepository _users;
-        private readonly PamelloSongRepository _songs;
-        private readonly PamelloEpisodeRepository _episodes;
-        private readonly PamelloPlaylistRepository _playlists;
-        private readonly PamelloPlayerRepository _players;
-        private readonly PamelloSpeakerRepository _speakers;
+        private readonly IPamelloUserRepository _users;
+        private readonly IPamelloSongRepository _songs;
+        private readonly IPamelloEpisodeRepository _episodes;
+        private readonly IPamelloPlaylistRepository _playlists;
+        private readonly IPamelloPlayerRepository _players;
+        private readonly IPamelloSpeakerRepository _speakers;
 
         public CommandsController(IServiceProvider services) : base(services) {
-            _users = services.GetRequiredService<PamelloUserRepository>();
-            _songs = services.GetRequiredService<PamelloSongRepository>();
-            _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
-            _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
-            _players = services.GetRequiredService<PamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
+            _songs = services.GetRequiredService<IPamelloSongRepository>();
+            _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+            _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+            _players = services.GetRequiredService<IPamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
         }
 
         [HttpGet]
@@ -74,29 +75,31 @@ namespace PamelloV7.Server.Controllers
                         if (Nullable.GetUnderlyingType(argsInfo[i].ParameterType) is not null) {
                             Console.WriteLine($"arg {argsInfo[i].Name} is optional");
                         }
-                        if (argsInfo[i].ParameterType == typeof(PamelloUser)) {
+                        if (argsInfo[i].ParameterType == typeof(IPamelloUser)) {
                             argValue = await _users.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloSong)) {
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloSong)) {
                             argValue = await _songs.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloEpisode)) {
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloEpisode)) {
                             argValue = await _episodes.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloPlaylist)) {
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloPlaylist)) {
                             argValue = await _playlists.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloPlayer)) {
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloPlayer)) {
                             argValue = await _players.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloSpeaker)) {
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloSpeaker)) {
                             argValue = await _speakers.GetByValueRequired(argStringValues.FirstOrDefault() ?? "", User);
                         }
+                        /* DISCORD
                         else if (argsInfo[i].ParameterType == typeof(PamelloDiscordSpeaker)) {
                             argValue = await _speakers.GetByValueRequired<PamelloDiscordSpeaker>(argStringValues.FirstOrDefault() ?? "", User);
                         }
-                        else if (argsInfo[i].ParameterType == typeof(PamelloInternetSpeaker)) {
-                            argValue = await _speakers.GetByValueRequired<PamelloInternetSpeaker>(argStringValues.FirstOrDefault() ?? "", User);
+                        */
+                        else if (argsInfo[i].ParameterType == typeof(IPamelloInternetSpeaker)) {
+                            argValue = await _speakers.GetByValueRequired<IPamelloInternetSpeaker>(argStringValues.FirstOrDefault() ?? "", User);
                         }
                     }
                     catch (PamelloException x) {

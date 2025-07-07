@@ -5,15 +5,16 @@ using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
 
 namespace PamelloV7.Server.Model
 {
-    public class PamelloEpisode : PamelloEntity<DatabaseEpisode>
+    public class PamelloEpisode : PamelloEntity<DatabaseEpisode>, IPamelloEpisode
     {
         private string _name;
         private AudioTime _start;
         private bool _autoSkip;
-        private PamelloSong _song;
+        private IPamelloSong _song;
 
         public override string Name {
             get => _name;
@@ -56,7 +57,7 @@ namespace PamelloV7.Server.Model
             }
         }
 
-        public PamelloSong Song {
+        public IPamelloSong Song {
             get => _song;
         }
 

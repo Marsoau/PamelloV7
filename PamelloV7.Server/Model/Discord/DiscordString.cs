@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using PamelloV7.Core.Model.Entities;
 
 namespace PamelloV7.Server.Model.Discord
 {
@@ -15,7 +16,7 @@ namespace PamelloV7.Server.Model.Discord
             }
             else _str = Ecranate(obj);
         }
-        public DiscordString(PamelloUser user) {
+        public DiscordString(IPamelloUser user) {
             _str = $"<@{user.DiscordId}>";
         }
         public DiscordString(SocketUser user) {

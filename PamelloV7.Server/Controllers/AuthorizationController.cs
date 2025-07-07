@@ -5,6 +5,7 @@ using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Repositories.Database;
 
@@ -16,12 +17,12 @@ namespace PamelloV7.Server.Controllers
     {
         private readonly UserAuthorizationService _authorization;
         private readonly PamelloEventsService _events;
-        private readonly PamelloUserRepository _users;
+        private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
             _authorization = services.GetRequiredService<UserAuthorizationService>();
             _events = services.GetRequiredService<PamelloEventsService>();
-            _users = services.GetRequiredService<PamelloUserRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 
         [HttpGet("Events/{eventsToken}/WithCode/{code}")]

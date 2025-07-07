@@ -3,7 +3,10 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
 
@@ -14,6 +17,9 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static Embed BuildInfo(string header, string message = "", string description = "") {
             return Info(header, message, description).Build();
         }
+        public static Embed BuildQueuePage(IPamelloQueue queue, int page, int elementCount) {
+            return QueuePage(queue, page, elementCount).Build();;
+        }
         public static Embed BuildPage<T>(string header, IEnumerable<T> content, Action<StringBuilder, int, T> writeElement, int count = 20, int page = 0) {
             return Page(header, content, writeElement, page, count).Build();
         }
@@ -23,16 +29,16 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static Embed BuildException(string message) {
             return Exception(message).Build();
         }
-        public static Embed BuildSongInfo(PamelloSong song) {
+        public static Embed BuildSongInfo(IPamelloSong song) {
             return SongInfo(song).Build();
         }
-        public static Embed BuildPlayerInfo(PamelloPlayer player) {
+        public static Embed BuildPlayerInfo(IPamelloPlayer player) {
             return PlayerInfo(player).Build();
         }
-        public static Embed BuildPlaylistInfo(PamelloPlaylist playlist) {
+        public static Embed BuildPlaylistInfo(IPamelloPlaylist playlist) {
             return PlaylistInfo(playlist).Build();
         }
-        public static Embed BuildSpeakerInfo(PamelloSpeaker speaker) {
+        public static Embed BuildSpeakerInfo(IPamelloSpeaker speaker) {
             return SpeakerInfo(speaker).Build();
         }
 
@@ -45,6 +51,36 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 }
             }
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+        }
+        
+        public static EmbedBuilder QueuePage(IPamelloQueue queue, int page, int elementCount) {
+            var embedBuilder = PamelloEmbedBuilder.Page(
+                "Queue",
+                queue.Entries,
+                (sb, pos, entry) => {
+                    sb.Append(DiscordString.Code(pos));
+                    if (queue.Position == pos) {
+                        sb.Append(
+                            (" > " + entry.Song.ToDiscordString()).Bold()
+                        );
+                        sb.AppendLine();
+                        sb.Append("Added by " + (
+                            (entry.Adder as PamelloUser)?.DiscordUser is not null ?
+                                new DiscordString((entry.Adder as PamelloUser)?.DiscordUser) :
+                                new DiscordString("")
+                        ));
+                    }
+                    else {
+                        sb.Append(" - ");
+                        sb.Append(entry.Song.ToDiscordString());
+                    }
+
+                    sb.AppendLine();
+                }
+            );
+            embedBuilder.Footer.Text += $" | {queue.Player.ToDiscordFooterString()}";
+
+            return embedBuilder;
         }
         public static EmbedBuilder Page<T>(string header, IEnumerable<T> content, Action<StringBuilder, int, T> writeElement, int page = 0, int count = 20) {
             var sb = new StringBuilder();
@@ -77,7 +113,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
-        public static EmbedBuilder SongInfo(PamelloSong song) {
+        public static EmbedBuilder SongInfo(IPamelloSong song) {
             return new EmbedBuilder() {
                 Title = song.Name,
                 Url = $"https://www.youtube.com/watch?v={song.YoutubeId}",
@@ -106,7 +142,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
-        public static EmbedBuilder PlayerInfo(PamelloPlayer player) {
+        public static EmbedBuilder PlayerInfo(IPamelloPlayer player) {
             var fields = new List<EmbedFieldBuilder>();
 
             var currentAudio = player.Queue.Audio;
@@ -185,7 +221,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             }
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
-        public static EmbedBuilder PlaylistInfo(PamelloPlaylist playlist) {
+        public static EmbedBuilder PlaylistInfo(IPamelloPlaylist playlist) {
             return new EmbedBuilder() {
                 Title = playlist.Name,
                 Footer = new EmbedFooterBuilder() {
@@ -204,7 +240,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     },
                     new EmbedFieldBuilder() {
                         Name = "Added By",
-                        Value = new DiscordString(playlist.OwnedBy),
+                        Value = new DiscordString(playlist.Owner),
                         IsInline = true,
                     }
                 ]
@@ -212,9 +248,10 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
-        public static EmbedBuilder SpeakerInfo(PamelloSpeaker speaker)
+        public static EmbedBuilder SpeakerInfo(IPamelloSpeaker speaker)
         {
             EmbedBuilder? embedBuilder = null;
+            /*
             if (speaker is PamelloDiscordSpeaker discordSpeaker)
             {
                 embedBuilder = new EmbedBuilder()
@@ -228,7 +265,8 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     ]
                 };
             }
-            else if (speaker is PamelloInternetSpeaker internetSpeaker)
+            */
+            if (speaker is IPamelloInternetSpeaker internetSpeaker)
             {
                 embedBuilder = new EmbedBuilder()
                 {

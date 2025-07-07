@@ -1,28 +1,30 @@
-﻿using PamelloV7.Server.Model.Audio;
+﻿using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;
 
 namespace PamelloV7.Server.Model.Listeners
 {
-    public class PamelloInternetSpeakerListener : PamelloListener, IAudioModuleWithInputs<AudioPushPoint>
+    public class PamelloInternetSpeakerListener : PamelloListener, IPamelloInternetSpeakerListener, IAudioModuleWithInputs<AudioPushPoint>
     {
         public int MinInputs => 1;
         public int MaxInputs => 1;
-        
+
         public AudioModel ParentModel { get; }
 
         public AudioPushPoint Input;
-        
-        public readonly PamelloUser? User;
 
-        public readonly CancellationToken Cancellation;
+        public IPamelloUser? User { get; }
+
+        public CancellationToken Cancellation { get; }
         public bool IsDisposed { get; private set; }
         
         public PamelloInternetSpeakerListener(
             AudioModel parentModel,
             HttpResponse response,
             CancellationToken cancellationToken,
-            PamelloUser? user
+            IPamelloUser? user
         ) : base(response) {
             ParentModel = parentModel;
             
@@ -32,7 +34,7 @@ namespace PamelloV7.Server.Model.Listeners
             Cancellation.Register(Dispose);
         }
 
-        public override async Task InitializeConnecion() {
+        public override async Task InitializeConnection() {
             _response.ContentType = "audio/mpeg";
             _response.Headers.CacheControl = "no-cache";
             await _response.Body.FlushAsync(Cancellation);

@@ -2,6 +2,7 @@
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.DAL;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model.Audio;
@@ -10,11 +11,11 @@ using PamelloV7.Server.Model.Difference;
 
 namespace PamelloV7.Server.Model
 {
-    public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>
+    public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     {
         private string _name;
         private bool _isProtected;
-        private PamelloUser _owner;
+        private IPamelloUser _owner;
 
         public override string Name {
             get => _name;
@@ -46,17 +47,17 @@ namespace PamelloV7.Server.Model
             }
         }
 
-        public PamelloUser OwnedBy {
+        public IPamelloUser Owner {
             get => _owner;
         }
 
-        private List<PamelloSong> _songs;
-        private List<PamelloUser> _favoritedBy;
+        private List<IPamelloSong> _songs;
+        private List<IPamelloUser> _favoritedBy;
 
-        public IReadOnlyList<PamelloSong> Songs {
+        public IReadOnlyList<IPamelloSong> Songs {
             get => _songs;
         }
-        public IReadOnlyList<PamelloUser> FavoritedBy {
+        public IReadOnlyList<IPamelloUser> FavoriteBy {
             get => _favoritedBy;
         }
 
@@ -81,10 +82,10 @@ namespace PamelloV7.Server.Model
             
             _favoritedBy = DatabaseEntity.FavoriteBy.Select(e => _users.GetRequired(e.Id)).ToList();
             var orderedEntries = DatabaseEntity.Entries.Where(entry => entry.PlaylistId == Id).OrderBy(entry => entry.Order);
-            _songs = orderedEntries.Select(entry => base._songs.Get(entry.SongId)).OfType<PamelloSong>().ToList();
+            _songs = orderedEntries.Select(entry => base._songs.Get(entry.SongId)).OfType<IPamelloSong>().ToList();
         }
 
-        public PamelloSong? AddSong(PamelloSong song, int? position = null, bool fromInside = false) {
+        public IPamelloSong? AddSong(IPamelloSong song, int? position = null, bool fromInside = false) {
             if (position is null) _songs.Add(song);
             else _songs.Insert(position.Value, song);
             
@@ -99,7 +100,7 @@ namespace PamelloV7.Server.Model
             return song;
         }
 
-        public void AddList(IReadOnlyList<PamelloSong> list, int? position = null) {
+        public void AddList(IReadOnlyList<IPamelloSong> list, int? position = null) {
             if (list.Count == 0) return;
             
             position ??= _songs.Count;
@@ -117,7 +118,7 @@ namespace PamelloV7.Server.Model
             });
         }
 
-        public int RemoveSong(PamelloSong song, bool fromInside = false) {
+        public int RemoveSong(IPamelloSong song, bool fromInside = false) {
             if (!_songs.Contains(song)) return 0;
 
             var removedCount = _songs.RemoveAll(s => s == song);
@@ -134,7 +135,7 @@ namespace PamelloV7.Server.Model
             return removedCount;
         }
 
-        public PamelloSong? MoveSong(int fromPosition, int toPosition) {
+        public IPamelloSong? MoveSong(int fromPosition, int toPosition) {
 			if (_songs.Count < 2) return null;
 
 			fromPosition = PamelloQueue.NormalizePosition(fromPosition, _songs.Count);
@@ -157,7 +158,7 @@ namespace PamelloV7.Server.Model
             return song;
         }
         
-        public PamelloSong? RemoveAt(int position) {
+        public IPamelloSong? RemoveAt(int position) {
             var song = _songs.ElementAtOrDefault(position);
             if (song is null) return null;
 
@@ -176,7 +177,7 @@ namespace PamelloV7.Server.Model
             return song;
         }
 
-        public void MakeFavorited(PamelloUser user) {
+        public void MakeFavorite(IPamelloUser user) {
             if (_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Add(user);
@@ -188,7 +189,7 @@ namespace PamelloV7.Server.Model
                 FavoriteByIds = FavoriteByIds
             });
         }
-        public void UnmakeFavorited(PamelloUser user) {
+        public void UnmakeFavorite(IPamelloUser user) {
             if (!_favoritedBy.Contains(user)) return;
 
             _favoritedBy.Remove(user);
@@ -205,10 +206,10 @@ namespace PamelloV7.Server.Model
             return new PamelloPlaylistDTO() {
                 Id = Id,
                 Name = Name,
-                AddedById = OwnedBy.Id,
+                AddedById = Owner.Id,
                 IsProtected = IsProtected,
 
-                FavoriteByIds = FavoritedBy.Select(user => user.Id),
+                FavoriteByIds = FavoriteBy.Select(user => user.Id),
                 SongsIds = Songs.Select(song => song.Id),
             };
         }

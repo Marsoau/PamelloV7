@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
 using PamelloV7.DAL.Entity;
 using PamelloV7.Server.Model;
 
 namespace PamelloV7.Server.Repositories.Database
 {
-    public class PamelloPlaylistRepository : PamelloDatabaseRepository<PamelloPlaylist, DatabasePlaylist>
+    public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlaylist, DatabasePlaylist>, IPamelloPlaylistRepository
     {
         public PamelloPlaylistRepository(IServiceProvider services) : base(services) {
 
@@ -14,14 +16,14 @@ namespace PamelloV7.Server.Repositories.Database
             base.InitServices();
         }
 
-        public PamelloPlaylist Create(string name, PamelloUser user) {
+        public IPamelloPlaylist Create(string name, IPamelloUser user) {
             return user.CreatePlaylist(name);
         }
 
-        public PamelloPlaylist GetByNameRequired(string name)
+        public IPamelloPlaylist GetByNameRequired(string name)
             => GetByName(name) ?? throw new PamelloException($"Cant find playlist by name \"{name}\"");
 
-        public PamelloPlaylist? GetByName(string name) {
+        public IPamelloPlaylist? GetByName(string name) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Name == name);
             if (pamelloPlaylist is not null) return pamelloPlaylist;
 
@@ -33,8 +35,8 @@ namespace PamelloV7.Server.Repositories.Database
             return Load(databasePlaylist);
         }
 
-        public override async Task<PamelloPlaylist?> GetByValue(string value, PamelloUser? scopeUser) {
-            PamelloPlaylist? playlist = null;
+        public override IPamelloPlaylist? GetByValueSync(string value, IPamelloUser? scopeUser) {
+            IPamelloPlaylist? playlist = null;
 
             if (value == "random") {
                 playlist = GetRandom();
@@ -48,20 +50,20 @@ namespace PamelloV7.Server.Repositories.Database
             return playlist;
         }
 
-        public async Task<IEnumerable<PamelloPlaylist>> Search(string querry, PamelloUser? ownedBy = null, PamelloUser? favoriteBy = null, PamelloUser? scopeUser = null) {
-            IEnumerable<PamelloPlaylist> list = _loaded;
+        public IEnumerable<IPamelloPlaylist> Search(string querry, IPamelloUser? ownedBy = null, IPamelloUser? favoriteBy = null, IPamelloUser? scopeUser = null) {
+            IEnumerable<IPamelloPlaylist> list = _loaded;
 
             if (ownedBy is not null) {
-                list = list.Where(playlist => playlist.OwnedBy.Id == ownedBy.Id);
+                list = list.Where(playlist => playlist.Owner.Id == ownedBy.Id);
             }
             if (favoriteBy is not null) {
-                list = list.Where(playlist => playlist.FavoritedBy.Any(user => user.Id == favoriteBy.Id));
+                list = list.Where(playlist => playlist.FavoriteBy.Any(user => user.Id == favoriteBy.Id));
             }
 
-            return await Search(list, querry, scopeUser);
+            return Search(list, querry, scopeUser);
         }
 
-        protected override PamelloPlaylist LoadBase(DatabasePlaylist databasePlaylist) {
+        protected override IPamelloPlaylist LoadBase(DatabasePlaylist databasePlaylist) {
             var pamelloPlaylist = _loaded.FirstOrDefault(playlist => playlist.Id == databasePlaylist.Id);
             if (pamelloPlaylist is not null) return pamelloPlaylist;
 
@@ -79,7 +81,7 @@ namespace PamelloV7.Server.Repositories.Database
                 .AsSplitQuery()
                 .ToList();
         }
-        public override void Delete(PamelloPlaylist playlist) => throw new NotImplementedException();
+        public override void Delete(IPamelloPlaylist playlist) => throw new NotImplementedException();
         
         public override void Dispose() {
             Console.WriteLine("Disposing playlists");

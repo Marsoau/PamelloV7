@@ -2,9 +2,14 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using PamelloV7.Core;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
+using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
@@ -23,23 +28,23 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private readonly UserAuthorizationService _authorization;
         private readonly DiscordClientService _discordClients;
 
-        private readonly PamelloPlayerRepository _players;
-        private readonly PamelloSpeakerRepository _speakers;
+        private readonly IPamelloPlayerRepository _players;
+        private readonly IPamelloSpeakerRepository _speakers;
 
-        private readonly PamelloUserRepository _users;
-        private readonly PamelloSongRepository _songs;
-        private readonly PamelloEpisodeRepository _episodes;
-        private readonly PamelloPlaylistRepository _playlists;
+        private readonly IPamelloUserRepository _users;
+        private readonly IPamelloSongRepository _songs;
+        private readonly IPamelloEpisodeRepository _episodes;
+        private readonly IPamelloPlaylistRepository _playlists;
 
         private readonly YoutubeInfoService _youtubeInfo;
 
-        private PamelloCommandsModule Commands {
+        private IPamelloCommandsModule Commands {
             get => Context.User.Commands;
         }
-        private PamelloPlayer Player {
+        private IPamelloPlayer Player {
             get => Context.User.RequiredSelectedPlayer;
         }
-        private PamelloPlayer RequiredPlayer {
+        private IPamelloPlayer RequiredPlayer {
             get => Context.User.SelectedPlayer ?? throw new PamelloException("Selected player is required for this command");
         }
 
@@ -48,13 +53,13 @@ namespace PamelloV7.Server.Modules.Discord.Base
             _authorization = services.GetRequiredService<UserAuthorizationService>();
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
-            _players = services.GetRequiredService<PamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<PamelloSpeakerRepository>();
+            _players = services.GetRequiredService<IPamelloPlayerRepository>();
+            _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
 
-            _users = services.GetRequiredService<PamelloUserRepository>();
-            _songs = services.GetRequiredService<PamelloSongRepository>();
-            _episodes = services.GetRequiredService<PamelloEpisodeRepository>();
-            _playlists = services.GetRequiredService<PamelloPlaylistRepository>();
+            _users = services.GetRequiredService<IPamelloUserRepository>();
+            _songs = services.GetRequiredService<IPamelloSongRepository>();
+            _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+            _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
 
             _youtubeInfo = services.GetRequiredService<YoutubeInfoService>();
         }
@@ -311,7 +316,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         public async Task PlayerQueueList(int? page) {
-            var pageBuilder = Player.Queue.QueuePageBuilder(page - 1 ?? 0, 20);
+            var pageBuilder = PamelloEmbedBuilder.QueuePage(Player.Queue, page - 1 ?? 0, 20);
 
             await Respond(pageBuilder.Build());
         }
@@ -346,7 +351,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task SongSearch(string querry, int page, SocketUser? addedByDiscordUser)
         {
-            PamelloUser? addedBy = null;
+            IPamelloUser? addedBy = null;
             if (addedByDiscordUser is not null) {
                 addedBy = _users.GetByDiscord(addedByDiscordUser.Id, false);
 
@@ -355,7 +360,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 }
             }
 
-            var results = await _songs.Search(querry, addedBy);
+            var results = _songs.Search(querry, addedBy);
             string title;
 
             if (querry.Length == 0) {
@@ -422,7 +427,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task SongFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
-            PamelloUser? targetUser = null;
+            IPamelloUser? targetUser = null;
             if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
@@ -431,7 +436,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 targetUser = Context.User;
             }
 
-            var results = await _songs.Search(querry, Context.User, favoriteBy: targetUser);
+            var results = _songs.Search(querry, Context.User, favoriteBy: targetUser);
 
             await RespondPage(
                 targetUser.Id == Context.User.Id ? "Favorite songs" : $"Favorite songs of {targetUser.Name}",
@@ -463,7 +468,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
             await RespondPage(
                 $"Associations of song [{song.Id}]",
-                song.Associacions,
+                song.Associations,
                 (sb, pos, association) => {
                     sb.AppendLine(DiscordString.Code(association).ToString());
                 },
@@ -626,12 +631,12 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
         public async Task PlaylistSearch(string querry, int page, SocketUser? addedByDiscordUser)
         {
-            PamelloUser? addedBy = null;
+            IPamelloUser? addedBy = null;
             if (addedByDiscordUser is not null) {
                 addedBy = _users.GetByDiscord(addedByDiscordUser.Id);
             }
 
-            var results = await _playlists.Search(querry, addedBy);
+            var results = _playlists.Search(querry, addedBy);
             string title;
 
             if (querry.Length == 0) {
@@ -707,7 +712,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task PlaylistFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
-            PamelloUser? targetUser = null;
+            IPamelloUser? targetUser = null;
             if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
@@ -716,7 +721,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 targetUser = Context.User;
             }
 
-            var results = await _playlists.Search(querry, favoriteBy: targetUser);
+            var results = _playlists.Search(querry, Context.User, favoriteBy: targetUser);
 
             await RespondPage(
                 targetUser.Id == Context.User.Id ? "Favorite playlists" : $"Favorite playlists of {targetUser.Name}",
@@ -734,6 +739,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         //speakers
+        /*
         public async Task SpeakerDiscordConnect() {
             Context.User.TryLoadLastPlayer();
 
@@ -741,6 +747,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
             await RespondPlayerInfo("Connected", $"speaker {speaker.ToDiscordString()} connected to your vc");
         }
+        */
 
         public async Task SpeakerInfo() {
             throw new NotImplementedException();
@@ -763,18 +770,19 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
 
         public async Task SpeakerInternetRename(string speakerValue, string newName) {
             var speaker = await _speakers.GetByValueRequired(speakerValue, Context.User);
-            if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloException($"Speaker {speaker.ToDiscordString()} is not internet speaker");
+            if (speaker is not IPamelloInternetSpeaker internetSpeaker) throw new PamelloException($"Speaker {speaker.ToDiscordString()} is not internet speaker");
             
             await Commands.SpeakerInternetRename(internetSpeaker, newName);
             
             await RespondInfo($"Internet speaker {speaker.ToDiscordString()} renamed");
         }
 
+        /*
         public async Task SpeakerSearch(string query, int page, ESpeakerType? type)
         {
             var results = type switch
             {
-                ESpeakerType.Internet => await _speakers.SearchAsync<PamelloInternetSpeaker>(query, Context.User),
+                ESpeakerType.Internet => await _speakers.SearchAsync<IPamelloInternetSpeaker>(query, Context.User),
                 ESpeakerType.Discord => await _speakers.SearchAsync<PamelloDiscordSpeaker>(query, Context.User),
                 _ => await _speakers.SearchAsync(query, Context.User)
             };
@@ -787,5 +795,6 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 page
             );
         }
+        */
     }
 }

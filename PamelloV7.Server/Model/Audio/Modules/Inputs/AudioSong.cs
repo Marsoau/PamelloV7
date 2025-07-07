@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Interfaces;
@@ -9,18 +11,23 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 {
-    public class AudioSong : IAudioModuleWithOutputs<AudioPullPoint>
+    public class AudioSong : IAudioSong, IAudioModuleWithOutputs<AudioPullPoint>
     {
         private readonly YoutubeDownloadService _downloader;
 
-        public readonly PamelloSong Song;
+        public IPamelloSong Song { get; }
 
         private int _currentChunkPosition;
         private MemoryStream? _currentChunk;
         private MemoryStream? _nextChunk;
 
-        public AudioTime Position;
-        public AudioTime Duration;
+        private AudioTime _position;
+        private AudioTime _duration;
+
+        public AudioTime Position
+            => _position;
+        public AudioTime Duration
+            => _duration;
 
         private int? _nextBreakPoint;
         private int? _nextJumpPoint;
@@ -53,7 +60,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         public AudioSong(
             AudioModel parentModel,
             IServiceProvider services,
-            PamelloSong song
+            IPamelloSong song
         ) {
             ParentModel = parentModel;
             
@@ -61,8 +68,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
             Song = song;
 
-            Position = new AudioTime(0);
-            Duration = new AudioTime(0);
+            _position = new AudioTime(0);
+            _duration = new AudioTime(0);
 
             _chunkSize = new AudioTime(8);
             
@@ -86,8 +93,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             _nextBreakPoint = null;
             _nextJumpPoint = null;
 
-            Position.TimeValue = 0;
-			Duration.TimeValue = 0;
+            _position.TimeValue = 0;
+			_duration.TimeValue = 0;
 		}
 
         public async Task<bool> TryInitialize(CancellationToken token = default) {
@@ -100,7 +107,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
                 }
             }
 
-            Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
+            _duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
 
             await LoadChunksAtAsync(0, token);
             if (_currentChunk is null) {
@@ -121,7 +128,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 			if (_currentChunk is null) return false;
             // Console.WriteLine("next bytes 2");
 
-            if (Position.TimeValue >= Duration.TimeValue) {
+            if (_position.TimeValue >= _duration.TimeValue) {
                 if (IsEnded) return false;
                 
                 IsEnded = true;
@@ -129,9 +136,9 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
                 return false;
             }
 
-			if (Position.TotalSeconds == _nextBreakPoint) {
+			if (_position.TotalSeconds == _nextBreakPoint) {
                 if (_nextJumpPoint is null) {
-                    await RewindTo(Duration, true, token);
+                    await RewindTo(_duration, true, token);
                     // Console.WriteLine("false 2");
                     return false;
                 }
@@ -139,16 +146,16 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 				await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
             }
             
-            if (Position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
+            if (_position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
                 await MoveForwardAsync(token);
             }
 
-            _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
+            _currentChunk.Position = _position.TimeValue % _chunkSize.TimeValue;
             var count = await _currentChunk.ReadAsync(result, token);
             //Console.WriteLine($"{count}, {result.Length}, {_currentChunk.Length}");
             if (count != result.Length) return false;
             
-            Position.TimeValue += result.Length;
+            _position.TimeValue += result.Length;
             return true;
         }
 
@@ -159,8 +166,8 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             foreach (var episode in Song.Episodes) {
 				if (
 					(excludeCurrent) ?
-					(episode.Start.TotalSeconds > Position.TotalSeconds) :
-					(episode.Start.TotalSeconds >= Position.TotalSeconds)
+					(episode.Start.TotalSeconds > _position.TotalSeconds) :
+					(episode.Start.TotalSeconds >= _position.TotalSeconds)
 				) {
 					if (episode.AutoSkip) {
                         if (closestBreakPoint is null || episode.Start.TotalSeconds < closestBreakPoint) {
@@ -201,18 +208,18 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
                 await LoadChunksAtAsync((int)timePosition, token);
             }
 
-            Position.TimeValue = time.TimeValue;
+            _position.TimeValue = time.TimeValue;
 
             UpdatePlaybackPoints(forceEpisodePlayback);
 
             rewindCompletion.SetResult();
             _rewinding = null;
         }
-        public async Task<PamelloEpisode?> RewindToEpisode(int episodePosition, bool forceEpisodePlayback = true) {
+        public async Task<IPamelloEpisode?> RewindToEpisode(int episodePosition, bool forceEpisodePlayback = true) {
             var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
             if (episode is null) {
                 if (episodePosition > 0) {
-                    await RewindTo(Duration, forceEpisodePlayback, CancellationToken.None);
+                    await RewindTo(_duration, forceEpisodePlayback, CancellationToken.None);
                 }
                 else {
                     await RewindTo(new AudioTime(0), forceEpisodePlayback, CancellationToken.None);
@@ -229,7 +236,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             int? closestLeft = null;
 
             for (int i = 0; i < Song.Episodes.Count; i++) {
-                if (Song.Episodes[i].Start.TotalSeconds <= Position.TotalSeconds &&
+                if (Song.Episodes[i].Start.TotalSeconds <= _position.TotalSeconds &&
                     Song.Episodes[i].Start.TotalSeconds > 
                     (closestLeft is not null ?
                         Song.Episodes[closestLeft.Value].Start.TotalSeconds :
@@ -242,7 +249,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
 
             return closestLeft;
         }
-        public PamelloEpisode? GetCurrentEpisode() {
+        public IPamelloEpisode? GetCurrentEpisode() {
             var currentPosition = GetCurrentEpisodePosition();
             if (currentPosition is null) return null;
 
@@ -354,9 +361,9 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
             return chunkStream;
         }
 
-        public static string GetSongAudioPath(PamelloSong song)
+        public static string GetSongAudioPath(IPamelloSong song)
             => $@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus";
-        public static AudioTime? GetSongDuration(PamelloSong song) {
+        public static AudioTime? GetSongDuration(IPamelloSong song) {
             if (!song.IsDownloaded) {
                 return null;
 			}
