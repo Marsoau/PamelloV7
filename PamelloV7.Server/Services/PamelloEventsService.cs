@@ -6,6 +6,7 @@ using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Repositories.Database;
@@ -14,13 +15,13 @@ namespace PamelloV7.Server.Services
 {
     public class PamelloEventsService: IDisposable
     {
-        private readonly UserAuthorizationService _userAuthorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly IPamelloUserRepository _users;
 
         private readonly List<PamelloEventListener> _listeners;
 
-        public PamelloEventsService(UserAuthorizationService userAuthorization, IPamelloUserRepository users) {
-            _userAuthorization = userAuthorization;
+        public PamelloEventsService(ICodeAuthorizationService authorization, IPamelloUserRepository users) {
+            _authorization = authorization;
             _users = users;
 
             _listeners = new List<PamelloEventListener>();
@@ -90,11 +91,8 @@ namespace PamelloV7.Server.Services
         }
 
         public PamelloEventListener AuthorizeEventsWithCode(Guid eventsToken, int code) {
-            var userDiscordId = _userAuthorization.GetDiscordId(code);
-            if (userDiscordId is null) throw new PamelloException($"Code \"{code}\" is invalid");
-
-            var user = _users.GetByDiscord(userDiscordId.Value);
-            if (user is null) throw new PamelloException($"User with discord id \"{userDiscordId}\" not found");
+            var user = _authorization.GetUser(code);
+            if (user is null) throw new PamelloException($"User with authorization code \"{code}\" not found");
 
             return AuthorizeEventsWithToken(eventsToken, user.Token);
         }

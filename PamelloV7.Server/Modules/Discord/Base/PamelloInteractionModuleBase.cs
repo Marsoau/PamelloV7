@@ -9,6 +9,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Model.Audio;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Model.Audio;
@@ -25,7 +26,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 {
     public class PamelloInteractionModuleBase : InteractionModuleBase<PamelloSocketInteractionContext>
     {
-        private readonly UserAuthorizationService _authorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly DiscordClientService _discordClients;
 
         private readonly IPamelloPlayerRepository _players;
@@ -50,7 +51,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
         public PamelloInteractionModuleBase(IServiceProvider services)
         {
-            _authorization = services.GetRequiredService<UserAuthorizationService>();
+            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
             _players = services.GetRequiredService<IPamelloPlayerRepository>();
@@ -106,7 +107,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
         public async Task GetCode()
         {
-            await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User.DiscordId).ToString());
+            await RespondInfo("Authrorization Code", _authorization.GetCode(Context.User).ToString());
         }
         public async Task GetClient()
         {

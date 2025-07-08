@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Wrapper", "Pamell
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tests", "PamelloV7.Tests\PamelloV7.Tests.csproj", "{20801E3F-8C21-45FE-91BE-E411A100E62F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{E34EDB6A-6149-4309-B65C-3C518BA143B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Plugin.Base", "Plugins\PamelloV7.Plugin.Base\PamelloV7.Plugin.Base.csproj", "{C5427969-A884-452F-A56E-D6C447BCCC00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,11 +43,18 @@ Global
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5427969-A884-452F-A56E-D6C447BCCC00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5427969-A884-452F-A56E-D6C447BCCC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5427969-A884-452F-A56E-D6C447BCCC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5427969-A884-452F-A56E-D6C447BCCC00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54571684-3650-4644-88DF-C6ED731F1426}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C5427969-A884-452F-A56E-D6C447BCCC00} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 	EndGlobalSection
 EndGlobal

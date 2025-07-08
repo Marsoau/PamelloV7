@@ -6,6 +6,7 @@ using PamelloV7.Server.Exceptions;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Repositories.Database;
 
@@ -15,12 +16,12 @@ namespace PamelloV7.Server.Controllers
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
-        private readonly UserAuthorizationService _authorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly PamelloEventsService _events;
         private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
-            _authorization = services.GetRequiredService<UserAuthorizationService>();
+            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
             _events = services.GetRequiredService<PamelloEventsService>();
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }
@@ -58,11 +59,8 @@ namespace PamelloV7.Server.Controllers
 
         [HttpGet("GetToken/{code}")]
         public IActionResult GetToken(int code) {
-            var discordId = _authorization.GetDiscordId(code);
-            if (discordId is null) throw new PamelloControllerException(BadRequest($"Code {code} is invalid"));
-
-            var user = _users.GetByDiscord(discordId.Value);
-            if (user is null) throw new PamelloControllerException(NotFound($"Cant get user my discord id {discordId} (from code {code})"));
+            var user = _authorization.GetUser(code);
+            if (user is null) throw new PamelloControllerException(NotFound($"Cant get user by authorization code {code}"));
 
             return Ok(user.Token);
         }

@@ -4,7 +4,7 @@ using PamelloV7.Core.Services.Base;
 
 namespace PamelloV7.Core.Repositories.Base;
 
-public interface IPamelloRepository<TEntity> : IDisposable, IPamelloService
+public interface IPamelloRepository<TEntity> : IDisposable
     where TEntity : IPamelloEntity
 {
     public event Action? BeforeLoading;
