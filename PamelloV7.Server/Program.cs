@@ -15,6 +15,7 @@ using Discord.Audio;
 using PamelloV7.Core.Data;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
+using PamelloV7.Core.Services.Base;
 using PamelloV7.Server.Database;
 using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
@@ -26,6 +27,12 @@ namespace PamelloV7.Server
 {
     public class Program
     {
+        private readonly Dictionary<Type, Type?> _assemblyServices;
+        
+        public Program() {
+            _assemblyServices = new Dictionary<Type, Type?>();
+        }
+        
         public static async Task Main(string[] args) => await new Program().MainAsync(args);
 
         public async Task MainAsync(string[] args) {
@@ -36,34 +43,47 @@ namespace PamelloV7.Server
             var builder = WebApplication.CreateBuilder(args);
             var pluginLoader = new PamelloPluginLoader();
             
+            LoadAssemblyServices();
             pluginLoader.Load();
             
-            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
-
-            //ConfigureDatabaseServices(builder.Services);
-            //ConfigurePamelloServices(builder.Services);
-            //ConfigureApiServices(builder.Services);
-            builder.Services.AddSingleton<IPamelloLogger, PamelloLogger>();
-            builder.Services.AddSingleton<IDataAccessService, DataAccessService>();
-            
+            ConfigureAssemblyServices(builder.Services);
             pluginLoader.Configure(builder.Services);
+            
+            ConfigureApiServices(builder.Services);
+            
+            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
             
             var app = builder.Build();
 
-            //await StartupDatabaseServices(app.Services);
-            //await StartupPamelloServices(app.Services);
-            
-            app.Services.GetRequiredService<IDataAccessService>().Startup(app.Services);
-            
+            StartupAssemblyServices(app.Services);
             pluginLoader.Startup(app.Services);
             
-            //await StartupApiServices(app);
+            await StartupApiServices(app);
         }
 
-        private void ConfigureDatabaseServices(IServiceCollection services) {
+        public void LoadAssemblyServices() {
+            var serviceTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => typeof(IPamelloService).IsAssignableFrom(x));
+            foreach (var service in serviceTypes) {
+                var serviceInterface = service.GetInterfaces()
+                    .FirstOrDefault(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
+                
+                _assemblyServices.Add(service, serviceInterface);
+            }
         }
 
-        private void ConfigurePamelloServices(IServiceCollection services) {
+        private void ConfigureAssemblyServices(IServiceCollection services) {
+            StaticLogger.Log($"Configuring server services: ({_assemblyServices.Count} services)");
+            foreach (var kvp in _assemblyServices) {
+                if (kvp.Value is not null) {
+                    Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
+                    services.AddSingleton(kvp.Value, kvp.Key);
+                }
+                else {
+                    Console.WriteLine($"{kvp.Key.Name}");
+                    services.AddSingleton(kvp.Key);
+                }
+            }
+            StaticLogger.Log($"Server services configured");
         }
 
         private void ConfigureApiServices(IServiceCollection services) {
@@ -81,12 +101,30 @@ namespace PamelloV7.Server
             services.AddHttpContextAccessor();
         }
 
-        private async Task StartupDatabaseServices(IServiceProvider services) {
+        private void StartupAssemblyServices(IServiceProvider services) {
+            object? result;
+        
+            StaticLogger.Log($"Starting server services: ({_assemblyServices.Count} services)");
+            foreach (var kvp in _assemblyServices) {
+                if (kvp.Value is not null) {
+                    Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
+                    result = services.GetService(kvp.Value);
+                }
+                else {
+                    Console.WriteLine($"{kvp.Key.Name}");
+                    result = services.GetService(kvp.Key);
+                }
+            
+                if (result is not null) {
+                    ((IPamelloService)result).Startup(services);
+                }
+                else {
+                    Console.WriteLine($"Service {kvp.Key.Name} failed to start");
+                }
+            }
+            StaticLogger.Log($"Server services started");
         }
 
-        private async Task StartupPamelloServices(IServiceProvider services) {
-        }
-        
         private async Task StartupApiServices(WebApplication app) {
             app.MapControllers();
             app.UseCors("AllowSpecificOrigin");

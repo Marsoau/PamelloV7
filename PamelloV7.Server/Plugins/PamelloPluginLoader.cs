@@ -53,7 +53,7 @@ public class PamelloPluginLoader
     }
 
     public void Configure(IServiceCollection services) {
-        StaticLogger.Log($"Configuring services: ({Services.Count} services)");
+        StaticLogger.Log($"Configuring plugin services: ({Services.Count} services)");
         foreach (var kvp in Services) {
             if (kvp.Value is not null) {
                 Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
@@ -64,7 +64,7 @@ public class PamelloPluginLoader
                 services.AddSingleton(kvp.Key);
             }
         }
-        StaticLogger.Log($"Services configured");
+        StaticLogger.Log($"Plugin services configured");
         
         StaticLogger.Log($"Configuring plugins: ({Plugins.Count} plugins)");
         foreach (var plugin in Plugins) {
@@ -77,7 +77,7 @@ public class PamelloPluginLoader
     public void Startup(IServiceProvider services) {
         object? result;
         
-        StaticLogger.Log($"Starting services: ({Services.Count} services)");
+        StaticLogger.Log($"Starting plugin services: ({Services.Count} services)");
         foreach (var kvp in Services) {
             if (kvp.Value is not null) {
                 Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
@@ -95,7 +95,7 @@ public class PamelloPluginLoader
                 Console.WriteLine($"Service {kvp.Key.Name} failed to start");
             }
         }
-        StaticLogger.Log($"Services started");
+        StaticLogger.Log($"Plugin services started");
         
         StaticLogger.Log($"Starting plugins: ({Plugins.Count} plugins)");
         foreach (var plugin in Plugins) {
