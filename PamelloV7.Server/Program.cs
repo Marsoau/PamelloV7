@@ -36,7 +36,7 @@ namespace PamelloV7.Server
         public static async Task Main(string[] args) => await new Program().MainAsync(args);
 
         public async Task MainAsync(string[] args) {
-            StaticLogger.Log($"PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
+            StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
             
             Console.OutputEncoding = Encoding.Unicode;
 

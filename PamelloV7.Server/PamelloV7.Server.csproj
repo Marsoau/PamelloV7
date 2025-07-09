@@ -25,6 +25,24 @@
     <ProjectReference Include="..\PamelloV7.DAL\PamelloV7.DAL.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Plugins\PamelloV7.Plugin.Base\PamelloV7.Plugin.Base.csproj">
+      <IsPlugin>true</IsPlugin>
+    </ProjectReference>
+  </ItemGroup>
+  <Target Name="CopyPluginsAfterBuild" AfterTargets="Build">
+    <ItemGroup>
+      <PluginsToCopy Include="@(ProjectReference->WithMetadataValue('IsPlugin', 'true'))" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(PluginsToCopy)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="PluginBinaries" />
+    </MSBuild>
+
+    <RemoveDir Directories="$(OutputPath)Plugins\" />
+
+    <Copy SourceFiles="@(PluginBinaries)" DestinationFolder="$(OutputPath)Plugins\" />
+  </Target>
+  <ItemGroup>
     <Folder Include="Model\Audio\Modules\Outputs\" />
   </ItemGroup>
 </Project>
