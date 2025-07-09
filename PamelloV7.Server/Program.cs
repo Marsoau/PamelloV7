@@ -49,6 +49,8 @@ namespace PamelloV7.Server
             ConfigureAssemblyServices(builder.Services);
             pluginLoader.Configure(builder.Services);
             
+            if (!EnsureServicesIsImplemented(builder.Services)) return;
+            
             ConfigureApiServices(builder.Services);
             
             builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
@@ -99,6 +101,31 @@ namespace PamelloV7.Server
             });
             
             services.AddHttpContextAccessor();
+        }
+
+        private bool EnsureServicesIsImplemented(IServiceCollection services) {
+            var requiredServiceTypes = typeof(IPamelloService).Assembly.GetTypes()
+                .Where(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
+            
+            var notConfiguredCount = 0;
+            
+            StaticLogger.Log($"Ensuring required services are implemented: ({requiredServiceTypes.Count()} services)");
+            foreach (var requiredServiceType in requiredServiceTypes) {
+                var service = services.FirstOrDefault(x => x.ServiceType == requiredServiceType);
+                if (service is not null) continue;
+                
+                notConfiguredCount++;
+                Console.WriteLine($"{requiredServiceType.Name} is not implemented");
+            }
+
+            if (notConfiguredCount > 0) {
+                StaticLogger.Log($"{notConfiguredCount} of required services are not implemented, aborting startup");
+            }
+            else {
+                StaticLogger.Log($"Required services are implemented");
+            }
+            
+            return notConfiguredCount == 0;
         }
 
         private void StartupAssemblyServices(IServiceProvider services) {
