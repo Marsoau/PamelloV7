@@ -4,21 +4,9 @@ using PamelloV7.Core.Services.Base;
 
 namespace PamelloV7.Core.Repositories.Base;
 
-public interface IPamelloRepository<TEntity> : IDisposable
+public interface IPamelloRepository<TEntity>
     where TEntity : IPamelloEntity
 {
-    public event Action? BeforeLoading;
-    public event Action<int, int>? OnLoadingProgress;
-    public event Action? OnLoaded;
-
-    public event Action? BeforeInit;
-    public event Action<int, int>? OnInitProgress;
-    public event Action? OnInit;
-
-    public void InitServices();
-    public Task LoadAllAsync();
-    public Task InitAllAsync();
-    
     public TEntity? Get(int id);
     public TEntity GetRequired(int id);
 

@@ -34,7 +34,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         }
 
         public abstract DiscordString ToDiscordString();
-        public abstract IPamelloDTO GetDTO();
+        public abstract IPamelloDTO GetDto();
         public void Init() {
         }
 

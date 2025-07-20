@@ -196,7 +196,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             return $"{Name} [{Id}] {(IsProtected ? " (private)" : "")}";
         }
 
-        public IPamelloDTO GetDTO() {
+        public IPamelloDTO GetDto() {
             return new PamelloPlayerDTO {
                 Id = Id,
                 Name = Name,

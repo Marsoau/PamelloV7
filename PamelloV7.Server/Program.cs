@@ -1,27 +1,11 @@
-using Discord;
-using Discord.Interactions;
-using Discord.WebSocket;
-using PamelloV7.DAL;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Filters;
-using PamelloV7.Server.Handlers;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Services;
-using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using Discord.Audio;
-using PamelloV7.Core.Data;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
-using PamelloV7.Server.Database;
-using PamelloV7.Server.Model.Audio.Modules.Basic;
-using PamelloV7.Server.Model.Audio.Modules.Inputs;
+using PamelloV7.Server.Loaders;
 using PamelloV7.Server.Plugins;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server
 {
@@ -53,9 +37,13 @@ namespace PamelloV7.Server
             
             ConfigureApiServices(builder.Services);
             
+            DatabaseRepositoriesLoader.Configure(builder.Services);
+            
             builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
             
             var app = builder.Build();
+            
+            await DatabaseRepositoriesLoader.Load(app.Services);
 
             StartupAssemblyServices(app.Services);
             pluginLoader.Startup(app.Services);

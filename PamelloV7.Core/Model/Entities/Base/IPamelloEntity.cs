@@ -7,6 +7,8 @@ public interface IPamelloEntity
     public int Id { get; }
     public string Name { get; set; }
 
-    public IPamelloDTO GetDTO();
-    public void Init();
+    public IPamelloDTO GetDto();
+
+    public static IEnumerable<int> GetIds(IEnumerable<IPamelloEntity> entities)
+        => entities.Select(entity => entity.Id);
 }

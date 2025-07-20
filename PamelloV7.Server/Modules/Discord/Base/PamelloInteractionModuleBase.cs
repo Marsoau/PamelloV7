@@ -92,7 +92,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
             await RespondInfo("Pong");
 
             var guild = Context.Guild;
-            var guildUser = guild.GetUser(Context.User.DiscordId);
+            var guildUser = guild.GetUser(Context.User.DiscordId); //DISCORDUSER
             var vc = guildUser.VoiceChannel;
 
             if (vc is null) return;
@@ -429,7 +429,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task SongFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
             IPamelloUser? targetUser = null;
-            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) { //DISCORDUSER
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
             }
@@ -714,7 +714,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task PlaylistFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
             IPamelloUser? targetUser = null;
-            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) {
+            if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) { //DISCORDUSER
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
             }

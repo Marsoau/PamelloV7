@@ -5,7 +5,6 @@ using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
 using PamelloV7.Server.Services;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using PamelloV7.Core;
 using PamelloV7.Core.Model.Audio;
 using PamelloV7.Core.Model.Entities;
@@ -64,10 +63,10 @@ namespace PamelloV7.Server.Modules
 
                 var parameters = method.GetParameters();
 
-                Console.Write($"public async {method.ReturnType.ShortDisplayName()} {method.Name}(");
+                Console.Write($"public async {method.ReturnType.Name} {method.Name}(");
 
                 foreach (var parameter in parameters) {
-                    Console.Write($"{parameter.ParameterType.ShortDisplayName()} {parameter.Name}");
+                    Console.Write($"{parameter.ParameterType.Name} {parameter.Name}");
                 }
 
                 Console.Write($") {{\n\treturn await InvokeCommand<object>($\"{method.Name}&");

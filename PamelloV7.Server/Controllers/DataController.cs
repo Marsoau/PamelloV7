@@ -136,7 +136,7 @@ namespace PamelloV7.Server.Controllers
 
             Console.WriteLine($"[Data Get {entity.GetType().Name}] {User?.ToString() ?? "Unknown User"}: {entity}");
 
-            return Ok(entity.GetDTO());
+            return Ok(entity.GetDto());
         }
 
         private async Task<IActionResult> HandleBasicSearchRequest<T>(string querry, IPamelloRepository<T> repository)

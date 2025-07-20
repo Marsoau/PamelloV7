@@ -3,11 +3,11 @@ using PamelloV7.Core.Data;
 
 namespace PamelloV7.Server.Database;
 
-public class DataCollection<TDatabaseEntity> : IDataCollection<TDatabaseEntity>
+public class DatabaseCollection<TDatabaseEntity> : IDatabaseCollection<TDatabaseEntity>
 {
     private ILiteCollection<TDatabaseEntity> _collection;
     
-    public DataCollection(ILiteCollection<TDatabaseEntity> collection) {
+    public DatabaseCollection(ILiteCollection<TDatabaseEntity> collection) {
         _collection = collection;
     }
 

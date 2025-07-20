@@ -3,7 +3,7 @@ using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
-public interface IPamelloSong : IPamelloEntity
+public interface IPamelloSong : IPamelloDatabaseEntity
 {
     public string YoutubeId { get; }
     public string CoverUrl { get; }
@@ -17,6 +17,7 @@ public interface IPamelloSong : IPamelloEntity
     public IReadOnlyList<IPamelloEpisode> Episodes { get; }
     public IReadOnlyList<IPamelloPlaylist> Playlists { get; }
     public IReadOnlyList<string> Associations { get; }
+    public IReadOnlyList<string> Sources { get; }
     
     public void AddAssociation(string association);
     public void RemoveAssociation(string association);

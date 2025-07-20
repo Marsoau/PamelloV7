@@ -113,7 +113,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
             return DiscordString.Code($"{Name}") + " " + DiscordString.Code($"[{Id}]");
         }
 
-        public override IPamelloDTO GetDTO() {
+        public override IPamelloDTO GetDto() {
             return new PamelloInternetSpeakerDTO() {
                 Id = Id,
                 Name = Name,

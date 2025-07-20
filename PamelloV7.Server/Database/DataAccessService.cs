@@ -4,17 +4,17 @@ using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Database;
 
-public class DataAccessService : IDataAccessService
+public class DatabaseAccessService : IDatabaseAccessService
 {
-    private LiteDatabase _db;
-    
-    public void Startup(IServiceProvider services) {
-        _db = new LiteDatabase($"{PamelloServerConfig.Root.DataPath}/ldb.db");
+    private readonly LiteDatabase _db;
+
+    public DatabaseAccessService() {
+        _db = new LiteDatabase($"{PamelloServerConfig.Root.DataPath}/lite.db");
     }
 
-    public IDataCollection<TType> GetCollection<TType>(string name) {
+    public IDatabaseCollection<TType> GetCollection<TType>(string name) {
         var collection = _db.GetCollection<TType>(name);
 
-        return new DataCollection<TType>(collection);
+        return new DatabaseCollection<TType>(collection);
     }
 }

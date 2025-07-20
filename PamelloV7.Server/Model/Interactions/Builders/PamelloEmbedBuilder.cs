@@ -64,11 +64,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                             (" > " + entry.Song.ToDiscordString()).Bold()
                         );
                         sb.AppendLine();
-                        sb.Append("Added by " + (
-                            (entry.Adder as PamelloUser)?.DiscordUser is not null ?
-                                new DiscordString((entry.Adder as PamelloUser)?.DiscordUser) :
-                                new DiscordString("")
-                        ));
+                        sb.Append("Added by " + "none");
                     }
                     else {
                         sb.Append(" - ");

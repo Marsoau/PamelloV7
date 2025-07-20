@@ -2,7 +2,7 @@ using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
-public interface IPamelloPlaylist : IPamelloEntity
+public interface IPamelloPlaylist : IPamelloDatabaseEntity
 {
     public bool IsProtected { get; set; }
     public IPamelloUser Owner { get; }

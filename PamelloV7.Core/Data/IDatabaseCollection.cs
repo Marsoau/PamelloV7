@@ -1,6 +1,6 @@
 namespace PamelloV7.Core.Data;
 
-public interface IDataCollection<TDatabaseEntity>
+public interface IDatabaseCollection<TDatabaseEntity>
 {
     public TDatabaseEntity Get(object key);
     public IEnumerable<TDatabaseEntity> GetAll();

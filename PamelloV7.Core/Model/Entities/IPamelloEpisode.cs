@@ -3,7 +3,7 @@ using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
-public interface IPamelloEpisode : IPamelloEntity
+public interface IPamelloEpisode : IPamelloDatabaseEntity
 {
     public AudioTime Start { get; set; }
     public bool AutoSkip { get; set; }

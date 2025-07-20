@@ -2,7 +2,7 @@ using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
-public interface IPamelloUser : IPamelloEntity
+public interface IPamelloUser : IPamelloDatabaseEntity
 {
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
@@ -10,18 +10,17 @@ public interface IPamelloUser : IPamelloEntity
     
     public IPamelloCommandsModule Commands { get; }
     
+    public Guid Token { get; }
+    
+    public DateTime JoinedAt { get; }
     public int SongsPlayed { get; set; }
     
-    public ulong DiscordId { get; }
-    
-    public Guid Token { get; }
-    public DateTime JoinedAt { get; }
+    public ulong DiscordId => 0;
     
     public IReadOnlyList<IPamelloSong> AddedSongs { get; }
     public IReadOnlyList<IPamelloPlaylist> AddedPlaylists { get; }
     public IReadOnlyList<IPamelloSong> FavoriteSongs { get; }
     public IReadOnlyList<IPamelloPlaylist> FavoritePlaylists { get; }
-    public bool IsAdministrator { get; }
 
     public void TryLoadLastPlayer();
     public bool TrySelectPlayer(IPamelloPlayer? player);
