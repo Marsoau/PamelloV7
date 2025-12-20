@@ -11,4 +11,5 @@ public class DatabaseSong : DatabaseEntity
     public int PlayCount { get; set; }
     public int AddedBy { get; set; }
     public DateTime AddedAt { get; set; }
+    public bool IsSoftDeleted { get; set; }
 }

@@ -3,6 +3,9 @@ using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 using System.Reflection;
 using System.Text;
+using PamelloV7.Core.Events;
+using PamelloV7.Core.Events.Base;
+using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Server.Loaders;
 using PamelloV7.Server.Plugins;
@@ -12,6 +15,8 @@ namespace PamelloV7.Server
     public class Program
     {
         private readonly Dictionary<Type, Type?> _assemblyServices;
+        
+        public WebApplication App { get; set; }
         
         public Program() {
             _assemblyServices = new Dictionary<Type, Type?>();
@@ -39,16 +44,19 @@ namespace PamelloV7.Server
             
             DatabaseRepositoriesLoader.Configure(builder.Services);
             
+            builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
             builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
             
-            var app = builder.Build();
+            App = builder.Build();
             
-            await DatabaseRepositoriesLoader.Load(app.Services);
+            pluginLoader.PreStartup(App.Services);
+            
+            await DatabaseRepositoriesLoader.Load(App.Services);
 
-            StartupAssemblyServices(app.Services);
-            pluginLoader.Startup(app.Services);
+            StartupAssemblyServices(App.Services);
+            pluginLoader.Startup(App.Services);
             
-            await StartupApiServices(app);
+            await StartupApp();
         }
 
         public void LoadAssemblyServices() {
@@ -96,9 +104,10 @@ namespace PamelloV7.Server
                 .Where(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
             
             var notConfiguredCount = 0;
+            var serviceTypes = requiredServiceTypes as Type[] ?? requiredServiceTypes.ToArray();
             
-            StaticLogger.Log($"Ensuring required services are implemented: ({requiredServiceTypes.Count()} services)");
-            foreach (var requiredServiceType in requiredServiceTypes) {
+            StaticLogger.Log($"Ensuring required services are implemented: ({serviceTypes.Count()} services)");
+            foreach (var requiredServiceType in serviceTypes) {
                 var service = services.FirstOrDefault(x => x.ServiceType == requiredServiceType);
                 if (service is not null) continue;
                 
@@ -140,21 +149,60 @@ namespace PamelloV7.Server
             StaticLogger.Log($"Server services started");
         }
 
-        private async Task StartupApiServices(WebApplication app) {
-            app.MapControllers();
-            app.UseCors("AllowSpecificOrigin");
+        private async Task StartupApp() {
+            App.MapControllers();
+            App.UseCors("AllowSpecificOrigin");
 
-            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+            var lifetime = App.Services.GetRequiredService<IHostApplicationLifetime>();
 
             lifetime.ApplicationStopping.Register(OnStopping);
             lifetime.ApplicationStopped.Register(OnStop);
             lifetime.ApplicationStarted.Register(OnStart);
 
-            await app.RunAsync();
+            await App.RunAsync();
         }
 
         private void OnStart() {
-            Console.WriteLine("START");
+            var longText = """
+
+            0000000 \                                  00\ 00\       \00\     \000000000 /
+            00  __00 \                                 00 |00 |       \00\    \______00 / 
+            00 |  00 |000000\  000000\0000\   000000\  00 |00 | 000000\\00\    00 / 00 /  
+            0000000  |\____00\ 00  _00  _00\ 00  __00\ 00 |00 |00  __00\\00\  00 / 00 /   
+            00  ____/ 0000000 |00 / 00 / 00 |00000000 |00 |00 |00 /  00 |\00\00 / 00 /    
+            00 |     00  __00 |00 | 00 | 00 |00   ____|00 |00 |00 |  00 | \000 / 00 /     
+            00 |     \0000000 |00 | 00 | 00 |\0000000\ 00 |00 |\000000  |  \0 / 00 /      
+            \__|      \_______|\__| \__| \__| \_______|\__|\__| \______/    \/  \_/       
+
+            """;
+            var shortText = """
+            0000000 \\00\     \000000000 /
+            00  __00 \\00\    \______00 / 
+            00 |  00 | \00\    00 / 00 /  
+            0000000  |  \00\  00 / 00 /   
+            00  ____/    \00\00 / 00 /    
+            00 |          \000 / 00 /     
+            00 |           \0 / 00 /      
+            \__|            \/  \_/       
+            """;
+            var minimalText = "\nPamelloV7 Started Up\n";
+
+            switch (Console.WindowWidth) {
+                case >= 80:
+                    Console.WriteLine(longText);
+                    break;
+                case < 30:
+                    Console.WriteLine(minimalText);
+                    break;
+                default:
+                    Console.WriteLine(shortText);
+                    break;
+            }
+            
+            var events = App.Services.GetRequiredService<IEventsService>();
+            events.Invoke(new PamelloStarted() {
+                Services = App.Services
+            });
         }
 
         private void OnStop() {

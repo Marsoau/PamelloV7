@@ -15,8 +15,6 @@ using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Controllers
 {

@@ -74,6 +74,15 @@ public class PamelloPluginLoader
         StaticLogger.Log($"Plugins configured");;
     }
 
+    public void PreStartup(IServiceProvider services) {
+        StaticLogger.Log($"Initiating plugins pre-startup: ({Plugins.Count} plugins)");
+        foreach (var plugin in Plugins) {
+            Console.WriteLine($"[{plugin.Name}]");
+            plugin.PreStartup(services);
+        }
+        StaticLogger.Log($"Pre-Startup initiated");
+    }
+    
     public void Startup(IServiceProvider services) {
         object? result;
         

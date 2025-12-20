@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PamelloV7.Core.EventsOld;
 
 namespace PamelloV7.Wrapper.Services
 {
@@ -17,10 +18,10 @@ namespace PamelloV7.Wrapper.Services
             _client.Events.OnEventsUnAuthorized += Events_OnEventsUnAuthorized;
         }
 
-        private async Task Events_OnEventsAuthorized(Core.Events.EventsAuthorized arg) {
+        private async Task Events_OnEventsAuthorized(EventsAuthorized arg) {
 
         }
-        private async Task Events_OnEventsUnAuthorized(Core.Events.EventsUnAuthorized arg) {
+        private async Task Events_OnEventsUnAuthorized(EventsUnAuthorized arg) {
 
         }
 

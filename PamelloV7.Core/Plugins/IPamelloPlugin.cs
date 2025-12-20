@@ -8,6 +8,7 @@ public interface IPamelloPlugin
     public string Description { get; }
     
     public void Configure(IServiceCollection services) { }
+    public void PreStartup(IServiceProvider services) { }
     public void Startup(IServiceProvider services) { }
     public void Shoutdown() { }
 }

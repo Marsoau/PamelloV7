@@ -103,5 +103,7 @@ namespace PamelloV7.Core.Audio
             else
                 return $"{(Minutes < 10 ? '0' : "")}{Minutes}:{(Seconds < 10 ? '0' : "")}{Seconds}";
         }
+        
+        public static implicit operator AudioTime(string strTime) => FromStrTime(strTime);
     }
 }

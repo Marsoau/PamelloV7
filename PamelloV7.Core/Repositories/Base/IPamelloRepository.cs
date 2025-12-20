@@ -8,6 +8,7 @@ public interface IPamelloRepository<TEntity>
     where TEntity : IPamelloEntity
 {
     public TEntity? Get(int id);
+    public IEnumerable<TEntity> GetLoaded();
     public TEntity GetRequired(int id);
 
     public Task<TEntity?> GetByValue(string value, IPamelloUser? scopeUser);

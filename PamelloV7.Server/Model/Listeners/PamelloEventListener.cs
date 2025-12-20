@@ -1,6 +1,6 @@
 ﻿using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events;
 using System.Text.Json;
+using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Model.Entities;
 

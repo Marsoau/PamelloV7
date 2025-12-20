@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Services;

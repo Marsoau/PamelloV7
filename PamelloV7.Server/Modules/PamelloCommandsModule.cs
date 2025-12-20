@@ -2,7 +2,6 @@
 using PamelloV7.Server.Model;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Model.Audio;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Audio;
 using PamelloV7.Server.Services;
 using PamelloV7.Core;
@@ -11,8 +10,6 @@ using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Modules
 {
@@ -239,7 +236,8 @@ namespace PamelloV7.Server.Modules
         //song
         [PamelloCommand]
         public async Task<IPamelloSong> SongAdd(string youtubeId) {
-            return await _songs.AddAsync(youtubeId, User) ?? throw new PamelloException($"Cant add youtube song with id \"{youtubeId}\"");
+            //return await _songs.AddAsync(youtubeId, User) ?? throw new PamelloException($"Cant add youtube song with id \"{youtubeId}\"");
+            throw new NotImplementedException();
         }
         [PamelloCommand]
         public async Task<string> SongRename(IPamelloSong song, string newName) {

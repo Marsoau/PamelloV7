@@ -2,7 +2,7 @@
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events;
+using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Model.Audio;
 using PamelloV7.Core.Model.Entities;
@@ -12,8 +12,6 @@ using PamelloV7.Server.Model.Audio.Modules.Basic;
 using PamelloV7.Server.Model.Audio.Modules.Inputs;
 using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Audio.Modules.Pamello

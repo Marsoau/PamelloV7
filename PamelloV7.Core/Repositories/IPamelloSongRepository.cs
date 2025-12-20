@@ -7,7 +7,7 @@ namespace PamelloV7.Core.Repositories;
 
 public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSong>, IPamelloService
 {
-    public Task<IPamelloSong> AddAsync(string youtubeId, IPamelloUser adder);
+    public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder);
     public IPamelloSong GetRandom();
     public IPamelloSong GetByYoutubeId(string youtubeId);
 

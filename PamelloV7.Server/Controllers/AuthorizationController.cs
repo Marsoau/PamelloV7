@@ -3,12 +3,10 @@ using Microsoft.Extensions.Primitives;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Server.Model.Listeners;
-using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Controllers
 {
@@ -16,12 +14,12 @@ namespace PamelloV7.Server.Controllers
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
-        private readonly ICodeAuthorizationService _authorization;
+        private readonly IUserAuthorizationService _authorization;
         private readonly PamelloEventsService _events;
         private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
-            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
+            _authorization = services.GetRequiredService<IUserAuthorizationService>();
             _events = services.GetRequiredService<PamelloEventsService>();
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }

@@ -1,0 +1,60 @@
+using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Repositories;
+using PamelloV7.Plugin.Base.Entities;
+using PamelloV7.Plugin.Base.Repositories.Database.Base;
+using PamelloV7.Server.Entities;
+
+namespace PamelloV7.Plugin.Base.Repositories.Database;
+
+public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, DatabaseSong>, IPamelloSongRepository
+{
+    public PamelloSongRepository(IServiceProvider services) : base(services) {
+    }
+
+    public override string CollectionName => "songs";
+    protected override IPamelloSong CreatePamelloEntity(DatabaseSong databaseEntity) {
+        return new PamelloSong(databaseEntity, _services);
+    }
+
+    public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder) {
+        var databaseSong = new DatabaseSong() {
+            Name = name,
+            CoverUrl = coverUrl,
+            Associations = [],
+            Sources = [],
+            PlayCount = 0,
+            AddedBy = adder.Id,
+            AddedAt = DateTime.Now,
+        };
+        
+        GetCollection().Add(databaseSong);
+        
+        return Load(databaseSong);
+    }
+
+    public IPamelloSong GetRandom() {
+        throw new NotImplementedException();
+    }
+
+    public IPamelloSong GetByYoutubeId(string youtubeId) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloSong> Search(string querry, IPamelloUser scopeUser, IPamelloUser? addedBy = null,
+        IPamelloUser? favoriteBy = null) {
+        throw new NotImplementedException();
+    }
+    
+    public override void Delete(IPamelloSong song) {
+        var pamelloSong = (PamelloSong)song;
+        
+        pamelloSong.IsSoftDeleted = true;
+        
+        pamelloSong.Save();
+    }
+
+    public void HardDelete(IPamelloSong song) {
+        
+    }
+}

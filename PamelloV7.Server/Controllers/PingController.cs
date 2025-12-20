@@ -9,8 +9,9 @@ public class PingController : PamelloControllerBase
 {
     public PingController(IServiceProvider services) : base(services) {}
 
-    [HttpGet()]
+    [HttpGet("{*ignored}")]
     public IActionResult Get() {
-        return Ok("Pong");
+        var value = Request.Path.Value.Substring(Request.Path.Value.IndexOf('/', 1) + 1);
+        return Ok(value.Length == 0 ? "Pong" : $"Pong: {value}");
     }
 }

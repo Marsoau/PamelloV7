@@ -1,5 +1,4 @@
 ﻿using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Wrapper.Services

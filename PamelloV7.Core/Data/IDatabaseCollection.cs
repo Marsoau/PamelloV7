@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace PamelloV7.Core.Data;
 
 public interface IDatabaseCollection<TDatabaseEntity>
@@ -9,4 +11,6 @@ public interface IDatabaseCollection<TDatabaseEntity>
     
     public void Add(TDatabaseEntity entity);
     public void Save(TDatabaseEntity entity);
+    public void Delete(object key);
+    public void DeleteMany(Expression<Func<TDatabaseEntity, bool>> predicate);
 }

@@ -1,26 +1,24 @@
 ﻿using PamelloV7.Server.Model;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.EventsOld;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Model.Audio;
-using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
-using PamelloV7.Server.Repositories;
-using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Services
 {
     public class PamelloEventsService: IDisposable
     {
-        private readonly ICodeAuthorizationService _authorization;
+        private readonly IUserAuthorizationService _authorization;
         private readonly IPamelloUserRepository _users;
 
         private readonly List<PamelloEventListener> _listeners;
 
-        public PamelloEventsService(ICodeAuthorizationService authorization, IPamelloUserRepository users) {
+        public PamelloEventsService(IUserAuthorizationService authorization, IPamelloUserRepository users) {
             _authorization = authorization;
             _users = users;
 

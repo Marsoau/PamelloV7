@@ -18,15 +18,13 @@ using PamelloV7.Server.Model.Audio.Speakers;
 using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Interactions;
 using PamelloV7.Server.Model.Interactions.Builders;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Modules.Discord.Base
 {
     public class PamelloInteractionModuleBase : InteractionModuleBase<PamelloSocketInteractionContext>
     {
-        private readonly ICodeAuthorizationService _authorization;
+        private readonly IUserAuthorizationService _authorization;
         private readonly DiscordClientService _discordClients;
 
         private readonly IPamelloPlayerRepository _players;
@@ -51,7 +49,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
         public PamelloInteractionModuleBase(IServiceProvider services)
         {
-            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
+            _authorization = services.GetRequiredService<IUserAuthorizationService>();
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
             _players = services.GetRequiredService<IPamelloPlayerRepository>();
@@ -345,7 +343,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 return;
             }
 
-            song = await _songs.AddAsync(youtubeId, Context.User);
+            //song = await _songs.AddAsync(youtubeId, Context.User);
             if (song is null) throw new PamelloException("Cant add this song");
 
             await RespondPlayerInfo($"Song added", $"Song {song.ToDiscordString()} added to the database");

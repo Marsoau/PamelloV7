@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using LiteDB;
 using PamelloV7.Core.Data;
+using PamelloV7.Core.Data.Entities.Base;
 
 namespace PamelloV7.Server.Database;
 
@@ -29,5 +31,12 @@ public class DatabaseCollection<TDatabaseEntity> : IDatabaseCollection<TDatabase
 
     public void Save(TDatabaseEntity entity) {
         _collection.Update(entity);
+    }
+
+    public void Delete(object key) {
+        _collection.Delete((int)key);
+    }
+    public void DeleteMany(Expression<Func<TDatabaseEntity, bool>> predicate) {
+        _collection.DeleteMany(predicate);
     }
 }

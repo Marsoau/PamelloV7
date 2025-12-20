@@ -13,6 +13,8 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     
     public IPamelloUser? AddedBy { get; }
     
+    public bool IsSoftDeleted { get; }
+    
     public IReadOnlyList<IPamelloUser> FavoritedBy { get; }
     public IReadOnlyList<IPamelloEpisode> Episodes { get; }
     public IReadOnlyList<IPamelloPlaylist> Playlists { get; }
@@ -29,5 +31,4 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public void RemoveAllEpisodes();
     public void AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false);
     public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false);
-
 }

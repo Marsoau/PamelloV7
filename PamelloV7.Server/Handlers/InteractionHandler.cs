@@ -2,14 +2,12 @@
 using Discord.WebSocket;
 using System.Reflection;
 using PamelloV7.Server.Model.Interactions;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Interactions.Builders;
 using PamelloV7.Server.Services;
 using Discord;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
-using PamelloV7.Server.Repositories.Database;
 
 namespace PamelloV7.Server.Handlers
 {

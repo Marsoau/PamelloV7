@@ -5,10 +5,7 @@ using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Model;
-using PamelloV7.Server.Repositories;
 using PamelloV7.Server.Exceptions;
-using PamelloV7.Server.Repositories.Database;
-using PamelloV7.Server.Repositories.Dynamic;
 
 namespace PamelloV7.Server.Controllers
 {
