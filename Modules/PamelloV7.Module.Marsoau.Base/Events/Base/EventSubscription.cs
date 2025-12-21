@@ -1,6 +1,6 @@
 using PamelloV7.Core.Events.Base;
 
-namespace PamelloV7.Plugin.Base.Events.Base;
+namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 
 public class EventSubscription<TEventType> : IEventSubscription
     where TEventType : IPamelloEvent

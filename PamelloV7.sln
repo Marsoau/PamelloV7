@@ -13,9 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Wrapper", "Pamell
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tests", "PamelloV7.Tests\PamelloV7.Tests.csproj", "{20801E3F-8C21-45FE-91BE-E411A100E62F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{E34EDB6A-6149-4309-B65C-3C518BA143B3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E34EDB6A-6149-4309-B65C-3C518BA143B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Plugin.Base", "Plugins\PamelloV7.Plugin.Base\PamelloV7.Plugin.Base.csproj", "{C5427969-A884-452F-A56E-D6C447BCCC00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Base", "Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj", "{C5427969-A884-452F-A56E-D6C447BCCC00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Test", "Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj", "{DFED6C51-1569-4820-8490-8821FC04E48D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Database", "Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj", "{F1EF11A4-F395-47BC-8262-753DED124AD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +51,14 @@ Global
 		{C5427969-A884-452F-A56E-D6C447BCCC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5427969-A884-452F-A56E-D6C447BCCC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5427969-A884-452F-A56E-D6C447BCCC00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFED6C51-1569-4820-8490-8821FC04E48D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFED6C51-1569-4820-8490-8821FC04E48D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFED6C51-1569-4820-8490-8821FC04E48D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFED6C51-1569-4820-8490-8821FC04E48D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1EF11A4-F395-47BC-8262-753DED124AD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1EF11A4-F395-47BC-8262-753DED124AD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1EF11A4-F395-47BC-8262-753DED124AD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1EF11A4-F395-47BC-8262-753DED124AD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,5 +68,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C5427969-A884-452F-A56E-D6C447BCCC00} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
+		{DFED6C51-1569-4820-8490-8821FC04E48D} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
+		{F1EF11A4-F395-47BC-8262-753DED124AD4} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 	EndGlobalSection
 EndGlobal

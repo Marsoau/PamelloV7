@@ -2,10 +2,10 @@ using System.Diagnostics;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
-using PamelloV7.Plugin.Base.Repositories.Database;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
-namespace PamelloV7.Plugin.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Base.Entities;
 
 public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 {

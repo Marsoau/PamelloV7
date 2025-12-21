@@ -3,10 +3,10 @@ using PamelloV7.Core;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
-using PamelloV7.Plugin.Base.Repositories.Database;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
-namespace PamelloV7.Plugin.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Base.Entities;
 
 public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 {

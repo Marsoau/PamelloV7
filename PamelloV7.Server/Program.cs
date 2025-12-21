@@ -3,12 +3,12 @@ using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 using System.Reflection;
 using System.Text;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Server.Loaders;
-using PamelloV7.Server.Plugins;
 
 namespace PamelloV7.Server
 {
@@ -30,6 +30,34 @@ namespace PamelloV7.Server
             Console.OutputEncoding = Encoding.Unicode;
 
             var builder = WebApplication.CreateBuilder(args);
+            var modulesLoader = new PamelloModulesLoader();
+            
+            LoadAssemblyServices();
+            modulesLoader.Load();
+            
+            if (!modulesLoader.EnsureDependenciesAreSatisfied()) return;
+            
+            ConfigureAssemblyServices(builder.Services);
+            modulesLoader.Configure(builder.Services);
+            
+            if (!EnsureServicesIsImplemented(builder.Services)) return;
+            
+            ConfigureApiServices(builder.Services);
+            
+            builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
+            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
+            
+            App = builder.Build();
+
+            StartupAssemblyServices(App.Services);
+
+            foreach (var stage in Enum.GetValues<ELoadingStage>()) {
+                modulesLoader.StartupStage(App.Services, stage);
+            }
+            
+            await StartupApp();
+            
+            /*
             var pluginLoader = new PamelloPluginLoader();
             
             LoadAssemblyServices();
@@ -49,7 +77,7 @@ namespace PamelloV7.Server
             
             App = builder.Build();
             
-            pluginLoader.PreStartup(App.Services);
+            pluginLoader.Initialize(App.Services);
             
             await DatabaseRepositoriesLoader.Load(App.Services);
 
@@ -57,6 +85,7 @@ namespace PamelloV7.Server
             pluginLoader.Startup(App.Services);
             
             await StartupApp();
+            */
         }
 
         public void LoadAssemblyServices() {
@@ -73,11 +102,11 @@ namespace PamelloV7.Server
             StaticLogger.Log($"Configuring server services: ({_assemblyServices.Count} services)");
             foreach (var kvp in _assemblyServices) {
                 if (kvp.Value is not null) {
-                    Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
+                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
                     services.AddSingleton(kvp.Value, kvp.Key);
                 }
                 else {
-                    Console.WriteLine($"{kvp.Key.Name}");
+                    Console.WriteLine($"| {kvp.Key.Name}");
                     services.AddSingleton(kvp.Key);
                 }
             }
@@ -119,7 +148,7 @@ namespace PamelloV7.Server
                 StaticLogger.Log($"{notConfiguredCount} of required services are not implemented, aborting startup");
             }
             else {
-                StaticLogger.Log($"Required services are implemented");
+                StaticLogger.Log($"All required services are implemented");
             }
             
             return notConfiguredCount == 0;
@@ -209,7 +238,7 @@ namespace PamelloV7.Server
             Console.WriteLine("STOP");
         }
         private void OnStopping() {
-            Console.WriteLine("STOPPING");
+            Console.WriteLine("\n\n\nSTOPPING");
         }
     }
 }

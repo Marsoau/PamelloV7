@@ -1,8 +1,8 @@
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services;
-using PamelloV7.Plugin.Base.Events.Base;
+using PamelloV7.Module.Marsoau.Base.Events.Base;
 
-namespace PamelloV7.Plugin.Base.Services;
+namespace PamelloV7.Module.Marsoau.Base.Services;
 
 public class EventsService : IEventsService
 {

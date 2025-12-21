@@ -1,9 +1,9 @@
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
-using PamelloV7.Plugin.Base.Repositories.Database.Base;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
-namespace PamelloV7.Plugin.Base.Repositories.Database;
+namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
 
 public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlaylist, DatabasePlaylist>, IPamelloPlaylistRepository
 {

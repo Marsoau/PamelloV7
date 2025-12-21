@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\PamelloV7.Core\PamelloV7.Core.csproj" />
+      <ProjectReference Include="..\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj" />
+    </ItemGroup>
+
+</Project>

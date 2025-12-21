@@ -2,11 +2,11 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
-using PamelloV7.Plugin.Base.Entities;
-using PamelloV7.Plugin.Base.Repositories.Database.Base;
+using PamelloV7.Module.Marsoau.Base.Entities;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Server.Entities;
 
-namespace PamelloV7.Plugin.Base.Repositories.Database;
+namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
 
 public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisode, DatabaseEpisode>, IPamelloEpisodeRepository
 {

@@ -1,7 +1,7 @@
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Services;
 
-namespace PamelloV7.Plugin.Base.Services;
+namespace PamelloV7.Module.Marsoau.Base.Services;
 
 public class UserAuthorizationService : IUserAuthorizationService
 {

@@ -1,23 +1,24 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Plugins;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
-using PamelloV7.Plugin.Base.Services;
+using PamelloV7.Module.Marsoau.Base.Services;
 
-namespace PamelloV7.Plugin.Base;
+namespace PamelloV7.Module.Marsoau.Base;
 
-public class Base : IPamelloPlugin
+public class Base : IPamelloModule
 {
     public string Name => "Base";
+    public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
+    public ELoadingStage Stage => ELoadingStage.Early;
 
-    public void PreStartup(IServiceProvider services) {
-        
+    public void Configure(IServiceCollection services) {
     }
-
     public void Startup(IServiceProvider services) {
         var users = services.GetRequiredService<IPamelloUserRepository>();
         var songs = services.GetRequiredService<IPamelloSongRepository>();

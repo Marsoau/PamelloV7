@@ -24,23 +24,30 @@
     <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Plugins\PamelloV7.Plugin.Base\PamelloV7.Plugin.Base.csproj">
-      <IsPlugin>true</IsPlugin>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj">
+      <IsModule>true</IsModule>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj">
+      <IsModule>true</IsModule>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj">
+      <IsModule>true</IsModule>
     </ProjectReference>
   </ItemGroup>
-  <Target Name="CopyPluginsAfterBuild" AfterTargets="Build">
+  <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
     <ItemGroup>
-      <PluginsToCopy Include="@(ProjectReference->WithMetadataValue('IsPlugin', 'true'))" />
+      <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
     </ItemGroup>
-
-    <MSBuild Projects="@(PluginsToCopy)" Targets="GetTargetPath">
-      <Output TaskParameter="TargetOutputs" ItemName="PluginBinaries" />
+    
+    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="ModuleBinaries" />
     </MSBuild>
 
-    <RemoveDir Directories="$(OutputPath)Plugins\" />
+    <RemoveDir Directories="$(OutputPath)Modules\" />
 
-    <Copy SourceFiles="@(PluginBinaries)" DestinationFolder="$(OutputPath)Plugins\" />
+    <Copy SourceFiles="@(ModuleBinaries)" DestinationFolder="$(OutputPath)Modules\" />
   </Target>
+
   <ItemGroup>
     <Folder Include="Model\Audio\Modules\Outputs\" />
   </ItemGroup>

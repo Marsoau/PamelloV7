@@ -7,7 +7,7 @@ using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 
-namespace PamelloV7.Plugin.Base.Repositories.Database.Base;
+namespace PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
 public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : IPamelloDatabaseRepository<TPamelloEntity>
     where TPamelloEntity : IPamelloDatabaseEntity
