@@ -17,7 +17,7 @@ namespace PamelloV7.Server.Model.Discord
             else _str = Ecranate(obj);
         }
         public DiscordString(IPamelloUser user) {
-            _str = $"<@{user.DiscordId}>"; //DISCORDUSER
+            _str = $"<@discordid>"; //DISCORDUSER
         }
         public DiscordString(SocketUser user) {
             _str = $"<@{user.Id}>";

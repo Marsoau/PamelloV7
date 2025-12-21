@@ -16,4 +16,5 @@ public interface IPamelloPlayer : IPamelloEntity
     public IPamelloQueue Queue { get; }
 
     public Task<IPamelloInternetSpeaker> AddInternet(string? name);
+    //other speaker providers should probably create extension methods here
 }

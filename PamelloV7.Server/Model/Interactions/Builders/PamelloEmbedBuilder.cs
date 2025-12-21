@@ -112,7 +112,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static EmbedBuilder SongInfo(IPamelloSong song) {
             return new EmbedBuilder() {
                 Title = song.Name,
-                Url = $"https://www.youtube.com/watch?v={song.YoutubeId}",
+                Url = $"https://www.youtube.com/watch?v=song.YoutubeId",
                 ThumbnailUrl = song.CoverUrl,
                 Footer = new EmbedFooterBuilder() {
                     Text = $"Id: {song.Id} | Added: {song.AddedAt.ToLocalTime()}"
@@ -120,12 +120,12 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 Fields = [
                     new EmbedFieldBuilder() {
                         Name = "Played",
-                        Value = song.PlayCount,
+                        Value = 0,
                         IsInline = true,
                     },
                     new EmbedFieldBuilder() {
                         Name = "Favorite By",
-                        Value = song.FavoritedBy.Count,
+                        Value = song.FavoriteBy.Count,
                         IsInline = true,
                     },
                     new EmbedFieldBuilder() {

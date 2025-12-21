@@ -12,6 +12,9 @@ public class DatabaseUser : DatabaseEntity
     
     public Guid Token { get; set; }
     
+    //Authorization index to get profile info from
+    public int SelectedAuthorization { get; set; }
+    
     //key - Service, value - User
     public Dictionary<string, string> Authorizations { get; set; }
 }

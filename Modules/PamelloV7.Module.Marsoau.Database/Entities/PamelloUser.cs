@@ -15,6 +15,8 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     private DateTime _joinedAt;
     private int _songsPlayed;
     
+    internal List<IUserAuthorization> _authorizations;
+    
     internal List<IPamelloSong> _addedSongs;
     internal List<IPamelloPlaylist> _addedPlaylists;
     internal List<IPamelloSong> _favoriteSongs;
@@ -27,12 +29,17 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
     public Guid Token => _token;
     public DateTime JoinedAt => _joinedAt;
-    public int SongsPlayed { get; set; }
+    
+    public int SelectedAuthorizationIndex { get; set; }
 
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
     public IPamelloPlayer RequiredSelectedPlayer { get; }
     public IPamelloCommandsModule Commands { get; }
+
+    public IUserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
+    
+    public IReadOnlyList<IUserAuthorization> Authorizations => _authorizations;
     
     public IReadOnlyList<IPamelloSong> AddedSongs => _addedSongs;
     public IReadOnlyList<IPamelloPlaylist> AddedPlaylists => _addedPlaylists;
@@ -104,6 +111,10 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     }
 
     public void RequireSelectPlayer(IPamelloPlayer? player) {
+        throw new NotImplementedException();
+    }
+
+    public void AddAuthorization(IUserAuthorization authorization) {
         throw new NotImplementedException();
     }
 

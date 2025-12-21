@@ -38,7 +38,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private readonly YoutubeInfoService _youtubeInfo;
 
         private IPamelloCommandsModule Commands {
-            get => Context.User.Commands;
+            get => throw new NotImplementedException(); //Context.User.Commands;
         }
         private IPamelloPlayer Player {
             get => Context.User.RequiredSelectedPlayer;
@@ -89,6 +89,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
         {
             await RespondInfo("Pong");
 
+            /*
             var guild = Context.Guild;
             var guildUser = guild.GetUser(Context.User.DiscordId); //DISCORDUSER
             var vc = guildUser.VoiceChannel;
@@ -101,6 +102,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
             foreach (var user in users) {
                 Console.WriteLine(user);
             }
+            */
         }
 
         public async Task GetCode()
@@ -426,6 +428,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
         public async Task SongFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
+            /*
             IPamelloUser? targetUser = null;
             if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) { //DISCORDUSER
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
@@ -445,6 +448,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 },
                 page - 1
             );
+            */
         }
 
         public async Task SongAssociationsAdd(string songValue, string association)
@@ -712,6 +716,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         public async Task PlaylistFavoriteList(string querry, int page, SocketUser? targetDiscordUser)
         {
             IPamelloUser? targetUser = null;
+            /*
             if (targetDiscordUser is not null && targetDiscordUser.Id != Context.User.DiscordId) { //DISCORDUSER
                 targetUser = _users.GetByDiscord(targetDiscordUser.Id);
                 if (targetUser is null) throw new Exception("Cant find a provided user");
@@ -730,6 +735,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
                 },
                 page - 1
             );
+            */
         }
         public async Task PlaylistDelete(string playlistValue)
         {

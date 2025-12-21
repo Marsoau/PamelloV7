@@ -120,9 +120,9 @@ namespace PamelloV7.Server.Controllers
                 object? result;
 
                 if (typeof(Task).IsAssignableFrom(commandMethod.ReturnType)) {
-                    result = await commandMethod.InvokeAsync(User.Commands, args);
+                    result = null; //await commandMethod.InvokeAsync(User.Commands, args);
                 }
-                else result = commandMethod.Invoke(User.Commands, args);
+                else result = null; //commandMethod.Invoke(User.Commands, args);
 
                 if (result is IPamelloEntity resultEntity) {
                     result = resultEntity.Id;

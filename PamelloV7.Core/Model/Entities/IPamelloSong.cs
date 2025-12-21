@@ -5,21 +5,23 @@ namespace PamelloV7.Core.Model.Entities;
 
 public interface IPamelloSong : IPamelloDatabaseEntity
 {
-    public string YoutubeId { get; }
     public string CoverUrl { get; }
-    public int PlayCount { get; set; }
     public DateTime AddedAt { get; }
-    public bool IsDownloaded { get; }
     
     public IPamelloUser? AddedBy { get; }
     
     public bool IsSoftDeleted { get; }
     
-    public IReadOnlyList<IPamelloUser> FavoritedBy { get; }
+    public int SelectedSourceIndex { get; set; }
+    public ISongSource? SelectedSource { get; }
+    public IReadOnlyList<ISongSource> Sources { get; }
+    
+    public IReadOnlyList<IPamelloUser> FavoriteBy { get; }
     public IReadOnlyList<IPamelloEpisode> Episodes { get; }
     public IReadOnlyList<IPamelloPlaylist> Playlists { get; }
     public IReadOnlyList<string> Associations { get; }
-    public IReadOnlyDictionary<string, string> Sources { get; }
+    
+    public void AddSource(ISongSource source);
     
     public void AddAssociation(string association);
     public void RemoveAssociation(string association);

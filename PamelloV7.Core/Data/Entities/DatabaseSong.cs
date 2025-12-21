@@ -8,6 +8,9 @@ public class DatabaseSong : DatabaseEntity
     
     //Url can point to either a pamello file or any internet image
     public string CoverUrl { get; set; }
+    
+    //<filename> part of "[this song id]-<filename>.opus" full file name
+    public string SelectedFile { get; set; }
     public List<string> Associations { get; set; }
     
     //key - Service, value - ID

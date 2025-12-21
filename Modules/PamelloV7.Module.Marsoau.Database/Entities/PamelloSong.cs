@@ -15,22 +15,23 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     private IPamelloUser _addedBy;
     private bool _isSoftDeleted;
     
+    public List<ISongSource> _sources;
+    
     public List<IPamelloUser> _favoritedBy;
     public List<IPamelloEpisode> _songEpisodes;
     public List<IPamelloPlaylist> _songPlaylists;
     public List<string> _associations;
-    public Dictionary<string, string> _sources;
 
     public override string Name {
         get => _name;
         set => _name = value;
     }
 
-    public string YoutubeId => "noytid";
     public string CoverUrl => _coverUrl;
-    public int PlayCount { get; set; }
 
     public DateTime AddedAt => _addedAt;
+    
+    public int SelectedSourceIndex { get; set; }
 
     public bool IsSoftDeleted {
         get => _isSoftDeleted;
@@ -39,19 +40,23 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 
     public bool IsDownloaded => false;
     public IPamelloUser? AddedBy => _addedBy;
-    public IReadOnlyList<IPamelloUser> FavoritedBy => _favoritedBy;
+    
+    public ISongSource? SelectedSource => _sources.ElementAtOrDefault(SelectedSourceIndex);
+    
+    public IReadOnlyList<ISongSource> Sources => _sources;
+    
+    public IReadOnlyList<IPamelloUser> FavoriteBy => _favoritedBy;
     public IReadOnlyList<IPamelloEpisode> Episodes => _songEpisodes;
     public IReadOnlyList<IPamelloPlaylist> Playlists => _songPlaylists;
     public IReadOnlyList<string> Associations => _associations;
-    public IReadOnlyDictionary<string, string> Sources => _sources;
     
     public PamelloSong(DatabaseSong databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
         _coverUrl = databaseEntity.CoverUrl;
         _addedAt = databaseEntity.AddedAt;
         _associations = databaseEntity.Associations.ToList();
-        _sources = databaseEntity.Sources;
         _isSoftDeleted = databaseEntity.IsSoftDeleted;
+        //_sources = databaseEntity.Sources;
     }
     
     protected override void InitBase() {
@@ -109,7 +114,11 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     *
     * 
     */
-    
+
+    public void AddSource(ISongSource source) {
+        throw new NotImplementedException();
+    }
+
     public void AddAssociation(string association) {
         var databaseAssociations = ((PamelloSongRepository)_songs)
             .GetCollection()

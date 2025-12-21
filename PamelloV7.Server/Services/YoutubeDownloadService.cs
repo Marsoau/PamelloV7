@@ -51,7 +51,7 @@ namespace PamelloV7.Server.Services
 			if (download is not null) {
 				return download.Task;
 			}
-			if (song.IsDownloaded) {
+			if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return Task.FromResult(EDownloadResult.Success);
 
 				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
@@ -61,7 +61,7 @@ namespace PamelloV7.Server.Services
 			return Task.Run(() => DownloadFromYoutube(song, forceDownload));
 		}
 		public EDownloadResult DownloadFromYoutube(IPamelloSong song, bool forceDownload = false) {
-			if (song.IsDownloaded) {
+			if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
 				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
@@ -88,7 +88,7 @@ namespace PamelloV7.Server.Services
 			using var process = new Process();
 			process.StartInfo = new ProcessStartInfo() {
 				FileName = $@"yt-dlp",
-				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{PamelloServerConfig.Root.DataPath}/Music/{song.Id}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={song.YoutubeId}",
+				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{PamelloServerConfig.Root.DataPath}/Music/{song.Id}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v=song.YoutubeId",
 				StandardOutputEncoding = Encoding.Unicode,
 				UseShellExecute = false,
 				RedirectStandardOutput = true
