@@ -19,7 +19,7 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloEpisode> Episodes { get; }
     public IReadOnlyList<IPamelloPlaylist> Playlists { get; }
     public IReadOnlyList<string> Associations { get; }
-    public IReadOnlyList<string> Sources { get; }
+    public IReadOnlyDictionary<string, string> Sources { get; }
     
     public void AddAssociation(string association);
     public void RemoveAssociation(string association);

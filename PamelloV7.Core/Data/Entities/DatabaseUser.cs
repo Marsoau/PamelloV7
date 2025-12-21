@@ -9,8 +9,9 @@ public class DatabaseUser : DatabaseEntity
     public List<int> FavoritePlaylistIds { get; set; }
     
     public DateTime JoinedAt { get; set; }
-    public int SongsPlayed { get; set; }
     
     public Guid Token { get; set; }
-    public List<DatabaseUserAuthorization> Authorizations { get; set; }
+    
+    //key - Service, value - User
+    public Dictionary<string, string> Authorizations { get; set; }
 }

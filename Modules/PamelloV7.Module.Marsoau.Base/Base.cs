@@ -15,7 +15,7 @@ public class Base : IPamelloModule
     public string Name => "Base";
     public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
-    public ELoadingStage Stage => ELoadingStage.Early;
+    public ELoadingStage Stage => ELoadingStage.Default;
 
     public void Configure(IServiceCollection services) {
     }

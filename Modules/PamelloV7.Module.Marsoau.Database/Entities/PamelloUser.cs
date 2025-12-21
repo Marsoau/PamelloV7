@@ -27,12 +27,8 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
     public Guid Token => _token;
     public DateTime JoinedAt => _joinedAt;
+    public int SongsPlayed { get; set; }
 
-    public int SongsPlayed {
-        get => _songsPlayed;
-        set => _songsPlayed = value;
-    }
-    
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
     public IPamelloPlayer RequiredSelectedPlayer { get; }
@@ -46,7 +42,6 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     public PamelloUser(DatabaseUser databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
-        _songsPlayed = databaseEntity.SongsPlayed;
         
         //Commands = new PamelloCommandsModule(services, this);
     }
@@ -83,7 +78,6 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
         databaseUser.FavoriteSongIds = IPamelloEntity.GetIds(FavoriteSongs).ToList();
         databaseUser.FavoritePlaylistIds = IPamelloEntity.GetIds(FavoritePlaylists).ToList();
-        databaseUser.SongsPlayed = SongsPlayed;
         
         databaseUsers.Save(databaseUser);
     }

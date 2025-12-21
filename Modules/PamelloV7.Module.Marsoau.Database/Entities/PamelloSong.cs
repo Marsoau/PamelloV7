@@ -11,7 +11,6 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 {
     private string _name;
     private string _coverUrl;
-    private int _playCount;
     private DateTime _addedAt;
     private IPamelloUser _addedBy;
     private bool _isSoftDeleted;
@@ -20,7 +19,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     public List<IPamelloEpisode> _songEpisodes;
     public List<IPamelloPlaylist> _songPlaylists;
     public List<string> _associations;
-    public List<string> _sources;
+    public Dictionary<string, string> _sources;
 
     public override string Name {
         get => _name;
@@ -29,11 +28,8 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 
     public string YoutubeId => "noytid";
     public string CoverUrl => _coverUrl;
+    public int PlayCount { get; set; }
 
-    public int PlayCount {
-        get => _playCount;
-        set => _playCount = value;
-    }
     public DateTime AddedAt => _addedAt;
 
     public bool IsSoftDeleted {
@@ -47,15 +43,14 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     public IReadOnlyList<IPamelloEpisode> Episodes => _songEpisodes;
     public IReadOnlyList<IPamelloPlaylist> Playlists => _songPlaylists;
     public IReadOnlyList<string> Associations => _associations;
-    public IReadOnlyList<string> Sources => _sources;
+    public IReadOnlyDictionary<string, string> Sources => _sources;
     
     public PamelloSong(DatabaseSong databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
         _coverUrl = databaseEntity.CoverUrl;
-        _playCount = databaseEntity.PlayCount;
         _addedAt = databaseEntity.AddedAt;
         _associations = databaseEntity.Associations.ToList();
-        _sources = databaseEntity.Sources.ToList();
+        _sources = databaseEntity.Sources;
         _isSoftDeleted = databaseEntity.IsSoftDeleted;
     }
     
@@ -96,7 +91,6 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         
         databaseSong.Name = _name;
         databaseSong.CoverUrl = _coverUrl;
-        databaseSong.PlayCount = _playCount;
 
         databaseSong.Associations = _associations;
         

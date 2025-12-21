@@ -33,7 +33,6 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
             FavoriteSongIds = [],
             Authorizations = [],
             JoinedAt = DateTime.Now,
-            SongsPlayed = 0,
         };
         
         GetCollection().Add(databaseUser);

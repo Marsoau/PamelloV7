@@ -23,7 +23,6 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             CoverUrl = coverUrl,
             Associations = [],
             Sources = [],
-            PlayCount = 0,
             AddedBy = adder.Id,
             AddedAt = DateTime.Now,
         };
