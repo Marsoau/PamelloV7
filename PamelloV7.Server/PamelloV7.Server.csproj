@@ -33,6 +33,9 @@
     <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj">
       <IsModule>true</IsModule>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj">
+      <IsModule>true</IsModule>
+    </ProjectReference>
   </ItemGroup>
   <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
     <ItemGroup>

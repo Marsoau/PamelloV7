@@ -1,4 +1,5 @@
-﻿using PamelloV7.Core.Model.Entities;
+﻿using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Services.Base;
 

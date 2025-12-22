@@ -3,20 +3,19 @@ using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
 namespace PamelloV7.Server.Loaders;
 
 public static class DatabaseRepositoriesLoader
 {
-    public static void Configure(IServiceCollection services) {
-        services.AddSingleton<IPamelloDatabaseRepository>(s => s.GetRequiredService<IPamelloUserRepository>());
-        services.AddSingleton<IPamelloDatabaseRepository>(s => s.GetRequiredService<IPamelloSongRepository>());
-        services.AddSingleton<IPamelloDatabaseRepository>(s => s.GetRequiredService<IPamelloEpisodeRepository>());
-        services.AddSingleton<IPamelloDatabaseRepository>(s => s.GetRequiredService<IPamelloPlaylistRepository>());
-    }
-    
-    public static async Task Load(IServiceProvider services) {
-        var repositories = services.GetServices<IPamelloDatabaseRepository>().ToArray();
+    public static async Task Load(IServiceCollection collection, IServiceProvider services) {
+        var repositories = new List<IPamelloDatabaseRepository>();
+
+        foreach (var descriptor in collection) {
+            if (!descriptor.ServiceType.IsAssignableTo(typeof(IPamelloDatabaseRepository))) continue;
+            repositories.Add((IPamelloDatabaseRepository)services.GetRequiredService(descriptor.ServiceType));;
+        }
         
         foreach (var repository in repositories) {
             repository.OnLoadingStart += () => RepositoryOnOnLoadingStart(repository);

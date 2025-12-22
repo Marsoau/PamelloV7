@@ -430,7 +430,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             {
                 if (!IsFeedRandom) return null;
                 
-                return AddSong(_songs.GetRandom(), null);
+                return AddSong(_songs.GetRandom(null).First(), null);
             }
 
             int nextPosition;
@@ -458,7 +458,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
 
 			if (_entries.Count == 0) {
                 if (IsFeedRandom) {
-                    return AddSong(_songs.GetRandom(), null);
+                    return AddSong(_songs.GetRandom(null).First(), null);
                 }
                 
                 SetCurrent(null);

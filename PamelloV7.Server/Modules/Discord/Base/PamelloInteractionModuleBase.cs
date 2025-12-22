@@ -339,7 +339,7 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         {
             var youtubeId = _youtubeInfo.GetVideoIdFromUrl(youtubeUrl);
 
-            var song = _songs.GetByYoutubeId(youtubeId);
+            var song = (IPamelloSong)null; //_songs.GetByYoutubeId(youtubeId);
             if (song is not null) {
                 await RespondInfo("Song is already present in the database");
                 return;

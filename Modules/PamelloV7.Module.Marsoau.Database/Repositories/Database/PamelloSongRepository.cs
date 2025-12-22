@@ -17,6 +17,30 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         return new PamelloSong(databaseEntity, _services);
     }
 
+    public IPamelloSong? Get(IPamelloUser scopeUser, int id) {
+        return Get(id);
+    }
+
+    public IPamelloSong? GetByName(IPamelloUser scopeUser, string query) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser) {
+        return [Get(1)!];
+    }
+
+    public IEnumerable<IPamelloSong> GetRandom(IPamelloUser scopeUser) {
+        return [_loaded[Random.Shared.Next(_loaded.Count)]];;
+    }
+
+    public IEnumerable<IPamelloSong> GetQueue(IPamelloUser scopeUser) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloSong> GetAll(IPamelloUser scopeUser, IPamelloUser? addedBy = null, IPamelloUser? favoriteBy = null) {
+        throw new NotImplementedException();
+    }
+
     public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder) {
         var databaseSong = new DatabaseSong() {
             Name = name,
@@ -30,10 +54,6 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         GetCollection().Add(databaseSong);
         
         return Load(databaseSong);
-    }
-
-    public IPamelloSong GetRandom() {
-        throw new NotImplementedException();
     }
 
     public IPamelloSong GetByYoutubeId(string youtubeId) {

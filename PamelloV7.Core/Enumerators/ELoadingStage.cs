@@ -2,7 +2,7 @@ namespace PamelloV7.Core.Enumerators;
 
 public enum ELoadingStage
 {
-    BeforeServer,
+    Earliest,
     Early,
     Default,
     Late,

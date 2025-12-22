@@ -20,8 +20,9 @@ public class Base : IPamelloModule
     public void Configure(IServiceCollection services) {
     }
     public void Startup(IServiceProvider services) {
-        var users = services.GetRequiredService<IPamelloUserRepository>();
+        /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();
+        var users = services.GetRequiredService<IPamelloUserRepository>();
 
         var user = users.Get(1)!;
         var song = songs.Get(1)!;
@@ -41,5 +42,6 @@ public class Base : IPamelloModule
         foreach (var episode in song.Episodes) {
             Console.WriteLine($"Episode: {episode}");
         }
+        */
     }
 }

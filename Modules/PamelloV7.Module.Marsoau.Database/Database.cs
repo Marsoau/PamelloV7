@@ -10,13 +10,11 @@ public class Database : IPamelloModule
     public string Name => "Database";
     public string Author => "Marsoau";
     public string Description => "Basic database repositories and other database functionality";
-    public ELoadingStage Stage => ELoadingStage.Early;
-    
-    public void Configure(IServiceCollection services) {
-        DatabaseRepositoriesLoader.Configure(services);
-    }
+    public ELoadingStage Stage => ELoadingStage.Earliest;
 
     public void Startup(IServiceProvider services) {
-        DatabaseRepositoriesLoader.Load(services).Wait();
+        var collection = services.GetRequiredService<IServiceCollection>();
+        
+        DatabaseRepositoriesLoader.Load(collection, services).Wait();
     }
 }

@@ -1,8 +1,10 @@
+using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
+[ValueEntity("songs")]
 public interface IPamelloSong : IPamelloDatabaseEntity
 {
     public string CoverUrl { get; }
