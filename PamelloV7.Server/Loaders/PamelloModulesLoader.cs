@@ -100,7 +100,7 @@ public class PamelloModulesLoader
     }
 
     public void Configure(IServiceCollection services) {
-        StaticLogger.Log($"Configuring modules: ({Containers.Count} modules, {Containers.SelectMany(c => c.Services).Count()} services)");
+        StaticLogger.Log($"Configuring module services: ({Containers.SelectMany(c => c.Services).Count()} services from {Containers.Count} modules)");
         
         foreach (var container in Containers) {
             Console.WriteLine($"{container}");
@@ -116,6 +116,13 @@ public class PamelloModulesLoader
                 }
             }
             
+            container.Module.Configure(services);
+        }
+        
+        StaticLogger.Log($"Configuring modules: ({Containers.Count} modules)");
+        
+        foreach (var container in Containers) {
+            Console.WriteLine($"{container}");
             container.Module.Configure(services);
         }
         
