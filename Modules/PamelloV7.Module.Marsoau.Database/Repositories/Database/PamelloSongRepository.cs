@@ -26,7 +26,12 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser) {
-        return [Get(1)!];
+        var queue = scopeUser.SelectedPlayer?.Queue;
+        if (queue is null) return [];
+
+        var current = queue.Entries[queue.Position].Song;
+
+        return [current];
     }
 
     public IEnumerable<IPamelloSong> GetRandom(IPamelloUser scopeUser) {
@@ -34,11 +39,26 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetQueue(IPamelloUser scopeUser) {
-        throw new NotImplementedException();
+        var queue = scopeUser.SelectedPlayer?.Queue;
+        return queue is null ? [] : queue.Entries.Select(entry => entry.Song);
     }
 
     public IEnumerable<IPamelloSong> GetAll(IPamelloUser scopeUser, IPamelloUser? addedBy = null, IPamelloUser? favoriteBy = null) {
+        var results = (IEnumerable<IPamelloSong>)_loaded;
+        
+        if (addedBy is not null) results = results.Where(s => s.AddedBy != addedBy);
+        if (favoriteBy is not null) results = results.Where(s => s.FavoriteBy.Contains(favoriteBy));
+        
+        return results;
+    }
+
+    public IEnumerable<IPamelloSong> GetFromPlaylist(IPamelloUser scopeUser, IPamelloPlaylist? playlist) {
         throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloSong> TestPoint(IPamelloUser scopeUser, int value) {
+        Console.WriteLine($"TTEEST PINT: {value}");
+        return [];
     }
 
     public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder) {

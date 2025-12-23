@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.Reflection;
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Services.PEQL;
@@ -30,10 +32,18 @@ public class EntityProviderContainer
         return (IPamelloEntity)method.Invoke(Provider, [scopeUser, id])!;
     }
 
-    public IEnumerable<IPamelloEntity> GetFromPoint(string pointName, IPamelloUser scopeUser, object?[] args) {
+    public IEnumerable<IPamelloEntity> GetFromPoint(string pointName, string stringArgs, IPamelloUser scopeUser) {
         var method = Type.GetMethods().FirstOrDefault(method => method.GetCustomAttribute<ValuePointAttribute>()?.Name == pointName);
         if (method is null) throw new Exception($"Value point {pointName} not found");
+
+        var argumentsInfos = method.GetParameters();
+        var stringArgsValues = stringArgs.SplitArgs(',');
+        var arguments = new object?[argumentsInfos.Length - 1];
+
+        for (var i = 0; i < argumentsInfos.Length - 1; i++) {
+            arguments[i] = TypeDescriptor.GetConverter(argumentsInfos[i + 1].ParameterType).ConvertFromString(stringArgsValues[i]);
+        }
         
-        return (IEnumerable<IPamelloEntity>)method.Invoke(Provider, new object[] {scopeUser}.Concat(args).ToArray())!;
+        return (IEnumerable<IPamelloEntity>)method.Invoke(Provider, new object[] {scopeUser}.Concat(arguments).ToArray())!;
     }
 }

@@ -18,20 +18,8 @@ public class PEQL : IPamelloModule
     public void Startup(IServiceProvider services) {
         var collection = services.GetRequiredService<IServiceCollection>();
         var query = (EntityQueryService)services.GetRequiredService<IEntityQueryService>();
-        var logger = services.GetRequiredService<IPamelloLogger>();
-
-        var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         
         query.LoadProviders(collection, services);
         query.LoadOperators(services);
-        
-        var result = query.Get("songs$1,3", null);
-        
-        Console.WriteLine("Results:");
-        foreach (var entity in result) {
-            Console.WriteLine($"| {entity}");
-        }
-        
-        Console.WriteLine($"result count: {typeResolver.GetInheritors<EntityOperator>().First().Name}");
     }
 }

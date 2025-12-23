@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Model.PEQL;
@@ -69,25 +70,24 @@ public class EntityQueryService : IEntityQueryService
     }
 
     public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser) {
-        var split = query.Split('$');
-        if (split.Length != 2) throw new Exception("Invalid query");
+        if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
         
-        var context = split[0];
-        var value = split[1];
+        var splitAt = query.IndexOf('$');
+        var context = query[..splitAt];
+        var value = query[(splitAt + 1)..];
+        var args = "";
         
         var provider = Providers.FirstOrDefault(provider => provider.Name == context);
         if (provider is null) throw new Exception($"Provider {context} not found");
         
         var results = new List<IPamelloEntity>();
-
-        for (var i = value.Length - 1; i >= 0; i--) {
-            if (value[i] != ',') continue;
+        
+        var queryParts = value.SplitArgs(',');
+        if (queryParts.Length != 1) {
+            foreach (var part in queryParts) {
+                results.AddRange(Get($"{context}${part}", scopeUser));
+            }
             
-            var firstQuery = value[..i];
-            var secondQuery = value[(i + 1)..];
-            
-            results.AddRange(Get($"{context}${firstQuery}", scopeUser));
-            results.AddRange(Get($"{context}${secondQuery}", scopeUser));
             return results;
         }
 
@@ -95,9 +95,17 @@ public class EntityQueryService : IEntityQueryService
             return [provider.GetById(id, scopeUser)];
         }
         
+        var quotesDepth = 0;
+
         for (var i = value.Length - 1; i >= 0; i--) {
             var descriptor = Operators.FirstOrDefault(descriptor => descriptor.Symbol == value[i]);
             if (descriptor is null) continue;
+            
+            switch (value[i]) {
+                case ')': quotesDepth++; continue;
+                case '(': quotesDepth--; continue;
+            }
+            if (quotesDepth > 0) continue;
             
             var operatorQuery = value[..i];
             var operatorValue = value[(i + 1)..];
@@ -108,7 +116,15 @@ public class EntityQueryService : IEntityQueryService
             return results;
         }
         
-        results.AddRange(provider.GetFromPoint(value, scopeUser, []));
+        var qIndex = value.IndexOf('(');
+        if (qIndex != -1) {
+            if (value.Last() != ')') throw new Exception("Missing closing parenthesis");
+            
+            args = value[(qIndex + 1)..^1];
+            value = value[..qIndex];
+        }
+        
+        results.AddRange(provider.GetFromPoint(value, args, scopeUser));
         
         return results;
     }

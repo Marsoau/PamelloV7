@@ -7,7 +7,7 @@ using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
 namespace PamelloV7.Server.Loaders;
 
-public static class DatabaseRepositoriesLoader
+internal static class DatabaseRepositoriesLoader
 {
     public static async Task Load(IServiceCollection collection, IServiceProvider services) {
         var repositories = new List<IPamelloDatabaseRepository>();

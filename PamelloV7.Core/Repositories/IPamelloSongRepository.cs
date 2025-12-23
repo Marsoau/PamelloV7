@@ -35,13 +35,25 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     public IEnumerable<IPamelloSong> GetFavorite(
         IPamelloUser scopeUser,
         IPamelloUser? by
-    ) => GetAll(scopeUser, favoriteBy: by);
+    ) => GetAll(scopeUser, favoriteBy: by ?? scopeUser);
         
     [ValuePoint("added")]
     public IEnumerable<IPamelloSong> GetAdded(
         IPamelloUser scopeUser,
         IPamelloUser? by
-    ) => GetAll(scopeUser, addedBy: by);
+    ) => GetAll(scopeUser, addedBy: by ?? scopeUser);
+
+    [ValuePoint("playlist")]
+    public IEnumerable<IPamelloSong> GetFromPlaylist(
+        IPamelloUser scopeUser,
+        IPamelloPlaylist? playlist
+    );
+    
+    [ValuePoint("test")]
+    public IEnumerable<IPamelloSong> TestPoint(
+        IPamelloUser scopeUser,
+        int value
+    );
     
     //
     //

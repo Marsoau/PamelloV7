@@ -27,8 +27,8 @@ namespace PamelloV7.Server.Controllers
             _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
             
-            _players = services.GetRequiredService<IPamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
+            //_players = services.GetRequiredService<IPamelloPlayerRepository>();
+            //_speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
         }
 
         [HttpGet("User/{value}")]

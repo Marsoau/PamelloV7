@@ -19,7 +19,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
     }
 
     public IPamelloUser? GetByToken(Guid token) {
-        throw new NotImplementedException();
+        return _loaded.FirstOrDefault(u => u.Token == token);
     }
 
     public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
