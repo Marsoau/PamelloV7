@@ -25,11 +25,14 @@ public class Test : IPamelloModule
 
         var me = users.GetRequired(1);
         var list = playlists.GetRequired(1);
+
+        var query = "songs$favorite:random*5";
         
         logger.Log("G");
-        var entities = peql.Get("songs$favorite,playlist(1)", me);
+        var entities = peql.Get(query, me);
         logger.Log("G");
 
+        Console.WriteLine($"Results of \"{query}\" query:");
         foreach (var entity in entities) {
             Console.WriteLine($"| {entity.GetType().Name} : {entity}");
         }

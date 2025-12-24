@@ -100,6 +100,8 @@ public class EntityQueryService : IEntityQueryService
         }
         
         splitAt = query.IndexOf('$');
+        if (splitAt == -1) throw new Exception("Query does not contain provider context");
+        
         context = query[..splitAt];
         value = query[(splitAt + 1)..];
         
