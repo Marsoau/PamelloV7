@@ -131,6 +131,11 @@ public class PamelloModulesLoader
 
     public void StartupStage(IServiceProvider services, ELoadingStage stage) {
         var stagedContainers = Containers.Where(container => container.Module.Stage == stage).ToList();
+
+        if (stagedContainers.Count == 0) {
+            StaticLogger.Log($"No modules to start in {stage} stage");
+            return; 
+        }
         
         StaticLogger.Log($"Starting modules in {stage} stage: ({stagedContainers.Count} modules)");
         foreach (var container in stagedContainers) {
