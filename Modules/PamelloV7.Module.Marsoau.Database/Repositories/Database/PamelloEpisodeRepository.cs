@@ -19,6 +19,32 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return new PamelloEpisode(databaseEntity, _services);
     }
 
+    public IPamelloEpisode? Get(IPamelloUser scopeUser, int id) {
+        return Get(id);
+    }
+
+    public IPamelloEpisode? GetByName(IPamelloUser scopeUser, string query) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloEpisode> GetAll(IPamelloUser scopeUser) {
+        return _loaded.AsReadOnly();
+    }
+
+    public IEnumerable<IPamelloEpisode> GetCurrent(IPamelloUser scopeUser) {
+        var episode = scopeUser?.SelectedPlayer?.Queue.Audio?.GetCurrentEpisode();
+        return episode is not null ? [episode] : [];
+    }
+
+    public IEnumerable<IPamelloEpisode> GetRandom(IPamelloUser scopeUser) {
+        var episode = _loaded.ElementAtOrDefault(Random.Shared.Next(_loaded.Count));
+        return episode is not null ? [episode] : [];
+    }
+
+    public IEnumerable<IPamelloEpisode> GetFromSong(IPamelloUser scopeUser, IPamelloSong song) {
+        return song.Episodes;
+    }
+
     public IPamelloEpisode Add(AudioTime start, string name, bool autoSkip, IPamelloSong song) {
         var songEpisodes = ((PamelloSong)song)._songEpisodes;
         if (songEpisodes.Any(e => e.Start.TotalSeconds == start.TotalSeconds)) return null;

@@ -38,7 +38,7 @@ public class EntityQueryService : IEntityQueryService
             if (attribute is null) continue;
             
             var provider = services.GetRequiredService(descriptor.ServiceType);
-            var container = new EntityProviderContainer(attribute.Name, descriptor.ServiceType, provider);
+            var container = new EntityProviderContainer(attribute.Name, descriptor.ServiceType, provider, _services);
             
             Providers.Add(container);
             
@@ -72,24 +72,39 @@ public class EntityQueryService : IEntityQueryService
     public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser) {
         if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
         
-        var splitAt = query.IndexOf('$');
-        var context = query[..splitAt];
-        var value = query[(splitAt + 1)..];
-        var args = "";
-        
-        var provider = Providers.FirstOrDefault(provider => provider.Name == context);
-        if (provider is null) throw new Exception($"Provider {context} not found");
+        var splitAt = -1;
+        var context = "";
+        var value = "";
         
         var results = new List<IPamelloEntity>();
         
-        var queryParts = value.SplitArgs(',');
+        var queryParts = query.SplitArgs(',');
         if (queryParts.Length != 1) {
             foreach (var part in queryParts) {
-                results.AddRange(Get($"{context}${part}", scopeUser));
+                splitAt = part.IndexOf('$');
+
+                if (splitAt == -1) {
+                    if (context.Length == 0) throw new Exception("Wrong query context format");
+
+                    value = part;
+                }
+                else {
+                    context = part[..splitAt];
+                    value = part[(splitAt + 1)..];
+                }
+                
+                results.AddRange(Get($"{context}${value}", scopeUser));
             }
             
             return results;
         }
+        
+        splitAt = query.IndexOf('$');
+        context = query[..splitAt];
+        value = query[(splitAt + 1)..];
+        
+        var provider = Providers.FirstOrDefault(provider => provider.Name == context);
+        if (provider is null) throw new Exception($"Provider {context} not found");
 
         if (int.TryParse(value, out var id)) {
             return [provider.GetById(id, scopeUser)];
@@ -115,6 +130,8 @@ public class EntityQueryService : IEntityQueryService
             results.AddRange(op.Execute(scopeUser, $"{context}${operatorQuery}", operatorValue));
             return results;
         }
+
+        var args = "";
         
         var qIndex = value.IndexOf('(');
         if (qIndex != -1) {

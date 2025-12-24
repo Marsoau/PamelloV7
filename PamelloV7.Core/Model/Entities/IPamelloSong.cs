@@ -27,12 +27,12 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     
     public void AddAssociation(string association);
     public void RemoveAssociation(string association);
-    public void MakeFavorite(IPamelloUser user);
-    public void UnmakeFavorite(IPamelloUser user);
+    public void MakeFavorite(IPamelloUser user, bool fromInside = false);
+    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false);
     public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip);
     public void RemoveEpisode(IPamelloEpisode episode);
     public void RemoveEpisodeAt(int position);
     public void RemoveAllEpisodes();
-    public void AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false);
+    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false);
     public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false);
 }

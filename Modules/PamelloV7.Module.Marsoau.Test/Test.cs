@@ -19,16 +19,19 @@ public class Test : IPamelloModule
     public void Startup(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();
         var users = services.GetRequiredService<IPamelloUserRepository>();
+        var songs = services.GetRequiredService<IPamelloSongRepository>();
+        var playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
         var logger = services.GetRequiredService<IPamelloLogger>();
 
-        Console.WriteLine(users.GetRequired(1).Token);
+        var me = users.GetRequired(1);
+        var list = playlists.GetRequired(1);
         
         logger.Log("G");
-        var songs = peql.Get<IPamelloSong>("test(434)", users.GetRequired(1));
+        var entities = peql.Get("songs$favorite,playlist(1)", me);
         logger.Log("G");
 
-        foreach (var song in songs) {
-            Console.WriteLine($"| {song}");
+        foreach (var entity in entities) {
+            Console.WriteLine($"| {entity.GetType().Name} : {entity}");
         }
     }
 }

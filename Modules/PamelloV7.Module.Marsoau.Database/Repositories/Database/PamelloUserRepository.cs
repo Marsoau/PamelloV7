@@ -18,6 +18,32 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         return new PamelloUser(databaseEntity, _services);
     }
 
+    public IPamelloUser? Get(IPamelloUser scopeUser, int id) {
+        return Get(id);
+    }
+
+    public IPamelloUser? GetByName(IPamelloUser scopeUser, string query) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloUser> GetAll(IPamelloUser scopeUser) {
+        return _loaded.AsReadOnly();
+    }
+
+    public IEnumerable<IPamelloUser> GetCurrent(IPamelloUser scopeUser) {
+        return [scopeUser];
+    }
+
+    public IEnumerable<IPamelloUser> GetRandom(IPamelloUser scopeUser) {
+        var user = _loaded.ElementAtOrDefault(Random.Shared.Next(_loaded.Count));
+        return user is not null ? [user] : [];
+    }
+
+    public IEnumerable<IPamelloUser> GetByToken(IPamelloUser scopeUser, Guid token) {
+        var user = GetByToken(token);
+        return user is not null ? [user] : [];
+    }
+
     public IPamelloUser? GetByToken(Guid token) {
         return _loaded.FirstOrDefault(u => u.Token == token);
     }

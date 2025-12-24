@@ -14,7 +14,7 @@ public class MultiplicationOperator : EntityOperator
         if (int.TryParse(value, out var multiplier) == false) throw new Exception($"Value {value} is not a number");
 
         var results = new List<IPamelloEntity>();
-
+    
         for (var i = 0; i < multiplier; i++) {
             results.AddRange(_peql.Get(query, scopeUser));
         }

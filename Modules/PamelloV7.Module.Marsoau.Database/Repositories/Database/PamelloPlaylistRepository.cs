@@ -1,6 +1,7 @@
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
 namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -12,11 +13,47 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
 
     public override string CollectionName => "playlists";
     protected override IPamelloPlaylist CreatePamelloEntity(DatabasePlaylist databaseEntity) {
-        throw new NotImplementedException();
+        return new PamelloPlaylist(databaseEntity, _services);
     }
 
     public override void Delete(IPamelloPlaylist entity) {
         throw new NotImplementedException();
+    }
+
+    public IPamelloPlaylist? Get(IPamelloUser scopeUser, int id) {
+        return Get(id);
+    }
+
+    public IPamelloPlaylist? GetByName(IPamelloUser scopeUser, string query) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloPlaylist> GetRandom(IPamelloUser scopeUser) {
+        var playlist = _loaded.ElementAtOrDefault(Random.Shared.Next(_loaded.Count));
+        return playlist is not null ? [playlist] : [];
+    }
+
+    public IEnumerable<IPamelloPlaylist> GetAll(IPamelloUser scopeUser, IPamelloUser? owner = null, IPamelloUser? favoriteBy = null) {
+        IEnumerable<IPamelloPlaylist> results = _loaded.AsReadOnly();
+        
+        if (owner is not null) results = results.Where(s => s.Owner != owner);
+        if (favoriteBy is not null) results = results.Where(s => s.FavoriteBy.Contains(favoriteBy));
+        
+        return results;
+    }
+
+    public IPamelloPlaylist Add(string name, IPamelloUser adder) {
+        var databasePlaylist = new DatabasePlaylist() {
+            Name = name,
+            OwnerId = adder.Id,
+            SongIds = [],
+            IsProtected = false,
+            AddedAt = DateTime.Now,
+        };
+        
+        GetCollection().Add(databasePlaylist);
+        
+        return Load(databasePlaylist);
     }
 
     public IEnumerable<IPamelloPlaylist> Search(string querry, IPamelloUser scopeUser, IPamelloUser? addedBy = null,

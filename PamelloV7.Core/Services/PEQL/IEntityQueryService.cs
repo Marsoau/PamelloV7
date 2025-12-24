@@ -8,6 +8,10 @@ namespace PamelloV7.Core.Services.PEQL;
 
 public interface IEntityQueryService : IPamelloService
 {
+    public IPamelloEntity GetSingleRequired(string query, IPamelloUser scopeUser)
+        => GetSingle(query, scopeUser) ?? throw new InvalidOperationException($"Entity not found: {query}");
+    public TPamelloEntity GetSingleRequired<TPamelloEntity>(string query, IPamelloUser scopeUser)
+        => GetSingle<TPamelloEntity>(query, scopeUser) ?? throw new InvalidOperationException($"Entity not found: {query}");
     public IPamelloEntity? GetSingle(string query, IPamelloUser scopeUser)
         => Get(query, scopeUser).FirstOrDefault();
     public TPamelloEntity? GetSingle<TPamelloEntity>(string query, IPamelloUser scopeUser)

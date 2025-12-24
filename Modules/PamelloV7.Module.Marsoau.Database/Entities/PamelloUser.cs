@@ -118,23 +118,33 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public void AddFavoriteSong(IPamelloSong song) {
+    public void AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false) {
+        if (_favoriteSongs.Contains(song)) return;
+        
+        _favoriteSongs.Insert(position ?? _favoriteSongs.Count, song);
+        
+        if (!fromInside) song.MakeFavorite(this, true);
+        
+        Save();
+    }
+
+    public void RemoveFavoriteSong(IPamelloSong song, bool fromInside = false) {
+        if (!_favoriteSongs.Remove(song)) return;
+        
+        if (!fromInside) song.UnmakeFavorite(this, true);
+        
+        Save();
+    }
+
+    public void AddFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false) {
         throw new NotImplementedException();
     }
 
-    public void RemoveFavoriteSong(IPamelloSong song) {
-        throw new NotImplementedException();
-    }
-
-    public void AddFavoritePlaylist(IPamelloPlaylist song) {
-        throw new NotImplementedException();
-    }
-
-    public void RemoveFavoritePlaylist(IPamelloPlaylist song) {
+    public void RemoveFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false) {
         throw new NotImplementedException();
     }
 
     public IPamelloPlaylist CreatePlaylist(string name) {
-        throw new NotImplementedException();
+        return _playlists.Add(name, this);
     }
 }

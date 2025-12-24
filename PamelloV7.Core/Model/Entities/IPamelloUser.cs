@@ -1,7 +1,9 @@
+using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Model.Entities.Base;
 
 namespace PamelloV7.Core.Model.Entities;
 
+[ValueEntity("users")]
 public interface IPamelloUser : IPamelloDatabaseEntity
 {
     public IPamelloPlayer? PreviousPlayer { get; }
@@ -27,10 +29,10 @@ public interface IPamelloUser : IPamelloDatabaseEntity
 
     public void AddAuthorization(IUserAuthorization authorization);
     
-    public void AddFavoriteSong(IPamelloSong song);
-    public void RemoveFavoriteSong(IPamelloSong song);
-    public void AddFavoritePlaylist(IPamelloPlaylist song);
-    public void RemoveFavoritePlaylist(IPamelloPlaylist song);
+    public void AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
+    public void RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);
+    public void AddFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);
+    public void RemoveFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);
 
     public IPamelloPlaylist CreatePlaylist(string name);
 }

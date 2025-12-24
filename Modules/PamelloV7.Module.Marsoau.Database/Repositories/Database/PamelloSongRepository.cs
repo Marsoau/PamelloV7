@@ -35,7 +35,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetRandom(IPamelloUser scopeUser) {
-        return [_loaded[Random.Shared.Next(_loaded.Count)]];;
+        var song = _loaded.ElementAtOrDefault(Random.Shared.Next(_loaded.Count));
+        return song is not null ? [song] : [];
     }
 
     public IEnumerable<IPamelloSong> GetQueue(IPamelloUser scopeUser) {
@@ -44,16 +45,16 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetAll(IPamelloUser scopeUser, IPamelloUser? addedBy = null, IPamelloUser? favoriteBy = null) {
-        var results = (IEnumerable<IPamelloSong>)_loaded;
+        IEnumerable<IPamelloSong> results = _loaded.AsReadOnly();
         
-        if (addedBy is not null) results = results.Where(s => s.AddedBy != addedBy);
+        if (addedBy is not null) results = results.Where(s => s.AddedBy == addedBy);
         if (favoriteBy is not null) results = results.Where(s => s.FavoriteBy.Contains(favoriteBy));
         
         return results;
     }
 
     public IEnumerable<IPamelloSong> GetFromPlaylist(IPamelloUser scopeUser, IPamelloPlaylist? playlist) {
-        throw new NotImplementedException();
+        return playlist?.Songs ?? [];
     }
 
     public IEnumerable<IPamelloSong> TestPoint(IPamelloUser scopeUser, int value) {
@@ -76,13 +77,9 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         return Load(databaseSong);
     }
 
-    public IPamelloSong GetByYoutubeId(string youtubeId) {
-        throw new NotImplementedException();
-    }
-
     public IEnumerable<IPamelloSong> Search(string querry, IPamelloUser scopeUser, IPamelloUser? addedBy = null,
         IPamelloUser? favoriteBy = null) {
-        throw new NotImplementedException();
+        throw new NotImplementedException("because author is gay");
     }
     
     public override void Delete(IPamelloSong song) {

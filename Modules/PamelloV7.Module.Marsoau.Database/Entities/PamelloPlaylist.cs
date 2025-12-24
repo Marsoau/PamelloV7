@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -35,7 +36,6 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     public PamelloPlaylist(DatabasePlaylist databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
         _isProtected = databaseEntity.IsProtected;
-        _owner = _users.Get(databaseEntity.OwnerId)!;
     }
     
     protected override void InitBase() {
@@ -55,7 +55,19 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     }
 
     public override void Save() {
-        throw new NotImplementedException();
+        var playlistCollection = ((PamelloPlaylistRepository)_playlists).GetCollection();
+        
+        var databasePlaylist = playlistCollection.Get(Id);
+        Debug.Assert(databasePlaylist is not null, "Playlist doesnt exist in the database for some reason, cant save playlist");
+        
+        databasePlaylist.Name = _name;
+        databasePlaylist.OwnerId = Owner.Id;
+        
+        databasePlaylist.SongIds = _playlistSongs.Select(song => song.Id).ToList();
+        
+        databasePlaylist.IsProtected = IsProtected;
+        
+        playlistCollection.Save(databasePlaylist);
     }
     
     /*
@@ -72,7 +84,13 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     */
     
     public IPamelloSong? AddSong(IPamelloSong song, int? position = null, bool fromInside = false) {
-        throw new NotImplementedException();
+        _playlistSongs.Insert(position ?? _playlistSongs.Count, song);
+        
+        if (!fromInside) song.AddToPlaylist(this, null, true);
+        
+        Save();
+        
+        return song;
     }
 
     public void AddList(IReadOnlyList<IPamelloSong> list, int? position = null) {
@@ -84,7 +102,13 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     }
 
     public int RemoveSong(IPamelloSong song, bool fromInside = false) {
-        throw new NotImplementedException();
+        var count = _playlistSongs.RemoveAll(s => s == song);
+        
+        if (!fromInside) song.RemoveFromPlaylist(this);
+        
+        Save();
+        
+        return count;
     }
 
     public IPamelloSong? RemoveAt(int position) {

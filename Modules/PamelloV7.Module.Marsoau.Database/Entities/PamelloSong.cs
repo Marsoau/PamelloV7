@@ -98,6 +98,13 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         databaseSong.CoverUrl = _coverUrl;
 
         databaseSong.Associations = _associations;
+        databaseSong.IsSoftDeleted = _isSoftDeleted;
+        /*
+        databaseSong.Sources = _sources.ToDictionary(
+            source => source.Service,
+            source => source.Id
+        );
+        */
         
         songCollection.Save(databaseSong);
     }
@@ -140,12 +147,22 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         Save();
     }
 
-    public void MakeFavorite(IPamelloUser user) {
-        throw new NotImplementedException();
+    public void MakeFavorite(IPamelloUser user, bool fromInside = false) {
+        if (_favoritedBy.Contains(user)) return;
+        
+        _favoritedBy.Add(user);
+        
+        if (!fromInside) user.AddFavoriteSong(this, null, true);
+        
+        Save();
     }
 
-    public void UnmakeFavorite(IPamelloUser user) {
-        throw new NotImplementedException();
+    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false) {
+        if (!_favoritedBy.Remove(user)) return;
+        
+        if (!fromInside) user.RemoveFavoriteSong(this, true);
+        
+        Save();
     }
 
     public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip) {
@@ -167,11 +184,19 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         _episodes.DeleteAllFrom(this);
     }
 
-    public void AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
-        throw new NotImplementedException();
+    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
+        if (!_songPlaylists.Contains(playlist)) _songPlaylists.Add(playlist);
+        
+        if (!fromInside) playlist.AddSong(this, position, true);
+
+        Save();
+        
+        return playlist;
     }
 
     public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false) {
-        throw new NotImplementedException();
+        if (!_songPlaylists.Remove(playlist)) return;
+
+        if (!fromInside) playlist.RemoveSong(this, fromInside);
     }
 }
