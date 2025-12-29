@@ -53,7 +53,7 @@ public class EntityQueryService : IEntityQueryService
         
         var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         
-        var operatorTypes = typeResolver.GetInheritors<EntityOperator>();
+        var operatorTypes = typeResolver.GetInheritorsOf<EntityOperator>();
         
         foreach (var operatorType in operatorTypes) {
             var attribute = operatorType.GetCustomAttribute<EntityOperatorAttribute>();

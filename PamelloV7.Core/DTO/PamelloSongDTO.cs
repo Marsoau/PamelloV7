@@ -12,17 +12,11 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
-        [JsonPropertyName("youtubeId")]
-        public string YoutubeId { get; set; }
-
         [JsonPropertyName("name")]
         public string Name { get; set; }
-
+        
         [JsonPropertyName("coverUrl")]
         public string CoverUrl { get; set; }
-
-        [JsonPropertyName("playCount")]
-        public int PlayCount { get; set; }
 
         [JsonPropertyName("addedById")]
         public int AddedById { get; set; }
@@ -42,12 +36,5 @@ namespace PamelloV7.Core.DTO
 
         [JsonPropertyName("playlistsIds")]
         public IEnumerable<int> PlaylistsIds { get; set; }
-
-
-        [JsonPropertyName("isDownloading")]
-        public bool IsDownloading { get; set; }
-
-        [JsonPropertyName("downloadProgress")]
-        public double DownloadProgress { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
@@ -198,5 +200,19 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         if (!_songPlaylists.Remove(playlist)) return;
 
         if (!fromInside) playlist.RemoveSong(this, fromInside);
+    }
+
+    public override IPamelloDTO GetDto() {
+        return new PamelloSongDTO() {
+            Id = Id,
+            Name = Name,
+            CoverUrl = CoverUrl,
+            Associations = _associations,
+            AddedAt = AddedAt,
+            AddedById = AddedBy?.Id ?? 0,
+            FavoriteByIds = IPamelloEntity.GetIds(FavoriteBy),
+            PlaylistsIds = IPamelloEntity.GetIds(Playlists),
+            EpisodesIds = IPamelloEntity.GetIds(Episodes),
+        };
     }
 }

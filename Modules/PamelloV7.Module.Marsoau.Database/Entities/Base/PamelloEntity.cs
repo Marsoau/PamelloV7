@@ -34,8 +34,11 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
     }
     
-    public IPamelloDTO GetDto() {
-        return null;
+    public virtual IPamelloDTO GetDto() {
+        return new PamelloEntityDTO() {
+            Id = Id,
+            Name = Name,
+        };
     }
 
     protected abstract void InitBase();

@@ -8,7 +8,11 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
     }
 
-    public IEnumerable<Type> GetInheritors<TType>() {
+    public IEnumerable<Type> GetInheritorsOf<TType>() {
         return GetAll().Where(x => typeof(TType).IsAssignableFrom(x) && !x.IsAbstract);
+    }
+    
+    public Type? GetTypeByName(string name) {
+        return GetAll().FirstOrDefault(x => x.Name == name);
     }
 }
