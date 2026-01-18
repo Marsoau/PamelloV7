@@ -1,5 +1,6 @@
 using PamelloV7.Core.Data.Entities.Base;
 using PamelloV7.Core.Data.Other;
+using PamelloV7.Core.Platforms;
 
 namespace PamelloV7.Core.Data.Entities;
 
@@ -16,5 +17,5 @@ public class DatabaseUser : DatabaseEntity
     public int SelectedAuthorization { get; set; }
     
     //key - Service, value - User
-    public Dictionary<string, string> Authorizations { get; set; }
+    public List<PlatformKey> Authorizations { get; set; }
 }

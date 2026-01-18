@@ -4,6 +4,7 @@ using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Platforms;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
@@ -17,7 +18,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     private IPamelloUser _addedBy;
     private bool _isSoftDeleted;
     
-    public List<ISongSource> _sources;
+    public List<PlatformKey> _sources;
     
     public List<IPamelloUser> _favoritedBy;
     public List<IPamelloEpisode> _songEpisodes;
@@ -43,9 +44,9 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     public bool IsDownloaded => false;
     public IPamelloUser? AddedBy => _addedBy;
     
-    public ISongSource? SelectedSource => _sources.ElementAtOrDefault(SelectedSourceIndex);
+    public PlatformKey? SelectedSource => _sources.ElementAtOrDefault(SelectedSourceIndex);
     
-    public IReadOnlyList<ISongSource> Sources => _sources;
+    public IReadOnlyList<PlatformKey> Sources => _sources;
     
     public IReadOnlyList<IPamelloUser> FavoriteBy => _favoritedBy;
     public IReadOnlyList<IPamelloEpisode> Episodes => _songEpisodes;
@@ -58,7 +59,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         _addedAt = databaseEntity.AddedAt;
         _associations = databaseEntity.Associations.ToList();
         _isSoftDeleted = databaseEntity.IsSoftDeleted;
-        //_sources = databaseEntity.Sources;
+        _sources = databaseEntity.Sources.ToList();
     }
     
     protected override void InitBase() {
@@ -101,12 +102,8 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 
         databaseSong.Associations = _associations;
         databaseSong.IsSoftDeleted = _isSoftDeleted;
-        /*
-        databaseSong.Sources = _sources.ToDictionary(
-            source => source.Service,
-            source => source.Id
-        );
-        */
+
+        databaseSong.Sources = _sources;
         
         songCollection.Save(databaseSong);
     }

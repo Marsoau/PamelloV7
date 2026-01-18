@@ -35,8 +35,6 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private readonly IPamelloEpisodeRepository _episodes;
         private readonly IPamelloPlaylistRepository _playlists;
 
-        private readonly YoutubeInfoService _youtubeInfo;
-
         private IPamelloCommandsModule Commands {
             get => throw new NotImplementedException(); //Context.User.Commands;
         }
@@ -59,8 +57,6 @@ namespace PamelloV7.Server.Modules.Discord.Base
             _songs = services.GetRequiredService<IPamelloSongRepository>();
             _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
             _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
-
-            _youtubeInfo = services.GetRequiredService<YoutubeInfoService>();
         }
 
         protected async Task Respond(Embed embed) {
@@ -335,9 +331,8 @@ Feed Random: {DiscordString.Code(Player.Queue.IsFeedRandom ? "Enabled" : "Disabl
         }
 
         //song
-        public async Task SongAdd(string youtubeUrl)
-        {
-            var youtubeId = _youtubeInfo.GetVideoIdFromUrl(youtubeUrl);
+        public async Task SongAdd(string youtubeUrl) {
+            var youtubeId = ""; //_youtubeInfo.GetVideoIdFromUrl(youtubeUrl);
 
             var song = (IPamelloSong)null; //_songs.GetByYoutubeId(youtubeId);
             if (song is not null) {

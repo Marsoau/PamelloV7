@@ -4,6 +4,11 @@ namespace PamelloV7.Core.Extensions;
 
 public static class IEnumerableExtensions
 {
+    public static TType? ElementAtValueOrDefault<TType>(this IEnumerable<TType> enumerable, string value, Func<IEnumerable<TType>, int>? getCurrent = null) {
+        var index = enumerable.TranslateValueIndex(value, getCurrent);
+        return index >= 0 ? enumerable.ElementAt(index) : default;
+    }
+
     public static int TranslateValueIndex<TType>(this IEnumerable<TType> enumerable, string value, Func<IEnumerable<TType>, int>? getCurrent = null) {
         var count = enumerable.Count();
         if (count == 0) return -1;
@@ -22,7 +27,7 @@ public static class IEnumerableExtensions
             "last" => count - 1,
             "random" => Random.Shared.Next(count),
             "current" => getCurrent is not null ? getCurrent(enumerable) : -1,
-            _ => -1
+            _ => -2
         };
     }
 }

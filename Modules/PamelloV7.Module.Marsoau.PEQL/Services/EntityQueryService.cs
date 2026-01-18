@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
@@ -69,7 +70,9 @@ public class EntityQueryService : IEntityQueryService
         _logger.Log($"Loaded {Providers.Count} operators");
     }
 
-    public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser) {
+    public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser)
+        => InternalGet(query, scopeUser).Where(e => e is not null);
+    private IEnumerable<IPamelloEntity> InternalGet(string query, IPamelloUser scopeUser) {
         if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
         
         var splitAt = -1;
@@ -128,8 +131,14 @@ public class EntityQueryService : IEntityQueryService
             var operatorValue = value[(i + 1)..];
 
             var op = (EntityOperator)Activator.CreateInstance(descriptor.Type, _services)!;
+
+            try {
+                results.AddRange(op.Execute(scopeUser, $"{context}${operatorQuery}", operatorValue));
+            }
+            catch (PEQLOperatorException) {
+                continue;
+            }
             
-            results.AddRange(op.Execute(scopeUser, $"{context}${operatorQuery}", operatorValue));
             return results;
         }
 

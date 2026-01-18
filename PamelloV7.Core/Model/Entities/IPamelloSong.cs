@@ -1,6 +1,7 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Platforms;
 
 namespace PamelloV7.Core.Model.Entities;
 
@@ -15,8 +16,8 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public bool IsSoftDeleted { get; }
     
     public int SelectedSourceIndex { get; set; }
-    public ISongSource? SelectedSource { get; }
-    public IReadOnlyList<ISongSource> Sources { get; }
+    public PlatformKey? SelectedSource { get; }
+    public IReadOnlyList<PlatformKey> Sources { get; }
     
     public IReadOnlyList<IPamelloUser> FavoriteBy { get; }
     public IReadOnlyList<IPamelloEpisode> Episodes { get; }

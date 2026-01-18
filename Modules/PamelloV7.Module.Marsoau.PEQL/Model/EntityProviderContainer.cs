@@ -19,7 +19,7 @@ public class EntityProviderContainer
     public Type Type { get; }
     public readonly object Provider;
     
-    public readonly List<string> ValuePointNames;
+    public readonly MethodInfo[] Methods;
     
     public EntityProviderContainer(string name, Type type, object provider, IServiceProvider services)
     {
@@ -31,19 +31,30 @@ public class EntityProviderContainer
         Type = type;
         Provider = provider;
         
-        ValuePointNames = [];
+        Methods = Type.GetMethods();
     }
 
     public IPamelloEntity GetById(int id, IPamelloUser scopeUser) {
-        var method = Type.GetMethods().FirstOrDefault(method => method.GetCustomAttribute<IdPointAttribute>() is not null);
-        if (method is null) throw new Exception($"Provider {Name} does not support id points");
+        var method = Methods.FirstOrDefault(method => method.GetCustomAttribute<IdPointAttribute>() is not null);
+        if (method is null) throw new Exception($"Provider {Name} does not support id point");
         
         return (IPamelloEntity)method.Invoke(Provider, [scopeUser, id])!;
     }
+    
+    public IPamelloEntity GetByName(string name, IPamelloUser scopeUser) {
+        var method = Methods.FirstOrDefault(method => method.GetCustomAttribute<NamePointAttribute>() is not null);
+        if (method is null) throw new Exception($"Provider {Name} does not support name point");
+        
+        return (IPamelloEntity)method.Invoke(Provider, [scopeUser, name])!;
+    }
 
     public IEnumerable<IPamelloEntity> GetFromPoint(string pointName, string stringArgs, IPamelloUser scopeUser) {
-        var method = Type.GetMethods().FirstOrDefault(method => method.GetCustomAttribute<ValuePointAttribute>()?.Is(pointName) ?? false);
-        if (method is null) return [];
+        var method = Methods.FirstOrDefault(method => method.GetCustomAttribute<ValuePointAttribute>()?.Is(pointName) ?? false);
+        if (method is null) {
+            if (stringArgs.Length == 0) return [GetByName(pointName, scopeUser)];
+            
+            return [GetByName($"{pointName}({stringArgs})", scopeUser)];
+        }
 
         var argumentsInfos = method.GetParameters();
         var stringArgsValues = stringArgs.SplitArgs(',');

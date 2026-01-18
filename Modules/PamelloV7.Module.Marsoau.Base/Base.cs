@@ -15,18 +15,21 @@ public class Base : IPamelloModule
     public string Name => "Base";
     public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
-    public ELoadingStage Stage => ELoadingStage.Default;
+    public ELoadingStage Stage => ELoadingStage.Early;
 
     public void Configure(IServiceCollection services) {
     }
     public void Startup(IServiceProvider services) {
+        var platforms = services.GetRequiredService<IPlatformService>() as PlatformService;
+        platforms?.LoadPlatforms();
+        
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();
         var users = services.GetRequiredService<IPamelloUserRepository>();
 
         var user = users.Get(1)!;
         var song = songs.Get(1)!;
-        
+
         Console.WriteLine($"User: {user}");
         Console.WriteLine($"Song: {song} ({song.AddedBy})");
 
@@ -35,7 +38,7 @@ public class Base : IPamelloModule
         //song.AddEpisode("1:21", "guess", false);
         //song.AddEpisode("1:04", "color", false);
         //song.AddEpisode("0:54", "may", false);
-        
+
         foreach (var association in song.Associations) {
             Console.WriteLine($"Association: {association}");
         }

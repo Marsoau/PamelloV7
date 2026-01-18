@@ -1,4 +1,5 @@
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Model.Entities.Base;
@@ -12,6 +13,8 @@ public class IndexationOperator : EntityOperator
     public IndexationOperator(IServiceProvider services) : base(services) { }
     
     public override IEnumerable<IPamelloEntity> Execute(IPamelloUser scopeUser, string query, string value) {
+        if (value.StartsWith("//")) throw new PEQLOperatorException("Most likely a url");
+        
         var results = _peql.Get(query, scopeUser).ToArray();
 
         var position = 0;
@@ -23,6 +26,8 @@ public class IndexationOperator : EntityOperator
 
         if (separatorAt == -1) {
             position = results.TranslateValueIndex(value);
+            if (position < 0) throw new PEQLOperatorException($"Cannot translate index \"{value}\"");
+            
             var result = results.ElementAtOrDefault(position);
             
             return result is not null ? [result] : [];
@@ -30,6 +35,9 @@ public class IndexationOperator : EntityOperator
         
         position = results.TranslateValueIndex(value[..separatorAt]);
         var end = results.TranslateValueIndex(value[(separatorAt + 1)..]);
+        
+        if (position < 0) throw new PEQLOperatorException($"Cannot translate index \"{value[..separatorAt]}\"");
+        if (end < 0) throw new PEQLOperatorException($"Cannot translate index \"{value[(separatorAt + 1)..]}\"");
 
         if (end < position) {
             (position, end) = (end, position);

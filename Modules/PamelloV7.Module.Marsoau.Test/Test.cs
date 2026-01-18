@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Plugins;
@@ -26,7 +27,7 @@ public class Test : IPamelloModule
         var me = users.GetRequired(1);
         var list = playlists.GetRequired(1);
 
-        var query = "songs$favorite:random*5";
+        var query = "songs$https://www.youtube.com/watch?v=aP9ccLB1jC8,https://www.youtube.com/watch?v=wcmD9Zi1700";
         
         logger.Log("G");
         var entities = peql.Get(query, me);

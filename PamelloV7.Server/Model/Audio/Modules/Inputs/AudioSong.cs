@@ -100,7 +100,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         public async Task<bool> TryInitialize(CancellationToken token = default) {
             if (IsInitialized) return true;
 
-            if (!Song.SelectedSource.IsDownloaded) {
+            if (true) { //if (!Song.SelectedSource.IsDownloaded) {
                 if (await _downloader.DownloadFromYoutubeAsync(Song) != EDownloadResult.Success) {
                     Clean();
                     return false;
@@ -364,7 +364,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         public static string GetSongAudioPath(IPamelloSong song)
             => $@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus";
         public static AudioTime? GetSongDuration(IPamelloSong song) {
-            if (!song.SelectedSource.IsDownloaded) {
+            if (true) { // if (!song.SelectedSource.IsDownloaded) {
                 return null;
 			}
 

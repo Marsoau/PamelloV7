@@ -1,5 +1,6 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Core.Services.PEQL;
@@ -63,7 +64,7 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     //
     //
     
-    public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder);
+    public IPamelloSong Add(ISongInfo info, IPamelloUser adder);
 
     public IEnumerable<IPamelloSong> Search(
         string querry,

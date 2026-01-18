@@ -51,7 +51,7 @@ namespace PamelloV7.Server.Services
 			if (download is not null) {
 				return download.Task;
 			}
-			if (song.SelectedSource.IsDownloaded) {
+			if (true) { //if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return Task.FromResult(EDownloadResult.Success);
 
 				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
@@ -61,7 +61,7 @@ namespace PamelloV7.Server.Services
 			return Task.Run(() => DownloadFromYoutube(song, forceDownload));
 		}
 		public EDownloadResult DownloadFromYoutube(IPamelloSong song, bool forceDownload = false) {
-			if (song.SelectedSource.IsDownloaded) {
+			if (true) { //if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
 				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))

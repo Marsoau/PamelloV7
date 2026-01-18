@@ -1,6 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Server.Entities;
@@ -9,7 +12,9 @@ namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
 
 public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, DatabaseSong>, IPamelloSongRepository
 {
+    private readonly IPlatformService _platforms;
     public PamelloSongRepository(IServiceProvider services) : base(services) {
+        _platforms = services.GetRequiredService<IPlatformService>();
     }
 
     public override string CollectionName => "songs";
@@ -22,7 +27,24 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IPamelloSong? GetByName(IPamelloUser scopeUser, string query) {
-        throw new NotImplementedException();
+        Console.WriteLine($"Get by name requested: {query}");
+        
+        //actual search by name here
+        
+        var pk = _platforms.GetSongPlatformKey(query);
+        Console.WriteLine($"PK: {pk}");
+        if (pk is null) return null;
+
+        var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source == pk));
+        Console.WriteLine($"Found song: {song}");
+        if (song is not null) return song;
+        
+        var songInfo = _platforms.GetSongInfo(query);
+        Console.WriteLine($"Found info: {songInfo}");
+        if (songInfo is null) return null;
+        
+        Console.WriteLine($"Adding song: {songInfo}");
+        return Add(songInfo, scopeUser);
     }
 
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser) {
@@ -62,12 +84,14 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         return [];
     }
 
-    public IPamelloSong Add(string name, string coverUrl, IPamelloUser adder) {
+    public IPamelloSong Add(ISongInfo info, IPamelloUser adder) {
         var databaseSong = new DatabaseSong() {
-            Name = name,
-            CoverUrl = coverUrl,
+            Name = info.Name,
+            CoverUrl = info.CoverUrl,
             Associations = [],
-            Sources = [],
+            Sources = [
+                new PlatformKey(info.Platform.Name, info.Key)
+            ],
             AddedBy = adder.Id,
             AddedAt = DateTime.Now,
         };

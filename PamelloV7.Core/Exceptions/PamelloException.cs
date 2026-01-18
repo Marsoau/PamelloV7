@@ -2,8 +2,6 @@
 {
     public class PamelloException : Exception
     {
-        public PamelloException(string? message) : base(message) {
-
-        }
+        public PamelloException(string? message) : base(message) { }
     }
 }
