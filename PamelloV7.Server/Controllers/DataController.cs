@@ -34,7 +34,7 @@ namespace PamelloV7.Server.Controllers
             _logger = services.GetRequiredService<IPamelloLogger>();
         }
 
-        [HttpGet("{query}")]
+        [HttpGet("{*query}")]
         public IActionResult Get(string query) {
             RequireUser();
 

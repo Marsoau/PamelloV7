@@ -32,6 +32,7 @@ public class YoutubeSongPlatform : ISongPlatform
         var youtubeId = uri.Host switch {
             "www.youtube.com" => query["v"],
             "youtu.be" => uri.Segments[1].Substring(0, 11),
+            "i.ytimg.com" => uri.Segments[2].Substring(0, 11),
             _ => null
         };
 

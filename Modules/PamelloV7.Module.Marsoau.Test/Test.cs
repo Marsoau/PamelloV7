@@ -27,7 +27,7 @@ public class Test : IPamelloModule
         var me = users.GetRequired(1);
         var list = playlists.GetRequired(1);
 
-        var query = "songs$https://www.youtube.com/watch?v=aP9ccLB1jC8,https://www.youtube.com/watch?v=wcmD9Zi1700";
+        var query = "songs$https://www.youtube.com/watch?v=NKGE2bSSQmI";
         
         logger.Log("G");
         var entities = peql.Get(query, me);
@@ -36,6 +36,17 @@ public class Test : IPamelloModule
         Console.WriteLine($"Results of \"{query}\" query:");
         foreach (var entity in entities) {
             Console.WriteLine($"| {entity.GetType().Name} : {entity}");
+        }
+        
+        var song = entities.FirstOrDefault() as IPamelloSong;
+        if (song is null) {
+            Console.WriteLine("No song");
+            return;
+        }
+
+        Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
+        foreach (var episode in song.Episodes) {
+            Console.WriteLine($"| {episode}");
         }
     }
 }

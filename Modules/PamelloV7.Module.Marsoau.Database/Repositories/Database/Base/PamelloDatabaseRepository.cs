@@ -54,6 +54,8 @@ public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity>
     }
 
     public void LoadAll() {
+        StartupRepository();
+        
         OnLoadingStart?.Invoke();
 
         var collection = GetCollection();

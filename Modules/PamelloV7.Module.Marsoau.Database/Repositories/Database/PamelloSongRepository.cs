@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Platforms;
@@ -98,7 +99,17 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         GetCollection().Add(databaseSong);
         
-        return Load(databaseSong);
+        var song = (PamelloSong)Load(databaseSong, false);
+
+        song._songEpisodes = [];
+
+        foreach (var episodeInfo in info.Episodes) {
+            _episodes.Add(new AudioTime(episodeInfo.Start), episodeInfo.Name, false, song);
+        }
+        
+        song.Init();
+
+        return song;
     }
 
     public IEnumerable<IPamelloSong> Search(string querry, IPamelloUser scopeUser, IPamelloUser? addedBy = null,
