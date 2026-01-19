@@ -1,6 +1,6 @@
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
-using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;

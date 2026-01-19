@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Services.PEQL;
 
-namespace PamelloV7.Core.Model.PEQL;
+namespace PamelloV7.Core.PEQL;
 
 public abstract class EntityOperator
 {

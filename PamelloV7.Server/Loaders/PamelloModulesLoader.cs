@@ -1,6 +1,6 @@
 using System.Reflection;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Plugins;
+using PamelloV7.Core.Modules;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Server.Services;
 

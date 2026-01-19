@@ -1,8 +1,8 @@
 ﻿using PamelloV7.Core.Enumerators;
 using System.Text.Json;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Model.Entities;
 
 namespace PamelloV7.Server.Model.Listeners
 {

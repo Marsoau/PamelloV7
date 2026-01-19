@@ -1,11 +1,10 @@
 ﻿using Discord.WebSocket;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Model.Audio;
-using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Basic;

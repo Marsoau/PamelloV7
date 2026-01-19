@@ -1,4 +1,4 @@
-namespace PamelloV7.Core.Model.Entities.Base;
+namespace PamelloV7.Core.Entities.Base;
 
 public interface IPamelloDatabaseEntity : IPamelloEntity
 {

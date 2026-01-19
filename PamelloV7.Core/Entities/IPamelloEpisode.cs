@@ -1,8 +1,8 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities.Base;
 
-namespace PamelloV7.Core.Model.Entities;
+namespace PamelloV7.Core.Entities;
 
 [ValueEntity("episodes")]
 public interface IPamelloEpisode : IPamelloDatabaseEntity

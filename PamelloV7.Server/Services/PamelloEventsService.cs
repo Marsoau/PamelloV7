@@ -1,10 +1,10 @@
-﻿using PamelloV7.Server.Model;
+﻿using PamelloV7.Core.Entities;
+using PamelloV7.Server.Model;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;

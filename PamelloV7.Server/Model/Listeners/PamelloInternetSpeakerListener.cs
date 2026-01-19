@@ -1,5 +1,5 @@
-﻿using PamelloV7.Core.Model.Audio;
-using PamelloV7.Core.Model.Entities;
+﻿using PamelloV7.Core.Audio;
+using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Points;

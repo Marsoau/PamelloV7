@@ -1,4 +1,5 @@
 using PamelloV7.Core.Platforms;
+using PamelloV7.Core.Platforms.Infos;
 
 namespace PamelloV7.Module.Marsoau.YouTube.Platforms.Infos;
 

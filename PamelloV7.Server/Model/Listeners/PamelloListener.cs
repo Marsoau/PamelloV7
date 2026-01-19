@@ -1,4 +1,4 @@
-﻿using PamelloV7.Core.Model.Audio;
+﻿using PamelloV7.Core.Audio;
 
 namespace PamelloV7.Server.Model.Listeners
 {

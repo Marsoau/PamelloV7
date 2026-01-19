@@ -1,5 +1,3 @@
-using PamelloV7.Core.Model.Entities.Base;
-
 namespace PamelloV7.Core.Extensions;
 
 public static class IEnumerableExtensions

@@ -1,4 +1,4 @@
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities.Base;
 
 namespace PamelloV7.Core.Repositories.Base;
 

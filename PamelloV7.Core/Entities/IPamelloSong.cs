@@ -1,9 +1,9 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Platforms;
 
-namespace PamelloV7.Core.Model.Entities;
+namespace PamelloV7.Core.Entities;
 
 [ValueEntity("songs")]
 public interface IPamelloSong : IPamelloDatabaseEntity

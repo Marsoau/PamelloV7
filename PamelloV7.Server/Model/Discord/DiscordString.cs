@@ -1,5 +1,5 @@
 ﻿using Discord.WebSocket;
-using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Entities;
 
 namespace PamelloV7.Server.Model.Discord
 {

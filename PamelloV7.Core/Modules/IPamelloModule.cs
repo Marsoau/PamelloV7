@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Enumerators;
 
-namespace PamelloV7.Core.Plugins;
+namespace PamelloV7.Core.Modules;
 
 public interface IPamelloModule
 {

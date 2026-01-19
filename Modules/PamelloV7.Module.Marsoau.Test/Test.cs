@@ -1,12 +1,12 @@
 ﻿using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Plugins;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Core.Extensions;
+using PamelloV7.Core.Modules;
 
 namespace PamelloV7.Module.Marsoau.Test;
 
@@ -36,17 +36,15 @@ public class Test : IPamelloModule
         Console.WriteLine($"Results of \"{query}\" query:");
         foreach (var entity in entities) {
             Console.WriteLine($"| {entity.GetType().Name} : {entity}");
-        }
-        
-        var song = entities.FirstOrDefault() as IPamelloSong;
-        if (song is null) {
-            Console.WriteLine("No song");
-            return;
+            
+            if (entity is not IPamelloSong song) continue;
+            
+            Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
+            foreach (var episode in song.Episodes) {
+                Console.WriteLine($"| {episode}");
+            }
         }
 
-        Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
-        foreach (var episode in song.Episodes) {
-            Console.WriteLine($"| {episode}");
-        }
+
     }
 }

@@ -1,4 +1,4 @@
-namespace PamelloV7.Core.Model.Audio;
+namespace PamelloV7.Core.Audio;
 
 public interface IPamelloListener
 {

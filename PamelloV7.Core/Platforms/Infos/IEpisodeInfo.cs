@@ -1,4 +1,4 @@
-namespace PamelloV7.Core.Platforms;
+namespace PamelloV7.Core.Platforms.Infos;
 
 public interface IEpisodeInfo
 {

@@ -1,4 +1,4 @@
-namespace PamelloV7.Core.Model.Entities;
+namespace PamelloV7.Core.Entities;
 
 public interface IUserAuthorization
 {

@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
+using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Model.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Exceptions;
 

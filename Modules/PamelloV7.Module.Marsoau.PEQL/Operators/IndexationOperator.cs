@@ -1,9 +1,9 @@
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
-using PamelloV7.Core.Model.PEQL;
+using PamelloV7.Core.PEQL;
 
 namespace PamelloV7.Module.Marsoau.PEQL.Operators;
 

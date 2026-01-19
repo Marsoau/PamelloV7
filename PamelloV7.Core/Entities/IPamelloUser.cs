@@ -1,7 +1,7 @@
 using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities.Base;
 
-namespace PamelloV7.Core.Model.Entities;
+namespace PamelloV7.Core.Entities;
 
 [ValueEntity("users")]
 public interface IPamelloUser : IPamelloDatabaseEntity

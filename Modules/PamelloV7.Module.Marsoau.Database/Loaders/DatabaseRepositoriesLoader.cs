@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services.Base;

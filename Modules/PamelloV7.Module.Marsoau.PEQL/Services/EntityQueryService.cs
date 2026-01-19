@@ -1,11 +1,11 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Attributes;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
-using PamelloV7.Core.Model.PEQL;
+using PamelloV7.Core.PEQL;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Module.Marsoau.PEQL.Model;

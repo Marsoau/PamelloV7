@@ -1,5 +1,5 @@
 ﻿using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Plugins;
+using PamelloV7.Core.Modules;
 
 namespace PamelloV7.Module.Marsoau.YouTube;
 

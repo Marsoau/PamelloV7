@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Plugins;
+using PamelloV7.Core.Modules;
 using PamelloV7.Server.Loaders;
 
 namespace PamelloV7.Module.Marsoau.Database;

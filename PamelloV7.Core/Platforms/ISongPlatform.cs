@@ -1,4 +1,5 @@
-using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Platforms.Infos;
 
 namespace PamelloV7.Core.Platforms;
 

@@ -1,6 +1,6 @@
 using PamelloV7.Core.DTO;
 
-namespace PamelloV7.Core.Model.Entities.Base;
+namespace PamelloV7.Core.Entities.Base;
 
 public interface IPamelloEntity
 {

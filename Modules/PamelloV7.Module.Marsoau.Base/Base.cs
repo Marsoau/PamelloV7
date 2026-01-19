@@ -3,7 +3,7 @@ using PamelloV7.Core.Data;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
-using PamelloV7.Core.Plugins;
+using PamelloV7.Core.Modules;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Services;

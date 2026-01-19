@@ -1,8 +1,6 @@
-using PamelloV7.Core.Model.Entities;
-using System.Threading;
-using System.Threading.Tasks;
+using PamelloV7.Core.Entities;
 
-namespace PamelloV7.Core.Model.Audio
+namespace PamelloV7.Core.Audio
 {
     public interface IPamelloInternetSpeakerListener : IPamelloListener
     {

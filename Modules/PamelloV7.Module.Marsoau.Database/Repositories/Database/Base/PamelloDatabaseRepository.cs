@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data;
 using PamelloV7.Core.Data.Entities.Base;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 

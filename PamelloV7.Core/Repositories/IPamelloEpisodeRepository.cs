@@ -1,6 +1,6 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
-using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Core.Services.PEQL;

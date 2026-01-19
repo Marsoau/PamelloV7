@@ -1,4 +1,4 @@
-namespace PamelloV7.Core.Model.PEQL;
+namespace PamelloV7.Core.PEQL;
 
 public class IEntityFilter
 {

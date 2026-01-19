@@ -1,8 +1,7 @@
 using PamelloV7.Core.Audio;
-using PamelloV7.Core.Model.Entities;
 using System;
 using System.Threading.Tasks;
-using PamelloV7.Core.Model.Audio;
+using PamelloV7.Core.Entities;
 
 namespace PamelloV7.Core
 {

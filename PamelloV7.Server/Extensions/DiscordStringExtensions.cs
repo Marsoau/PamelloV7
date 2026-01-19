@@ -1,5 +1,5 @@
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Extensions;

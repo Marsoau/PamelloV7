@@ -1,6 +1,5 @@
 ﻿using PamelloV7.Core.DTO;
-using PamelloV7.Core.Model.Entities;
-using PamelloV7.Core.Model.Entities.Base;
+using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model.Audio.Interfaces;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Points;

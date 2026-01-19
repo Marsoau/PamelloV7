@@ -1,4 +1,4 @@
-using PamelloV7.Core.Model.Entities;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;

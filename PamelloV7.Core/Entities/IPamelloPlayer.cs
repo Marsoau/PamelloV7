@@ -1,9 +1,8 @@
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Model.Audio;
-using PamelloV7.Core.Model.Entities.Base;
 
-namespace PamelloV7.Core.Model.Entities;
+namespace PamelloV7.Core.Entities;
 
 public interface IPamelloPlayer : IPamelloEntity
 {
