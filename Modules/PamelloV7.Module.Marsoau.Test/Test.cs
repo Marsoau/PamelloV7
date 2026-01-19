@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Commands;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Repositories;
@@ -16,7 +17,7 @@ public class Test : IPamelloModule
     public string Name => "Test";
     public string Author => "Marsoau";
     public string Description => "Test module";
-    public ELoadingStage Stage => ELoadingStage.Default;
+    public ELoadingStage Stage => ELoadingStage.Late;
     
     public void Startup(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();
@@ -30,14 +31,13 @@ public class Test : IPamelloModule
         
         var platforms = services.GetRequiredService<IPlatformService>();
         var discord = platforms.GetUserPlatform("discord");
-
-        var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
-        Console.WriteLine($"User: {user}");
-        Console.WriteLine($"Key: {discord?.ValueToKey("<@1422257871655145602>")}");
         
-        return;
+        var commands = services.GetRequiredService<IPamelloCommandsService>();
 
-        var query = "songs$12";
+        //var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
+        //Console.WriteLine($"User: {user}");
+
+        var query = "songs$4";
         
         logger.Log("G");
         var entities = peql.Get(query, me);
@@ -48,6 +48,10 @@ public class Test : IPamelloModule
             Console.WriteLine($"| {entity.GetType().Name} : {entity}");
             
             if (entity is not IPamelloSong song) continue;
+
+            Console.WriteLine($"Before: {song.Name}");
+            commands.Get<SongRename>(me).Execute(song, "test");
+            Console.WriteLine($"After: {song.Name}");
             
             Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
             foreach (var episode in song.Episodes) {

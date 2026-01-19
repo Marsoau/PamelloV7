@@ -21,8 +21,11 @@ public class Base : IPamelloModule
     }
     public void Startup(IServiceProvider services) {
         var platforms = services.GetRequiredService<IPlatformService>() as PlatformService;
-        platforms?.LoadPlatforms();
-        
+        platforms?.Load();
+
+        var commands = services.GetRequiredService<IPamelloCommandsService>() as PamelloCommandsService;
+        commands?.Load();
+
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();
         var users = services.GetRequiredService<IPamelloUserRepository>();

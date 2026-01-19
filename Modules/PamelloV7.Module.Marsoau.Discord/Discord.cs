@@ -31,10 +31,14 @@ public class Discord : IPamelloModule
         var whenReady = new TaskCompletionSource();
 
         clients.Main.Log += async message => {
-            Console.WriteLine($"[Discord Log] {message}");
+            if ((int)message.Severity >= 3) return;
+            
+            Console.WriteLine($"[Discord {message.Severity} | message] {message.Message}");
+            Console.WriteLine($"[Discord {message.Severity} | exception] {message.Exception}");
         };
 
         clients.Main.Ready += async () => {
+            Console.WriteLine("Discord client ready");
             whenReady.SetResult();
         };
 
@@ -42,8 +46,5 @@ public class Discord : IPamelloModule
         clients.Main.StartAsync().Wait();
 
         whenReady.Task.Wait();
-
-        var duser = clients.GetDiscordUser(544933092503060509);
-        Console.WriteLine($"Discord user: {duser?.GlobalName}");
     }
 }
