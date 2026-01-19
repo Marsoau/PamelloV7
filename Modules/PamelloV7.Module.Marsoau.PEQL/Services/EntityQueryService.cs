@@ -67,7 +67,7 @@ public class EntityQueryService : IEntityQueryService
             Console.WriteLine($"| {descriptor.Symbol} : {descriptor.Name}");
         }
         
-        _logger.Log($"Loaded {Providers.Count} operators");
+        _logger.Log($"Loaded {Operators.Count} operators");
     }
 
     public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser)

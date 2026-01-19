@@ -27,7 +27,7 @@ public class Test : IPamelloModule
         var me = users.GetRequired(1);
         var list = playlists.GetRequired(1);
 
-        var query = "songs$8,9,10,11";
+        var query = "songs$12";
         
         logger.Log("G");
         var entities = peql.Get(query, me);
@@ -38,8 +38,6 @@ public class Test : IPamelloModule
             Console.WriteLine($"| {entity.GetType().Name} : {entity}");
             
             if (entity is not IPamelloSong song) continue;
-            
-            song.Sources[0].SetFromInfo();
             
             Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
             foreach (var episode in song.Episodes) {

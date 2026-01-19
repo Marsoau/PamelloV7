@@ -1,4 +1,5 @@
 using System.Reflection;
+using PamelloV7.Core.Config;
 
 namespace PamelloV7.Server.Config.Root;
 
@@ -16,13 +17,6 @@ public class Root : IConfigNode
         }
         catch {
             throw new Exception("Data path directory is invalid");
-        }
-        
-        Modules.EnsureRight();
-        
-        if (Modules.UseDiscord) {
-            if (Discord is null) throw new Exception("UseDiscord module is true but discord config not provided");
-            Discord.EnsureRight();
         }
     }
 }

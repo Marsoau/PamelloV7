@@ -1,4 +1,4 @@
-namespace PamelloV7.Server.Config;
+namespace PamelloV7.Core.Config;
 
 public interface IConfigNode
 {

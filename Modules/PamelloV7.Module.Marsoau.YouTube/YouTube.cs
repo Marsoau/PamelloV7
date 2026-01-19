@@ -7,6 +7,6 @@ public class YouTube : IPamelloModule
 {
     public string Name => "YouTube";
     public string Author => "Marsoau";
-    public string Description => "YouTube song platform implementation";
+    public string Description => "YouTube song platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
 }

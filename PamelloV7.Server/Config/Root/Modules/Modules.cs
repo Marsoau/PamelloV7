@@ -1,3 +1,5 @@
+using PamelloV7.Core.Config;
+
 namespace PamelloV7.Server.Config.Root.Modules;
 
 public class Modules : IConfigNode

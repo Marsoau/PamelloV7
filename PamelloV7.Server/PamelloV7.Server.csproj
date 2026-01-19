@@ -13,10 +13,13 @@
     <None Include="Config\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Config\config.old.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Config\configEXAMPLE.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="3.18.0-beta.3" />
+    <PackageReference Include="Discord.Net" Version="3.19.0-beta.1" />
     <PackageReference Include="LiteDB" Version="5.0.21" />
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +39,9 @@
       <IsModule>true</IsModule>
     </ProjectReference>
     <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj">
+      <IsModule>true</IsModule>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj">
       <IsModule>true</IsModule>
     </ProjectReference>
   </ItemGroup>

@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.PE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.YouTube", "Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj", "{ADA061A0-FD75-45BE-A5CE-9B30450EBF62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Discord", "Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj", "{2185F0DA-F513-4153-9683-ABB1D2E7EE5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{ADA061A0-FD75-45BE-A5CE-9B30450EBF62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADA061A0-FD75-45BE-A5CE-9B30450EBF62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADA061A0-FD75-45BE-A5CE-9B30450EBF62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2185F0DA-F513-4153-9683-ABB1D2E7EE5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2185F0DA-F513-4153-9683-ABB1D2E7EE5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2185F0DA-F513-4153-9683-ABB1D2E7EE5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2185F0DA-F513-4153-9683-ABB1D2E7EE5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,5 +90,6 @@ Global
 		{F1EF11A4-F395-47BC-8262-753DED124AD4} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 		{894F6FA4-00D5-4276-8064-62B8A5B7429A} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 		{ADA061A0-FD75-45BE-A5CE-9B30450EBF62} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
+		{2185F0DA-F513-4153-9683-ABB1D2E7EE5F} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 	EndGlobalSection
 EndGlobal

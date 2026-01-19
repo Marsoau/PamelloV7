@@ -361,7 +361,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Inputs
         }
 
         public static string GetSongAudioPath(IPamelloSong song)
-            => $@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus";
+            => $@"{ServerConfig.Root.DataPath}/Music/{song.Id}.opus";
         public static AudioTime? GetSongDuration(IPamelloSong song) {
             if (true) { // if (!song.SelectedSource.IsDownloaded) {
                 return null;

@@ -50,7 +50,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     Text = description,
                 }
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
         
         public static EmbedBuilder QueuePage(IPamelloQueue queue, int page, int elementCount) {
@@ -106,7 +106,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     Text = $"Page {page + 1} / {totalPages} ({content.Count()})"
                 }
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder SongInfo(IPamelloSong song) {
@@ -135,7 +135,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     }
                 ]
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder PlayerInfo(IPamelloPlayer player) {
@@ -215,7 +215,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 Title = player.Name,
                 Fields = fields
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
         public static EmbedBuilder PlaylistInfo(IPamelloPlaylist playlist) {
             return new EmbedBuilder() {
@@ -241,7 +241,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                     }
                 ]
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder SpeakerInfo(IPamelloSpeaker speaker)
@@ -285,7 +285,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             }
             else throw new PamelloException("Unknown speaker type, cant build embed");
             
-            return embedBuilder.WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Info.Color));
+            return embedBuilder.WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
         public static EmbedBuilder Error(string message) {
@@ -293,14 +293,14 @@ namespace PamelloV7.Server.Model.Interactions.Builders
                 Title = "Error",
                 Description = message,
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Error.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Error.Color));
         }
         public static EmbedBuilder Exception(string message) {
             return new EmbedBuilder() {
                 Title = "Exception",
                 Description = message,
             }
-            .WithColor(Color.Parse(PamelloServerConfig.Root.Discord.MessageStyles.Exception.Color));
+            .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Exception.Color));
         }
     }
 }

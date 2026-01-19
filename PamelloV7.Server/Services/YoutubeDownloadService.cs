@@ -54,8 +54,8 @@ namespace PamelloV7.Server.Services
 			if (true) { //if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return Task.FromResult(EDownloadResult.Success);
 
-				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
-					File.Delete($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus");
+				if (File.Exists($@"{ServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
+					File.Delete($@"{ServerConfig.Root.DataPath}/Music/{song.Id}.opus");
 			}
 
 			return Task.Run(() => DownloadFromYoutube(song, forceDownload));
@@ -64,8 +64,8 @@ namespace PamelloV7.Server.Services
 			if (true) { //if (song.SelectedSource.IsDownloaded) {
 				if (!forceDownload) return EDownloadResult.Success;
 
-				if (File.Exists($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
-					File.Delete($@"{PamelloServerConfig.Root.DataPath}/Music/{song.Id}.opus");
+				if (File.Exists($@"{ServerConfig.Root.DataPath}/Music/{song.Id}.opus"))
+					File.Delete($@"{ServerConfig.Root.DataPath}/Music/{song.Id}.opus");
 			}
 			
 			var downloadTask = new TaskCompletionSource<EDownloadResult>();
@@ -81,14 +81,14 @@ namespace PamelloV7.Server.Services
 				SongId = song.Id,
 			});
 
-			if (!Directory.Exists($"{PamelloServerConfig.Root.DataPath}/Music")) {
-				Directory.CreateDirectory($"{PamelloServerConfig.Root.DataPath}/Music");
+			if (!Directory.Exists($"{ServerConfig.Root.DataPath}/Music")) {
+				Directory.CreateDirectory($"{ServerConfig.Root.DataPath}/Music");
 			}
 
 			using var process = new Process();
 			process.StartInfo = new ProcessStartInfo() {
 				FileName = $@"yt-dlp",
-				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{PamelloServerConfig.Root.DataPath}/Music/{song.Id}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v=song.YoutubeId",
+				Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{ServerConfig.Root.DataPath}/Music/{song.Id}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v=song.YoutubeId",
 				StandardOutputEncoding = Encoding.Unicode,
 				UseShellExecute = false,
 				RedirectStandardOutput = true

@@ -25,10 +25,10 @@ namespace PamelloV7.Server.Services
 		public DiscordClientService(IServiceProvider services) {
 			_services = services;
 
-			DiscordClients = new DiscordSocketClient[PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length + 1];
+			DiscordClients = new DiscordSocketClient[ServerConfig.Root.Discord.Tokens.SpeakerTokens.Length + 1];
 
             DiscordClients[0] = services.GetRequiredService<DiscordSocketClient>();
-			for (int i = 0; i < PamelloServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
+			for (int i = 0; i < ServerConfig.Root.Discord.Tokens.SpeakerTokens.Length; i++) {
 				DiscordClients[i + 1] = services.GetRequiredKeyedService<DiscordSocketClient>($"Speaker-{i + 1}");
 			}
         }

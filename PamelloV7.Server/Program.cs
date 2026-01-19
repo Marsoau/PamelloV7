@@ -14,6 +14,8 @@ namespace PamelloV7.Server
 {
     public class Program
     {
+        public static string ConfigPath = "Config/config.json";
+        
         private readonly Dictionary<Type, Type?> _assemblyServices;
         
         public WebApplication App { get; set; }
@@ -30,12 +32,16 @@ namespace PamelloV7.Server
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);
+            
             var modulesLoader = new PamelloModulesLoader();
+            var configLoader = new PamelloConfigLoader();
             
             LoadAssemblyServices();
             modulesLoader.Load();
             
             if (!modulesLoader.EnsureDependenciesAreSatisfied()) return;
+            
+            configLoader.Load();
             
             ConfigureAssemblyServices(builder.Services);
             modulesLoader.Configure(builder.Services);
@@ -45,7 +51,7 @@ namespace PamelloV7.Server
             ConfigureApiServices(builder.Services);
             
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
+            builder.WebHost.UseUrls($"http://{ServerConfig.Root.Host}");
             
             builder.Services.AddSingleton(builder.Services);
             
@@ -75,7 +81,7 @@ namespace PamelloV7.Server
             DatabaseRepositoriesLoader.Configure(builder.Services);
             
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"http://{PamelloServerConfig.Root.Host}");
+            builder.WebHost.UseUrls($"http://{ServerConfig.Root.Host}");
             
             App = builder.Build();
             

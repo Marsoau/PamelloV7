@@ -1,3 +1,4 @@
+using PamelloV7.Core.Config;
 using PamelloV7.Server.Config.Root.Discord.MessageStyles;
 
 namespace PamelloV7.Server.Config.Root.Discord;

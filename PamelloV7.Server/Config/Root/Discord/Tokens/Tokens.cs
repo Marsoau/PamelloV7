@@ -1,3 +1,5 @@
+using PamelloV7.Core.Config;
+
 namespace PamelloV7.Server.Config.Root.Discord.Tokens;
 
 public class Tokens : IConfigNode

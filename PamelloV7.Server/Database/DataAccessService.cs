@@ -9,7 +9,7 @@ public class DatabaseAccessService : IDatabaseAccessService
     private readonly LiteDatabase _db;
 
     public DatabaseAccessService() {
-        _db = new LiteDatabase($"{PamelloServerConfig.Root.DataPath}/lite.db");
+        _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite.db");
     }
 
     public IDatabaseCollection<TType> GetCollection<TType>(string name) {
