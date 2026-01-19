@@ -9,6 +9,5 @@ public interface ISongPlatform
     public string IconUrl { get; }
     
     public string? ValueToKey(string value);
-    public ISongInfo? GetSongInfo(string value);
-    public IPamelloSong? GetSong(string value, bool createIfNotExist = false);
+    public ISongInfo? GetSongInfo(string key);
 }

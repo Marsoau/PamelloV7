@@ -8,8 +8,7 @@ namespace PamelloV7.Core.Services;
 public interface IPlatformService : IPamelloService
 {
     public ISongPlatform? GetSongPlatform(string name);
-    public ISongInfo? GetSongInfo(string value);
-    public IPamelloSong? GetSong(string value);
+    public ISongInfo? GetSongInfo(string key);
     public PlatformKey? GetSongPlatformKey(string value);
     
     public IUserPlatform? GetUserPlatform(string name);

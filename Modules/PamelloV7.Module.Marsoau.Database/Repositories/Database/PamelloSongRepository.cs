@@ -37,15 +37,15 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         Console.WriteLine($"PK: {pk}");
         if (pk is null) return null;
 
-        var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source == pk));
-        Console.WriteLine($"Found song: {song}");
+        var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source.PK == pk));
+        Console.WriteLine($"Song {(song is null ? $"found: {song}" : "not found")}");
         if (song is not null) return song;
         
         var songInfo = _platforms.GetSongInfo(query);
-        Console.WriteLine($"Found info: {songInfo}");
+        Console.WriteLine($"Info {(song is null ? $"found: {song}" : "not found")}");
         if (songInfo is null) return null;
         
-        Console.WriteLine($"Adding song: {songInfo}");
+        Console.WriteLine("Adding song by info");
         return Add(songInfo, scopeUser);
     }
 

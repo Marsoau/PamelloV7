@@ -45,15 +45,6 @@ public class PlatformService : IPlatformService
         return null;
     }
 
-    public IPamelloSong? GetSong(string value) {
-        foreach (var platform in _songPlatforms) {
-            var song = platform.GetSong(value);
-            if (song is not null) return song;
-        }
-        
-        return null;
-    }
-
     public PlatformKey? GetSongPlatformKey(string value) {
         string? key;
         foreach (var platform in _songPlatforms) {

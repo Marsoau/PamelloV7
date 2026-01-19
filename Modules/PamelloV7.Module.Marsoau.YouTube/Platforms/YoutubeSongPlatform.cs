@@ -23,25 +23,28 @@ public class YoutubeSongPlatform : ISongPlatform
         _httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
     }
     
-    public string? ValueToKey(string url)
-    {
-        Uri uri;
+    public string ValueToKey(string value) {
+        var id = value;
 
-        uri = new Uri(url);
-        var query = HttpUtility.ParseQueryString(uri.Query);
+        if (id.StartsWith("https://")) {
+            Uri uri;
 
-        var youtubeId = uri.Host switch {
-            "www.youtube.com" => query["v"],
-            "youtu.be" => uri.Segments[1][..11],
-            "i.ytimg.com" => uri.Segments[2][..11],
-            _ => null
-        };
+            uri = new Uri(value);
+            var query = HttpUtility.ParseQueryString(uri.Query);
 
-        if (youtubeId is null || youtubeId.Length != 11) {
-            throw new PamelloException($"Cant find youtube id in url \"{url}\"");
+            id = uri.Host switch {
+                "www.youtube.com" => query["v"],
+                "youtu.be" => uri.Segments[1][..11],
+                "i.ytimg.com" => uri.Segments[2][..11],
+                _ => null
+            };
         }
 
-        return youtubeId;
+        if (id is null || id.Length != 11 || !id.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_')) {
+            throw new PamelloException($"Cant find a valid youtube id in value \"{value}\"");
+        }
+
+        return id;
     }
     
     public ISongInfo? GetSongInfo(string value) {
@@ -187,9 +190,5 @@ public class YoutubeSongPlatform : ISongPlatform
         }
 
         return episodes;
-    }
-
-    public IPamelloSong GetSong(string value, bool createIfNotExist = false) {
-        throw new NotImplementedException();
     }
 }
