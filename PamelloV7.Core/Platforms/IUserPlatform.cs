@@ -8,6 +8,6 @@ public interface IUserPlatform
     public string Name { get; }
     public string IconUrl { get; }
     
-    public IUserInfo? GetUserInfo(string value);
-    public IPamelloUser? GetUser(string value, bool createIfNotExist = false);
+    public string ValueToKey(string value);
+    public IUserInfo? GetUserInfo(string key);
 }

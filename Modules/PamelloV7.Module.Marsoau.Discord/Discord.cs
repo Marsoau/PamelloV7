@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Modules;
+using PamelloV7.Module.Marsoau.Discord.Services;
 using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord;
@@ -25,22 +26,24 @@ public class Discord : IPamelloModule
     }
     
     public void Startup(IServiceProvider services) {
-        return;
-        var discord = services.GetRequiredService<DiscordSocketClient>();
+        var clients = services.GetRequiredService<DiscordClientService>();
 
         var whenReady = new TaskCompletionSource();
 
-        discord.Log += async message => {
+        clients.Main.Log += async message => {
             Console.WriteLine($"[Discord Log] {message}");
         };
 
-        discord.Ready += async () => {
+        clients.Main.Ready += async () => {
             whenReady.SetResult();
         };
 
-        discord.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main).Wait();
-        discord.StartAsync().Wait();
+        clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main).Wait();
+        clients.Main.StartAsync().Wait();
 
         whenReady.Task.Wait();
+
+        var duser = clients.GetDiscordUser(544933092503060509);
+        Console.WriteLine($"Discord user: {duser?.GlobalName}");
     }
 }

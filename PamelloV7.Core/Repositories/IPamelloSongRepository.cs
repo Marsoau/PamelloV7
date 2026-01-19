@@ -16,6 +16,9 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     
     [NamePoint]
     public IPamelloSong? GetByName(IPamelloUser scopeUser, string query);
+    
+    [PlatformKeyPoint]
+    public IPamelloSong? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false);
         
     [ValuePoint("current")]
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser);

@@ -3,6 +3,8 @@ using PamelloV7.Core;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
+using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Platforms;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
@@ -15,7 +17,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     private DateTime _joinedAt;
     private int _songsPlayed;
     
-    internal List<IUserAuthorization> _authorizations;
+    internal List<UserAuthorization> _authorizations;
     
     internal List<IPamelloSong> _addedSongs;
     internal List<IPamelloPlaylist> _addedPlaylists;
@@ -23,7 +25,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     internal List<IPamelloPlaylist> _favoritePlaylists;
     
     public override string Name {
-        get => $"User{Id}";
+        get => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
         set => throw new NotImplementedException();
     }
 
@@ -35,11 +37,10 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
     public IPamelloPlayer RequiredSelectedPlayer { get; }
-    public IPamelloCommandsModule Commands { get; }
 
-    public IUserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
+    public UserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
     
-    public IReadOnlyList<IUserAuthorization> Authorizations => _authorizations;
+    public IReadOnlyList<UserAuthorization> Authorizations => _authorizations;
     
     public IReadOnlyList<IPamelloSong> AddedSongs => _addedSongs;
     public IReadOnlyList<IPamelloPlaylist> AddedPlaylists => _addedPlaylists;
@@ -50,7 +51,9 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
         
-        //Commands = new PamelloCommandsModule(services, this);
+        _authorizations = databaseEntity.Authorizations.Select(
+            pk => new UserAuthorization(services, this, pk)
+        ).ToList();
     }
     
     protected override void InitBase() {

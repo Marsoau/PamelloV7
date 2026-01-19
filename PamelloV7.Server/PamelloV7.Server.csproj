@@ -13,9 +13,6 @@
     <None Include="Config\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Config\config.old.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Config\configEXAMPLE.json" />
   </ItemGroup>
   <ItemGroup>

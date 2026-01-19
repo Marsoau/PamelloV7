@@ -23,12 +23,17 @@ public class PlatformService : IPlatformService
     public void LoadPlatforms() {
         var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
         
-        var platformTypes = typeResolver.GetInheritorsOf<ISongPlatform>();
+        var platformsTypes = typeResolver.GetInheritorsOf(typeof(ISongPlatform), typeof(IUserPlatform));
 
-        foreach (var platformType in platformTypes) {
-            if (Activator.CreateInstance(platformType, [_services]) is not ISongPlatform platform) continue;
-            
-            _songPlatforms.Add(platform);
+        foreach (var platformType in platformsTypes) {
+            switch (Activator.CreateInstance(platformType, _services)) {
+                case ISongPlatform songPlatform:
+                    _songPlatforms.Add(songPlatform);
+                    break;
+                case IUserPlatform userPlatform:
+                    _userPlatforms.Add(userPlatform);
+                    break;
+            }
         }
     }
     
@@ -62,7 +67,7 @@ public class PlatformService : IPlatformService
     }
 
     public IUserPlatform? GetUserPlatform(string name) {
-        throw new NotImplementedException();
+        return _userPlatforms.FirstOrDefault(x => x.Name == name);
     }
 
     public IUserInfo? GetUserInfo(string value) {

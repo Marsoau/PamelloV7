@@ -7,6 +7,7 @@ using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Modules;
+using PamelloV7.Core.Platforms;
 
 namespace PamelloV7.Module.Marsoau.Test;
 
@@ -26,6 +27,15 @@ public class Test : IPamelloModule
 
         var me = users.GetRequired(1);
         var list = playlists.GetRequired(1);
+        
+        var platforms = services.GetRequiredService<IPlatformService>();
+        var discord = platforms.GetUserPlatform("discord");
+
+        var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
+        Console.WriteLine($"User: {user}");
+        Console.WriteLine($"Key: {discord?.ValueToKey("<@1422257871655145602>")}");
+        
+        return;
 
         var query = "songs$12";
         

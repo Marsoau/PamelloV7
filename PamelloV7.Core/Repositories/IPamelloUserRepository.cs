@@ -1,5 +1,7 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Platforms;
+using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Core.Services.PEQL;
@@ -15,6 +17,9 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     [NamePoint]
     public IPamelloUser? GetByName(IPamelloUser scopeUser, string query);
     
+    [PlatformKeyPoint]
+    public IPamelloUser? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false);
+    
     [ValuePoint("all")]
     public IEnumerable<IPamelloUser> GetAll(IPamelloUser scopeUser);
     
@@ -29,4 +34,6 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     
     public IPamelloUser? GetByToken(Guid token);
     public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true);
+    
+    public IPamelloUser Add(IUserInfo info);
 }

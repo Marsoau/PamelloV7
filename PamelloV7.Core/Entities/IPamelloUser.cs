@@ -1,5 +1,6 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Entities.Base;
+using PamelloV7.Core.Entities.Other;
 
 namespace PamelloV7.Core.Entities;
 
@@ -15,8 +16,8 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public DateTime JoinedAt { get; }
 
     public int SelectedAuthorizationIndex { get; set; }
-    public IUserAuthorization? SelectedAuthorization { get; }
-    public IReadOnlyList<IUserAuthorization> Authorizations { get; }
+    public UserAuthorization? SelectedAuthorization { get; }
+    public IReadOnlyList<UserAuthorization> Authorizations { get; }
     
     public IReadOnlyList<IPamelloSong> AddedSongs { get; }
     public IReadOnlyList<IPamelloPlaylist> AddedPlaylists { get; }

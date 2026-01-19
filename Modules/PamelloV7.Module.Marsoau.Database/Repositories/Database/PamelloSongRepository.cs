@@ -15,11 +15,13 @@ namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
 public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, DatabaseSong>, IPamelloSongRepository
 {
     private readonly IPlatformService _platforms;
+
+    public override string CollectionName => "songs";
+    
     public PamelloSongRepository(IServiceProvider services) : base(services) {
         _platforms = services.GetRequiredService<IPlatformService>();
     }
-
-    public override string CollectionName => "songs";
+    
     protected override IPamelloSong CreatePamelloEntity(DatabaseSong databaseEntity) {
         return new PamelloSong(databaseEntity, _services);
     }
@@ -37,12 +39,21 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         Console.WriteLine($"PK: {pk}");
         if (pk is null) return null;
 
+        return GetByPlatformKey(scopeUser, pk, true);
+    }
+
+    public IPamelloSong? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
         var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source.PK == pk));
-        Console.WriteLine($"Song {(song is null ? $"found: {song}" : "not found")}");
+        Console.WriteLine($"Song by pk {(song is null ? $"found: {song}" : "not found")}");
         if (song is not null) return song;
         
-        var songInfo = _platforms.GetSongInfo(query);
-        Console.WriteLine($"Info {(song is null ? $"found: {song}" : "not found")}");
+        if (!allowCreation) return null;
+        
+        var platform = _platforms.GetSongPlatform(pk.Platform);
+        if (platform is null) return null;
+        
+        var songInfo = platform.GetSongInfo(pk.Key);
+        Console.WriteLine($"Info by pk {(songInfo is null ? $"found: {songInfo}" : "not found")}");
         if (songInfo is null) return null;
         
         Console.WriteLine("Adding song by info");
