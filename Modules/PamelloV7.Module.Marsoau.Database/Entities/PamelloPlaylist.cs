@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
@@ -121,5 +123,17 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
 
     public void UnmakeFavorite(IPamelloUser user) {
         throw new NotImplementedException();
+    }
+
+    public override IPamelloDTO GetDto() {
+        return new PamelloPlaylistDTO {
+            Id = Id,
+            Name = Name,
+            OwnerId = Owner.Id,
+            IsProtected = IsProtected,
+            
+            SongsIds = IPamelloEntity.GetIds(_playlistSongs),
+            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy),
+        };
     }
 }

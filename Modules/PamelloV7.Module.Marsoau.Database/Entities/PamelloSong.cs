@@ -223,16 +223,19 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     }
 
     public override IPamelloDTO GetDto() {
-        return new PamelloSongDTO() {
+        return new PamelloSongDTO {
             Id = Id,
             Name = Name,
             CoverUrl = CoverUrl,
             Associations = _associations,
             AddedAt = AddedAt,
             AddedById = AddedBy?.Id ?? 0,
+            
             FavoriteByIds = IPamelloEntity.GetIds(FavoriteBy),
             PlaylistsIds = IPamelloEntity.GetIds(Playlists),
             EpisodesIds = IPamelloEntity.GetIds(Episodes),
+            
+            SourcesPlatfromKeys = Sources.Select(source => source.PK.ToString())
         };
     }
 }

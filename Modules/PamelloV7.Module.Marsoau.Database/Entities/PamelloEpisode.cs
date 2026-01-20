@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -60,5 +61,16 @@ public class PamelloEpisode : PamelloEntity<DatabaseEpisode>, IPamelloEpisode
 
     public override string ToString() {
         return $"[{Id}] {Name} ({Start})";
+    }
+
+    public override IPamelloDTO GetDto() {
+        return new PamelloEpisodeDTO {
+            Id = Id,
+            Name = Name,
+            Start = Start.TotalSeconds,
+            AutoSkip = AutoSkip,
+            
+            SongId = Song.Id,
+        };
     }
 }

@@ -18,14 +18,11 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("avatarUrl")]
 		public string? AvatarUrl { get; set; }
 
-        [JsonPropertyName("discordId")]
-		public ulong DiscordId { get; set; }
-
         [JsonPropertyName("selectedPlayerId")]
 		public int? SelectedPlayerId { get; set; }
-
-        [JsonPropertyName("songsPlayed")]
-        public int SongsPlayed { get; set; }
+		
+		[JsonPropertyName("selectedAuthorizationPos")]
+		public int? SelectedAuthorizationPos { get; set; }
 
         [JsonPropertyName("joinedAt")]
         public DateTime JoinedAt { get; set; }
@@ -42,8 +39,12 @@ namespace PamelloV7.Core.DTO
 
         [JsonPropertyName("favoritePlaylistsIds")]
         public IEnumerable<int> FavoritePlaylistsIds { get; set; }
+        
+        
+        [JsonPropertyName("authorizationsPlatfromKeys")]
+        public IEnumerable<string> AuthorizationsPlatfromKeys { get; set; }
 
-
+        
         [JsonPropertyName("isAdministrator")]
 		public bool IsAdministrator { get; set; }
     }

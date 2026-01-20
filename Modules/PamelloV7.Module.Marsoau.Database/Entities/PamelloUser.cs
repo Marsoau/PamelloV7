@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using PamelloV7.Core;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
@@ -26,6 +27,11 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     
     public override string Name {
         get => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
+        set => throw new NotImplementedException();
+    }
+
+    public string? AvatarUrl {
+        get => SelectedAuthorization?.Info?.AvatarUrl;
         set => throw new NotImplementedException();
     }
 
@@ -149,5 +155,24 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
     public IPamelloPlaylist CreatePlaylist(string name) {
         return _playlists.Add(name, this);
+    }
+
+    public override IPamelloDTO GetDto() {
+        return new PamelloUserDTO {
+            Id = Id,
+            Name = Name,
+            AvatarUrl = AvatarUrl,
+            SelectedPlayerId = SelectedPlayer?.Id,
+            SelectedAuthorizationPos = SelectedAuthorizationIndex,
+
+            AddedSongsIds = IPamelloEntity.GetIds(AddedSongs),
+            AddedPlaylistsIds = IPamelloEntity.GetIds(AddedPlaylists),
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs),
+            FavoritePlaylistsIds = IPamelloEntity.GetIds(FavoritePlaylists),
+
+            AuthorizationsPlatfromKeys = Authorizations.Select(authorization => authorization.PK.ToString()),
+
+            IsAdministrator = false
+        };
     }
 }

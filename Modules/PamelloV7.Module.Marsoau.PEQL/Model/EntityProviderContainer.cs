@@ -57,7 +57,7 @@ public class EntityProviderContainer
         }
 
         var argumentsInfos = method.GetParameters();
-        var stringArgsValues = stringArgs.SplitArgs(',');
+        var stringArgsValues = stringArgs.Length > 0 ? stringArgs.SplitArgs(',') : [];
         var arguments = new object?[argumentsInfos.Length - 1];
 
         for (var i = 0; i < argumentsInfos.Length - 1; i++) {

@@ -36,5 +36,9 @@ namespace PamelloV7.Core.DTO
 
         [JsonPropertyName("playlistsIds")]
         public IEnumerable<int> PlaylistsIds { get; set; }
+
+        
+        [JsonPropertyName("sourcesPlatformKeys")]
+        public IEnumerable<string> SourcesPlatfromKeys { get; set; }
     }
 }

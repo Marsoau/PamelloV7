@@ -16,8 +16,8 @@ namespace PamelloV7.Core.DTO
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("addedById")]
-        public int AddedById { get; set; }
+        [JsonPropertyName("ownerId")]
+        public int OwnerId { get; set; }
 
         [JsonPropertyName("isProtected")]
         public bool IsProtected { get; set; }

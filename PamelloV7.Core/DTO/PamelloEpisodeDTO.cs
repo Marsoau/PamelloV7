@@ -19,7 +19,7 @@ namespace PamelloV7.Core.DTO
         public int Start { get; set; }
 
         [JsonPropertyName("skip")]
-        public bool Skip { get; set; }
+        public bool AutoSkip { get; set; }
 
         [JsonPropertyName("songId")]
         public int SongId { get; set; }
