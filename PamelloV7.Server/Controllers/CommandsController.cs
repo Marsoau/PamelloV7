@@ -8,13 +8,19 @@ using PamelloV7.Server.Model;
 using PamelloV7.Core.Exceptions;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Commands.Base;
+using PamelloV7.Core.Converters;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
+using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.Audio.Modules.Pamello;
 using PamelloV7.Server.Model.Audio.Speakers;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Controllers
 {
@@ -22,6 +28,12 @@ namespace PamelloV7.Server.Controllers
     [ApiController]
     public class CommandsController : PamelloControllerBase
     {
+        private readonly IPamelloCommandsService _commands;
+        
+        private readonly IAssemblyTypeResolver _typeResolver;
+        
+        private readonly IEntityQueryService _peql;
+        
         private readonly IPamelloUserRepository _users;
         private readonly IPamelloSongRepository _songs;
         private readonly IPamelloEpisodeRepository _episodes;
@@ -30,16 +42,98 @@ namespace PamelloV7.Server.Controllers
         private readonly IPamelloSpeakerRepository _speakers;
 
         public CommandsController(IServiceProvider services) : base(services) {
-            _users = services.GetRequiredService<IPamelloUserRepository>();
-            _songs = services.GetRequiredService<IPamelloSongRepository>();
-            _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
-            _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
-            _players = services.GetRequiredService<IPamelloPlayerRepository>();
-            _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
+            _commands = services.GetRequiredService<IPamelloCommandsService>();
+            
+            _typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
+            
+            _peql = services.GetRequiredService<IEntityQueryService>();
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(string commandName) {
+            RequireUser();
+            StaticLogger.Log("Command Start");
+
+            var requestedCommandType = _typeResolver.GetByName(commandName);
+            if (requestedCommandType is null || !requestedCommandType.IsAssignableTo(typeof(PamelloCommand)))
+                throw new PamelloControllerException(NotFound($"command with name \"{commandName}\" not found"));
+
+            var command = _commands.Get(requestedCommandType, User);
+            
+            var commandMethod = command.GetType().GetMethod("Execute");
+            if (commandMethod is null) throw new PamelloControllerException(NotFound($"command with name \"{commandName}\" doesnt have execution method"));
+            
+            var parameters = commandMethod.GetParameters();
+            var args = new object?[parameters.Length];
+            
+            for (var i = 0; i < parameters.Length; i++) {
+                var parameter = parameters[i];
+                
+                if (!Request.Query.TryGetValue(parameter.Name ?? "", out var queryStringValues)) {
+                    //throw new PamelloControllerException(BadRequest($"couldnt find required \"{argName}\""));
+                }
+                var queryStringValue = queryStringValues.FirstOrDefault() ?? "";
+
+                var argumentType = parameter.ParameterType;
+
+                var isEntityType = false;
+                var isManyEntity = false;
+
+                if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
+                    isEntityType = true;
+                    Console.WriteLine($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                }
+                else if (argumentType.IsGenericType && argumentType.GetGenericTypeDefinition() == typeof(List<>)) {
+                    argumentType = argumentType.GenericTypeArguments.FirstOrDefault();
+                    if (argumentType is null) throw new PamelloException("Argument of a command has null generic list");
+                    
+                    if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
+                        isEntityType = true;
+                        isManyEntity = true;
+                        Console.WriteLine($"Pamello Multi Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                    }
+                }
+                else {
+                    Console.WriteLine($"Other Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                }
+
+                if (!isEntityType) {
+                    try {
+                        args[i] = TypeDescriptor.GetConverter(argumentType).ConvertFromString(queryStringValue);
+                    }
+                    catch {
+                        throw new PamelloControllerException(BadRequest($"couldnt convert \"{queryStringValue}\" to type \"{argumentType.Name}\""));
+                    }
+                    continue;
+                }
+
+                if (isManyEntity) {
+                    args[i] = _peql.Get(argumentType, queryStringValue, User);
+                }
+                else {
+                    args[i] = _peql.GetSingle(argumentType, queryStringValue, User);
+                }
+            }
+
+            commandMethod.Invoke(command, args);
+            StaticLogger.Log("Command End");
+            
+            try {
+                object? result;
+
+                if (typeof(Task).IsAssignableFrom(commandMethod.ReturnType)) {
+                    result = await commandMethod.InvokeAsync(command, args);
+                }
+                else result = commandMethod.Invoke(command, args);
+
+                return Ok(JsonSerializer.Serialize(result, JsonEntitiesFactory.Options));
+            }
+            catch (TargetInvocationException tie) {
+                throw new PamelloControllerException(BadRequest($"Execution of command interrupted by exception, message: {tie.InnerException?.Message}"));
+            }
+        }
+
+        public async Task<IActionResult> GetOld(string commandName) {
             RequireUser();
 
             var commandMethod = typeof(PamelloCommandsModule).GetMethod(commandName);

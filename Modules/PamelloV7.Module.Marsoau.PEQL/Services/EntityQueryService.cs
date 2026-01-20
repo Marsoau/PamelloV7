@@ -70,9 +70,9 @@ public class EntityQueryService : IEntityQueryService
         _logger.Log($"Loaded {Operators.Count} operators");
     }
 
-    public IEnumerable<IPamelloEntity> Get(string query, IPamelloUser scopeUser)
-        => InternalGet(query, scopeUser).Where(e => e is not null);
-    private IEnumerable<IPamelloEntity> InternalGet(string query, IPamelloUser scopeUser) {
+    public List<IPamelloEntity> Get(string query, IPamelloUser scopeUser)
+        => InternalGet(query, scopeUser).Where(e => e is not null).ToList();
+    private List<IPamelloEntity> InternalGet(string query, IPamelloUser scopeUser) {
         if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
         
         var splitAt = -1;
@@ -104,7 +104,7 @@ public class EntityQueryService : IEntityQueryService
         
         splitAt = query.IndexOf('$');
         if (splitAt == -1) throw new Exception("Query does not contain provider context");
-        
+
         context = query[..splitAt];
         value = query[(splitAt + 1)..];
         

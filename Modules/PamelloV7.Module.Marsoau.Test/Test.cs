@@ -1,6 +1,8 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Commands;
+using PamelloV7.Core.Converters;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
@@ -41,10 +43,6 @@ public class Test : IPamelloModule
         //Console.WriteLine($"User: {user}");
 
         var query = "songs$4,5,6";
-
-        events.Subscribe<SongNameUpdated>(async (e) => {
-            Console.WriteLine($"Updated name of the song: {e.Song}");
-        });
         
         logger.Log("G");
         var entities = peql.Get(query, me);
@@ -57,14 +55,12 @@ public class Test : IPamelloModule
             if (entity is not IPamelloSong song) continue;
 
             Console.WriteLine($"Before: {song.Name}");
-            commands.Get<SongRename>(me).Execute(song, "test");
+            //commands.Get<SongRename>(me).Execute(song, "test");
             
             Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
             foreach (var episode in song.Episodes) {
                 Console.WriteLine($"| {episode}");
             }
         }
-
-
     }
 }

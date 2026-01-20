@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Commands.Base;
 using PamelloV7.Core.Entities;
@@ -27,15 +28,21 @@ public class PamelloCommandsService : IPamelloCommandsService
     }
     
     public TCommand Get<TCommand>(IPamelloUser scopeUser) where TCommand : PamelloCommand, new() {
-        var commandType = CommandTypes.FirstOrDefault(type => type == typeof(TCommand));
-        if (commandType is null) throw new PamelloException($"Command {typeof(TCommand).Name} not found");
+        return (TCommand)Get(typeof(TCommand), scopeUser);
+    }
+
+    public PamelloCommand Get(Type requestedType, IPamelloUser scopeUser) {
+        var commandType = CommandTypes.FirstOrDefault(type => type == requestedType);
+        if (commandType is null) throw new PamelloException($"Command {requestedType.Name} not found");
         
         var scopeUserField = typeof(PamelloCommand).GetField("ScopeUser");
-        if (scopeUserField is null) throw new PamelloException($"Command {typeof(TCommand).Name} does not have ScopeUser field");
+        if (scopeUserField is null) throw new PamelloException($"Command {requestedType.Name} does not have ScopeUser field");
         
-        var command = Activator.CreateInstance(commandType)!;
+        var command = Activator.CreateInstance(commandType) as PamelloCommand;
+        Debug.Assert(command is not null, "Command cannot be null here");
+        
         scopeUserField.SetValue(command, scopeUser);
         
-        return (TCommand)command;
+        return command;
     }
 }

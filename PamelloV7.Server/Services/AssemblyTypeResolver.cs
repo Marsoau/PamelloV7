@@ -9,6 +9,10 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
     }
     
+    public Type? GetByName(string name) {
+        return GetAll().FirstOrDefault(x => x.Name == name);
+    }
+
     public IEnumerable<Type> GetWithAttribute<TAttribute>() {
         return GetAll().Where(x => x.GetCustomAttribute(typeof(TAttribute)) != null);
     }

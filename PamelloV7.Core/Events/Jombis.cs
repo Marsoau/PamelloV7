@@ -1,3 +1,4 @@
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 
@@ -6,7 +7,7 @@ namespace PamelloV7.Core.Events;
 [Broadcast]
 public class Jombis : IPamelloEvent
 {
-    public string MessageFromBombis { get; set; }
-    public int BombisNumber { get; set; }
-    public string Baibyes { get; set; }
+    public List<IPamelloSong> Songs { get; set; }
+    public IPamelloSong Song { get; set; }
+    public string Message { get; set; }
 }
