@@ -5,6 +5,7 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -29,7 +30,17 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
 
     public override string Name {
         get => _name;
-        set => _name = value;
+        set {
+            if (_name == value) return;
+            
+            _name = value;
+            _events.Invoke(new SongNameUpdated {
+                Song = this,
+                NewName = _name
+            });
+            
+            //Save();
+        }
     }
 
     public string CoverUrl {

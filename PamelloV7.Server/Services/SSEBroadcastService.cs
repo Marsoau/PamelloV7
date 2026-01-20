@@ -1,6 +1,7 @@
 ﻿using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Model.Audio;
@@ -11,24 +12,24 @@ using PamelloV7.Server.Model.Audio.Modules.Pamello;
 
 namespace PamelloV7.Server.Services
 {
-    public class PamelloEventsService: IDisposable
+    public class SSEBroadcastService : ISSEBroadcastService
     {
         private readonly IUserAuthorizationService _authorization;
         private readonly IPamelloUserRepository _users;
 
-        private readonly List<PamelloEventListener> _listeners;
+        private readonly List<PamelloSSEListener> _listeners;
 
-        public PamelloEventsService(IUserAuthorizationService authorization, IPamelloUserRepository users) {
+        public SSEBroadcastService(IUserAuthorizationService authorization, IPamelloUserRepository users) {
             _authorization = authorization;
             _users = users;
 
-            _listeners = new List<PamelloEventListener>();
+            _listeners = new List<PamelloSSEListener>();
 
             Task.Run(RemoveListenersThread);
         }
 
         private async Task RemoveListenersThread() {
-            var removeQueue = new Queue<PamelloEventListener>();
+            var removeQueue = new Queue<PamelloSSEListener>();
 
             while (true) {
                 foreach (var listener in _listeners) {
@@ -41,46 +42,52 @@ namespace PamelloV7.Server.Services
             }
         }
 
-        private async Task RemoveListener(PamelloEventListener listener) {
+        private async Task RemoveListener(PamelloSSEListener listener) {
             _listeners.Remove(listener);
             await listener.CloseConnection();
 
             Console.WriteLine($"removed \"{listener.Token}\" events");
         }
 
-        public async Task<PamelloEventListener> AddListener(HttpResponse response, CancellationToken cancellationToken) {
-            var listener = new PamelloEventListener(response, cancellationToken);
+        public async Task<PamelloSSEListener> AddListener(HttpResponse response, CancellationToken cancellationToken) {
+            var listener = new PamelloSSEListener(response, cancellationToken);
             await listener.InitializeConnection();
 
             _listeners.Add(listener);
             return listener;
         }
 
-        private PamelloEventListener? GetListener(Guid eventsToken) {
+        private PamelloSSEListener? GetListener(Guid eventsToken) {
             return _listeners.FirstOrDefault(listener => listener.Token == eventsToken);
         }
-        private PamelloEventListener GetRequiredListener(Guid eventsToken) {
+        private PamelloSSEListener GetRequiredListener(Guid eventsToken) {
             return GetListener(eventsToken) ?? throw new PamelloException($"Events with token \"{eventsToken}\" doesnt exist");
         }
 
-        public void Broadcast<TEventType>(TEventType pamelloEvent)
-            where TEventType : PamelloEvent
+        public void Broadcast(PamelloEvent pamelloEvent) {
+            throw new NotImplementedException();
+            //delete this method later
+        }
+        public void BroadcastToPlayer(IPamelloPlayer player, PamelloEvent pamelloEvent) {
+            throw new NotImplementedException();
+            //delete this method later
+        }
+        
+        public void Broadcast(IPamelloEvent pamelloEvent)
         {
             foreach (var listener in _listeners) {
-                if (listener.User is null) continue;
+                if (!listener.IsAuthorized) continue;
                 listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public void BroadcastToPlayer<TEventType>(IPamelloPlayer player, TEventType pamelloEvent)
-            where TEventType : PamelloEvent
+        public void BroadcastToPlayer(IPamelloPlayer player, IPamelloEvent pamelloEvent)
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null || listener.User.SelectedPlayer?.Id != player?.Id) continue;
                 listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public void BroadcastToUser<TEventType>(IPamelloUser user, TEventType pamelloEvent)
-            where TEventType : PamelloEvent
+        public void BroadcastToUser(IPamelloUser user, IPamelloEvent pamelloEvent)
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null || listener.User.Id != user.Id) continue;
@@ -88,13 +95,13 @@ namespace PamelloV7.Server.Services
             }
         }
 
-        public PamelloEventListener AuthorizeEventsWithCode(Guid eventsToken, int code) {
+        public PamelloSSEListener AuthorizeEventsWithCode(Guid eventsToken, int code) {
             var user = _authorization.GetUser(code);
             if (user is null) throw new PamelloException($"User with authorization code \"{code}\" not found");
 
             return AuthorizeEventsWithToken(eventsToken, user.Token);
         }
-        public PamelloEventListener AuthorizeEventsWithToken(Guid eventsToken, Guid userToken) {
+        public PamelloSSEListener AuthorizeEventsWithToken(Guid eventsToken, Guid userToken) {
             var events = GetRequiredListener(eventsToken);
 
             var user = _users.GetByToken(userToken);
@@ -117,7 +124,8 @@ namespace PamelloV7.Server.Services
             events.Close();
         }
 
-        public void Dispose() {
+        public void Shutdown() {
+            Console.WriteLine("STOPPING SSE");
             foreach (var listener in _listeners) {
                 listener.Dispose();
             }

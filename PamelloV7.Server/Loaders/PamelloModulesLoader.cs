@@ -129,6 +129,35 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Modules configured");
     }
 
+    public void Shutdown(IServiceProvider services) {
+        StaticLogger.Log($"Shutting down module services: ({Containers.SelectMany(c => c.Services).Count()} services from {Containers.Count} modules)");
+        
+        foreach (var container in Containers) {
+            Console.WriteLine($"{container}");
+            
+            IPamelloService? service;
+            
+            foreach (var kvp in container.Services) {
+                if (kvp.Value is not null) {
+                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
+                    
+                    service = services.GetService(kvp.Value) as IPamelloService;
+                    if (service is null) continue;
+                    
+                    service.Shutdown();
+                }
+                else {
+                    Console.WriteLine($"| {kvp.Key.Name}");
+                    
+                    service = services.GetService(kvp.Key) as IPamelloService;
+                    if (service is null) continue;
+                    
+                    service.Shutdown();
+                }
+            }
+        }
+    }
+
     public void StartupStage(IServiceProvider services, ELoadingStage stage) {
         var stagedContainers = Containers.Where(container => container.Module.Stage == stage).ToList();
 

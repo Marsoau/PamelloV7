@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Commands;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
@@ -33,11 +34,17 @@ public class Test : IPamelloModule
         var discord = platforms.GetUserPlatform("discord");
         
         var commands = services.GetRequiredService<IPamelloCommandsService>();
+        
+        var events = services.GetRequiredService<IEventsService>();
 
         //var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
         //Console.WriteLine($"User: {user}");
 
-        var query = "songs$4";
+        var query = "songs$4,5,6";
+
+        events.Subscribe<SongNameUpdated>(async (e) => {
+            Console.WriteLine($"Updated name of the song: {e.Song}");
+        });
         
         logger.Log("G");
         var entities = peql.Get(query, me);
@@ -51,7 +58,6 @@ public class Test : IPamelloModule
 
             Console.WriteLine($"Before: {song.Name}");
             commands.Get<SongRename>(me).Execute(song, "test");
-            Console.WriteLine($"After: {song.Name}");
             
             Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
             foreach (var episode in song.Episodes) {

@@ -3,6 +3,7 @@ using PamelloV7.Core.Data.Entities.Base;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 
 namespace PamelloV7.Server.Entities.Base;
 
@@ -10,6 +11,8 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
     where TDatabaseEntity : DatabaseEntity
 {
     protected readonly IServiceProvider _services;
+
+    protected readonly IEventsService _events;
     
     protected readonly IPamelloUserRepository _users;
     protected readonly IPamelloSongRepository _songs;
@@ -24,6 +27,8 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
 
     protected PamelloEntity(TDatabaseEntity databaseEntity, IServiceProvider services) {
         _services = services;
+        
+        _events = services.GetRequiredService<IEventsService>();
         
         _databaseEntity = databaseEntity;
         Id = databaseEntity.Id;

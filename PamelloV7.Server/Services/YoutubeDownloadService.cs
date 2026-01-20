@@ -17,12 +17,12 @@ namespace PamelloV7.Server.Services
 
     public class YoutubeDownloadService
     {
-		private readonly PamelloEventsService _events;
+		private readonly SSEBroadcastService _events;
 
 		private readonly List<YoutubeDownloadItem> _downloads;
 
 		public YoutubeDownloadService(
-			PamelloEventsService events
+			SSEBroadcastService events
 		) {
 			_events = events;
 

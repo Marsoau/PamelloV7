@@ -23,7 +23,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
         private readonly IPamelloUserRepository _users;
         
         private readonly IPamelloSpeakerRepository _speakerRepository;
-        private readonly PamelloEventsService _events;
+        private readonly SSEBroadcastService _events;
 
         public IPamelloUser Creator { get; }
 
@@ -104,7 +104,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             _users = services.GetRequiredService<IPamelloUserRepository>();
             
             _speakerRepository = services.GetRequiredService<IPamelloSpeakerRepository>();
-            _events = services.GetRequiredService<PamelloEventsService>();
+            _events = services.GetRequiredService<SSEBroadcastService>();
 
             Id = _idCounter++;
             _name = name;

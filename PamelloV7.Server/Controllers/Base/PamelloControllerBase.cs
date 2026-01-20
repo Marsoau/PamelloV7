@@ -9,12 +9,17 @@ using PamelloV7.Server.Exceptions;
 
 namespace PamelloV7.Server.Controllers.Base
 {
-    public class PamelloControllerBase : ControllerBase {
+    public class PamelloControllerBase : ControllerBase
+    {
+        protected readonly IServiceProvider _services;
+        
         private readonly IPamelloUserRepository _users;
 
         protected new IPamelloUser? User;
 
         public PamelloControllerBase(IServiceProvider services) {
+            _services = services;
+            
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 

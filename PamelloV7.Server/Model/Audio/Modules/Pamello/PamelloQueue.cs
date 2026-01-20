@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
     {
         private readonly IServiceProvider _services;
 
-        private readonly PamelloEventsService _events;
+        private readonly SSEBroadcastService _events;
 
         public IPamelloPlayer Player { get; }
 
@@ -209,7 +209,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             _users = services.GetRequiredService<IPamelloUserRepository>();
             Player = parrentPlayer;
             _songs = services.GetRequiredService<IPamelloSongRepository>();
-            _events = services.GetRequiredService<PamelloEventsService>();
+            _events = services.GetRequiredService<SSEBroadcastService>();
 
             _isRandom = false;
             _isReversed = false;

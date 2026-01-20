@@ -1,3 +1,6 @@
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Events.Base;
@@ -6,9 +9,13 @@ namespace PamelloV7.Module.Marsoau.Base.Services;
 
 public class EventsService : IEventsService
 {
+    private readonly ISSEBroadcastService _broadcast;
+    
     private List<IEventSubscription> _subscriptions;
     
-    public EventsService() {
+    public EventsService(IServiceProvider services) {
+        _broadcast = services.GetRequiredService<ISSEBroadcastService>();
+        
         _subscriptions = new List<IEventSubscription>();
     }
     
@@ -27,6 +34,10 @@ public class EventsService : IEventsService
 
     public void Invoke<TEventType>(TEventType e) where TEventType : IPamelloEvent {
         var eventType = e.GetType();
+
+        if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
+            _broadcast.Broadcast(e);
+        }
 
         foreach (var subscription in _subscriptions) {
             var subscriptionType = subscription.Type;

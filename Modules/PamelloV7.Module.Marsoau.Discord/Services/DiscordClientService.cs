@@ -49,12 +49,17 @@ public class DiscordClientService : IPamelloService
 
 		return null;
 	}
+	
+	public void Shutdown() {
+		foreach (var client in DiscordClients) {
+			client.StopAsync().GetAwaiter().GetResult();
+			client.LogoutAsync().GetAwaiter().GetResult();
+		}
+	}
 
 	public void Dispose() {
-		Console.WriteLine("Disposing discord clients");
-		
 		foreach (var client in DiscordClients) {
-			client.LogoutAsync().Wait();
+			client.Dispose();
 		}
 	}
 }

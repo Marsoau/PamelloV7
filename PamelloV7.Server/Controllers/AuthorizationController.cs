@@ -15,18 +15,19 @@ namespace PamelloV7.Server.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly IUserAuthorizationService _authorization;
-        private readonly PamelloEventsService _events;
+        private readonly SSEBroadcastService _events;
         private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
             _authorization = services.GetRequiredService<IUserAuthorizationService>();
-            _events = services.GetRequiredService<PamelloEventsService>();
+            _events = services.GetRequiredService<ISSEBroadcastService>() as SSEBroadcastService
+                ?? throw new PamelloException("ISSEBroadcastService is expected to be SSEBroadcastService");
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 
         [HttpGet("Events/{eventsToken}/WithCode/{code}")]
         public IActionResult GetWithCode(Guid eventsToken, int code) {
-            PamelloEventListener events;
+            PamelloSSEListener events;
 
             events = _events.AuthorizeEventsWithCode(eventsToken, code);
 
@@ -38,7 +39,7 @@ namespace PamelloV7.Server.Controllers
 
         [HttpGet("Events/{eventsToken}/WithToken/{userToken}")]
         public IActionResult GetWithToken(Guid eventsToken, Guid userToken) {
-            PamelloEventListener events;
+            PamelloSSEListener events;
 
             events = _events.AuthorizeEventsWithToken(eventsToken, userToken);
 
