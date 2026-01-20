@@ -1,9 +1,9 @@
-﻿using PamelloV7.Wrapper.Services;
-using PamelloV7.Core.Exceptions;
+﻿using PamelloV7.Core.Exceptions;
 using System.Text.Json;
-using PamelloV7.Wrapper.Repositories;
+using PamelloV7.WrapperOld.Repositories;
+using PamelloV7.WrapperOld.Services;
 
-namespace PamelloV7.Wrapper
+namespace PamelloV7.WrapperOld
 {
     public class PamelloClient
     {

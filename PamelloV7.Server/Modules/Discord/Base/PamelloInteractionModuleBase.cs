@@ -23,7 +23,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 {
     public class PamelloInteractionModuleBase : InteractionModuleBase<PamelloSocketInteractionContext>
     {
-        private readonly IUserAuthorizationService _authorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly DiscordClientService _discordClients;
 
         private readonly IPamelloPlayerRepository _players;
@@ -46,7 +46,7 @@ namespace PamelloV7.Server.Modules.Discord.Base
 
         public PamelloInteractionModuleBase(IServiceProvider services)
         {
-            _authorization = services.GetRequiredService<IUserAuthorizationService>();
+            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
             _discordClients = services.GetRequiredService<DiscordClientService>();
 
             _players = services.GetRequiredService<IPamelloPlayerRepository>();

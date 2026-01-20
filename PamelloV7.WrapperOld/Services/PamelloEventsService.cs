@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Exceptions;
 
-namespace PamelloV7.Wrapper.Services
+namespace PamelloV7.WrapperOld.Services
 {
     public class PamelloEventsService
     {

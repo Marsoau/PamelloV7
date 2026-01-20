@@ -4,7 +4,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>PamelloV7.Wrapper</PackageId>
+		<PackageId>PamelloV7.WrapperOld</PackageId>
 		<Version>0.1.3</Version>
 		<Authors>Marsoau</Authors>
 		<Description>API wrapper for PamelloV7</Description>

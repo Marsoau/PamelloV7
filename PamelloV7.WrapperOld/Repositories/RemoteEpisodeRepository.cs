@@ -1,12 +1,12 @@
 ﻿using PamelloV7.Core.DTO;
-using PamelloV7.Wrapper.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PamelloV7.WrapperOld.Model;
 
-namespace PamelloV7.Wrapper.Repositories
+namespace PamelloV7.WrapperOld.Repositories
 {
     public class RemoteEpisodeRepository : RemoteRepository<RemoteEpisode, PamelloEpisodeDTO>
     {

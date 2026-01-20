@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PamelloV7.Wrapper.Model
+namespace PamelloV7.WrapperOld.Model
 {
     public class RemotePlaylist : RemoteEntity<PamelloPlaylistDTO>
     {

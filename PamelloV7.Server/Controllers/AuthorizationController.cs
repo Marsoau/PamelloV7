@@ -14,12 +14,12 @@ namespace PamelloV7.Server.Controllers
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
-        private readonly IUserAuthorizationService _authorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly SSEBroadcastService _events;
         private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
-            _authorization = services.GetRequiredService<IUserAuthorizationService>();
+            _authorization = services.GetRequiredService<ICodeAuthorizationService>();
             _events = services.GetRequiredService<ISSEBroadcastService>() as SSEBroadcastService
                 ?? throw new PamelloException("ISSEBroadcastService is expected to be SSEBroadcastService");
             _users = services.GetRequiredService<IPamelloUserRepository>();

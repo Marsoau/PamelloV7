@@ -14,12 +14,12 @@ namespace PamelloV7.Server.Services
 {
     public class SSEBroadcastService : ISSEBroadcastService
     {
-        private readonly IUserAuthorizationService _authorization;
+        private readonly ICodeAuthorizationService _authorization;
         private readonly IPamelloUserRepository _users;
 
         private readonly List<PamelloSSEListener> _listeners;
 
-        public SSEBroadcastService(IUserAuthorizationService authorization, IPamelloUserRepository users) {
+        public SSEBroadcastService(ICodeAuthorizationService authorization, IPamelloUserRepository users) {
             _authorization = authorization;
             _users = users;
 

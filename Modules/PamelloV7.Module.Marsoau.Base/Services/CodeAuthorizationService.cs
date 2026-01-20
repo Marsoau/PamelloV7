@@ -3,11 +3,11 @@ using PamelloV7.Core.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
 
-public class UserAuthorizationService : IUserAuthorizationService
+public class CodeAuthorizationService : ICodeAuthorizationService
 {
     private readonly Dictionary<int, IPamelloUser> _records;
     
-    public UserAuthorizationService() {
+    public CodeAuthorizationService() {
         _records = [];
     }
     

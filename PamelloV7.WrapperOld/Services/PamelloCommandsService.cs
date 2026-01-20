@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PamelloV7.Wrapper.Interfaces;
-using PamelloV7.Wrapper.Model;
+using PamelloV7.WrapperOld.Interfaces;
+using PamelloV7.WrapperOld.Model;
 
-namespace PamelloV7.Wrapper.Services
+namespace PamelloV7.WrapperOld.Services
 {
     public class PamelloCommandsService
     {

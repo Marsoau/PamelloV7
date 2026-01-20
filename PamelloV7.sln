@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Core", "PamelloV7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.DAL", "PamelloV7.DAL\PamelloV7.DAL.csproj", "{258F6385-284E-49A9-AA06-079D87EBFFF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Wrapper", "PamelloV7.Wrapper\PamelloV7.Wrapper.csproj", "{D33051D1-A474-4DFF-935C-2DA231CD618B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.WrapperOld", "PamelloV7.WrapperOld\PamelloV7.WrapperOld.csproj", "{D33051D1-A474-4DFF-935C-2DA231CD618B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tests", "PamelloV7.Tests\PamelloV7.Tests.csproj", "{20801E3F-8C21-45FE-91BE-E411A100E62F}"
 EndProject

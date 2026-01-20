@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PamelloV7.Core.EventsOld;
 
-namespace PamelloV7.Wrapper.Services
+namespace PamelloV7.WrapperOld.Services
 {
     public class PamelloAuthorizationService
     {

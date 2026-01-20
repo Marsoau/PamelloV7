@@ -1,4 +1,4 @@
-namespace PamelloV7.Wrapper.Interfaces;
+namespace PamelloV7.WrapperOld.Interfaces;
 
 public interface IRemoteEntity
 {
