@@ -17,9 +17,6 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     [NamePoint]
     public IPamelloUser? GetByName(IPamelloUser scopeUser, string query);
     
-    [PlatformKeyPoint]
-    public IPamelloUser? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false);
-    
     [ValuePoint("all")]
     public IEnumerable<IPamelloUser> GetAll(IPamelloUser scopeUser);
     
@@ -33,7 +30,12 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     public IEnumerable<IPamelloUser> GetByToken(IPamelloUser scopeUser, Guid token);
     
     public IPamelloUser? GetByToken(Guid token);
-    public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true);
+    
+    public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false);
+
+    public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
+        throw new NotImplementedException();
+    }
     
     public IPamelloUser Add(IUserInfo info);
 }

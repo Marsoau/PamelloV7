@@ -33,7 +33,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         throw new NotImplementedException();
     }
 
-    public IPamelloUser? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
+    public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
         Console.WriteLine($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;
@@ -71,10 +71,6 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
 
     public IPamelloUser? GetByToken(Guid token) {
         return _loaded.FirstOrDefault(u => u.Token == token);
-    }
-
-    public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
-        throw new NotImplementedException();
     }
 
     public IPamelloUser Add(IUserInfo info) {
