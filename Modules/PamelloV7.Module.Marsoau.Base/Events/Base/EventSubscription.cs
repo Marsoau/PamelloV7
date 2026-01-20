@@ -5,7 +5,7 @@ namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 public class EventSubscription<TEventType> : IEventSubscription
     where TEventType : IPamelloEvent
 {
-    public Type Type => typeof(TEventType);
+    public Type EventType => typeof(TEventType);
     public Func<TEventType, Task> Handler { get; }
     
     public EventSubscription(Func<TEventType, Task> handler) {

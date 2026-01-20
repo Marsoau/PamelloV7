@@ -1,3 +1,4 @@
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services.Base;
 
@@ -7,6 +8,8 @@ public interface IEventsService : IPamelloService
 {
     public IEventSubscription Subscribe<TEventType>(Func<TEventType, Task> handler)
         where TEventType : IPamelloEvent;
+
+    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, params IPamelloEntity[] watchedEntities);
     
     public void Invoke<TEventType>(TEventType e)
         where TEventType : IPamelloEvent;

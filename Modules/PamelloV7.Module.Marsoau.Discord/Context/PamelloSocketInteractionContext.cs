@@ -8,6 +8,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Context
 {
     public class PamelloSocketInteractionContext : SocketInteractionContext
     {
+        public readonly IServiceProvider Services;
+        
         public SocketUser DiscordUser => base.User;
         public new readonly IPamelloUser User;
 
@@ -19,6 +21,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Context
             services.GetRequiredService<DiscordClientService>().Main,
             interaction
         ) {
+            Services = services;
+            
             User = pamelloUser;
         }
     }

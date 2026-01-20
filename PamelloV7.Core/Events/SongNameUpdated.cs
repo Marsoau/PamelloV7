@@ -5,8 +5,10 @@ using PamelloV7.Core.Events.Base;
 namespace PamelloV7.Core.Events;
 
 [Broadcast]
+[InfoUpdate]
 public class SongNameUpdated : IPamelloEvent
 {
+    [InfoUpdateProperty]
     public IPamelloSong Song { get; set; }
     public string NewName { get; set; }
 }
