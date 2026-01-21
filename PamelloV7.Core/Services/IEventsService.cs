@@ -9,7 +9,7 @@ public interface IEventsService : IPamelloService
     public IEventSubscription Subscribe<TEventType>(Func<TEventType, Task> handler)
         where TEventType : IPamelloEvent;
 
-    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, params IPamelloEntity[] watchedEntities);
+    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity[]> watchedEntities);
     
     public void Invoke<TEventType>(TEventType e)
         where TEventType : IPamelloEvent;

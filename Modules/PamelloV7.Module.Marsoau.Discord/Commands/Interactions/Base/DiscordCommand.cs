@@ -23,8 +23,11 @@ public class DiscordCommand : InteractionModuleBase<PamelloSocketInteractionCont
         var commands = Services.GetRequiredService<IPamelloCommandsService>();
         return commands.Get<TCommand>(Context.User);
     }
-    
-    public async Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, params IPamelloEntity[] entities) {
+
+    public Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, params IPamelloEntity[] entities) {
+        return RespondUpdatableAsync(editMessage, () => entities);
+    }
+    public async Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, Func<IPamelloEntity[]> entities) {
         await DeferAsync(ephemeral: true);
         
         var events = Services.GetRequiredService<IEventsService>();

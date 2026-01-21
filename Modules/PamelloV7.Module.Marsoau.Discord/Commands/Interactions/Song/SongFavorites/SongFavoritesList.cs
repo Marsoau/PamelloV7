@@ -14,7 +14,7 @@ public partial class Song
                     return;
                 }
                 message.Content = string.Join("\n", Context.User.FavoriteSongs.Select(song => song.ToString()));
-            }, [.. Context.User.FavoriteSongs, Context.User]);
+            }, () => [.. Context.User.FavoriteSongs, Context.User]);
         }
     }
 }

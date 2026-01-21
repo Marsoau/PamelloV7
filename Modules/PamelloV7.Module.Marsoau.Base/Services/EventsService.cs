@@ -39,7 +39,7 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, params IPamelloEntity[] watchedEntities) {
+    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity[]> watchedEntities) {
         var subscription = new UpdateSubscription(handler, watchedEntities);
         
         _updateSubscriptions.Add(subscription);
@@ -75,7 +75,7 @@ public class EventsService : IEventsService
 
         if (property.GetValue(e) is not IPamelloEntity entity) return;
 
-        foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Contains(entity))) {
+        foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
             subscription.Invoke(e);
         }
     }
