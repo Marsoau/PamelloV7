@@ -47,9 +47,12 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public void Invoke<TEventType>(TEventType e) where TEventType : IPamelloEvent {
-        var eventType = e.GetType();
+    public TEventType Invoke<TEventType>(TEventType e) where TEventType : IPamelloEvent  {
+        Invoke(typeof(TEventType), e);
+        return e;
+    }
 
+    public IPamelloEvent Invoke(Type eventType, IPamelloEvent e) {
         _logger.Log($"Event: {eventType}");
         
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
@@ -68,15 +71,17 @@ public class EventsService : IEventsService
             _broadcast.Broadcast(e);
         }
 
-        if (eventType.GetCustomAttribute<InfoUpdateAttribute>() is not { } eventAttribute) return;
+        if (eventType.GetCustomAttribute<InfoUpdateAttribute>() is null) return e;
         
         var property = eventType.GetProperties().FirstOrDefault(prop => prop.GetCustomAttribute<InfoUpdatePropertyAttribute>() is not null);
-        if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return;
+        if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return e;
 
-        if (property.GetValue(e) is not IPamelloEntity entity) return;
+        if (property.GetValue(e) is not IPamelloEntity entity) return e;
 
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
             subscription.Invoke(e);
         }
+
+        return e;
     }
 }

@@ -41,6 +41,15 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
             set => throw new NotImplementedException();
         }
 
+        public bool IsChangesGoing => throw new NotImplementedException();
+        public Task StartChangesAsync() {
+            throw new NotImplementedException();
+        }
+
+        public void EndChanges() {
+            throw new NotImplementedException();
+        }
+
         private EPlayerState _status;
 
         public EPlayerState State {

@@ -87,7 +87,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
             .ToList();
     }
 
-    public override void Save() {
+    public override void SaveInternal() {
         var databaseUsers = ((PamelloUserRepository)_users).GetCollection();
         
         var databaseUser = databaseUsers.Get(Id);
@@ -135,7 +135,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
         if (!fromInside) song.MakeFavorite(this, true);
         
-        _events.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -148,7 +148,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         
         if (!fromInside) song.UnmakeFavorite(this, true);
         
-        _events.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });

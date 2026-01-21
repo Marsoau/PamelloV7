@@ -14,10 +14,16 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
 
     protected readonly IEventsService _events;
     
+    protected readonly PamelloEntitySink _sink;
+    
     protected readonly IPamelloUserRepository _users;
     protected readonly IPamelloSongRepository _songs;
     protected readonly IPamelloEpisodeRepository _episodes;
     protected readonly IPamelloPlaylistRepository _playlists;
+
+    protected TaskCompletionSource? _changesCompletion;
+    
+    public bool IsChangesGoing => _changesCompletion is not null;
     
     protected TDatabaseEntity _databaseEntity { get; private set; }
     
@@ -30,6 +36,8 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         
         _events = services.GetRequiredService<IEventsService>();
         
+        _sink = new PamelloEntitySink(services, this);
+        
         _databaseEntity = databaseEntity;
         Id = databaseEntity.Id;
         
@@ -37,8 +45,24 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         _songs = services.GetRequiredService<IPamelloSongRepository>();
         _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
         _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+
+        _changesCompletion = null;
     }
-    
+
+    public async Task StartChangesAsync() {
+        if (_changesCompletion is not null) await _changesCompletion.Task;
+        
+        _changesCompletion = new TaskCompletionSource();
+    }
+
+    public void EndChanges() {
+        _changesCompletion?.SetResult();
+        _changesCompletion = null;
+        
+        _sink.Flush();
+        Save();
+    }
+
     public virtual IPamelloDTO GetDto() {
         return new PamelloEntityDTO() {
             Id = Id,
@@ -55,7 +79,10 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         _databaseEntity = null;
     }
 
-    public abstract void Save();
+    public abstract void SaveInternal();
+    public void Save() {
+        if (!IsChangesGoing) SaveInternal();
+    }
 
     public override string ToString() {
         return $"[{Id}] {Name}";

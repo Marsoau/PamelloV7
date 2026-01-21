@@ -114,17 +114,22 @@ namespace PamelloV7.Server.Controllers
                     args[i] = _peql.GetSingle(argumentType, queryStringValue, User);
                 }
             }
-
-            commandMethod.Invoke(command, args);
-            StaticLogger.Log("Command End");
             
             try {
                 object? result;
 
                 if (typeof(Task).IsAssignableFrom(commandMethod.ReturnType)) {
+                    StaticLogger.Log("Command Async Execution Start");
+                    
                     result = await commandMethod.InvokeAsync(command, args);
                 }
-                else result = commandMethod.Invoke(command, args);
+                else {
+                    StaticLogger.Log("Command Execution Start");
+                    
+                    result = commandMethod.Invoke(command, args);
+                }
+
+                StaticLogger.Log("Command Execution End");
 
                 return Ok(JsonSerializer.Serialize(result, JsonEntitiesFactory.Options));
             }

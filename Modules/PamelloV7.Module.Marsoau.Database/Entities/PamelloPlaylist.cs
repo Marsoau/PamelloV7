@@ -56,7 +56,7 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
             .ToList();
     }
 
-    public override void Save() {
+    public override void SaveInternal() {
         var playlistCollection = ((PamelloPlaylistRepository)_playlists).GetCollection();
         
         var databasePlaylist = playlistCollection.Get(Id);

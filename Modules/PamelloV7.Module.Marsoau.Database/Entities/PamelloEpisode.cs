@@ -46,7 +46,7 @@ public class PamelloEpisode : PamelloEntity<DatabaseEpisode>, IPamelloEpisode
         _song = songs.Get(_databaseEntity.SongId)!;
     }
 
-    public override void Save() {
+    public override void SaveInternal() {
         var episodeCollection = ((PamelloEpisodeRepository)_episodes).GetCollection();
         
         var databaseEpisode = episodeCollection.Get(Id);

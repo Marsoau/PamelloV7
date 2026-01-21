@@ -18,6 +18,15 @@ namespace PamelloV7.Server.Model.Audio.Speakers
 
         public int Id { get; private set; }
         public abstract string Name { get; set; }
+        
+        public bool IsChangesGoing => throw new NotImplementedException();
+        public Task StartChangesAsync() {
+            throw new NotImplementedException();
+        }
+
+        public void EndChanges() {
+            throw new NotImplementedException();
+        }
 
         private static int _idCounter = 1;
         public PamelloSpeaker(IPamelloPlayer player) {

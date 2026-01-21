@@ -110,7 +110,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         });
     }
 
-    public override void Save() {
+    public override void SaveInternal() {
         var songCollection = ((PamelloSongRepository)_songs).GetCollection();
         
         var databaseSong = songCollection.Get(Id);
