@@ -18,7 +18,7 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     }
 
     public IEnumerable<Type> GetInheritorsOf<TType>() {
-        return GetAll().Where(x => typeof(TType).IsAssignableFrom(x) && !x.IsAbstract);
+        return GetAll().Where(x => x.IsAssignableTo(typeof(TType)) && !x.IsAbstract);
     }
     public IEnumerable<Type> GetInheritorsOf(params Type[] types) {
         return GetAll().Where(x => types.Any(t => t.IsAssignableFrom(x)) && !x.IsAbstract);

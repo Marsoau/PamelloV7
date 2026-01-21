@@ -171,6 +171,11 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         _favoritedBy.Add(user);
         
         if (!fromInside) user.AddFavoriteSong(this, null, true);
+
+        _sink.Invoke(new SongFavoriteByUpdated() {
+            Song = this,
+            FavoriteBy = FavoriteBy
+        });
         
         Save();
     }
@@ -179,6 +184,11 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         if (!_favoritedBy.Remove(user)) return;
         
         if (!fromInside) user.RemoveFavoriteSong(this, true);
+
+        _sink.Invoke(new SongFavoriteByUpdated() {
+            Song = this,
+            FavoriteBy = FavoriteBy
+        });
         
         Save();
     }

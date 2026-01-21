@@ -73,9 +73,10 @@ public class UpdatableMessage : IDisposable
             Console.WriteLine($"Scheduled at {DateTime.Now.TimeOfDay}");
             _scheduledRefresh = null;
             
+            _lastRefresh = Stopwatch.GetTimestamp();
+            
             await _refresh();
         });
-        
     }
     
     public async Task Kill() {

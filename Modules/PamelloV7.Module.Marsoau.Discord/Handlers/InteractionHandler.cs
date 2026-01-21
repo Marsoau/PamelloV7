@@ -1,3 +1,4 @@
+using System.Reflection;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,13 +33,7 @@ public class InteractionHandler : IPamelloService
     }
 
     public async Task LoadAsync() {
-        var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
-        
-        var interactionTypes = typeResolver.GetInheritorsOf<DiscordCommand>();
-        
-        foreach (var interactionType in interactionTypes) {
-            await _interactions.AddModuleAsync(interactionType, _services);
-        }
+        await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
         
         _clients.Main.InteractionCreated += OnInteractionCreated;
     }
@@ -71,6 +66,11 @@ public class InteractionHandler : IPamelloService
     
     private async Task ExecuteInteraction(SocketInteraction interaction) {
         //await interaction.DeferAsync(true);
+
+        if (interaction.User.Id != 544933092503060509) {
+            await interaction.RespondAsync("Pamello blocked you");
+            return;
+        }
 
         var pamelloUser = _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), true);
         if (pamelloUser is null) {

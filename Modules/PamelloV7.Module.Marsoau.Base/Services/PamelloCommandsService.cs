@@ -23,7 +23,7 @@ public class PamelloCommandsService : IPamelloCommandsService
         CommandTypes = typeResolver.GetInheritorsOf<PamelloCommand>().ToList();
         
         foreach (var commandType in CommandTypes) {
-            Console.WriteLine($"Command: {commandType.Name}");
+            Console.WriteLine($"Command: {commandType.FullName}");
         }
     }
     

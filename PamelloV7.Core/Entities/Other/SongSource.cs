@@ -37,7 +37,7 @@ public class SongSource
         return _info = info;
     }
 
-    public void SetFromInfo() {
+    public void SetInfoToSong() {
         if (Info is null) return;
         
         //lock song update events
