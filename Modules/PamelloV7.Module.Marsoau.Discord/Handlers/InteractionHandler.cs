@@ -6,6 +6,7 @@ using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Base;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Context;
@@ -33,7 +34,13 @@ public class InteractionHandler : IPamelloService
     }
 
     public async Task LoadAsync() {
-        await _interactions.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
+        var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
+
+        var maps = typeResolver.GetWithAttribute<MapAttribute>().ToArray();
+
+        foreach (var map in maps) {
+            await _interactions.AddModuleAsync(map, _services);
+        }
         
         _clients.Main.InteractionCreated += OnInteractionCreated;
     }
