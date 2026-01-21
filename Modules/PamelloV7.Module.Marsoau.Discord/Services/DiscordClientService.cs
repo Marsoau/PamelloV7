@@ -10,6 +10,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Services;
 public class DiscordClientService : IPamelloService
 {
 	private readonly IServiceProvider _services;
+	
+	private readonly UpdatableMessageKiller _updatableMessageKiller;
 
 	public DiscordSocketClient[] DiscordClients;
 
@@ -19,6 +21,8 @@ public class DiscordClientService : IPamelloService
 
 	public DiscordClientService(IServiceProvider services) {
 		_services = services;
+		
+		_updatableMessageKiller = services.GetRequiredService<UpdatableMessageKiller>();
 
 		DiscordClients = new DiscordSocketClient[1];
 
@@ -51,6 +55,8 @@ public class DiscordClientService : IPamelloService
 	}
 	
 	public void Shutdown() {
+		_updatableMessageKiller.KillAll();
+		
 		foreach (var client in DiscordClients) {
 			client.StopAsync().GetAwaiter().GetResult();
 			client.LogoutAsync().GetAwaiter().GetResult();

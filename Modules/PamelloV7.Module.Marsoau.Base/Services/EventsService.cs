@@ -12,11 +12,15 @@ public class EventsService : IEventsService
 {
     private readonly ISSEBroadcastService _broadcast;
     
+    private readonly IPamelloLogger _logger;
+    
     private List<IEventSubscription> _eventSubscriptions;
     private List<IUpdateSubscription> _updateSubscriptions;
     
     public EventsService(IServiceProvider services) {
         _broadcast = services.GetRequiredService<ISSEBroadcastService>();
+        
+        _logger = services.GetRequiredService<IPamelloLogger>();
         
         _eventSubscriptions = [];
         _updateSubscriptions = [];
@@ -45,6 +49,8 @@ public class EventsService : IEventsService
 
     public void Invoke<TEventType>(TEventType e) where TEventType : IPamelloEvent {
         var eventType = e.GetType();
+
+        _logger.Log($"Event: {eventType}");
         
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 

@@ -8,6 +8,7 @@ using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Messages;
+using PamelloV7.Module.Marsoau.Discord.Services;
 using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Base;
@@ -27,27 +28,25 @@ public class DiscordCommand : InteractionModuleBase<PamelloSocketInteractionCont
         await DeferAsync(ephemeral: true);
         
         var events = Services.GetRequiredService<IEventsService>();
+        var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         
         var message = await ModifyOriginalResponseAsync(editMessage);
-        var updatableMessage = new UpdatableMessage(message, new AudioTime(DiscordConfig.Root.Commands.UpdatableCommandsLifetime),
+        var updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, new AudioTime(DiscordConfig.Root.Commands.UpdatableCommandsLifetime),
             async () => {
                 await ModifyOriginalResponseAsync(editMessage);
+            }, async () => {
+                await DeleteOriginalResponseAsync();
             }
-        );
+        ));
 
         var subscription = events.Watch(async (e) => {
             Console.WriteLine("ENTITY WATCH EXISTS");
             await updatableMessage.Refresh();
         }, entities);
 
-        Task.Run(async () => {
-            await updatableMessage.Lifetime;
-            
-            updatableMessage.Dispose();
+        updatableMessage.OnDead += () => {
             subscription.Dispose();
-            
-            await DeleteOriginalResponseAsync();
-        });
+        };
         
         return updatableMessage;
     }

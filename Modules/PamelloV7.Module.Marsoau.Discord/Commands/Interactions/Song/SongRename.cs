@@ -10,7 +10,7 @@ namespace PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Song;
 public partial class Song
 {
     [SlashCommand("rename", "Rename a song")]
-    public async Task RenameAsync(
+    public async Task Rename(
         [Summary("name", "New name for the song")] string newName,
         [Summary("song", "Single song query")] string songQuery = "current"
     ) {

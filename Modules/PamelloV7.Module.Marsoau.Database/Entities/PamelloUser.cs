@@ -5,6 +5,7 @@ using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
@@ -131,8 +132,13 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         if (_favoriteSongs.Contains(song)) return;
         
         _favoriteSongs.Insert(position ?? _favoriteSongs.Count, song);
-        
+
         if (!fromInside) song.MakeFavorite(this, true);
+        
+        _events.Invoke(new UserFavoriteSongsUpdated() {
+            User = this,
+            FavoriteSongs = FavoriteSongs
+        });
         
         Save();
     }
@@ -141,6 +147,11 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         if (!_favoriteSongs.Remove(song)) return;
         
         if (!fromInside) song.UnmakeFavorite(this, true);
+        
+        _events.Invoke(new UserFavoriteSongsUpdated() {
+            User = this,
+            FavoriteSongs = FavoriteSongs
+        });
         
         Save();
     }
