@@ -20,6 +20,10 @@ public class UpdatableMessageKiller : IPamelloService
     public void Remove(UpdatableMessage message) {
         Messages.Remove(message);
     }
+
+    public UpdatableMessage? Get(ulong messageDiscordId) {
+        return Messages.FirstOrDefault(message => message.DiscordMessage.Id == messageDiscordId);
+    }
     
     public void KillAll() {
         var killTasks = Messages.Select(message => message.Kill());

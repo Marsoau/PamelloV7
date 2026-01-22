@@ -33,6 +33,8 @@ public class SongEditAssociationsModal : DiscordModal
 
         var differenceResult = DifferenceResult<string>.From(song.Associations, newAssociations, null, true);
         
+        await ReleaseInteractionAsync();
+        
         foreach (var (at, association) in differenceResult.Added) {
             Console.WriteLine($"+{association}");
             Command<SongAssociationsAdd>().Execute(song, association);
@@ -41,7 +43,5 @@ public class SongEditAssociationsModal : DiscordModal
             Console.WriteLine($"-{association}");
             Command<SongAssociationsRemove>().Execute(song, association);
         }
-        
-        await EndInteraction();
     }
 }

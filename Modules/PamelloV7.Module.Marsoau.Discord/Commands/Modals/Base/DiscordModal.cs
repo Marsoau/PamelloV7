@@ -7,6 +7,7 @@ using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
+using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Modals.Base;
 
@@ -24,8 +25,13 @@ public abstract class DiscordModal
     
     public abstract Task Submit(string args);
     
-    public Task EndInteraction() {
-        return Modal.UpdateAsync(o => { });
+    public async Task ReleaseInteractionAsync() {
+        var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
+        var updatableMessage = updatableMessageService.Get(Modal.Message.Id);
+    
+        updatableMessage?.Touch();
+        
+        await Modal.DeferAsync();
     }
     
     public TCommand Command<TCommand>()

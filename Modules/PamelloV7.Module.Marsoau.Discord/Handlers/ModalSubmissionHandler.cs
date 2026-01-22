@@ -63,7 +63,7 @@ public class ModalSubmissionHandler : IPamelloService
         }
         catch (Exception e) {
             Console.WriteLine(e);
-            await modal.EndInteraction();
+            await modal.Modal.DeferAsync();
         }
     }
 }

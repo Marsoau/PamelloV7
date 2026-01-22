@@ -36,10 +36,14 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return RespondAsync(components: PamelloComponentBuilders.Info(title, description).Build(), ephemeral: true);
     }
 
-    public async Task EndInteractionAsync() {
-        if (Context.Interaction is SocketMessageComponent component)
-        {
-            await component.UpdateAsync(msg => { });
+    public async Task ReleaseInteractionAsync() {
+        if (Context.Interaction is SocketMessageComponent component) {
+            var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
+            var updatableMessage = updatableMessageService.Get(component.Message.Id);
+        
+            updatableMessage?.Touch();
+            
+            await component.DeferAsync();
         }
     }
 

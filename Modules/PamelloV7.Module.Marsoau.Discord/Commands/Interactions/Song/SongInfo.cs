@@ -37,7 +37,7 @@ public partial class SongInteractions
     public async Task EditNameButton(string songQuery) {
         var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
         if (song is null) {
-            await EndInteractionAsync();
+            await ReleaseInteractionAsync();
             return;
         }
         
@@ -48,7 +48,7 @@ public partial class SongInteractions
     public async Task EditAssociationsButton(string songQuery) {
         var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
         if (song is null) {
-            await EndInteractionAsync();
+            await ReleaseInteractionAsync();
             return;
         }
         
@@ -59,7 +59,7 @@ public partial class SongInteractions
     public async Task SongInfoResetButton(string songQuery) {
         var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
         if (song is null) {
-            await EndInteractionAsync();
+            await ReleaseInteractionAsync();
             return;
         }
         
@@ -71,7 +71,7 @@ public partial class SongInteractions
     public async Task FavoriteButton(string songQuery) {
         var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
         if (song is null) {
-            await EndInteractionAsync();
+            await ReleaseInteractionAsync();
             return;
         }
         
@@ -80,6 +80,6 @@ public partial class SongInteractions
         else
             Command<SongFavoritesAdd>().Execute([song]);
 
-        await EndInteractionAsync();
+        await ReleaseInteractionAsync();
     }
 }

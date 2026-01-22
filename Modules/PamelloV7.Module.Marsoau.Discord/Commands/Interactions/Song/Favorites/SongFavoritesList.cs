@@ -14,7 +14,7 @@ public partial class SongFavorites
             }
             //message.Content = string.Join("\n", Context.User.FavoriteSongs.Select(song => song.ToString()));
             message.Components = PamelloComponentBuilders.Info("Favorite Songs",
-                string.Join("\n", Context.User.FavoriteSongs.Select(song => $"`[{song.Id}]` {song.Name})"))
+                string.Join("\n", Context.User.FavoriteSongs.Select(song => $"`[{song.Id}]` {song.Name}"))
             ).Build();
         }, () => [.. Context.User.FavoriteSongs, Context.User]);
     }

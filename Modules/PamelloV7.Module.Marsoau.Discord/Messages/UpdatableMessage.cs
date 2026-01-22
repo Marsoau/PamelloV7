@@ -6,12 +6,14 @@ namespace PamelloV7.Module.Marsoau.Discord.Messages;
 
 public class UpdatableMessage : IDisposable
 {
-    public readonly IUserMessage Message;
+    public readonly IUserMessage DiscordMessage;
     private readonly Func<Task> _refresh;
     private readonly Func<Task> _delete;
     
-    public readonly Task Lifetime;
+    public int LifetimeSeconds { get; }
+    public Task LifetimeTask { get; private set; }
     private readonly CancellationTokenSource _cancellation;
+    public DateTimeOffset? LastTouched { get; private set; }
 
     private long _refreshInterval;
     private long _lastRefresh;
@@ -21,13 +23,16 @@ public class UpdatableMessage : IDisposable
     public event Action? OnDead;
     
     public UpdatableMessage(IUserMessage message, AudioTime lifetime, Func<Task> refresh, Func<Task> delete) {
-        Message = message;
+        DiscordMessage = message;
         
         _refresh = refresh;
         _delete = delete;
         
+        LifetimeSeconds = lifetime.TotalSeconds;
+        
         _cancellation = new CancellationTokenSource();
-        Lifetime = Task.Delay(lifetime.TotalSeconds * 1000, _cancellation.Token);
+        LifetimeTask = Task.Delay(LifetimeSeconds * 1000, _cancellation.Token);
+        LastTouched = null;
         
         _refreshInterval = TimeSpan.FromSeconds(2).Ticks;
         _lastRefresh = 0;
@@ -39,12 +44,29 @@ public class UpdatableMessage : IDisposable
 
     private void StartLifetime() {
         Task.Run(async () => {
-            await Lifetime;
+            while (true) {
+                await LifetimeTask;
+                if (LastTouched is null) break;
+                
+                var timePassed = DateTimeOffset.Now - LastTouched.Value;
+                var timeLeft = LifetimeSeconds - (int)timePassed.TotalSeconds;
+                
+                if (timeLeft <= 0) break;
+
+                Console.WriteLine($"Added {timeLeft} seconds to lifetime");
+                
+                LifetimeTask = Task.Delay(timeLeft * 1000, _cancellation.Token);
+            }
             
             OnDead?.Invoke();
             
             Dispose();
         });
+    }
+
+    public void Touch() {
+        Console.WriteLine("YOUCH");
+        LastTouched = DateTimeOffset.Now;
     }
 
     public async Task Refresh() {

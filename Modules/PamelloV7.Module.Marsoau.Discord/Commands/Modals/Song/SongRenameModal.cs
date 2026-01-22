@@ -32,7 +32,6 @@ public class SongRenameModal : DiscordModal
 
         Command<SongRename>().Execute(song, newName);
         
-        Console.WriteLine("RENAMED");
-        await EndInteraction();
+        await ReleaseInteractionAsync();
     }
 }

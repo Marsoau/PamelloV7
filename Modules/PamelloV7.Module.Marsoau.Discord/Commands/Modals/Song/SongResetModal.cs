@@ -42,6 +42,6 @@ public class SongResetModal : DiscordModal
 
         Command<SongInfoReset>().Execute(song, platformKey);
 
-        await EndInteraction();
+        await ReleaseInteractionAsync();
     }
 }
