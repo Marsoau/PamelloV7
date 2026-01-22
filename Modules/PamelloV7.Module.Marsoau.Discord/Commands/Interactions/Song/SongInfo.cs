@@ -33,9 +33,9 @@ public partial class Song
 
 public partial class SongInteractions
 {
-    [ComponentInteraction("song-info-edit-name")]
-    public async Task EditNameButton() {
-        var song = _peql.GetSingle<IPamelloSong>("12", Context.User);
+    [ComponentInteraction("song-info-edit-name:*")]
+    public async Task EditNameButton(string songQuery) {
+        var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
         if (song is null) {
             await EndInteractionAsync();
             return;
@@ -43,6 +43,18 @@ public partial class SongInteractions
         
         await RespondWithModalAsync(SongRenameModal.Build(song));
     }
+
+    [ComponentInteraction("song-info-associations-edit:*")]
+    public async Task EditAssociationsButton(string songQuery) {
+        var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
+        if (song is null) {
+            await EndInteractionAsync();
+            return;
+        }
+        
+        await RespondWithModalAsync(SongEditAssociationsModal.Build(song));
+    }
+    
 
     [ComponentInteraction("song-info-favorite:*")]
     public async Task FavoriteButton(string songQuery) {

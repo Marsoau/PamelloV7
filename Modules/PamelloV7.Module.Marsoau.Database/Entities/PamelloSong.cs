@@ -144,25 +144,39 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         throw new NotImplementedException();
     }
 
-    public void AddAssociation(string association) {
+    public bool AddAssociation(string association) {
         var databaseAssociations = ((PamelloSongRepository)_songs)
             .GetCollection()
             .GetAll()
             .SelectMany(databaseSong => databaseSong.Associations);
         
-        if (databaseAssociations.Contains(association)) return;
+        if (databaseAssociations.Contains(association)) return false;
         
         _associations.Add(association);
+
+        _sink.Invoke(new SongAssociationsUpdated() {
+            Song = this,
+            Associations = _associations
+        });
         
         Save();
+        
+        return true;
     }
 
-    public void RemoveAssociation(string association) {
-        if (!_associations.Contains(association)) return;
+    public bool RemoveAssociation(string association) {
+        if (!_associations.Contains(association)) return false;
         
         _associations.Remove(association);
+
+        _sink.Invoke(new SongAssociationsUpdated() {
+            Song = this,
+            Associations = _associations
+        });
         
         Save();
+        
+        return true;
     }
 
     public void MakeFavorite(IPamelloUser user, bool fromInside = false) {

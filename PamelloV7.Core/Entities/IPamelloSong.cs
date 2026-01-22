@@ -28,8 +28,8 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     
     public void AddSource(SongSource source);
     
-    public void AddAssociation(string association);
-    public void RemoveAssociation(string association);
+    public bool AddAssociation(string association);
+    public bool RemoveAssociation(string association);
     public void MakeFavorite(IPamelloUser user, bool fromInside = false);
     public void UnmakeFavorite(IPamelloUser user, bool fromInside = false);
     public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip);

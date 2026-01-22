@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PamelloV7.Server.Model.Difference
+﻿namespace PamelloV7.Core.Difference
 {
     public class DifferenceResult<TType>
     {
