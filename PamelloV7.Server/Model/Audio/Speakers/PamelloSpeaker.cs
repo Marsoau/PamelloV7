@@ -20,7 +20,7 @@ namespace PamelloV7.Server.Model.Audio.Speakers
         public abstract string Name { get; set; }
         
         public bool IsChangesGoing => throw new NotImplementedException();
-        public Task StartChangesAsync() {
+        public void StartChanges() {
             throw new NotImplementedException();
         }
 

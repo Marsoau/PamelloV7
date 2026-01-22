@@ -30,8 +30,10 @@ public interface IPamelloUser : IPamelloDatabaseEntity
 
     public void AddAuthorization(UserAuthorization authorization);
     
-    public void AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
-    public void RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);
+    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
+    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);
+    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition);
+    public IEnumerable<IPamelloSong> ClearFavoriteSongs();
     public void AddFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);
     public void RemoveFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);
 

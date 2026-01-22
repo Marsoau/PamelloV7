@@ -7,35 +7,36 @@ namespace PamelloV7.Module.Marsoau.Discord.Messages;
 public class UpdatableMessage : IDisposable
 {
     public readonly IUserMessage DiscordMessage;
-    private readonly Func<Task> _refresh;
+    private readonly Func<UpdatableMessage, Task> _refresh;
     private readonly Func<Task> _delete;
+
+    private readonly long _refreshInterval;
+    private long _lastRefresh;
+    
+    private readonly CancellationTokenSource _cancellation;
     
     public int LifetimeSeconds { get; }
     public Task LifetimeTask { get; private set; }
-    private readonly CancellationTokenSource _cancellation;
     public DateTimeOffset? LastTouched { get; private set; }
-
-    private long _refreshInterval;
-    private long _lastRefresh;
     
     private Task? _scheduledRefresh;
     
     public event Action? OnDead;
     
-    public UpdatableMessage(IUserMessage message, AudioTime lifetime, Func<Task> refresh, Func<Task> delete) {
+    public UpdatableMessage(IUserMessage message, int lifetimeSeconds, Func<UpdatableMessage, Task> refresh, Func<Task> delete) {
         DiscordMessage = message;
         
         _refresh = refresh;
         _delete = delete;
         
-        LifetimeSeconds = lifetime.TotalSeconds;
-        
-        _cancellation = new CancellationTokenSource();
-        LifetimeTask = Task.Delay(LifetimeSeconds * 1000, _cancellation.Token);
-        LastTouched = null;
-        
         _refreshInterval = TimeSpan.FromSeconds(2).Ticks;
         _lastRefresh = 0;
+        
+        _cancellation = new CancellationTokenSource();
+        
+        LifetimeSeconds = lifetimeSeconds;
+        LifetimeTask = Task.Delay(LifetimeSeconds * 1000, _cancellation.Token);
+        LastTouched = null;
         
         _scheduledRefresh = null;
         
@@ -79,7 +80,7 @@ public class UpdatableMessage : IDisposable
             
             _lastRefresh = currentTick;
             
-            await _refresh();
+            await _refresh(this);
             return;
         }
         Console.WriteLine($"About to shedule refresh at {DateTime.Now.TimeOfDay}");
@@ -97,7 +98,7 @@ public class UpdatableMessage : IDisposable
             
             _lastRefresh = Stopwatch.GetTimestamp();
             
-            await _refresh();
+            await _refresh(this);
         });
     }
     

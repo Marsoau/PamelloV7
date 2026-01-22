@@ -9,18 +9,17 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings;
 
 public static class DiscordStringExtensions
 {
-    public static DiscordString ToDiscordString(this IPamelloEntity entity)
+    public static string ToDiscordString(this IPamelloEntity entity)
     {
-        return new DiscordString($"{DiscordString.Code($"[{entity.Id}]")} {DiscordString.Ecranate(entity.Name)}");
+        return $"{DiscordString.Bold(DiscordString.Code($"[{entity.Id}]"))} {DiscordString.Ecranate(entity.Name)}";
     }
     
-    public static DiscordString ToDiscordString(this IPamelloUser user)
+    public static string ToDiscordString(this IPamelloUser user)
     {
-        return new DiscordString($"{DiscordString.Code($"[{user.Id}]")} {new DiscordString(user)}");
+        return $"{DiscordString.Bold(DiscordString.Code($"[{user.Id}]"))} {DiscordString.User(user)}";
     }
 
-    public static async Task<DiscordString> ToDiscordString(this SongSource songSource, IServiceProvider services,
-        bool withName = false) {
+    public static async Task<string> ToDiscordString(this SongSource songSource, IServiceProvider services, bool withName = false) {
         var clients = services.GetRequiredService<DiscordClientService>();
 
         var emotes = await clients.Main.GetApplicationEmotesAsync();
@@ -28,7 +27,6 @@ public static class DiscordStringExtensions
 
         var name = withName ? songSource.Info?.Name ?? "No Name" : songSource.PK.Key;
 
-        return new DiscordString(
-            $"{(emote is not null ? DiscordString.Emote(emote) : new DiscordString())} {DiscordString.Url(name, songSource.GetUrl())}");
+        return $"{DiscordString.Emote(emote)} {DiscordString.Url(name, songSource.GetUrl())}";
     }
 }

@@ -42,7 +42,7 @@ namespace PamelloV7.Server.Model.Audio.Modules.Pamello
         }
 
         public bool IsChangesGoing => throw new NotImplementedException();
-        public Task StartChangesAsync() {
+        public void StartChanges() {
             throw new NotImplementedException();
         }
 

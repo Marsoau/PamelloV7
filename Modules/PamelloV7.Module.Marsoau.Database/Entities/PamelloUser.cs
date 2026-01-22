@@ -128,8 +128,8 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public void AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false) {
-        if (_favoriteSongs.Contains(song)) return;
+    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false) {
+        if (_favoriteSongs.Contains(song)) return null;
         
         _favoriteSongs.Insert(position ?? _favoriteSongs.Count, song);
 
@@ -141,10 +141,12 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         });
         
         Save();
+        
+        return song;
     }
 
-    public void RemoveFavoriteSong(IPamelloSong song, bool fromInside = false) {
-        if (!_favoriteSongs.Remove(song)) return;
+    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false) {
+        if (!_favoriteSongs.Remove(song)) return null;
         
         if (!fromInside) song.UnmakeFavorite(this, true);
         
@@ -154,6 +156,44 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         });
         
         Save();
+        
+        return song;
+    }
+
+    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition) {
+        var song = _favoriteSongs.ElementAtOrDefault(fromPosition);
+        if (song is null) return null;
+        
+        _favoriteSongs.RemoveAt(fromPosition);
+        _favoriteSongs.Insert(toPosition < fromPosition ? toPosition : toPosition - 1, song);
+
+        _sink.Invoke(new UserFavoriteSongsUpdated() {
+            User = this,
+            FavoriteSongs = FavoriteSongs
+        });
+        
+        Save();
+        
+        return song;
+    }
+
+    public IEnumerable<IPamelloSong> ClearFavoriteSongs() {
+        var before = new List<IPamelloSong>(_favoriteSongs);
+        
+        foreach (var song in before) {
+            song.UnmakeFavorite(this, true);
+        }
+        
+        _favoriteSongs.Clear();
+        
+        _sink.Invoke(new UserFavoriteSongsUpdated() {
+            User = this,
+            FavoriteSongs = FavoriteSongs
+        });
+        
+        Save();
+        
+        return FavoriteSongs;
     }
 
     public void AddFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false) {

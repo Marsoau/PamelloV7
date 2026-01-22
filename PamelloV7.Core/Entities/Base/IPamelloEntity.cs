@@ -9,7 +9,7 @@ public interface IPamelloEntity
     
     public bool IsChangesGoing { get; }
     
-    public Task StartChangesAsync();
+    public void StartChanges();
     public void EndChanges();
 
     public IPamelloDTO GetDto();

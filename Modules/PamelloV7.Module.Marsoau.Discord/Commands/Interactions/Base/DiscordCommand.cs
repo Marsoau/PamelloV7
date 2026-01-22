@@ -47,33 +47,66 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         }
     }
 
+    public async Task RespondLoading() {
+        await RespondAsync(components: PamelloComponentBuilders.Defer().Build(), ephemeral: true);
+    }
+
     public Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, params IPamelloEntity[] entities) {
         return RespondUpdatableAsync(editMessage, () => entities);
     }
-    public async Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, Func<IPamelloEntity[]> entities) {
-        await RespondAsync(components: PamelloComponentBuilders.Defer().Build(), ephemeral: true);
+
+    private async Task ProcessUpdatableAsync(Func<IPamelloEntity[]> getEntities) {
+        if (_updatableMessage is null) throw new Exception("Updatable message is not set on processing");
         
         var events = Services.GetRequiredService<IEventsService>();
+
+        var subscription = events.Watch(async e => {
+            await _updatableMessage.Refresh();
+        }, getEntities);
+
+        _updatableMessage.OnDead += () => {
+            subscription.Dispose();
+        };
+    }
+    public async Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, Func<IPamelloEntity[]> entities) {
+        await RespondLoading();
+        
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         
         var message = await ModifyOriginalResponseAsync(editMessage);
-        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, new AudioTime(DiscordConfig.Root.Commands.UpdatableCommandsLifetime),
-            async () => {
+        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, DiscordConfig.Root.Commands.UpdatableCommandsLifetime,
+            async updatableMessage => {
                 await ModifyOriginalResponseAsync(editMessage);
             }, async () => {
                 await DeleteOriginalResponseAsync();
             }
         ));
-
-        var subscription = events.Watch(async (e) => {
-            Console.WriteLine("ENTITY WATCH EXISTS");
-            await _updatableMessage.Refresh();
-        }, entities);
-
-        _updatableMessage.OnDead += () => {
-            subscription.Dispose();
-        };
+        
+        await ProcessUpdatableAsync(entities);
         
         return _updatableMessage;
+    }
+
+    public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Action<MessageProperties, int> editPage, Func<IPamelloEntity[]> entities) {
+        await RespondLoading();
+        
+        var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
+        
+        var message = await GetOriginalResponseAsync();
+        _updatableMessage = updatableMessageService.Watch(new UpdatablePageMessage(message, DiscordConfig.Root.Commands.UpdatableCommandsLifetime,
+            async updatableMessage => {
+                if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
+                
+                await ModifyOriginalResponseAsync(p => editPage(p, updatablePageMessage.Page));
+            }, async () => {
+                await DeleteOriginalResponseAsync();
+            }
+        ));
+        
+        await ProcessUpdatableAsync(entities);
+
+        await _updatableMessage.Refresh();
+        
+        return (UpdatablePageMessage)_updatableMessage;
     }
 }

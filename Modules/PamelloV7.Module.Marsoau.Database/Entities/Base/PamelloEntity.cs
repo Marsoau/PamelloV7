@@ -21,9 +21,9 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
     protected readonly IPamelloEpisodeRepository _episodes;
     protected readonly IPamelloPlaylistRepository _playlists;
 
-    protected TaskCompletionSource? _changesCompletion;
-    
-    public bool IsChangesGoing => _changesCompletion is not null;
+    protected int _changesDepth;
+
+    public bool IsChangesGoing => _changesDepth > 0;
     
     protected TDatabaseEntity _databaseEntity { get; private set; }
     
@@ -46,18 +46,16 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
         _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
 
-        _changesCompletion = null;
+        _changesDepth = 0;
     }
 
-    public async Task StartChangesAsync() {
-        if (_changesCompletion is not null) await _changesCompletion.Task;
-        
-        _changesCompletion = new TaskCompletionSource();
+    public void StartChanges() {
+        _changesDepth++;
     }
 
     public void EndChanges() {
-        _changesCompletion?.SetResult();
-        _changesCompletion = null;
+        if (_changesDepth > 0) _changesDepth--;
+        if (_changesDepth != 0) return;
         
         _sink.Flush();
         Save();

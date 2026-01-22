@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Commands;
 public class SongFavoritesAdd : PamelloCommand
 {
     public List<IPamelloSong> Execute(List<IPamelloSong> songs) {
-        ScopeUser.StartChangesAsync().Wait();
+        ScopeUser.StartChanges();
         songs.ForEach(song => song.MakeFavorite(ScopeUser));
         ScopeUser.EndChanges();
         

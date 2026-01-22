@@ -48,7 +48,7 @@ public class SongSource
         if (Info is null) return;
         
         //lock song update events
-        Song.StartChangesAsync().Wait();
+        Song.StartChanges();
         
         Song.Name = Info.Name;
         Song.CoverUrl = Info.CoverUrl;

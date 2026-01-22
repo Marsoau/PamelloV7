@@ -11,10 +11,10 @@
         public int Changes { get; private set; }
 
         private DifferenceResult() {
-            Added = new();
-            Moved = new();
-            Changed = new();
-            Deleted = new();
+            Added = [];
+            Moved = [];
+            Changed = [];
+            Deleted = [];
         }
 
         public static DifferenceResult<TType> From(IEnumerable<TType> ebefore, IEnumerable<TType> eafter, Func<TType, TType, bool>? equals = null, bool withMoved = false) {
