@@ -37,6 +37,13 @@ public class SongSource
         return _info = info;
     }
 
+    public string GetUrl() {
+        var platform = _platfroms.GetSongPlatform(PK.Platform);
+        if (platform is null) return "";
+        
+        return platform.GetSongUrl(PK.Key);
+    }
+
     public void SetInfoToSong() {
         if (Info is null) return;
         

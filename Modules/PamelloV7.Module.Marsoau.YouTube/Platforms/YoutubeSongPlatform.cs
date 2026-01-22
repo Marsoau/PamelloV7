@@ -59,7 +59,11 @@ public class YoutubeSongPlatform : ISongPlatform
         
         return GetVideoInfoAsync(youtubeId).Result;
     }
-    
+
+    public string GetSongUrl(string key) {
+        return $"https://www.youtube.com/watch?v={key}";
+    }
+
     public async Task<ISongInfo?> GetVideoInfoAsync(string youtubeId)
     {
         using var client = _httpClientFactory.CreateClient();

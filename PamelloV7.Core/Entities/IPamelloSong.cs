@@ -26,7 +26,7 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloPlaylist> Playlists { get; }
     public IReadOnlyList<string> Associations { get; }
     
-    public void AddSource(ISongSource source);
+    public void AddSource(SongSource source);
     
     public void AddAssociation(string association);
     public void RemoveAssociation(string association);

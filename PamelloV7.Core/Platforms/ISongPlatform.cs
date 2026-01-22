@@ -10,4 +10,5 @@ public interface ISongPlatform
     
     public string ValueToKey(string value);
     public ISongInfo? GetSongInfo(string key);
+    public string GetSongUrl(string key);
 }

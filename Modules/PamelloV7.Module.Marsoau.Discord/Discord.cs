@@ -34,10 +34,12 @@ public class Discord : IPamelloModule
     public void Startup(IServiceProvider services) {
         var clients = services.GetRequiredService<DiscordClientService>();
         var interactionHandler = services.GetRequiredService<InteractionHandler>();
+        var modalHandler = services.GetRequiredService<ModalSubmissionHandler>();
 
         var whenReady = new TaskCompletionSource();
         
         interactionHandler.LoadAsync().Wait();
+        modalHandler.Load();
 
         clients.Main.Log += DiscordLog;
         clients.Main.Ready += async () => {

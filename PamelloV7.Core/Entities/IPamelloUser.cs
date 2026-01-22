@@ -28,7 +28,7 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public bool TrySelectPlayer(IPamelloPlayer? player);
     public void RequireSelectPlayer(IPamelloPlayer? player);
 
-    public void AddAuthorization(IUserAuthorization authorization);
+    public void AddAuthorization(UserAuthorization authorization);
     
     public void AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
     public void RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);

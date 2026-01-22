@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Commands.Base;
@@ -16,6 +17,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Base;
 
 public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketInteractionContext>
 {
+    protected UpdatableMessage? _updatableMessage;
+    
     public IServiceProvider Services => Context.Services;
 
     private IEntityQueryService? __peql;
@@ -33,6 +36,13 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return RespondAsync(components: PamelloComponentBuilders.Info(title, description).Build(), ephemeral: true);
     }
 
+    public async Task EndInteractionAsync() {
+        if (Context.Interaction is SocketMessageComponent component)
+        {
+            await component.UpdateAsync(msg => { });
+        }
+    }
+
     public Task<UpdatableMessage> RespondUpdatableAsync(Action<MessageProperties> editMessage, params IPamelloEntity[] entities) {
         return RespondUpdatableAsync(editMessage, () => entities);
     }
@@ -43,7 +53,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         
         var message = await ModifyOriginalResponseAsync(editMessage);
-        var updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, new AudioTime(DiscordConfig.Root.Commands.UpdatableCommandsLifetime),
+        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, new AudioTime(DiscordConfig.Root.Commands.UpdatableCommandsLifetime),
             async () => {
                 await ModifyOriginalResponseAsync(editMessage);
             }, async () => {
@@ -53,13 +63,13 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
 
         var subscription = events.Watch(async (e) => {
             Console.WriteLine("ENTITY WATCH EXISTS");
-            await updatableMessage.Refresh();
+            await _updatableMessage.Refresh();
         }, entities);
 
-        updatableMessage.OnDead += () => {
+        _updatableMessage.OnDead += () => {
             subscription.Dispose();
         };
         
-        return updatableMessage;
+        return _updatableMessage;
     }
 }

@@ -140,7 +140,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     * 
     */
 
-    public void AddSource(ISongSource source) {
+    public void AddSource(SongSource source) {
         throw new NotImplementedException();
     }
 

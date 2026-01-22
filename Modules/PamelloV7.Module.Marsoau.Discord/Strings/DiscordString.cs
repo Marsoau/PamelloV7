@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using PamelloV7.Core.Entities;
 
 namespace PamelloV7.Module.Marsoau.Discord.Strings
@@ -6,6 +7,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
     public class DiscordString
     {
         private string _str;
+
+        public DiscordString() : this("") { }
 
         public DiscordString(object? obj, bool skipEcranation = true) {
             if (obj is DiscordString discordStr) {
@@ -77,9 +80,13 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
         public static DiscordString Spoiler(object obj) {
             return new DiscordString(obj).Spoiler();
         }
+        public static DiscordString Emote(Emote emote) {
+            return new DiscordString($"<:{emote.Name}:{emote.Id}>");
+        }
 
         public static string Url(object obj, string url) {
-            return $"[{obj}]({url})";
+            if (url?.Length > 0) return $"[{obj}]({url})";
+            return obj.ToString() ?? "";
         }
 
         public override string ToString() {

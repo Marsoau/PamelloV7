@@ -21,7 +21,7 @@ public class PamelloComponentBuilders
                 )
             );
     }
-    public static ComponentBuilderV2 SongInfo(IPamelloSong song, IPamelloUser scopeUser) {
+    public static ComponentBuilderV2 SongInfo(IPamelloSong song, IPamelloUser scopeUser, IServiceProvider services) {
             ContainerBuilder containerBuilder;
 
             var componentBuilder = new ComponentBuilderV2()
@@ -65,13 +65,13 @@ public class PamelloComponentBuilders
                         )
                         .WithTextDisplay($"""
                                           ### Associations
-                                          {(song.FavoriteBy.Count == 0 ? "-# _None_" : "")}
+                                          {(song.Associations.Count == 0 ? "-# _None_" : "")}
                                           {string.Join("\n", song.Associations)}
                                           """)
                     )
                     .WithSection(new SectionBuilder()
                         .WithAccessory(new ButtonBuilder()
-                            .WithCustomId("song-info-favorite-add")
+                            .WithCustomId($"song-info-favorite:{song.Id}")
                             .WithLabel(song.FavoriteBy.Contains(scopeUser) ? "Remove" : "Add")
                             .WithStyle(ButtonStyle.Secondary)
                         )
@@ -93,6 +93,11 @@ public class PamelloComponentBuilders
                                           {string.Join("\n", song.Playlists.Select(playlist => playlist.ToDiscordString()))}
                                           """)
                     )
+                    .WithTextDisplay($"""
+                                      ### Sources
+                                      {(song.Sources.Count == 0 ? "-# _None_" : "")}
+                                      {string.Join("\n", song.Sources.Select(source => source.ToDiscordString(services).Result))}
+                                      """)
                 );
 
             if (song.Episodes.Count > 0) {

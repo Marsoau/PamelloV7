@@ -124,7 +124,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public void AddAuthorization(IUserAuthorization authorization) {
+    public void AddAuthorization(UserAuthorization authorization) {
         throw new NotImplementedException();
     }
 
