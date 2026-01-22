@@ -179,12 +179,17 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     }
 
     public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs) {
-        var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, newSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
+        var filteredSongs = new List<IPamelloSong>();
+        newSongs.ForEach(song => {
+            if (!filteredSongs.Contains(song)) filteredSongs.Add(song);
+        });
+        
+        var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, filteredSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
         
         foreach (var (pos, song) in difference.Deleted) song.UnmakeFavorite(this, true);
         foreach (var (pos, song) in difference.Added) song.MakeFavorite(this, true);
         
-        _favoriteSongs = newSongs;
+        _favoriteSongs = filteredSongs;
         
         _sink.Invoke(new UserFavoriteSongsUpdated() {
             User = this,

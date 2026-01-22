@@ -181,6 +181,7 @@ public class PamelloComponentBuilders
                 .WithButton(new ButtonBuilder()
                     .WithCustomId($"favorite-list-clear:{user.Id}")
                     .WithLabel("Clear")
+                    .WithDisabled(user.FavoriteSongs.Count == 0)
                     .WithStyle(ButtonStyle.Secondary)
                 )
             );
