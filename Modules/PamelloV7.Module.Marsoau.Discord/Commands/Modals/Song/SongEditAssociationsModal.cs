@@ -26,22 +26,9 @@ public class SongEditAssociationsModal : DiscordModal
         return modalBuilder.Build();
     }
     public override async Task Submit(string songQuery) {
-        var song = _peql.GetSingle<IPamelloSong>(songQuery, User);
-        if (song is null) {
-            Console.WriteLine("NO SONG");
-            await EndInteraction();
-            return;
-        }
-        
-        var components = Modal.Data.Components.ToArray();
-        var input = components.FirstOrDefault(component => component.CustomId == "modal-input");
-        if (input is null) {
-            Console.WriteLine("NO INPUT");
-            await EndInteraction();
-            return;
-        }
+        var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
 
-        var newAssociationsStr = input.Value;
+        var newAssociationsStr = GetInputValue("modal-input");
         var newAssociations = newAssociationsStr.Split(',').SelectMany(a => a.Split('\n'));
 
         var differenceResult = DifferenceResult<string>.From(song.Associations, newAssociations, null, true);

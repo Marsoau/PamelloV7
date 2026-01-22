@@ -2,6 +2,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Commands.Base;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
@@ -32,5 +33,20 @@ public abstract class DiscordModal
     {
         var commands = Services.GetRequiredService<IPamelloCommandsService>();
         return commands.Get<TCommand>(User);
+    }
+
+    public string GetInputValue(string inputId) {
+        var components = Modal.Data.Components.ToArray();
+        var input = components.FirstOrDefault(component => component.CustomId == inputId);
+        if (input is null) throw new PamelloException("No input found");
+        
+        return input.Value;
+    }
+    public string GetSelectValue(string selectId) {
+        var components = Modal.Data.Components.ToArray();
+        var select = components.FirstOrDefault(component => component.CustomId == selectId);
+        if (select is null) throw new PamelloException("No select found");
+        
+        return select.Values.First();
     }
 }

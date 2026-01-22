@@ -57,7 +57,13 @@ public class ModalSubmissionHandler : IPamelloService
         
         modalField.SetValue(modal, socketModal);
         servicesField.SetValue(modal, _services);
-        
-        await modal.Submit(submittedArgs);
+
+        try {
+            await modal.Submit(submittedArgs);
+        }
+        catch (Exception e) {
+            Console.WriteLine(e);
+            await modal.EndInteraction();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
@@ -52,6 +53,11 @@ public class DiscordClientService : IPamelloService
 		}
 
 		return null;
+	}
+
+	public async Task<Emote?> GetEmote(string emoteName) {
+		var emotes = await Main.GetApplicationEmotesAsync();
+		return emotes.FirstOrDefault(x => x.Name == emoteName);
 	}
 	
 	public void Shutdown() {

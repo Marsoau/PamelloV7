@@ -27,22 +27,8 @@ public class SongRenameModal : DiscordModal
     }
 
     public override async Task Submit(string songQuery) {
-        var song = _peql.GetSingle<IPamelloSong>(songQuery, User);
-        if (song is null) {
-            Console.WriteLine("NO SONG");
-            await EndInteraction();
-            return;
-        }
-        
-        var components = Modal.Data.Components.ToArray();
-        var input = components.FirstOrDefault(component => component.CustomId == "song-rename-modal-input");
-        if (input is null) {
-            Console.WriteLine("NO INPUT");
-            await EndInteraction();
-            return;
-        }
-
-        var newName = input.Value;
+        var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
+        var newName = GetInputValue("song-rename-modal-input");
 
         Command<SongRename>().Execute(song, newName);
         

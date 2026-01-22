@@ -39,7 +39,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
                 NewName = _name
             });
             
-            //Save();
+            Save();
         }
     }
 

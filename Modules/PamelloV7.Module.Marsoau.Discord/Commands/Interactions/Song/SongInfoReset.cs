@@ -1,4 +1,5 @@
 using Discord.Interactions;
+using PamelloV7.Core.Commands;
 using PamelloV7.Core.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 
@@ -35,6 +36,7 @@ public partial class Song
 
         foreach (var song in songs) {
             processedSongs.Add(song);
+            Command<SongInfoReset>().Execute(song);
             song.Sources.ElementAtOrDefault(sourcePos)?.SetInfoToSong();
             await message.Refresh();
         }

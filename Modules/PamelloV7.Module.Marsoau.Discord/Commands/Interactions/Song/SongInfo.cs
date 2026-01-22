@@ -55,6 +55,17 @@ public partial class SongInteractions
         await RespondWithModalAsync(SongEditAssociationsModal.Build(song));
     }
     
+    [ComponentInteraction("song-info-reset:*")]
+    public async Task SongInfoResetButton(string songQuery) {
+        var song = _peql.GetSingle<IPamelloSong>(songQuery, Context.User);
+        if (song is null) {
+            await EndInteractionAsync();
+            return;
+        }
+        
+        await RespondWithModalAsync(SongResetModal.Build(song, Services));
+    }
+    
 
     [ComponentInteraction("song-info-favorite:*")]
     public async Task FavoriteButton(string songQuery) {
