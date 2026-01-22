@@ -33,6 +33,7 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
     public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);
     public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition);
+    public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs);
     public IEnumerable<IPamelloSong> ClearFavoriteSongs();
     public void AddFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);
     public void RemoveFavoritePlaylist(IPamelloPlaylist song, bool fromInside = false);

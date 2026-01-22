@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using PamelloV7.Core;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.Difference;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
@@ -175,6 +176,24 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         Save();
         
         return song;
+    }
+
+    public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs) {
+        var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, newSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
+        
+        foreach (var (pos, song) in difference.Deleted) song.UnmakeFavorite(this, true);
+        foreach (var (pos, song) in difference.Added) song.MakeFavorite(this, true);
+        
+        _favoriteSongs = newSongs;
+        
+        _sink.Invoke(new UserFavoriteSongsUpdated() {
+            User = this,
+            FavoriteSongs = FavoriteSongs
+        });
+        
+        Save();
+        
+        return FavoriteSongs;
     }
 
     public IEnumerable<IPamelloSong> ClearFavoriteSongs() {

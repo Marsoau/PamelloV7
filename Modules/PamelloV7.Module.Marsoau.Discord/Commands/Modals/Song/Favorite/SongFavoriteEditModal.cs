@@ -31,22 +31,12 @@ public class SongFavoriteEditModal : DiscordModal
         var user = _peql.GetSingleRequired<IPamelloUser>(userQuery, User);
 
         var newSongsStr = GetInputValue("modal-input");
-        
-        var currentSongsQueries = IPamelloEntity.GetIds(user.FavoriteSongs).Select(s => s.ToString());
-        var newSongsQueries = newSongsStr.Split('\n');
+        var newSongsQueries = newSongsStr.Replace('\n', ',');
 
-        var differenceResult = DifferenceResult<string>.From(currentSongsQueries, newSongsQueries, null, false);
+        var newSongs = _peql.Get<IPamelloSong>(newSongsQueries, User);
         
         await ReleaseInteractionAsync();
-        
-        foreach (var (from, to) in differenceResult.Moved) {
-            Console.WriteLine($"{from}>{to}");
-        }
-        foreach (var (at, songQuery) in differenceResult.Added) {
-            Console.WriteLine($"{at}+{songQuery}");
-        }
-        foreach (var (at, songQuery) in differenceResult.Deleted) {
-            Console.WriteLine($"{at}-{songQuery}");
-        }
+
+        user.ReplaceFavoriteSongs(newSongs);
     }
 }
