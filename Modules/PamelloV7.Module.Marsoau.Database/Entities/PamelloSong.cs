@@ -34,7 +34,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
             if (_name == value) return;
             
             _name = value;
-            _events.Invoke(new SongNameUpdated {
+            _sink.Invoke(new SongNameUpdated {
                 Song = this,
                 NewName = _name
             });

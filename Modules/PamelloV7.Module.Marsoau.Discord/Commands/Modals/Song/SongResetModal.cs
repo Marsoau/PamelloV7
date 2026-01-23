@@ -24,10 +24,10 @@ public class SongResetModal : DiscordModal
                 .WithSelectMenu("Source", new SelectMenuBuilder()
                     .WithCustomId("modal-select")
                     .WithOptions(song.Sources.Select(source => new SelectMenuOptionBuilder()
-                        .WithDefault(count++ == 0)
+                        .WithValue(count.ToString())
                         .WithLabel(source.PK.Key)
                         .WithEmote(clients.GetEmote(source.PK.Platform).Result)
-                        .WithValue(source.PK.ToString())
+                        .WithDefault(count++ == 0)
                     ).ToList())
                     .WithRequired(true)
                 )
@@ -38,9 +38,11 @@ public class SongResetModal : DiscordModal
 
     public override async Task Submit(string songQuery) {
         var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
-        var platformKey = GetSelectValue("modal-select");
+        var platformString = GetSelectValue("modal-select");
+        Console.WriteLine(platformString);
+        if (!int.TryParse(platformString, out var platformIndex)) throw new PamelloException("Invalid source index key");
 
-        Command<SongInfoReset>().Execute(song, platformKey);
+        Command<SongInfoReset>().Execute(song, platformIndex);
 
         await ReleaseInteractionAsync();
     }

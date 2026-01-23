@@ -14,16 +14,15 @@ public static class DiscordStringExtensions
         return $"{DiscordString.Bold(DiscordString.Code($"[{entity.Id}]"))} {DiscordString.Ecranate(entity.Name)}";
     }
     
-    public static string ToDiscordString(this IPamelloUser user)
+    public static string ToDiscordString(this IPamelloUser user, bool mention = true)
     {
-        return $"{DiscordString.Bold(DiscordString.Code($"[{user.Id}]"))} {DiscordString.User(user)}";
+        return $"{DiscordString.Bold(DiscordString.Code($"[{user.Id}]"))} {(mention ? DiscordString.User(user) : user.Name)}";
     }
 
     public static async Task<string> ToDiscordString(this SongSource songSource, IServiceProvider services, bool withName = false) {
         var clients = services.GetRequiredService<DiscordClientService>();
 
-        var emotes = await clients.Main.GetApplicationEmotesAsync();
-        var emote = emotes.FirstOrDefault(x => x.Name == songSource.PK.Platform);
+        var emote = await clients.GetEmote(songSource.PK.Platform);
 
         var name = withName ? songSource.Info?.Name ?? "No Name" : songSource.PK.Key;
 

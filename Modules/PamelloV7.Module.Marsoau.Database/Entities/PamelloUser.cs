@@ -7,9 +7,11 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
+using UserFavoriteSongsUpdated = PamelloV7.Core.Events.UserFavoriteSongsUpdated;
 
 namespace PamelloV7.Module.Marsoau.Base.Entities;
 
@@ -40,7 +42,22 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     public Guid Token => _token;
     public DateTime JoinedAt => _joinedAt;
     
-    public int SelectedAuthorizationIndex { get; set; }
+    private int _selectedAuthorizationIndex;
+
+    public int SelectedAuthorizationIndex {
+        get => _selectedAuthorizationIndex;
+        set {
+            if (value == _selectedAuthorizationIndex) return;
+            
+            _selectedAuthorizationIndex = value;
+            _sink.Invoke(new UserSelectedAuthorizationIndexUpdated() {
+                User = this,
+                SelectedAuthorizationIndex = value
+            });
+            
+            Save();
+        }
+    }
 
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
@@ -96,6 +113,8 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
 
         databaseUser.FavoriteSongIds = IPamelloEntity.GetIds(FavoriteSongs).ToList();
         databaseUser.FavoritePlaylistIds = IPamelloEntity.GetIds(FavoritePlaylists).ToList();
+        
+        databaseUser.Authorizations = Authorizations.Select(authorization => authorization.PK).ToList();
         
         databaseUsers.Save(databaseUser);
     }

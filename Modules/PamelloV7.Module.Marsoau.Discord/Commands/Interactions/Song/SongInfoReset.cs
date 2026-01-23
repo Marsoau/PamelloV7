@@ -36,7 +36,7 @@ public partial class Song
 
         foreach (var song in songs) {
             processedSongs.Add(song);
-            Command<SongInfoReset>().Execute(song);
+            Command<SongInfoReset>().Execute(song, song.SelectedSourceIndex);
             song.Sources.ElementAtOrDefault(sourcePos)?.SetInfoToSong();
             await message.Refresh();
         }

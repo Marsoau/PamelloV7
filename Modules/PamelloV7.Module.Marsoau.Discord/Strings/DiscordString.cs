@@ -14,6 +14,9 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
             return $"<t:{((DateTimeOffset)date).ToUnixTimeSeconds()}:f>";
         }
 
+        public static string None(object? obj) {
+            return obj?.ToString() ?? "";
+        }
         public static string Bold(object? obj) {
             return obj is not null ? $"**{obj}**" : "";
         }

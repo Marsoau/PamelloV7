@@ -9,7 +9,7 @@ using PamelloV7.Module.Marsoau.Discord.Services;
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Interactions;
 
 [Map]
-public class PageButtons : DiscordCommand
+public class GeneralButtons : DiscordCommand
 {
     [ComponentInteraction("page-next")]
     public async Task PageNextButton() {
@@ -46,6 +46,24 @@ public class PageButtons : DiscordCommand
         }
         
         await pageMessage.SetPage(pageMessage.Page - 1);
+        await ReleaseInteractionAsync();
+    }
+    
+    [ComponentInteraction("refresh")]
+    public async Task RefreshButton() {
+        if (Context.Interaction is not SocketMessageComponent component) {
+            await ReleaseInteractionAsync();
+            return;
+        }
+        
+        var messageService = Services.GetRequiredService<UpdatableMessageKiller>();
+        var message = messageService.Get(component.Message.Id);
+        if (message is null) {
+            await ReleaseInteractionAsync();
+            return;
+        }
+
+        await message.Refresh();
         await ReleaseInteractionAsync();
     }
 }

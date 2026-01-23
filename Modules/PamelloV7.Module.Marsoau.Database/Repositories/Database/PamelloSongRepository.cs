@@ -35,8 +35,10 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         //actual search by name here
         
+        var associationSong = _loaded.FirstOrDefault(song => song.Associations.Contains(query));
+        if (associationSong is not null) return associationSong;
+        
         var pk = _platforms.GetSongPlatformKey(query);
-        Console.WriteLine($"PK: {pk}");
         if (pk is null) return null;
 
         return GetByPlatformKey(scopeUser, pk, true);

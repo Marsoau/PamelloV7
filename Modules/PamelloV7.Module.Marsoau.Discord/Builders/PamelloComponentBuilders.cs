@@ -1,6 +1,9 @@
+using System.Text;
 using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Platforms.Infos;
+using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
@@ -119,7 +122,8 @@ public class PamelloComponentBuilders
             containerBuilder
                 .WithActionRow(new ActionRowBuilder()
                     .WithButton(new ButtonBuilder()
-                        .WithCustomId("song-info-queue-add")
+                        //.WithCustomId("song-info-queue-add")
+                        .WithCustomId("refresh")
                         .WithLabel("Add to queue")
                         .WithStyle(ButtonStyle.Primary)
                     )
@@ -127,6 +131,19 @@ public class PamelloComponentBuilders
                 ;
             
             return componentBuilder;
+    }
+
+    public static ComponentBuilderV2 RefreshButton(ComponentBuilderV2 componentBuilder) {
+        componentBuilder
+            .WithActionRow(new ActionRowBuilder()
+                .WithButton(new ButtonBuilder()
+                    .WithCustomId("refresh")
+                    .WithLabel("Refresh")
+                    .WithStyle(ButtonStyle.Secondary)
+                )
+            );
+        
+        return componentBuilder;
     }
 
     public static ComponentBuilderV2 PageButtons(ComponentBuilderV2 pageBuilder, bool displayPrev, bool displayNext) {
@@ -196,7 +213,8 @@ public class PamelloComponentBuilders
             containerBuilder
                 .WithSection(new SectionBuilder()
                     .WithAccessory(new ButtonBuilder()
-                        .WithCustomId($"favorite-list-add:{user.Id}")
+                        .WithCustomId("refresh")
+                        //.WithCustomId($"favorite-list-add:{user.Id}")
                         .WithLabel("Add all to queue")
                         .WithStyle(ButtonStyle.Primary)
                     )
@@ -211,5 +229,96 @@ public class PamelloComponentBuilders
         var componentBuilder = new ComponentBuilderV2().WithContainer(containerBuilder);
         
         return PageButtons(componentBuilder, page > 0, page < totalPages - 1);
+    }
+
+    public static async Task<ComponentBuilderV2> UserInfo(IPamelloUser user, IPamelloUser scopeUser, IServiceProvider services) {
+        var containerBuilder = new ContainerBuilder();
+
+        var clients = services.GetRequiredService<DiscordClientService>();
+        
+        var authorizationsBuilder = new StringBuilder();
+        foreach (var authorization in user.Authorizations) {
+            var line = "";
+            var emote = await clients.GetEmote(authorization.PK.Platform);
+            if (emote is null) {
+                line = $"{authorization.PK.Platform}: {DiscordString.Code(authorization.PK.Key)}";
+                continue;
+            }
+            
+            line = $"{DiscordString.Emote(emote)} {DiscordString.Code(authorization.PK.Key)}";
+
+            if (authorization == user.SelectedAuthorization) {
+                authorizationsBuilder.AppendLine(DiscordString.None($"{line} {DiscordString.Bold(DiscordString.Code("<"))}"));
+                continue;
+            }
+
+            authorizationsBuilder.AppendLine(line);
+        }
+
+        containerBuilder
+            .WithSection(new SectionBuilder()
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia(new UnfurledMediaItemProperties(user.SelectedAuthorization?.Info?.AvatarUrl))
+                )
+                .WithTextDisplay($"""
+                                  ## {user.Name}
+                                  
+                                  -# Id: {user.Id}
+                                  """)
+            )
+            .WithSeparator()
+            .WithTextDisplay($"""
+                              - Joined at {DiscordString.Time(user.JoinedAt)}
+                              - Activity points: {DiscordString.Code(Random.Shared.Next(0, 100).ToString())}
+                              """)
+            .WithSeparator()
+            .WithSection(new SectionBuilder()
+                .WithAccessory(new ButtonBuilder()
+                    .WithCustomId("asd")
+                    .WithStyle(ButtonStyle.Secondary)
+                    .WithLabel("List")
+                    .WithDisabled(true)
+                )
+                .WithTextDisplay($"### Favorite Songs: `{user.FavoriteSongs.Count}`\n")
+            )
+            .WithSection(new SectionBuilder()
+                .WithAccessory(new ButtonBuilder()
+                    .WithCustomId("asda")
+                    .WithStyle(ButtonStyle.Secondary)
+                    .WithLabel("List")
+                    .WithDisabled(true)
+                )
+                .WithTextDisplay($"### Favorite Playlists: `{user.FavoritePlaylists.Count}`\n")
+            )
+            .WithSeparator()
+            ;
+
+        if (user == scopeUser) {
+            containerBuilder
+                .WithSection(new SectionBuilder()
+                    .WithAccessory(new ButtonBuilder()
+                        .WithCustomId($"user-authorization-select:{user.Id}")
+                        .WithLabel("Select")
+                        .WithStyle(ButtonStyle.Secondary)
+                    )
+                    .WithTextDisplay($"""
+                                      ### Authorizations
+                                      {(user.Authorizations.Count == 0 ? "-# _None_" : "")}
+                                      {authorizationsBuilder}
+                                      """)
+                );
+        }
+        else {
+            containerBuilder
+                .WithTextDisplay($"""
+                                  ### Authorizations
+                                  {(user.Authorizations.Count == 0 ? "-# _None_" : "")}
+                                  {authorizationsBuilder}
+                                  """);
+        }
+        
+        var componentBuilder = new ComponentBuilderV2().WithContainer(containerBuilder);
+        
+        return componentBuilder;
     }
 }
