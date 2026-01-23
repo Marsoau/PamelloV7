@@ -3,6 +3,7 @@ using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
+using PamelloV7.Core.Events;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Server.Entities.Base;
 
@@ -99,7 +100,15 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
         throw new NotImplementedException();
     }
 
+    public IEnumerable<IPamelloSong>? AddSongs(IEnumerable<IPamelloSong> songs, int? position = null, bool fromInside = false) {
+        throw new NotImplementedException();
+    }
+
     public IPamelloSong? MoveSong(int fromPosition, int toPosition) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloSong>? ReplaceSongs(IEnumerable<IPamelloSong> newSongs) {
         throw new NotImplementedException();
     }
 
@@ -117,12 +126,32 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
         throw new NotImplementedException();
     }
 
-    public void MakeFavorite(IPamelloUser user) {
-        throw new NotImplementedException();
+    public void MakeFavorite(IPamelloUser user, bool fromInside = false) {
+        if (_favoriteBy.Contains(user)) return;
+        
+        _favoriteBy.Add(user);
+        
+        if (!fromInside) user.AddFavoritePlaylist(this, null, true);
+
+        _sink.Invoke(new PlaylistFavoriteByUpdated() {
+            Playlist = this,
+            FavoriteBy = FavoriteBy
+        });
+        
+        Save();
     }
 
-    public void UnmakeFavorite(IPamelloUser user) {
-        throw new NotImplementedException();
+    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false) {
+        if (!_favoriteBy.Remove(user)) return;
+        
+        if (!fromInside) user.RemoveFavoritePlaylist(this, true);
+
+        _sink.Invoke(new PlaylistFavoriteByUpdated() {
+            Playlist = this,
+            FavoriteBy = FavoriteBy
+        });
+        
+        Save();
     }
 
     public override IPamelloDTO GetDto() {

@@ -31,6 +31,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IPamelloSong? GetByName(IPamelloUser scopeUser, string query) {
+        if (query.Length == 0) return null;
+        
         Console.WriteLine($"Get by name requested: {query}");
         
         //actual search by name here
@@ -88,6 +90,10 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         if (favoriteBy is not null) results = results.Where(s => s.FavoriteBy.Contains(favoriteBy));
         
         return results;
+    }
+
+    public IEnumerable<IPamelloSong> GetFavorite(IPamelloUser scopeUser, IPamelloUser? by) {
+        return scopeUser.FavoriteSongs;
     }
 
     public IEnumerable<IPamelloSong> GetFromPlaylist(IPamelloUser scopeUser, IPamelloPlaylist? playlist) {

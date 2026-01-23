@@ -40,7 +40,7 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     public IEnumerable<IPamelloSong> GetFavorite(
         IPamelloUser scopeUser,
         IPamelloUser? by
-    ) => GetAll(scopeUser, favoriteBy: by ?? scopeUser);
+    );
         
     [ValuePoint("added")]
     public IEnumerable<IPamelloSong> GetAdded(

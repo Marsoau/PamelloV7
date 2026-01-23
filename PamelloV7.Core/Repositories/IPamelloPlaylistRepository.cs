@@ -24,12 +24,12 @@ public interface IPamelloPlaylistRepository : IPamelloDatabaseRepository<IPamell
         IPamelloUser? owner = null,
         IPamelloUser? favoriteBy = null
     );
-        
+
     [ValuePoint("favorite")]
     public IEnumerable<IPamelloPlaylist> GetFavorite(
         IPamelloUser scopeUser,
         IPamelloUser? by
-    ) => GetAll(scopeUser, favoriteBy: by ?? scopeUser);
+    );
     
     [ValuePoint("owner")]
     public IEnumerable<IPamelloPlaylist> GetOwned(

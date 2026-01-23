@@ -7,7 +7,6 @@ using PamelloV7.Module.Marsoau.Discord.Commands.Modals.Base;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Modals.Song;
 
-[Modal("song-edit-associations-modal")]
 public class SongEditAssociationsModal : DiscordModal
 {
     public static Modal Build(IPamelloSong song) {
@@ -25,7 +24,9 @@ public class SongEditAssociationsModal : DiscordModal
         
         return modalBuilder.Build();
     }
-    public override async Task Submit(string songQuery) {
+    
+    [ModalSubmission("song-edit-associations-modal")]
+    public async Task Submit(string songQuery) {
         var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
 
         var newAssociationsStr = GetInputValue("modal-input");

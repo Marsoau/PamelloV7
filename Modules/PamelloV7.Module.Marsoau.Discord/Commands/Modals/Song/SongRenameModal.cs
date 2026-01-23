@@ -8,7 +8,6 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Modals.Song;
 
-[Modal("song-rename-modal")]
 public class SongRenameModal : DiscordModal
 {
     public static Modal Build(IPamelloSong song) {
@@ -26,7 +25,8 @@ public class SongRenameModal : DiscordModal
         return modalBuilder.Build();
     }
 
-    public override async Task Submit(string songQuery) {
+    [ModalSubmission("song-rename-modal")]
+    public async Task Submit(string songQuery) {
         var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
         var newName = GetInputValue("song-rename-modal-input");
 

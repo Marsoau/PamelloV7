@@ -23,8 +23,6 @@ public abstract class DiscordModal
     public IEntityQueryService _peql =>
         __peql ??= Services.GetRequiredService<IEntityQueryService>();
     
-    public abstract Task Submit(string args);
-    
     public async Task ReleaseInteractionAsync() {
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         var updatableMessage = updatableMessageService.Get(Modal.Message.Id);

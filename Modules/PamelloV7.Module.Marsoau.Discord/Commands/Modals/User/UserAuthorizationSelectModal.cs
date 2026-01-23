@@ -9,7 +9,6 @@ using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Modals.User;
 
-[Modal("authorization-select-modal")]
 public class UserAuthorizationSelectModal : DiscordModal
 {
     public static Modal Build(IPamelloUser user, IServiceProvider services) {
@@ -36,7 +35,8 @@ public class UserAuthorizationSelectModal : DiscordModal
         return modalBuilder.Build();
     }
     
-    public override async Task Submit(string userQuery) {
+    [ModalSubmission("authorization-select-modal")]
+    public async Task Submit(string userQuery) {
         var song = _peql.GetSingleRequired<IPamelloSong>(userQuery, User);
         var authorizationString = GetSelectValue("modal-select");
         Console.WriteLine($"authorizationString: {authorizationString}");

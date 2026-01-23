@@ -43,10 +43,25 @@ public class ModalSubmissionHandler : IPamelloService
 
         Console.WriteLine($"Modal \"{socketModal.Data.CustomId}\" submitted: {submittedName} | {submittedArgs}");
 
-        var modalType = _modalsTypes.FirstOrDefault(type
-            => type.GetCustomAttribute<ModalAttribute>()?.Name == submittedName
-        );
-        if (modalType is null) return;
+        Type? modalType = null;
+        MethodInfo? submissionMethod = null;
+        
+        foreach (var type in _modalsTypes) {
+            var methods = type.GetMethods();
+            foreach (var method in methods) {
+                if (method.GetCustomAttribute<ModalSubmissionAttribute>() is not { } modalSubmissionAttribute) continue;
+                if (modalSubmissionAttribute.Name != submittedName) continue;
+                
+                submissionMethod = method;
+                modalType = type;
+                
+                break;
+            }
+            
+            if (modalType is not null) break;
+        }
+        
+        if (modalType is null || submissionMethod is null) return;
         
         var modalField = modalType.GetField("Modal");
         var servicesField = modalType.GetField("Services");
@@ -59,7 +74,7 @@ public class ModalSubmissionHandler : IPamelloService
         servicesField.SetValue(modal, _services);
 
         try {
-            await modal.Submit(submittedArgs);
+            await (Task)submissionMethod.Invoke(modal, [submittedArgs])!;
         }
         catch (Exception e) {
             Console.WriteLine(e);

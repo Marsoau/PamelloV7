@@ -25,7 +25,11 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
     }
 
     public IPamelloPlaylist? GetByName(IPamelloUser scopeUser, string query) {
-        throw new NotImplementedException();
+        if (query.Length == 0) return null;
+
+        return _loaded.FirstOrDefault(
+            playlist => playlist.Name == query
+        );
     }
 
     public IEnumerable<IPamelloPlaylist> GetRandom(IPamelloUser scopeUser) {
@@ -40,6 +44,10 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
         if (favoriteBy is not null) results = results.Where(s => s.FavoriteBy.Contains(favoriteBy));
         
         return results;
+    }
+
+    public IEnumerable<IPamelloPlaylist> GetFavorite(IPamelloUser scopeUser, IPamelloUser? by) {
+        return scopeUser.FavoritePlaylists;
     }
 
     public IPamelloPlaylist Add(string name, IPamelloUser adder) {

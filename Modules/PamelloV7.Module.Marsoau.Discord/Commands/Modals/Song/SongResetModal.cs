@@ -9,7 +9,6 @@ using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Modals.Song;
 
-[Modal("song-reset-modal")]
 public class SongResetModal : DiscordModal
 {
     public static Modal Build(IPamelloSong song, IServiceProvider services) {
@@ -36,7 +35,8 @@ public class SongResetModal : DiscordModal
         return modalBuilder.Build();
     }
 
-    public override async Task Submit(string songQuery) {
+    [ModalSubmission("song-reset-modal")]
+    public async Task Submit(string songQuery) {
         var song = _peql.GetSingleRequired<IPamelloSong>(songQuery, User);
         var platformString = GetSelectValue("modal-select");
         Console.WriteLine(platformString);

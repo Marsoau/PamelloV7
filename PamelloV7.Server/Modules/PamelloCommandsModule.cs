@@ -302,18 +302,19 @@ namespace PamelloV7.Server.Modules
             var playlist = User.CreatePlaylist(name);
 
             if (fillWithQueue) {
-                playlist.AddList(Player.Queue.Songs);
+                //playlist.AddList(Player.Queue.Songs);
             }
 
             return playlist;
         }
         [PamelloCommand]
         public async Task<IPamelloSong?> PlaylistAddSong(IPamelloPlaylist playlist, IPamelloSong song, int? position = null) {
-            return playlist.AddSong(song, position);
+            return null;
+            //return playlist.AddSongs(song, position);
         }
         [PamelloCommand]
         public async Task PlaylistAddPlaylistSongs(IPamelloPlaylist fromPlaylist, IPamelloPlaylist toPlaylist, int? position = null) {
-            toPlaylist.AddList(fromPlaylist.Songs, position);
+            //toPlaylist.AddList(fromPlaylist.Songs, position);
         }
         [PamelloCommand]
         public async Task<int> PlaylistRemoveSong(IPamelloPlaylist playlist, IPamelloSong song) {

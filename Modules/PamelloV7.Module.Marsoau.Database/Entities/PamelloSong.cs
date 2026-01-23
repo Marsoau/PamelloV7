@@ -23,7 +23,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     
     public List<SongSource> _sources;
     
-    public List<IPamelloUser> _favoritedBy;
+    public List<IPamelloUser> _favoriteBy;
     public List<IPamelloEpisode> _songEpisodes;
     public List<IPamelloPlaylist> _songPlaylists;
     public List<string> _associations;
@@ -64,7 +64,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     
     public IReadOnlyList<SongSource> Sources => _sources;
     
-    public IReadOnlyList<IPamelloUser> FavoriteBy => _favoritedBy;
+    public IReadOnlyList<IPamelloUser> FavoriteBy => _favoriteBy;
     public IReadOnlyList<IPamelloEpisode> Episodes => _songEpisodes;
     public IReadOnlyList<IPamelloPlaylist> Playlists => _songPlaylists;
     public IReadOnlyList<string> Associations => _associations;
@@ -88,7 +88,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         
         _addedBy = _users.Get(_databaseEntity.AddedBy)!;
         
-        _favoritedBy = databaseUsers
+        _favoriteBy = databaseUsers
             .Where(databaseUser => databaseUser.FavoriteSongIds.Contains(Id))
             .Select(databaseUser => _users.Get(databaseUser.Id))
             .OfType<IPamelloUser>()
@@ -180,9 +180,9 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     }
 
     public void MakeFavorite(IPamelloUser user, bool fromInside = false) {
-        if (_favoritedBy.Contains(user)) return;
+        if (_favoriteBy.Contains(user)) return;
         
-        _favoritedBy.Add(user);
+        _favoriteBy.Add(user);
         
         if (!fromInside) user.AddFavoriteSong(this, null, true);
 
@@ -195,7 +195,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     }
 
     public void UnmakeFavorite(IPamelloUser user, bool fromInside = false) {
-        if (!_favoritedBy.Remove(user)) return;
+        if (!_favoriteBy.Remove(user)) return;
         
         if (!fromInside) user.RemoveFavoriteSong(this, true);
 
@@ -233,7 +233,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
         if (!_songPlaylists.Contains(playlist)) _songPlaylists.Add(playlist);
         
-        if (!fromInside) playlist.AddSong(this, position, true);
+        if (!fromInside) playlist.AddSongs([this], position, true);
 
         Save();
         
