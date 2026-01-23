@@ -85,23 +85,28 @@ public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
     *
     * 
     */
-    
-    public IPamelloSong? AddSong(IPamelloSong song, int? position = null, bool fromInside = false) {
-        _playlistSongs.Insert(position ?? _playlistSongs.Count, song);
-        
-        if (!fromInside) song.AddToPlaylist(this, null, true);
-        
-        Save();
-        
-        return song;
-    }
 
     public void AddList(IReadOnlyList<IPamelloSong> list, int? position = null) {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IPamelloSong>? AddSongs(IEnumerable<IPamelloSong> songs, int? position = null, bool fromInside = false) {
-        throw new NotImplementedException();
+    public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> newSongs, int? position = null, bool fromInside = false) {
+        var songs = newSongs as List<IPamelloSong> ?? newSongs.ToList();
+        
+        _playlistSongs.InsertRange(position ?? _playlistSongs.Count, songs);
+        
+        if (!fromInside) foreach (var song in songs) {
+            song.AddToPlaylist(this, null, true);
+        }
+
+        _sink.Invoke(new PlaylistSongsUpdated() {
+            Playlist = this,
+            Songs = Songs
+        });
+
+        Save();
+        
+        return songs;
     }
 
     public IPamelloSong? MoveSong(int fromPosition, int toPosition) {

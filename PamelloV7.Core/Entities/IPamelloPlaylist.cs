@@ -12,9 +12,9 @@ public interface IPamelloPlaylist : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloSong> Songs { get; }
     public IReadOnlyList<IPamelloUser> FavoriteBy { get; }
     
-    public IEnumerable<IPamelloSong>? AddSongs(IEnumerable<IPamelloSong> songs, int? position = null, bool fromInside = false);
+    public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, int? position = null, bool fromInside = false);
     public IPamelloSong? MoveSong(int fromPosition, int toPosition);
-    public IEnumerable<IPamelloSong>? ReplaceSongs(IEnumerable<IPamelloSong> newSongs);
+    public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> newSongs);
     
     public int RemoveSong(IPamelloSong song, bool fromInside = false);
     public IPamelloSong? RemoveAt(int position);

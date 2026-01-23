@@ -1,5 +1,6 @@
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
@@ -51,6 +52,8 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
     }
 
     public IPamelloPlaylist Add(string name, IPamelloUser adder) {
+        if (_loaded.Any(p => p.Name == name)) throw new PamelloException("Playlist with this name already exists");
+        
         var databasePlaylist = new DatabasePlaylist() {
             Name = name,
             OwnerId = adder.Id,
