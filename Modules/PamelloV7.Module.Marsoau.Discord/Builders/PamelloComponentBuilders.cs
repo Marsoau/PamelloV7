@@ -254,11 +254,13 @@ public class PamelloComponentBuilders
 
             authorizationsBuilder.AppendLine(line);
         }
+        
+        var avatarUrl = user.SelectedAuthorization?.Info?.AvatarUrl ?? "https://cdn.discordapp.com/embed/avatars/0.png";
 
         containerBuilder
             .WithSection(new SectionBuilder()
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia(new UnfurledMediaItemProperties(user.SelectedAuthorization?.Info?.AvatarUrl))
+                    .WithMedia(new UnfurledMediaItemProperties(avatarUrl))
                 )
                 .WithTextDisplay($"""
                                   ## {user.Name}

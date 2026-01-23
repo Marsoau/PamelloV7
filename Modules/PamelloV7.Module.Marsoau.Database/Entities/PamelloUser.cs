@@ -75,10 +75,11 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
     public PamelloUser(DatabaseUser databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
-        
-        _authorizations = databaseEntity.Authorizations.Select(
-            pk => new UserAuthorization(services, this, pk)
+
+        _authorizations = databaseEntity.Authorizations.Select(pk =>
+            new UserAuthorization(services, this, pk)
         ).ToList();
+        _authorizations.Sort((a, b) => string.Compare(a.PK.Platform, b.PK.Platform, StringComparison.Ordinal));
     }
     
     protected override void InitBase() {
@@ -114,6 +115,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         databaseUser.FavoriteSongIds = IPamelloEntity.GetIds(FavoriteSongs).ToList();
         databaseUser.FavoritePlaylistIds = IPamelloEntity.GetIds(FavoritePlaylists).ToList();
         
+        databaseUser.SelectedAuthorization = SelectedAuthorizationIndex;
         databaseUser.Authorizations = Authorizations.Select(authorization => authorization.PK).ToList();
         
         databaseUsers.Save(databaseUser);

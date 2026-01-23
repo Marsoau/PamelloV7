@@ -27,7 +27,7 @@ public class UserAuthorizationSelectModal : DiscordModal
                         .WithValue(count.ToString())
                         .WithLabel(authorization.PK.Key)
                         .WithEmote(clients.GetEmote(authorization.PK.Platform).Result)
-                        .WithDefault(count++ == 0)
+                        .WithDefault(count++ == user.SelectedAuthorizationIndex)
                     ).ToList())
                     .WithRequired(true)
                 )
