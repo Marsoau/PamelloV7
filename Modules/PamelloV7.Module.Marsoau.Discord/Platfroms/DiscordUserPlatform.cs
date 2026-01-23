@@ -12,7 +12,6 @@ public class DiscordUserPlatform : IUserPlatform
     private readonly DiscordClientService _clients;
     
     public string Name => "discord";
-    public string IconUrl => "";
     
     public DiscordUserPlatform(IServiceProvider services) {
         _clients = services.GetRequiredService<DiscordClientService>();

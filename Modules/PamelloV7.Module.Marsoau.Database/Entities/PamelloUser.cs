@@ -74,6 +74,7 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
 
+        _selectedAuthorizationIndex = databaseEntity.SelectedAuthorization;
         _authorizations = databaseEntity.Authorizations.Select(pk =>
             new UserAuthorization(services, this, pk)
         ).ToList();

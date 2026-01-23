@@ -48,7 +48,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
 
     public IPamelloSong? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
         var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source.PK == pk));
-        Console.WriteLine($"Song by pk {(song is null ? $"found: {song}" : "not found")}");
+        Console.WriteLine($"Song by pk {(song is not null ? $"found: {song}" : "not found")}");
         if (song is not null) return song;
         
         if (!allowCreation) return null;

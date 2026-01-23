@@ -38,10 +38,24 @@ public class Test : IPamelloModule
         var commands = services.GetRequiredService<IPamelloCommandsService>();
         
         var events = services.GetRequiredService<IEventsService>();
+        
+        //
+        var osuUsers = platforms.GetUserPlatform("osu")!;
+        var osuSongs = platforms.GetSongPlatform("osu")!;
+
+        var user = osuUsers.GetUserInfo("29001947");
+        
+        var skey = osuSongs.ValueToKey("https://osu.ppy.sh/beatmapsets/469683#osu/2082447");
+        var osong = osuSongs.GetSongInfo(skey);
+        
+        Console.WriteLine($"user info: {user?.Name}");
+        
+        Console.WriteLine($"song: ({osong.Key}) {osong.Name}: {osong.CoverUrl}");
 
         //var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
         //Console.WriteLine($"User: {user}");
 
+        return;
         var query = "songs$4,5,6";
         
         logger.Log("G");

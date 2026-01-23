@@ -17,7 +17,6 @@ public class YoutubeSongPlatform : ISongPlatform
     private readonly IHttpClientFactory _httpClientFactory;
     
     public string Name => "youtube";
-    public string IconUrl => "";
 
     public YoutubeSongPlatform(IServiceProvider services) {
         _httpClientFactory = services.GetRequiredService<IHttpClientFactory>();

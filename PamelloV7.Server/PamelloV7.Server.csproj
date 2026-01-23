@@ -41,6 +41,9 @@
     <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj">
       <IsModule>true</IsModule>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj">
+      <IsModule>true</IsModule>
+    </ProjectReference>
   </ItemGroup>
   <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
     <ItemGroup>

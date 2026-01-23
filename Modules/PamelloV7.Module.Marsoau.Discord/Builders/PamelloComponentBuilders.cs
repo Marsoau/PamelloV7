@@ -29,12 +29,14 @@ public class PamelloComponentBuilders
     }
     public static ComponentBuilderV2 SongInfo(IPamelloSong song, IPamelloUser scopeUser, IServiceProvider services) {
             ContainerBuilder containerBuilder;
+            
+            var coverUrl = song.CoverUrl;
 
             var componentBuilder = new ComponentBuilderV2()
                 .WithContainer(containerBuilder = new ContainerBuilder()
                     .WithSection(new SectionBuilder()
                         .WithAccessory(new ThumbnailBuilder()
-                            .WithMedia(new UnfurledMediaItemProperties(song.CoverUrl))
+                            .WithMedia(new UnfurledMediaItemProperties(coverUrl))
                         )
                         .WithTextDisplay($"""
                                           ## {song.Name}
