@@ -14,6 +14,11 @@ public static class DiscordStringExtensions
         return $"{DiscordString.Bold(DiscordString.Code($"[{entity.Id}]"))} {DiscordString.Ecranate(entity.Name)}";
     }
     
+    public static string ToDiscordString(this IPamelloPlaylist playlist)
+    {
+        return $"{DiscordString.Bold(DiscordString.Code($"[{playlist.Id}]"))} {DiscordString.Ecranate(playlist.Name)} {DiscordString.None(DiscordString.Code($"({playlist.Songs.Count})"))}";
+    }
+    
     public static string ToDiscordString(this IPamelloUser user, bool mention = true)
     {
         return $"{DiscordString.Bold(DiscordString.Code($"[{user.Id}]"))} {(mention ? DiscordString.User(user) : user.Name)}";

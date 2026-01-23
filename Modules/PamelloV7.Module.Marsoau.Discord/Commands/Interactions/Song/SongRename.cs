@@ -5,6 +5,7 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Song;
 
@@ -24,7 +25,7 @@ public partial class Song
         Command<SongRename>().Execute(song, newName);
 
         await RespondUpdatableAsync((message) => {
-            message.Components = PamelloComponentBuilders.Info("Song Renamed", $"`[{song.Id}]` {song.Name}").Build();
+            message.Components = PamelloComponentBuilders.Info("Song Renamed", song.ToDiscordString()).Build();
         }, song);
     }
 }

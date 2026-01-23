@@ -185,14 +185,17 @@ public class PamelloComponentBuilders
         
         var title = user == scopeUser ? $"Favorite {songOrPlaylist.ToShortString()}s" : $"Favorite {songOrPlaylist.ToShortString()}s of {user.ToDiscordString()}";
 
-        var totalPages = items.Count / pageSize + (user.FavoriteSongs.Count % pageSize > 0 ? 1 : 0);
+        var totalPages = items.Count / pageSize + (items.Count % pageSize > 0 ? 1 : 0);
         if (totalPages == 0) totalPages = 1;
         
         var itemsOnPage = items.Skip(page * pageSize).Take(pageSize).ToList();
         
         var counter = page * pageSize + 1;
         var content = items.Count == 0 ? $"-# _No {songOrPlaylist.ToShortString()}s_" :
-            string.Join("\n", itemsOnPage.Select(song => $"`{counter++}` : {song.ToDiscordString()}"));
+            string.Join("\n", itemsOnPage.Select(item => $"`{counter++}` : {songOrPlaylist switch {
+                ESongOrPlaylist.Song => ((IPamelloSong)item).ToDiscordString(),
+                ESongOrPlaylist.Playlist => ((IPamelloPlaylist)item).ToDiscordString(),
+            }}"));
         
         var containerBuilder = new ContainerBuilder();
 

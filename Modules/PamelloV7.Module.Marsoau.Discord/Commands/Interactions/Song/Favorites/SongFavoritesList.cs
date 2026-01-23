@@ -11,7 +11,7 @@ public partial class SongFavorites
 {
     [SlashCommand("list", "List your favorites")]
     public async Task List(
-        [Summary("user", "User to view favorite songs of")] string userQuery = "1"
+        [Summary("user", "User to view favorite songs of")] string userQuery = "current"
     ) {
         await RespondUpdatablePageAsync((message, page) => {
             message.Components = PamelloComponentBuilders.FavoriteList(
@@ -19,7 +19,6 @@ public partial class SongFavorites
             ).Build();
         }, () => [.. Context.User.FavoriteSongs, Context.User]);
     }
-    
 }
 
 public partial class SongFavoritesInteractions

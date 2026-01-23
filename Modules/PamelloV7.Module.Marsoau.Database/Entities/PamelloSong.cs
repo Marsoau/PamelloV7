@@ -145,6 +145,9 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     }
 
     public bool AddAssociation(string association) {
+        if (!association.All(char.IsLetter)) return false;
+        association = association.ToLowerInvariant();
+        
         var databaseAssociations = ((PamelloSongRepository)_songs)
             .GetCollection()
             .GetAll()

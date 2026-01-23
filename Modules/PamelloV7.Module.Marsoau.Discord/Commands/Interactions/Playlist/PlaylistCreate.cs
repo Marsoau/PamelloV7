@@ -22,11 +22,7 @@ public partial class Playlist
         playlist.AddSongs(songs);
 
         await RespondUpdatableAsync(message => {
-            message.Components = PamelloComponentBuilders.Info("Playlist Created",
-                $"{playlist.ToDiscordString()}\n{(
-                    songs.Count > 0 ? $"Prefilled with {DiscordString.Code(songs.Count)} songs" : ""
-                )}"
-            ).Build();
+            message.Components = PamelloComponentBuilders.Info("Playlist Created", $"{playlist.ToDiscordString()}").Build();
         }, playlist);
     }
 }

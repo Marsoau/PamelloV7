@@ -93,7 +93,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetFavorite(IPamelloUser scopeUser, IPamelloUser? by) {
-        return scopeUser.FavoriteSongs;
+        return (by ?? scopeUser).FavoriteSongs;
     }
 
     public IEnumerable<IPamelloSong> GetFromPlaylist(IPamelloUser scopeUser, IPamelloPlaylist? playlist) {
