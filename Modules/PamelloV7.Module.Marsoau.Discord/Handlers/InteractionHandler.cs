@@ -7,7 +7,6 @@ using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
-using PamelloV7.Module.Marsoau.Discord.Commands.Interactions.Base;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Services;
@@ -74,6 +73,9 @@ public class InteractionHandler : IPamelloService
     private async Task ExecuteInteraction(SocketInteraction interaction) {
         //await interaction.DeferAsync(true);
 
+        if (interaction.User.Id != 544933092503060509) {
+            await interaction.RespondAsync("Pamello blocked you");
+        }
 
         var pamelloUser = _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), true);
         if (pamelloUser is null) {

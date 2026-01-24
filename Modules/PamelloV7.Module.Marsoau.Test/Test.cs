@@ -22,7 +22,7 @@ public class Test : IPamelloModule
     public string Description => "Test module";
     public ELoadingStage Stage => ELoadingStage.Late;
     
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();
         var users = services.GetRequiredService<IPamelloUserRepository>();
         var songs = services.GetRequiredService<IPamelloSongRepository>();
@@ -46,7 +46,7 @@ public class Test : IPamelloModule
         var user = osuUsers.GetUserInfo("29001947");
         
         var skey = osuSongs.ValueToKey("https://osu.ppy.sh/beatmapsets/469683#osu/2082447");
-        var osong = osuSongs.GetSongInfo(skey);
+        var osong = await osuSongs.GetSongInfoAsync(skey);
         
         Console.WriteLine($"user info: {user?.Name}");
         
@@ -59,7 +59,7 @@ public class Test : IPamelloModule
         var query = "songs$4,5,6";
         
         logger.Log("G");
-        var entities = peql.Get(query, me);
+        var entities = await peql.GetAsync(query, me);
         logger.Log("G");
 
         Console.WriteLine($"Results of \"{query}\" query:");

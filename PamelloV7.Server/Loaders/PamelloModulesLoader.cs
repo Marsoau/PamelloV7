@@ -158,7 +158,7 @@ public class PamelloModulesLoader
         }
     }
 
-    public void StartupStage(IServiceProvider services, ELoadingStage stage) {
+    public async Task StartupStage(IServiceProvider services, ELoadingStage stage) {
         var stagedContainers = Containers.Where(container => container.Module.Stage == stage).ToList();
 
         if (stagedContainers.Count == 0) {
@@ -169,7 +169,7 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Starting modules in {stage} stage: ({stagedContainers.Count} modules)");
         foreach (var container in stagedContainers) {
             Console.WriteLine($"{container}");
-            container.Module.Startup(services);
+            await container.Module.StartupAsync(services);
         }
         StaticLogger.Log($"Started {stagedContainers.Count} modules in {stage} stage");
     }

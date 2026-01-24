@@ -14,7 +14,7 @@ public class PEQL : IPamelloModule
     public string Description => "PEQL language implementation";
     public ELoadingStage Stage => ELoadingStage.Early;
     
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
         var collection = services.GetRequiredService<IServiceCollection>();
         var query = (EntityQueryService)services.GetRequiredService<IEntityQueryService>();
         

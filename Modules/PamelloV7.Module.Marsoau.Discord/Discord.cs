@@ -31,14 +31,14 @@ public class Discord : IPamelloModule
         ));
     }
     
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
         var clients = services.GetRequiredService<DiscordClientService>();
         var interactionHandler = services.GetRequiredService<InteractionHandler>();
         var modalHandler = services.GetRequiredService<ModalSubmissionHandler>();
 
         var whenReady = new TaskCompletionSource();
         
-        interactionHandler.LoadAsync().Wait();
+        await interactionHandler.LoadAsync();
         modalHandler.Load();
 
         clients.Main.Log += DiscordLog;
@@ -50,8 +50,8 @@ public class Discord : IPamelloModule
             whenReady.SetResult();
         };
 
-        clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main).Wait();
-        clients.Main.StartAsync().Wait();
+        await clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main);
+        await clients.Main.StartAsync();
 
         whenReady.Task.Wait();
     }

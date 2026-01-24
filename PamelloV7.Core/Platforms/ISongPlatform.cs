@@ -8,6 +8,6 @@ public interface ISongPlatform
     public string Name { get; }
     
     public string ValueToKey(string value);
-    public ISongInfo? GetSongInfo(string key);
+    public Task<ISongInfo?> GetSongInfoAsync(string key);
     public string GetSongUrl(string key);
 }

@@ -65,7 +65,7 @@ namespace PamelloV7.Server
             StartupAssemblyServices(App.Services);
 
             foreach (var stage in Enum.GetValues<ELoadingStage>()) {
-                modulesLoader.StartupStage(App.Services, stage);
+                await modulesLoader.StartupStage(App.Services, stage);
             }
             
             await StartupApp();

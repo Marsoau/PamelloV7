@@ -34,11 +34,11 @@ namespace PamelloV7.Server.Controllers
         }
 
         [HttpGet("{*query}")]
-        public IActionResult Get(string query) {
+        public async Task<IActionResult> Get(string query) {
             RequireUser();
 
             var view = EDtoView.Normal;
-            var type = typeof(IPamelloEntity);
+            Type? type = null;
             var single = false;
 
             if (Request.Query.TryGetValue("type", out var typeStrValues)) {
@@ -67,14 +67,14 @@ namespace PamelloV7.Server.Controllers
             if (type is not null) {
                 var method = typeof(IEntityQueryService)
                     .GetMethods()
-                    .FirstOrDefault(m => m is { Name: "Get", IsGenericMethod: true })
+                    .FirstOrDefault(m => m is { Name: "GetAsync", IsGenericMethod: true })
                     ?.MakeGenericMethod(type);
                 Debug.Assert(method is not null);
                 
                 results = method.Invoke(_peql, [query, User]) as IEnumerable<IPamelloEntity> ?? [];
             }
             else {
-                results = _peql.Get(query, User);
+                results = await _peql.GetAsync(query, User);
             }
 
             if (single) {

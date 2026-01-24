@@ -12,8 +12,8 @@ public class OsuSongInfo : ISongInfo
 
     public string Key => Beatmap.Id.ToString();
     public string Name => Beatmap.Title;
-    public string CoverUrl => Beatmap.Covers.List;
-    public List<IEpisodeInfo> Episodes { get; }
+    public string CoverUrl => Beatmap.Covers.List2X;
+    public List<IEpisodeInfo> Episodes => [];
     
     public OsuSongInfo(ISongPlatform platform, BeatmapSetExtended beatmap) {
         Platform = platform;

@@ -19,7 +19,7 @@ public class Base : IPamelloModule
 
     public void Configure(IServiceCollection services) {
     }
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
         var platforms = services.GetRequiredService<IPlatformService>() as PlatformService;
         platforms?.Load();
 

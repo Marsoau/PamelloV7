@@ -41,9 +41,9 @@ public class PlatformService : IPlatformService
         return _songPlatforms.FirstOrDefault(x => x.Name == name);
     }
 
-    public ISongInfo? GetSongInfo(string value) {
+    public async Task<ISongInfo?> GetSongInfoAsync(string value) {
         foreach (var platform in _songPlatforms) {
-            var songInfo = platform.GetSongInfo(value);
+            var songInfo = await platform.GetSongInfoAsync(value);
             if (songInfo is not null) return songInfo;
         }
         

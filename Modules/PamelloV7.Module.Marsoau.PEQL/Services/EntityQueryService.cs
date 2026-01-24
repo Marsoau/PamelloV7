@@ -70,9 +70,12 @@ public class EntityQueryService : IEntityQueryService
         _logger.Log($"Loaded {Operators.Count} operators");
     }
 
-    public List<IPamelloEntity> Get(string query, IPamelloUser scopeUser)
-        => InternalGet(query, scopeUser).Where(e => e is not null).ToList();
-    private List<IPamelloEntity> InternalGet(string query, IPamelloUser scopeUser) {
+    public async Task<List<IPamelloEntity>> GetAsync(string query, IPamelloUser scopeUser)
+        => (await InternalGetAsync(query, scopeUser))
+            .Where(e => e is not null)
+            .ToList();
+    
+    private async Task<List<IPamelloEntity>> InternalGetAsync(string query, IPamelloUser scopeUser) {
         if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
         
         var splitAt = -1;
@@ -96,7 +99,7 @@ public class EntityQueryService : IEntityQueryService
                     value = part[(splitAt + 1)..];
                 }
                 
-                results.AddRange(Get($"{context}${value}", scopeUser));
+                results.AddRange(await GetAsync($"{context}${value}", scopeUser));
             }
             
             return results;
@@ -133,7 +136,7 @@ public class EntityQueryService : IEntityQueryService
             var op = (EntityOperator)Activator.CreateInstance(descriptor.Type, _services)!;
 
             try {
-                results.AddRange(op.Execute(scopeUser, $"{context}${operatorQuery}", operatorValue));
+                results.AddRange(await op.ExecuteAsync(scopeUser, $"{context}${operatorQuery}", operatorValue));
             }
             catch (PEQLOperatorException) {
                 continue;
@@ -152,7 +155,7 @@ public class EntityQueryService : IEntityQueryService
             value = value[..qIndex];
         }
         
-        results.AddRange(provider.GetFromPoint(value, args, scopeUser));
+        results.AddRange(await provider.GetFromPointAsync(value, args, scopeUser));
         
         return results;
     }

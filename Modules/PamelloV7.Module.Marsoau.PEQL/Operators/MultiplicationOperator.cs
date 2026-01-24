@@ -10,13 +10,13 @@ public class MultiplicationOperator : EntityOperator
 {
     public MultiplicationOperator(IServiceProvider services) : base(services) { }
 
-    public override IEnumerable<IPamelloEntity> Execute(IPamelloUser scopeUser, string query, string value) {
-        if (int.TryParse(value, out var multiplier) == false) throw new Exception($"Value {value} is not a number");
+    public override async Task<IEnumerable<IPamelloEntity>> ExecuteAsync(IPamelloUser scopeUser, string query, string value) {
+        if (!int.TryParse(value, out var multiplier)) throw new Exception($"Value {value} is not a number");
 
         var results = new List<IPamelloEntity>();
     
         for (var i = 0; i < multiplier; i++) {
-            results.AddRange(_peql.Get(query, scopeUser));
+            results.AddRange(await _peql.GetAsync(query, scopeUser));
         }
 
         return results;

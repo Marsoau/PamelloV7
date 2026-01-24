@@ -11,15 +11,9 @@ public class SongSource
     private readonly IPlatformService _platfroms;
     
     public IPamelloSong Song { get; }
-    
-    private ISongInfo? _info;
-    public ISongInfo? Info {
-        get {
-            if (_info is not null) return _info;
-            return UpdateInfo();
-        }
-    }
-    
+
+    public ISongInfo? Info { get; private set; }
+
     public PlatformKey PK { get; }
 
     public SongSource(IServiceProvider services, IPamelloSong song, PlatformKey pk) {
@@ -29,12 +23,12 @@ public class SongSource
         PK = pk;
     }
 
-    public ISongInfo? UpdateInfo() {
+    public async Task<ISongInfo?> UpdateInfo() {
         var platform = _platfroms.GetSongPlatform(PK.Platform);
-        if (platform is null) return _info = null;
+        if (platform is null) return Info = null;
         
-        var info = platform.GetSongInfo(PK.Key);
-        return _info = info;
+        var info = await platform.GetSongInfoAsync(PK.Key);
+        return Info = info;
     }
 
     public string GetUrl() {

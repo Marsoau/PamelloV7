@@ -12,6 +12,7 @@ public interface IPamelloModule
     public ELoadingStage Stage { get; }
     
     public void Configure(IServiceCollection services) { }
-    public void Startup(IServiceProvider services) { }
-    public void Shoutdown() { }
+
+    public Task StartupAsync(IServiceProvider services) { return Task.CompletedTask; }
+    public Task ShoutdownAsync() { return Task.CompletedTask; }
 }

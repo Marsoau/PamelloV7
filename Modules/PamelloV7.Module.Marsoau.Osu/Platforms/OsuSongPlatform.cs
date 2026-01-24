@@ -30,10 +30,10 @@ public class OsuSongPlatform : ISongPlatform
         return id;
     }
 
-    public ISongInfo? GetSongInfo(string key) {
+    public async Task<ISongInfo?> GetSongInfoAsync(string key) {
         if (!int.TryParse(key, out var id)) return null;
         
-        var set = _client.Client.GetBeatmapSetAsync(id).Result.Value;
+        var set = (await _client.Client.GetBeatmapSetAsync(id)).Value;
         if (set is null) return null;
         
         return new OsuSongInfo(this, set);

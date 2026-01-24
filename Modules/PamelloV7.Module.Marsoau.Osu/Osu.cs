@@ -12,6 +12,6 @@ public class Osu : IPamelloModule
     public string Description => "Osu! user platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
 
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
     }
 }

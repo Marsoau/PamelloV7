@@ -17,5 +17,5 @@ public abstract class EntityOperator
         _peql = services.GetRequiredService<IEntityQueryService>();
     }
 
-    public abstract IEnumerable<IPamelloEntity> Execute(IPamelloUser scopeUser, string query, string value);
+    public abstract Task<IEnumerable<IPamelloEntity>> ExecuteAsync(IPamelloUser scopeUser, string query, string value);
 }

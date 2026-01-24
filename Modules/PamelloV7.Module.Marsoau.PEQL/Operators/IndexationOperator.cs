@@ -12,10 +12,10 @@ public class IndexationOperator : EntityOperator
 {
     public IndexationOperator(IServiceProvider services) : base(services) { }
     
-    public override IEnumerable<IPamelloEntity> Execute(IPamelloUser scopeUser, string query, string value) {
+    public override async Task<IEnumerable<IPamelloEntity>> ExecuteAsync(IPamelloUser scopeUser, string query, string value) {
         if (value.StartsWith("//")) throw new PEQLOperatorException("Most likely a url");
         
-        var results = _peql.Get(query, scopeUser).ToArray();
+        var results = (await _peql.GetAsync(query, scopeUser)).ToArray();
 
         var position = 0;
 

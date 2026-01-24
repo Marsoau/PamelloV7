@@ -19,13 +19,8 @@ public class EntityToIdConverter<TEntity> : JsonConverter<TEntity> where TEntity
         _scopeUser = scopeUser;
     }
     
-    
     public override TEntity? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-        if (_services is null || _scopeUser is null) return default;
-        
-        var peql = _services.GetRequiredService<IEntityQueryService>();
-        
-        return peql.GetSingle<TEntity>(reader.GetInt32().ToString(), _scopeUser);
+        return default;
     }
 
     public override void Write(Utf8JsonWriter writer, TEntity value, JsonSerializerOptions options) {

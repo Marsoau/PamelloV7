@@ -46,7 +46,7 @@ public class YoutubeSongPlatform : ISongPlatform
         return id;
     }
     
-    public ISongInfo? GetSongInfo(string value) {
+    public async Task<ISongInfo?> GetSongInfoAsync(string value) {
         string youtubeId;
         
         try {
@@ -56,7 +56,7 @@ public class YoutubeSongPlatform : ISongPlatform
             return null;
         }
         
-        return GetVideoInfoAsync(youtubeId).Result;
+        return await Task.Run(() => GetVideoInfoAsync(youtubeId));
     }
 
     public string GetSongUrl(string key) {

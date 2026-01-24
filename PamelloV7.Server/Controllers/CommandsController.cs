@@ -108,10 +108,10 @@ namespace PamelloV7.Server.Controllers
                 }
 
                 if (isManyEntity) {
-                    args[i] = _peql.Get(argumentType, queryStringValue, User);
+                    args[i] = await _peql.ReflectiveGetAsync(argumentType, queryStringValue, User);
                 }
                 else {
-                    args[i] = _peql.GetSingle(argumentType, queryStringValue, User);
+                    args[i] = await _peql.ReflectiveGetSingleAsync(argumentType, queryStringValue, User);
                 }
             }
             

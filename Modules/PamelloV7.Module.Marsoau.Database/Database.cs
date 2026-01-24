@@ -12,7 +12,7 @@ public class Database : IPamelloModule
     public string Description => "Basic database repositories and other database functionality";
     public ELoadingStage Stage => ELoadingStage.Earliest;
 
-    public void Startup(IServiceProvider services) {
+    public async Task StartupAsync(IServiceProvider services) {
         var collection = services.GetRequiredService<IServiceCollection>();
         
         DatabaseRepositoriesLoader.Load(collection, services).Wait();

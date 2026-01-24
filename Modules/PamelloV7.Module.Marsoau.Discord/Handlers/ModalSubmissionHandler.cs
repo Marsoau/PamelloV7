@@ -6,7 +6,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
-using PamelloV7.Module.Marsoau.Discord.Commands.Modals.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Handlers;

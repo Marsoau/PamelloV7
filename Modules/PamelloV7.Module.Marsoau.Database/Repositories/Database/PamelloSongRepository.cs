@@ -30,7 +30,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         return Get(id);
     }
 
-    public IPamelloSong? GetByName(IPamelloUser scopeUser, string query) {
+    public async Task<IPamelloSong?> GetByNameAsync(IPamelloUser scopeUser, string query) {
         if (query.Length == 0) return null;
         
         Console.WriteLine($"Get by name requested: {query}");
@@ -43,10 +43,10 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         var pk = _platforms.GetSongPlatformKey(query);
         if (pk is null) return null;
 
-        return GetByPlatformKey(scopeUser, pk, true);
+        return await GetByPlatformKeyAsync(scopeUser, pk, true);
     }
 
-    public IPamelloSong? GetByPlatformKey(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
+    public async Task<IPamelloSong?> GetByPlatformKeyAsync(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
         var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source.PK == pk));
         Console.WriteLine($"Song by pk {(song is not null ? $"found: {song}" : "not found")}");
         if (song is not null) return song;
@@ -56,8 +56,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         var platform = _platforms.GetSongPlatform(pk.Platform);
         if (platform is null) return null;
         
-        var songInfo = platform.GetSongInfo(pk.Key);
-        Console.WriteLine($"Info by pk {(songInfo is null ? $"found: {songInfo}" : "not found")}");
+        var songInfo = await platform.GetSongInfoAsync(pk.Key);
+        Console.WriteLine($"Info by pk {(songInfo is not null ? $"found: {songInfo}" : "not found")}");
         if (songInfo is null) return null;
         
         Console.WriteLine("Adding song by info");
