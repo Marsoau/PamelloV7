@@ -1,3 +1,4 @@
+using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Platforms.Infos;
 

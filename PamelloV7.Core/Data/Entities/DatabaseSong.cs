@@ -11,10 +11,10 @@ public class DatabaseSong : DatabaseEntity
     public string CoverUrl { get; set; }
     
     //<filename> part of "[this song id]-<filename>.opus" full file name
-    public string SelectedFile { get; set; }
     public List<string> Associations { get; set; }
     
     //key - Service, value - ID
+    public int SelectedSource { get; set; }
     public List<PlatformKey> Sources { get; set; }
     public int AddedBy { get; set; }
     public DateTime AddedAt { get; set; }

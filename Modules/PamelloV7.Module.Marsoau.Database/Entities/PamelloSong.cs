@@ -49,8 +49,22 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
     }
 
     public DateTime AddedAt => _addedAt;
-    
-    public int SelectedSourceIndex { get; set; }
+
+    private int _selectedSourceIndex;
+
+    public int SelectedSourceIndex {
+        get => _selectedSourceIndex;
+        set {
+            if (value == _selectedSourceIndex) return;
+            
+            _selectedSourceIndex = value;
+
+            _sink.Invoke(new SongSelectedSourceIndexUpdated() {
+                Song = this,
+                SelectedSourceIndex = SelectedSourceIndex
+            });
+        }
+    }
 
     public bool IsSoftDeleted {
         get => _isSoftDeleted;
@@ -76,6 +90,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         _associations = databaseEntity.Associations.ToList();
         _isSoftDeleted = databaseEntity.IsSoftDeleted;
         
+        _selectedSourceIndex = databaseEntity.SelectedSource;
         _sources = databaseEntity.Sources.Select(
             pk => new SongSource(services, this, pk)
         ).ToList();
@@ -122,6 +137,7 @@ public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
         databaseSong.Associations = _associations;
         databaseSong.IsSoftDeleted = _isSoftDeleted;
 
+        databaseSong.SelectedSource = SelectedSourceIndex;
         databaseSong.Sources = _sources.Select(source => source.PK).ToList();
         
         songCollection.Save(databaseSong);

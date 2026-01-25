@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
@@ -8,7 +9,11 @@ namespace PamelloV7.Core.Entities.Other;
 
 public class SongSource
 {
+    private readonly IServiceProvider _services;
+    
     private readonly IPlatformService _platfroms;
+    private readonly IDownloadService _downloads;
+    private readonly IFileAccessService _files;
     
     public IPamelloSong Song { get; }
 
@@ -17,7 +22,11 @@ public class SongSource
     public PlatformKey PK { get; }
 
     public SongSource(IServiceProvider services, IPamelloSong song, PlatformKey pk) {
+        _services = services;
+        
         _platfroms = services.GetRequiredService<IPlatformService>();
+        _downloads = services.GetRequiredService<IDownloadService>();
+        _files = services.GetRequiredService<IFileAccessService>();
         
         Song = song;
         PK = pk;
@@ -41,7 +50,6 @@ public class SongSource
     public void SetInfoToSong() {
         if (Info is null) return;
         
-        //lock song update events
         Song.StartChanges();
         
         Song.Name = Info.Name;
@@ -52,7 +60,13 @@ public class SongSource
             Song.AddEpisode(episodeInfo, false);
         }
         
-        //release song update events
         Song.EndChanges();
     }
+    
+    public bool IsDownloaded()
+        => _downloads.IsDownloaded(this);
+    public SongDownloader GetDownloader()
+        => _downloads.GetSongDownloader(this);
+    public FileInfo GetFile()
+        => _files.GetSourceFile(this);
 }

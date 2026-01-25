@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Commands;
 using PamelloV7.Core.Converters;
+using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
@@ -21,55 +22,36 @@ public class Test : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Test module";
     public ELoadingStage Stage => ELoadingStage.Late;
-    
+
     public async Task StartupAsync(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();
         var users = services.GetRequiredService<IPamelloUserRepository>();
         var songs = services.GetRequiredService<IPamelloSongRepository>();
         var playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
         var logger = services.GetRequiredService<IPamelloLogger>();
+        var platforms = services.GetRequiredService<IPlatformService>();
+        var commands = services.GetRequiredService<IPamelloCommandsService>();
+        var events = services.GetRequiredService<IEventsService>();
+        var files = services.GetRequiredService<IFileAccessService>();
+        var downloaders = services.GetRequiredService<IDownloadService>();
 
         var me = users.GetRequired(1);
-        var list = playlists.GetRequired(1);
-        
-        var platforms = services.GetRequiredService<IPlatformService>();
-        var discord = platforms.GetUserPlatform("discord");
-        
-        var commands = services.GetRequiredService<IPamelloCommandsService>();
-        
-        var events = services.GetRequiredService<IEventsService>();
-        
-        //
-        var files = services.GetRequiredService<IFileAccessService>();
-        
-        var file = files.GetFile("/test.txt");
-        if (file is null) {
-            Console.WriteLine("File not found");
-        }
-        else {
-            Console.WriteLine($"file {file.FullName}: {file.Exists} ({files.GetPublicUrl("/test.txt")})");
-        }
+        var song = await peql.GetSingleRequiredAsync<IPamelloSong>("16", me);
 
-        return;
-        var query = "songs$4,5,6";
-        
-        logger.Log("G");
-        var entities = await peql.GetAsync(query, me);
-        logger.Log("G");
+        Console.WriteLine($"File: {song.Sources[0].GetFile().FullName}");
 
-        Console.WriteLine($"Results of \"{query}\" query:");
-        foreach (var entity in entities) {
-            Console.WriteLine($"| {entity.GetType().Name} : {entity}");
-            
-            if (entity is not IPamelloSong song) continue;
-
-            Console.WriteLine($"Before: {song.Name}");
-            //commands.Get<SongRename>(me).Execute(song, "test");
-            
-            Console.WriteLine($"Episodes: ({song.Episodes.Count} episodes)");
-            foreach (var episode in song.Episodes) {
-                Console.WriteLine($"| {episode}");
+        try {
+            var downloader = song.Sources[0].GetDownloader();
+            Console.WriteLine("Got downloader");
+            var resultTask = downloader.DownloadAsync();
+            if (!resultTask.IsCompleted) {
+                Console.WriteLine("Waiting for download");
             }
+            var result = await resultTask;
+            Console.WriteLine($"result: {result}");
+        }
+        catch (Exception x) {
+            Console.WriteLine($"No downloader: {x}");
         }
     }
 }

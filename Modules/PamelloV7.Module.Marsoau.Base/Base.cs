@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data;
 using PamelloV7.Core.Data.Entities;
+using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Modules;
@@ -25,6 +26,9 @@ public class Base : IPamelloModule
 
         var commands = services.GetRequiredService<IPamelloCommandsService>() as PamelloCommandsService;
         commands?.Load();
+        
+        var downloaders = services.GetRequiredService<IDownloadService>() as DownloadService;
+        downloaders?.Load();
 
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();
