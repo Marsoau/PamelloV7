@@ -40,20 +40,15 @@ public class Test : IPamelloModule
         var events = services.GetRequiredService<IEventsService>();
         
         //
-        var osuUsers = platforms.GetUserPlatform("osu")!;
-        var osuSongs = platforms.GetSongPlatform("osu")!;
-
-        var user = osuUsers.GetUserInfo("29001947");
+        var files = services.GetRequiredService<IFileAccessService>();
         
-        var skey = osuSongs.ValueToKey("https://osu.ppy.sh/beatmapsets/469683#osu/2082447");
-        var osong = await osuSongs.GetSongInfoAsync(skey);
-        
-        Console.WriteLine($"user info: {user?.Name}");
-        
-        Console.WriteLine($"song: ({osong.Key}) {osong.Name}: {osong.CoverUrl}");
-
-        //var user = users.GetByPlatformKey(me, new PlatformKey("discord", "1422257871655145602"), true);
-        //Console.WriteLine($"User: {user}");
+        var file = files.GetFile("/test.txt");
+        if (file is null) {
+            Console.WriteLine("File not found");
+        }
+        else {
+            Console.WriteLine($"file {file.FullName}: {file.Exists} ({files.GetPublicUrl("/test.txt")})");
+        }
 
         return;
         var query = "songs$4,5,6";

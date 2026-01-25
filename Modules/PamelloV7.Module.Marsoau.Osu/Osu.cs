@@ -9,9 +9,6 @@ public class Osu : IPamelloModule
 {
     public string Name => "Osu";
     public string Author => "Marsoau";
-    public string Description => "Osu! user platform integration";
+    public string Description => "Osu! user & song platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
-
-    public async Task StartupAsync(IServiceProvider services) {
-    }
 }
