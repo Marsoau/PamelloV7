@@ -91,7 +91,7 @@ namespace PamelloV7.Server.Controllers
                         Ok(results.FirstOrDefault()?.Id ?? throw new PamelloControllerException(NotFound($"Could not find single entity by \"{query}\" query"))) :
                         Ok(IPamelloEntity.GetIds(results));
                 case EDtoView.Detailed: {
-                    if (!single) Ok(results.Select((x) => new DtoDescription(x)));
+                    if (!single) return Ok(results.Select((x) => new DtoDescription(x)));
                     
                     var first = results.FirstOrDefault();
                     if (first is null) throw new PamelloControllerException(NotFound($"Could not find single entity by \"{query}\" query"));

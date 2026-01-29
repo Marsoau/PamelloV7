@@ -29,14 +29,20 @@ public class PamelloComponentBuilders
     }
     public static ComponentBuilderV2 SongInfo(IPamelloSong song, IPamelloUser scopeUser, IServiceProvider services) {
             ContainerBuilder containerBuilder;
-            
-            var coverUrl = song.CoverUrl;
+
+            Uri coverUrl;
+            try {
+                coverUrl = new Uri(song.CoverUrl);
+            }
+            catch {
+                coverUrl = new Uri("https://cdn.discordapp.com/embed/avatars/0.png");
+            }
 
             var componentBuilder = new ComponentBuilderV2()
                 .WithContainer(containerBuilder = new ContainerBuilder()
                     .WithSection(new SectionBuilder()
                         .WithAccessory(new ThumbnailBuilder()
-                            .WithMedia(new UnfurledMediaItemProperties(coverUrl))
+                            .WithMedia(new UnfurledMediaItemProperties(coverUrl.ToString()))
                         )
                         .WithTextDisplay($"""
                                           ## {song.Name}

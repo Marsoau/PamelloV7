@@ -21,7 +21,7 @@ public partial class Song
 
         await RespondUpdatableAsync(message => {
             message.Components = PamelloComponentBuilders.SongInfo(song, Context.User, Services).Build();
-        }, song);
+        }, () => [song, ..song.FavoriteBy, ..song.Playlists]);
     }
 }
 

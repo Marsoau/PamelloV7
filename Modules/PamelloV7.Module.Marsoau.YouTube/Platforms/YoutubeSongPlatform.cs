@@ -76,7 +76,7 @@ public class YoutubeSongPlatform : ISongPlatform
 
         var youtubeVideoInfo = new YoutubeVideoInfo(this, youtubeId);
 
-        bool isTitleFound = false;
+        var isTitleFound = false;
 
         var metaElements = html.QuerySelectorAll("meta");
         foreach (var metaElement in metaElements)

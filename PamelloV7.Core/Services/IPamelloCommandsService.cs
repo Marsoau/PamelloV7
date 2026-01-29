@@ -8,4 +8,5 @@ public interface IPamelloCommandsService : IPamelloService
 {
     public TCommand Get<TCommand>(IPamelloUser scopeUser) where TCommand : PamelloCommand, new();
     public PamelloCommand Get(Type commandType, IPamelloUser scopeUser);
+    public Task<object?> ExecuteAsync(string commandPath, IPamelloUser scopeUser);
 }

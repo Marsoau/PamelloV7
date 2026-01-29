@@ -10,17 +10,23 @@ namespace PamelloV7.Module.Marsoau.Base.Services;
 
 public class EventsService : IEventsService
 {
-    private readonly ISSEBroadcastService _broadcast;
+    private readonly IServiceProvider _services;
     
     private readonly IPamelloLogger _logger;
+
+    private readonly ISSEBroadcastService _sse;
+    private readonly ISignalBroadcastService _signal;
     
     private List<IEventSubscription> _eventSubscriptions;
     private List<IUpdateSubscription> _updateSubscriptions;
     
     public EventsService(IServiceProvider services) {
-        _broadcast = services.GetRequiredService<ISSEBroadcastService>();
+        _services = services;
         
         _logger = services.GetRequiredService<IPamelloLogger>();
+        
+        _sse = services.GetRequiredService<ISSEBroadcastService>();
+        _signal = services.GetRequiredService<ISignalBroadcastService>();
         
         _eventSubscriptions = [];
         _updateSubscriptions = [];
@@ -68,7 +74,8 @@ public class EventsService : IEventsService
         }
 
         if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
-            _broadcast.Broadcast(e);
+            _sse.Broadcast(e);
+            _signal.Broadcast(e);
         }
 
         if (eventType.GetCustomAttribute<InfoUpdateAttribute>() is null) return e;

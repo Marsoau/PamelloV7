@@ -3,11 +3,15 @@ using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.SignalR;
+using PamelloV7.Core.Converters;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
 
 namespace PamelloV7.Server
@@ -124,14 +128,33 @@ namespace PamelloV7.Server
 
         private void ConfigureApiServices(IServiceCollection services) {
             services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
+            services.AddSignalR()
+                .AddJsonProtocol(options =>
+                {
+                    // Get your custom options
+                    var entitiesOptions = JsonEntitiesFactory.Options;
+
+                    // Copy the relevant settings
+                    options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    options.PayloadSerializerOptions.PropertyNamingPolicy = entitiesOptions.PropertyNamingPolicy;
+                    options.PayloadSerializerOptions.DefaultIgnoreCondition = entitiesOptions.DefaultIgnoreCondition;
+
+                    // Copy any custom Converters you might have
+                    foreach (var converter in entitiesOptions.Converters)
+                    {
+                        options.PayloadSerializerOptions.Converters.Add(converter);
+                    }
+                });
             services.AddHttpClient();
 
             services.AddCors(options => {
-                options.AddPolicy("AllowSpecificOrigin", builder => {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
+                options.AddDefaultPolicy(builder => builder
+                    .SetIsOriginAllowed(origin => true)
+                    //.WithOrigins("http://127.0.0.1:41630", "null") // "null" allows opening HTML directly from file system
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                );
             });
             
             services.AddHttpContextAccessor();
@@ -188,8 +211,9 @@ namespace PamelloV7.Server
         }
 
         private async Task StartupApp() {
+            App.MapHub<SignalHub>("/Signal");
             App.MapControllers();
-            App.UseCors("AllowSpecificOrigin");
+            App.UseCors();
 
             var lifetime = App.Services.GetRequiredService<IHostApplicationLifetime>();
 
