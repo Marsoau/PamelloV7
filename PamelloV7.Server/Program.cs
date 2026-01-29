@@ -127,19 +127,29 @@ namespace PamelloV7.Server
         }
 
         private void ConfigureApiServices(IServiceCollection services) {
-            services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>());
+            services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>())
+                .AddJsonOptions(options =>
+                {
+                    var entitiesOptions = JsonEntitiesFactory.Options;
+
+                    options.JsonSerializerOptions.ReferenceHandler = entitiesOptions.ReferenceHandler;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = entitiesOptions.PropertyNamingPolicy;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = entitiesOptions.DefaultIgnoreCondition;
+
+                    foreach (var converter in entitiesOptions.Converters)
+                    {
+                        options.JsonSerializerOptions.Converters.Add(converter);
+                    }
+                });
             services.AddSignalR()
                 .AddJsonProtocol(options =>
                 {
-                    // Get your custom options
                     var entitiesOptions = JsonEntitiesFactory.Options;
 
-                    // Copy the relevant settings
                     options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                     options.PayloadSerializerOptions.PropertyNamingPolicy = entitiesOptions.PropertyNamingPolicy;
                     options.PayloadSerializerOptions.DefaultIgnoreCondition = entitiesOptions.DefaultIgnoreCondition;
 
-                    // Copy any custom Converters you might have
                     foreach (var converter in entitiesOptions.Converters)
                     {
                         options.PayloadSerializerOptions.Converters.Add(converter);
