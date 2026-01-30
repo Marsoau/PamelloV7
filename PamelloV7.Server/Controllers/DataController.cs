@@ -77,10 +77,6 @@ namespace PamelloV7.Server.Controllers
                 results = await _peql.GetAsync(query, User);
             }
 
-            if (single) {
-                return Ok(results.FirstOrDefault()?.GetDto() ?? throw new PamelloControllerException(NotFound()));
-            }
-
             switch (view) {
                 case EDtoView.Normal:
                     return single ?

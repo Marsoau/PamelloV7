@@ -38,9 +38,15 @@ public class SignalHub : Hub
         await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} disconnected");
     }
 
-    public async Task Authorize(string userId) {
+    public async Task Authorize(string userToken) {
+        if (!Guid.TryParse(userToken, out var token)) {
+            throw new PamelloException("Invalid token format");
+        }
+        
         var users = _services.GetRequiredService<IPamelloUserRepository>();
-        var user = users.GetRequired(int.Parse(userId));
+        var user = users.GetByToken(token);
+        
+        if (user is null) throw new PamelloException("User not found");
         
         await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} authorized as {user}");
         
@@ -55,8 +61,6 @@ public class SignalHub : Hub
     public async Task<object?> Command(string commandPath) {
         var user = _broadcast.GetUser(Context.ConnectionId);
         if (user is null) throw new PamelloException("You have to be authorized to execute commands");
-
-        if (user.SelectedAuthorization?.Info is null) user.SelectedAuthorization!.UpdateInfo();
         
         await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} of user {user} executed: {commandPath}");
         
