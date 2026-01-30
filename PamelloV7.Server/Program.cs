@@ -19,9 +19,11 @@ namespace PamelloV7.Server
     public class Program
     {
         private IServiceProvider _services;
-        private PamelloModulesLoader _modulesLoader;
         
-        public static string ConfigPath = "Config/config.json";
+        private PamelloModulesLoader _modulesLoader;
+        private PamelloServerLoader _serverLoader;
+        
+        public static string ConfigPath = "Config/config.jsonc";
         
         private readonly Dictionary<Type, Type?> _assemblyServices;
         
@@ -40,25 +42,26 @@ namespace PamelloV7.Server
 
             var builder = WebApplication.CreateBuilder(args);
             
-            var modulesLoader = _modulesLoader = new PamelloModulesLoader();
+            _serverLoader = new PamelloServerLoader();
+            _modulesLoader = new PamelloModulesLoader();
             var configLoader = new PamelloConfigLoader();
             
-            LoadAssemblyServices();
-            modulesLoader.Load();
+            _serverLoader.Load();
+            _modulesLoader.Load();
             
-            if (!modulesLoader.EnsureDependenciesAreSatisfied()) return;
+            if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
             
             configLoader.Load();
             
-            ConfigureAssemblyServices(builder.Services);
-            modulesLoader.Configure(builder.Services);
+            _serverLoader.ConfigureAssemblyServices(builder.Services);
+            _modulesLoader.Configure(builder.Services);
             
             if (!EnsureServicesIsImplemented(builder.Services)) return;
             
-            ConfigureApiServices(builder.Services);
+            _serverLoader.ConfigureApiServices(builder.Services);
             
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"http://{ServerConfig.Root.Host}");
+            builder.WebHost.UseUrls($"{ServerConfig.Root.Host}");
             
             builder.Services.AddSingleton(builder.Services);
             
@@ -66,109 +69,15 @@ namespace PamelloV7.Server
             
             _services = App.Services;
 
-            StartupAssemblyServices(App.Services);
+            _serverLoader.StartupAssemblyServices(App.Services);
             
             foreach (var stage in Enum.GetValues<ELoadingStage>()) {
-                await modulesLoader.StartupStage(App.Services, stage);
+                await _modulesLoader.StartupStage(App.Services, stage);
             }
             
             await StartupApp();
         }
 
-        public void LoadAssemblyServices() {
-            var serviceTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => typeof(IPamelloService).IsAssignableFrom(x));
-            foreach (var service in serviceTypes) {
-                var serviceInterface = service.GetInterfaces()
-                    .FirstOrDefault(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
-                
-                _assemblyServices.Add(service, serviceInterface);
-            }
-        }
-
-        private void ConfigureAssemblyServices(IServiceCollection services) {
-            StaticLogger.Log($"Configuring server services: ({_assemblyServices.Count} services)");
-            foreach (var kvp in _assemblyServices) {
-                if (kvp.Value is not null) {
-                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
-                    services.AddSingleton(kvp.Value, kvp.Key);
-                }
-                else {
-                    Console.WriteLine($"| {kvp.Key.Name}");
-                    services.AddSingleton(kvp.Key);
-                }
-            }
-            StaticLogger.Log($"Server services configured");
-        }
-
-        private void ShutdownAssemblyServices(IServiceProvider services) {
-            StaticLogger.Log($"Stopping server services: ({_assemblyServices.Count} services)");
-            
-            IPamelloService? service;
-            
-            foreach (var kvp in _assemblyServices) {
-                if (kvp.Value is not null) {
-                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
-                    
-                    service = services.GetService(kvp.Value) as IPamelloService;
-                    if (service is null) continue;
-                    
-                    service.Shutdown();
-                }
-                else {
-                    Console.WriteLine($"| {kvp.Key.Name}");
-                    
-                    service = services.GetService(kvp.Key) as IPamelloService;
-                    if (service is null) continue;
-                    
-                    service.Shutdown();
-                }
-            }
-            StaticLogger.Log($"Server services stopped");
-        }
-
-        private void ConfigureApiServices(IServiceCollection services) {
-            services.AddControllers(config => config.Filters.Add<PamelloExceptionFilter>())
-                .AddJsonOptions(options =>
-                {
-                    var entitiesOptions = JsonEntitiesFactory.Options;
-
-                    options.JsonSerializerOptions.ReferenceHandler = entitiesOptions.ReferenceHandler;
-                    options.JsonSerializerOptions.PropertyNamingPolicy = entitiesOptions.PropertyNamingPolicy;
-                    options.JsonSerializerOptions.DefaultIgnoreCondition = entitiesOptions.DefaultIgnoreCondition;
-
-                    foreach (var converter in entitiesOptions.Converters)
-                    {
-                        options.JsonSerializerOptions.Converters.Add(converter);
-                    }
-                });
-            services.AddSignalR()
-                .AddJsonProtocol(options =>
-                {
-                    var entitiesOptions = JsonEntitiesFactory.Options;
-
-                    options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                    options.PayloadSerializerOptions.PropertyNamingPolicy = entitiesOptions.PropertyNamingPolicy;
-                    options.PayloadSerializerOptions.DefaultIgnoreCondition = entitiesOptions.DefaultIgnoreCondition;
-
-                    foreach (var converter in entitiesOptions.Converters)
-                    {
-                        options.PayloadSerializerOptions.Converters.Add(converter);
-                    }
-                });
-            services.AddHttpClient();
-
-            services.AddCors(options => {
-                options.AddDefaultPolicy(builder => builder
-                    .SetIsOriginAllowed(origin => true)
-                    //.WithOrigins("http://127.0.0.1:41630", "null") // "null" allows opening HTML directly from file system
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials()
-                );
-            });
-            
-            services.AddHttpContextAccessor();
-        }
 
         private bool EnsureServicesIsImplemented(IServiceCollection services) {
             var requiredServiceTypes = typeof(IPamelloService).Assembly.GetTypes()
@@ -194,30 +103,6 @@ namespace PamelloV7.Server
             }
             
             return notConfiguredCount == 0;
-        }
-
-        private void StartupAssemblyServices(IServiceProvider services) {
-            object? result;
-        
-            StaticLogger.Log($"Starting server services: ({_assemblyServices.Count} services)");
-            foreach (var kvp in _assemblyServices) {
-                if (kvp.Value is not null) {
-                    Console.WriteLine($"{kvp.Key.Name} : {kvp.Value.Name}");
-                    result = services.GetService(kvp.Value);
-                }
-                else {
-                    Console.WriteLine($"{kvp.Key.Name}");
-                    result = services.GetService(kvp.Key);
-                }
-            
-                if (result is not null) {
-                    ((IPamelloService)result).Startup(services);
-                }
-                else {
-                    Console.WriteLine($"Service {kvp.Key.Name} failed to start");
-                }
-            }
-            StaticLogger.Log($"Server services started");
         }
 
         private async Task StartupApp() {
@@ -281,7 +166,7 @@ namespace PamelloV7.Server
             Console.WriteLine("\n---\nSTOPPING\n---");
             
             _modulesLoader.Shutdown(_services);
-            ShutdownAssemblyServices(_services);
+            _serverLoader.ShutdownAssemblyServices(_services);
         }
         private void OnStop() {
             Console.WriteLine("\n---\nSTOPPED\n---");

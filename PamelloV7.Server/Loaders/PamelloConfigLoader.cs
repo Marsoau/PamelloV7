@@ -33,9 +33,13 @@ public class PamelloConfigLoader
         StaticLogger.Log($"Loading config from file \"{configFile.FullName}\"");
             
         var fs = configFile.OpenRead();
+
+        var jsoncProperties = new JsonSerializerOptions {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
         
-        var jsonParts = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(fs);
-        if (jsonParts is null) throw new PamelloLoadingException($"Failed to load config.json");
+        var jsonParts = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(fs, jsoncProperties);
+        if (jsonParts is null) throw new PamelloLoadingException("Failed to load config.json");
             
         fs.Close();
 
@@ -64,7 +68,7 @@ public class PamelloConfigLoader
             var partJson = jsonParts.GetValueOrDefault(container.Name);
             if (partJson.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.Name}\" not found in config file");
             
-            rootProperty.SetValue(null, JsonSerializer.Deserialize(partJson, rootProperty.PropertyType));
+            rootProperty.SetValue(null, partJson.Deserialize(rootProperty.PropertyType, jsoncProperties));
             
             Console.WriteLine($"| {container.Name}: {rootProperty.PropertyType.FullName}");
         }

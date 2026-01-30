@@ -76,7 +76,7 @@ public class EntityQueryService : IEntityQueryService
             .ToList();
     
     private async Task<List<IPamelloEntity>> InternalGetAsync(string query, IPamelloUser scopeUser) {
-        if (scopeUser is null) throw new Exception("User is required to execute PEQL queries");
+        if (scopeUser is null) throw new PamelloException("User is required to execute PEQL queries");
         
         var splitAt = -1;
         var context = "";
@@ -90,7 +90,7 @@ public class EntityQueryService : IEntityQueryService
                 splitAt = part.IndexOf('$');
 
                 if (splitAt == -1) {
-                    if (context.Length == 0) throw new Exception("Wrong query context format");
+                    if (context.Length == 0) throw new PamelloException("Wrong query context format");
 
                     value = part;
                 }
@@ -106,13 +106,13 @@ public class EntityQueryService : IEntityQueryService
         }
         
         splitAt = query.IndexOf('$');
-        if (splitAt == -1) throw new Exception("Query does not contain provider context");
+        if (splitAt == -1) throw new PamelloException("Query does not contain provider context");
 
         context = query[..splitAt];
         value = query[(splitAt + 1)..];
         
         var provider = Providers.FirstOrDefault(provider => provider.Name == context);
-        if (provider is null) throw new Exception($"Provider {context} not found");
+        if (provider is null) throw new PamelloException($"Provider {context} not found");
 
         if (int.TryParse(value, out var id)) {
             return [provider.GetById(id, scopeUser)];
@@ -149,7 +149,7 @@ public class EntityQueryService : IEntityQueryService
         
         var qIndex = value.IndexOf('(');
         if (qIndex != -1) {
-            if (value.Last() != ')') throw new Exception("Missing closing parenthesis");
+            if (value.Last() != ')') throw new PamelloException("Missing closing parenthesis");
             
             args = value[(qIndex + 1)..^1];
             value = value[..qIndex];

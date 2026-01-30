@@ -60,10 +60,15 @@ public class SignalHub : Hub
 
     public async Task<object?> Command(string commandPath) {
         var user = _broadcast.GetUser(Context.ConnectionId);
-        if (user is null) throw new PamelloException("You have to be authorized to execute commands");
+        if (user is null) throw new HubException("You have to be authorized to execute commands");
         
         await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} of user {user} executed: {commandPath}");
-        
-        return await _commands.ExecuteAsync(commandPath, user);
+
+        try {
+            return await _commands.ExecuteAsync(commandPath, user);
+        }
+        catch (PamelloException pamelloException) {
+            throw new HubException(pamelloException.Message);
+        }
     }
 }
