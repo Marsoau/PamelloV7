@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using PamelloV7.Core.Converters;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Server.Config;
 using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 
@@ -9,9 +10,13 @@ namespace PamelloV7.Server.Loaders;
 
 public class PamelloServerLoader
 {
+    private readonly PamelloConfigLoader _configLoader;
+    
     private readonly Dictionary<Type, Type?> _assemblyServices;
     
-    public PamelloServerLoader() {
+    public PamelloServerLoader(PamelloConfigLoader configLoader) {
+        _configLoader = configLoader;
+        
         _assemblyServices = new Dictionary<Type, Type?>();
     }
     
@@ -23,6 +28,8 @@ public class PamelloServerLoader
                 
             _assemblyServices.Add(service, serviceInterface);
         }
+        
+        _configLoader.InitType(typeof(ServerConfig), "Server");
     }
     
     public void ConfigureAssemblyServices(IServiceCollection services) {

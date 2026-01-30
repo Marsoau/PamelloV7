@@ -9,12 +9,12 @@ namespace PamelloV7.Server.Loaders;
 
 public class PamelloConfigContainer
 {
-    public string Name { get; }
-    public Type Type { get; }
+    public string PartName { get; }
+    public JsonElement Part { get; set; }
     
-    public PamelloConfigContainer(string name, Type type) {
-        Name = name;
-        Type = type;
+    public PamelloConfigContainer(string partName, JsonElement part) {
+        PartName = partName;
+        Part = part;
     }
 }
 
@@ -22,8 +22,14 @@ public class PamelloConfigLoader
 {
     public List<PamelloConfigContainer> Containers { get; private set; }
 
+    private readonly JsonSerializerOptions _jsoncProperties;
+
     public PamelloConfigLoader() {
         Containers = [];
+        
+        _jsoncProperties = new JsonSerializerOptions {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
     }
 
     public void Load() {
@@ -34,45 +40,28 @@ public class PamelloConfigLoader
             
         var fs = configFile.OpenRead();
 
-        var jsoncProperties = new JsonSerializerOptions {
-            ReadCommentHandling = JsonCommentHandling.Skip
-        };
-        
-        var jsonParts = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(fs, jsoncProperties);
+        var jsonParts = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(fs, _jsoncProperties);
         if (jsonParts is null) throw new PamelloLoadingException("Failed to load config.json");
             
         fs.Close();
 
         StaticLogger.Log($"Loaded json file parts: ({jsonParts.Count} parts)");
         foreach (var (partName, partJson) in jsonParts) {
+            Containers.Add(new PamelloConfigContainer(partName, partJson));
             Console.WriteLine($"{partName}: {partJson}");
         }
-        
-        var all = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
-        
-        Containers = all.Select(x => {
-            var attribute = x.GetCustomAttribute<StaticConfigPartAttribute>();
-            if (attribute is null) return null;
-            
-            return new PamelloConfigContainer(attribute.Name, x);
-        }).OfType<PamelloConfigContainer>().ToList();
+    }
 
-        StaticLogger.Log($"Loading assembly static parts: ({Containers.Count} parts)");
-
-        foreach (var container in Containers) {
-            var rootProperty = container.Type.GetProperty("Root");
-            if (rootProperty is null) throw new PamelloLoadingException($"Root property not found in config part: {container.Name}");
+    public void InitType(Type type, string partName) {
+        var rootProperty = type.GetProperty("Root");
+        if (rootProperty is null) throw new PamelloLoadingException($"Root property not found in config type {type.FullName}");
             
-            if (!rootProperty.PropertyType.IsAssignableTo(typeof(IConfigNode))) throw new PamelloLoadingException($"Root property should implement IConfigNode: {container.Name}");
+        if (!rootProperty.PropertyType.IsAssignableTo(typeof(IConfigNode))) throw new PamelloLoadingException($"Root property should implement IConfigNode");
             
-            var partJson = jsonParts.GetValueOrDefault(container.Name);
-            if (partJson.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.Name}\" not found in config file");
+        var container = Containers.FirstOrDefault(x => x.PartName == partName);
+        if (container is null) throw new PamelloLoadingException($"Config part \"{partName}\" not found in config file");
+        if (container.Part.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.PartName}\" not found in config file");
             
-            rootProperty.SetValue(null, partJson.Deserialize(rootProperty.PropertyType, jsoncProperties));
-            
-            Console.WriteLine($"| {container.Name}: {rootProperty.PropertyType.FullName}");
-        }
-        
-        StaticLogger.Log($"Loaded {Containers.Count} parts");
+        rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.PropertyType, _jsoncProperties));
     }
 }

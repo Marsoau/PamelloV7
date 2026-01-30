@@ -1,7 +1,11 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
+using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Modules;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Server.Config;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Loaders;
@@ -12,6 +16,7 @@ public class PamelloModuleContainer
     public readonly IPamelloModule Module;
     public readonly Dictionary<Type, Type?> Services;
     public readonly List<string> Dependencies;
+    public readonly Type? ConfigType;
     
     public PamelloModuleContainer(Assembly assembly, IPamelloModule module) {
         Assembly = assembly;
@@ -31,6 +36,8 @@ public class PamelloModuleContainer
             .Select(x => x.Name!)
             .Where(name => name.StartsWith("PamelloV7.Module"))
             .ToList();
+        
+        ConfigType = assembly.GetTypes().FirstOrDefault(x => x.GetCustomAttribute<StaticConfigPartAttribute>() is not null);
     }
 
     public override string ToString() {
@@ -40,9 +47,13 @@ public class PamelloModuleContainer
 
 public class PamelloModulesLoader
 {
+    private readonly PamelloConfigLoader _configLoader;
+
     public readonly List<PamelloModuleContainer> Containers;
     
-    public PamelloModulesLoader() {
+    public PamelloModulesLoader(PamelloConfigLoader configLoader) {
+        _configLoader = configLoader;
+        
         Containers = [];
     }
 
@@ -57,6 +68,8 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
         
         foreach (var moduleFile in moduleFiles) {
+            if (IsModuleDisabled(moduleFile)) continue;
+            
             var assembly = Assembly.LoadFrom(moduleFile);
             
             var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
@@ -66,12 +79,38 @@ public class PamelloModulesLoader
             
             var container = new PamelloModuleContainer(assembly, module);
 
+            if (container.ConfigType is not null) {
+                _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");
+            }
             Console.WriteLine($"{container}\n| {module.Description}");
             
             Containers.Add(container);
         }
         
         StaticLogger.Log($"Loaded {Containers.Count} modules");
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private bool IsModuleDisabled(string dllPath) {
+        var context = new AssemblyLoadContext("ModuleCheck", isCollectible: true);
+
+        try {
+            var assembly = context.LoadFromAssemblyPath(dllPath);
+
+            var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
+            if (moduleType is null) return true;
+
+            if (Activator.CreateInstance(moduleType) is not IPamelloModule module) return true;
+
+            var isDisabled = ServerConfig.Root.DisabledModules.Contains($"{module.Author}/{module.Name}");
+
+            if (isDisabled) Console.WriteLine($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
+            
+            return isDisabled;
+        }
+        finally {
+            context.Unload();
+        }
     }
 
     public bool EnsureDependenciesAreSatisfied() {

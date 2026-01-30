@@ -42,16 +42,15 @@ namespace PamelloV7.Server
 
             var builder = WebApplication.CreateBuilder(args);
             
-            _serverLoader = new PamelloServerLoader();
-            _modulesLoader = new PamelloModulesLoader();
             var configLoader = new PamelloConfigLoader();
+            _serverLoader = new PamelloServerLoader(configLoader);
+            _modulesLoader = new PamelloModulesLoader(configLoader);
             
+            configLoader.Load();
             _serverLoader.Load();
             _modulesLoader.Load();
             
             if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
-            
-            configLoader.Load();
             
             _serverLoader.ConfigureAssemblyServices(builder.Services);
             _modulesLoader.Configure(builder.Services);

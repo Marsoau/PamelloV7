@@ -14,7 +14,7 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     }
 
     public IEnumerable<Type> GetWithAttribute<TAttribute>() {
-        return GetAll().Where(x => x.GetCustomAttribute(typeof(TAttribute)) != null);
+        return GetAll().Where(x => x.GetCustomAttribute(typeof(TAttribute)) is not null);
     }
 
     public IEnumerable<Type> GetInheritorsOf<TType>() {
