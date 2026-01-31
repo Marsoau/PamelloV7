@@ -1,8 +1,8 @@
-﻿using PamelloV7.Core.Audio;
+﻿using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Entities;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Server.Model.Audio.Interfaces;
-using PamelloV7.Server.Model.Audio.Points;
+using PamelloV7.Server.Model.AudioOld;
+using PamelloV7.Server.Model.AudioOld.Interfaces;
+using PamelloV7.Server.Model.AudioOld.Points;
 
 namespace PamelloV7.Server.Model.Listeners
 {

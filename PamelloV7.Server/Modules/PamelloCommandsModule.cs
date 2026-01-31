@@ -1,14 +1,13 @@
 ﻿using PamelloV7.Core.Attributes;
 using PamelloV7.Server.Model;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Core.Audio;
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Server.Services;
 using PamelloV7.Core;
+using PamelloV7.Core.Audio;
+using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
-using PamelloV7.Server.Model.Audio.Modules.Pamello;
-using PamelloV7.Server.Model.Audio.Speakers;
 
 namespace PamelloV7.Server.Modules
 {

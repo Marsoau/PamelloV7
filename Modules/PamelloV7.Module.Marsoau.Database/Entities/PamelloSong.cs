@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Audio.Time;
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;

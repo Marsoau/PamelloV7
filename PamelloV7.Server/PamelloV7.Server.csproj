@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <Version>0.2.0</Version>
+    <Version>2.0.0</Version>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -56,6 +56,6 @@
   </Target>
 
   <ItemGroup>
-    <Folder Include="Model\Audio\Modules\Outputs\" />
+    <Folder Include="Model\AudioOld\Modules\Outputs\" />
   </ItemGroup>
 </Project>

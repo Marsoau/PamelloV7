@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Discord;
-using PamelloV7.Core.Audio;
+using PamelloV7.Core.AudioOld;
 
 namespace PamelloV7.Module.Marsoau.Discord.Messages;
 

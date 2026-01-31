@@ -3,8 +3,6 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Model;
-using PamelloV7.Server.Model.Audio;
-using PamelloV7.Server.Model.Audio.Modules.Pamello;
 
 namespace PamelloV7.Server.Services
 {

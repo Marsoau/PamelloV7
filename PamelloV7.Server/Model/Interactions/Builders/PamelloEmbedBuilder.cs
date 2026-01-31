@@ -1,14 +1,11 @@
 ﻿using Discord;
-using PamelloV7.Server.Model.Audio;
 using PamelloV7.Server.Model.Discord;
 using System.Text;
-using PamelloV7.Core.Audio;
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Extensions;
-using PamelloV7.Server.Model.Audio.Modules.Pamello;
-using PamelloV7.Server.Model.Audio.Speakers;
 
 namespace PamelloV7.Server.Model.Interactions.Builders
 {

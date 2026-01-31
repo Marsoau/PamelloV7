@@ -1,5 +1,7 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Audio.Time;
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Entities.Base;
 
 namespace PamelloV7.Core.Entities;
