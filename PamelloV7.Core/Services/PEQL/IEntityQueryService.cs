@@ -13,9 +13,18 @@ public interface IEntityQueryService : IPamelloService
 {
     //required
     public async Task<IPamelloEntity> GetSingleRequiredAsync(string query, IPamelloUser scopeUser)
-        => await GetSingleAsync(query, scopeUser) ?? throw new InvalidOperationException($"Entity not found: {query}");
-    public async Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, IPamelloUser scopeUser)
-        => await GetSingleAsync<TPamelloEntity>(query, scopeUser) ?? throw new InvalidOperationException($"Entity not found: {query}");
+        => await GetSingleAsync(query, scopeUser) ?? throw new PamelloException($"Entity not found: {query}");
+
+    public async Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, IPamelloUser scopeUser) {
+        var result = await GetSingleAsync<TPamelloEntity>(query, scopeUser);
+        if (result is not null) return result;
+        
+        if (query.Contains('$')) throw new PamelloException($"Entity by query \"{query}\" not found");
+        
+        var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
+        
+        throw new PamelloException($"Entity by query \"{query}\" not found in provider \"{attribute?.ProviderName}\"");
+    }
     
     //single
     public async Task<IPamelloEntity?> GetSingleAsync(string query, IPamelloUser scopeUser)
@@ -43,7 +52,7 @@ public interface IEntityQueryService : IPamelloService
         return listResult.Count > 0 ? listResult[0] : null;
     }
     public async Task<object> ReflectiveGetAsync(Type entityType, string query, IPamelloUser scopeUser) {
-        if (!entityType.IsAssignableTo(typeof(IPamelloEntity))) throw new ArgumentException("Entity type must be a IPamelloEntity");
+        if (!entityType.IsAssignableTo(typeof(IPamelloEntity))) throw new PamelloException("Entity type must be a IPamelloEntity");
 
         var methods = typeof(IEntityQueryService).GetMethods();
         var method = methods.FirstOrDefault(m => m is { Name: nameof(GetAsync), IsGenericMethod: true });

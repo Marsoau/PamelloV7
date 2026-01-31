@@ -15,11 +15,11 @@ public partial class SongFavorites
         
         var addedSongs = Command<SongFavoritesAdd>().Execute(songs);
 
-        await RespondUpdatableAsync(message => {
+        await RespondUpdatablePageAsync((message, page) => {
             var content = string.Join("\n", addedSongs.SkipLast(addedSongs.Count - 5).Select(song => $"`[{song.Id}]` {song.Name}"));
             if (addedSongs.Count > 5) content += $"\n_... And {addedSongs.Count - 5} more_";
-            
-            message.Components = PamelloComponentBuilders.Info($"Added {addedSongs.Count} Songs", content).Build();
-        }, [.. addedSongs]);
+
+            message.Components = PamelloComponentBuilders.EntitiesList($"Added {addedSongs.Count} Songs", addedSongs, page, noResultsMessage: $"No songs added to favorite by query \"{songsQuery}\"").Build();
+        }, () => [.. addedSongs]);
     }
 }

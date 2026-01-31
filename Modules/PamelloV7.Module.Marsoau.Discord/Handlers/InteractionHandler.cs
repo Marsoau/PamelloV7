@@ -1,15 +1,18 @@
 using System.Reflection;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
-using PamelloV7.Module.Marsoau.Discord.Config;
+using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord.Handlers;
 
@@ -42,6 +45,25 @@ public class InteractionHandler : IPamelloService
         }
         
         _clients.Main.InteractionCreated += OnInteractionCreated;
+        _interactions.SlashCommandExecuted += InteractionsOnSlashCommandExecuted;
+    }
+
+    private async Task InteractionsOnSlashCommandExecuted(SlashCommandInfo command, IInteractionContext context, IResult result) {
+        if (result.IsSuccess || result.Error != InteractionCommandError.Exception) return;
+        if (result is not ExecuteResult executeResult) return;
+        if (executeResult.Exception.InnerException is not PamelloException exception) {
+            Console.WriteLine($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
+            return;
+        }
+        
+        if (context.Interaction.HasResponded) {
+            Console.WriteLine("Folow ephemerally");
+            await context.Interaction.FollowupAsync(components: PamelloComponentBuilders.Info("Error", exception.Message).Build(), ephemeral: true);
+        }
+        else {
+            Console.WriteLine("Responding ephemerally");
+            await context.Interaction.RespondAsync(components: PamelloComponentBuilders.Info("Error", exception.Message).Build(), ephemeral: true);
+        }
     }
 
     public async Task RegisterAsync() {
@@ -55,7 +77,11 @@ public class InteractionHandler : IPamelloService
 
     private async Task OnInteractionCreated(SocketInteraction interaction) {
         try {
+            Console.WriteLine("Executing interaction");
             await ExecuteInteraction(interaction);
+            Console.WriteLine("Interaction executed");
+        }
+        catch (PamelloException x) {
         }
         catch (Exception x) {
             Console.WriteLine("ERROR with interaction");

@@ -2,6 +2,7 @@ using Discord.Interactions;
 using PamelloV7.Core.Commands;
 using PamelloV7.Core.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Song;
 
@@ -15,6 +16,11 @@ public partial class Song
         var songs = await GetAsync<IPamelloSong>(songsQuery);
         var processedSongs = new List<IPamelloSong>();
 
+        if (songs.Count == 0) {
+            await RespondComponentAsync(PamelloComponentBuilders.Info("Songs Reset", $"No songs found by query `{songsQuery}`").Build());
+            return;
+        }
+
         var message = await RespondUpdatableAsync(message => {
             var title = "";
             var content = "";
@@ -26,18 +32,20 @@ public partial class Song
                 content = lastSong is null ? "No songs reset yet" : $"`[{lastSong.Id}]` {lastSong.Name}";
             }
             else {
-                title = $"{processedSongs.Count} Songs Were Reset";
+                title = $"{DiscordString.Code(processedSongs.Count)} Songs Were Reset";
                 content = string.Join("\n", processedSongs.Skip(processedSongs.Count - 5).Select(song => $"`[{song.Id}]` {song.Name}"));
-                if (processedSongs.Count > 5) content += $"\n_... And {processedSongs.Count - 5} more_";
+                if (processedSongs.Count > 5) content += $"\n{DiscordString.Italic($"... And {processedSongs.Count - 5} more")}";
             }
 
             message.Components = PamelloComponentBuilders.Info(title, content).Build();
-        }, () => [.. processedSongs]);
+        }, () => [.. processedSongs.Skip(processedSongs.Count - 5)]);
 
         foreach (var song in songs) {
+            await Command<SongInfoReset>().Execute(song, song.SelectedSourceIndex);
+            
             processedSongs.Add(song);
-            Command<SongInfoReset>().Execute(song, song.SelectedSourceIndex);
-            song.Sources.ElementAtOrDefault(sourcePos)?.SetInfoToSong();
+            
+            message.Touch();
             await message.Refresh();
         }
     }

@@ -13,11 +13,7 @@ public partial class Song
         [Summary("name", "New name for the song")] string newName,
         [Summary("song", "Single song query")] string songQuery = "current"
     ) {
-        var song = await GetSingleAsync<IPamelloSong>(songQuery);
-        if (song is null) {
-            await RespondAsync("Nema tokogo");
-            return;
-        }
+        var song = await GetSingleRequiredAsync<IPamelloSong>(songQuery);
         
         Command<SongRename>().Execute(song, newName);
 

@@ -20,18 +20,12 @@ namespace PamelloV7.Server
     {
         private IServiceProvider _services;
         
+        public static string ConfigPath = "Config/config.jsonc";
+        
         private PamelloModulesLoader _modulesLoader;
         private PamelloServerLoader _serverLoader;
         
-        public static string ConfigPath = "Config/config.jsonc";
-        
-        private readonly Dictionary<Type, Type?> _assemblyServices;
-        
         public WebApplication App { get; set; }
-        
-        public Program() {
-            _assemblyServices = new Dictionary<Type, Type?>();
-        }
         
         public static async Task Main(string[] args) => await new Program().MainAsync(args);
 
@@ -119,41 +113,33 @@ namespace PamelloV7.Server
         }
 
         private void OnStart() {
-            var longText = """
-
-            0000000 \                                  00\ 00\       \00\     \000000000 /
-            00  __00 \                                 00 |00 |       \00\    \______00 / 
-            00 |  00 |000000\  000000\0000\   000000\  00 |00 | 000000\\00\    00 / 00 /  
-            0000000  |\____00\ 00  _00  _00\ 00  __00\ 00 |00 |00  __00\\00\  00 / 00 /   
-            00  ____/ 0000000 |00 / 00 / 00 |00000000 |00 |00 |00 /  00 |\00\00 / 00 /    
-            00 |     00  __00 |00 | 00 | 00 |00   ____|00 |00 |00 |  00 | \000 / 00 /     
-            00 |     \0000000 |00 | 00 | 00 |\0000000\ 00 |00 |\000000  |  \0 / 00 /      
-            \__|      \_______|\__| \__| \__| \_______|\__|\__| \______/    \/  \_/       
-
-            """;
-            var shortText = """
-            0000000 \\00\     \000000000 /
-            00  __00 \\00\    \______00 / 
-            00 |  00 | \00\    00 / 00 /  
-            0000000  |  \00\  00 / 00 /   
-            00  ____/    \00\00 / 00 /    
-            00 |          \000 / 00 /     
-            00 |           \0 / 00 /      
-            \__|            \/  \_/       
-            """;
-            var minimalText = "\nPamelloV7 Started Up\n";
-
-            switch (Console.WindowWidth) {
-                case >= 80:
-                    Console.WriteLine(longText);
-                    break;
-                case < 30:
-                    Console.WriteLine(minimalText);
-                    break;
-                default:
-                    Console.WriteLine(shortText);
-                    break;
-            }
+            Console.WriteLine(Console.WindowWidth switch {
+                >= 80 => """
+                         
+                         0000000 \                                  00\ 00\       \00\     \000000000 /
+                         00  __00 \                                 00 |00 |       \00\    \______00 / 
+                         00 |  00 |000000\  000000\0000\   000000\  00 |00 | 000000\\00\    00 / 00 /  
+                         0000000  |\____00\ 00  _00  _00\ 00  __00\ 00 |00 |00  __00\\00\  00 / 00 /   
+                         00  ____/ 0000000 |00 / 00 / 00 |00000000 |00 |00 |00 /  00 |\00\00 / 00 /    
+                         00 |     00  __00 |00 | 00 | 00 |00   ____|00 |00 |00 |  00 | \000 / 00 /     
+                         00 |     \0000000 |00 | 00 | 00 |\0000000\ 00 |00 |\000000  |  \0 / 00 /      
+                         \__|      \_______|\__| \__| \__| \_______|\__|\__| \______/    \/  \_/       
+                         
+                         """,
+                < 30 => """
+                        
+                        0000000 \\00\     \000000000 /
+                        00  __00 \\00\    \______00 / 
+                        00 |  00 | \00\    00 / 00 /  
+                        0000000  |  \00\  00 / 00 /   
+                        00  ____/    \00\00 / 00 /    
+                        00 |          \000 / 00 /     
+                        00 |           \0 / 00 /      
+                        \__|            \/  \_/       
+                        
+                        """,
+                _ => "\nPamelloV7 Started Up\n"
+            });
             
             var events = App.Services.GetRequiredService<IEventsService>();
             events.Invoke(new PamelloStarted() {

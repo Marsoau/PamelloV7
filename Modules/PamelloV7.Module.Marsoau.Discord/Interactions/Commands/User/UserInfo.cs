@@ -11,11 +11,7 @@ public partial class User
     public async Task Info(
         [Summary("user", "User query")] string userQuery = "current"
     ) {
-        var user = await GetSingleAsync<IPamelloUser>(userQuery);
-        if (user is null) {
-            await RespondAsync("Nema tokogo");
-            return;
-        }
+        var user = await GetSingleRequiredAsync<IPamelloUser>(userQuery);
 
         await RespondUpdatableAsync(message => {
             message.Components = PamelloComponentBuilders.UserInfo(user, Context.User, Services).Result.Build();
@@ -27,11 +23,7 @@ public partial class UserInteractions
 {
     [ComponentInteraction("user-authorization-select:*")]
     public async Task SelectButton(string userQuery) {
-        var user = await GetSingleAsync<IPamelloUser>(userQuery);
-        if (user is null || user != Context.User) {
-            await ReleaseInteractionAsync();
-            return;
-        }
+        var user = await GetSingleRequiredAsync<IPamelloUser>(userQuery);
         
         await RespondWithModalAsync(UserAuthorizationSelectModal.Build(user, Services));
     }

@@ -112,7 +112,7 @@ public class EntityQueryService : IEntityQueryService
         value = query[(splitAt + 1)..];
         
         var provider = Providers.FirstOrDefault(provider => provider.Name == context);
-        if (provider is null) throw new PamelloException($"Provider {context} not found");
+        if (provider is null) throw new PamelloException($"Provider \"{context}\" not found");
 
         if (int.TryParse(value, out var id)) {
             return [provider.GetById(id, scopeUser)];

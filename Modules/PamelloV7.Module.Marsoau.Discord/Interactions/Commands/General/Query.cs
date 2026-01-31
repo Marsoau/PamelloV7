@@ -16,16 +16,8 @@ public class Query : DiscordCommand
     ) {
         var entities = await GetAsync(query);
         
-        var pageSize = 10;
-
-        var totalPages = entities.Count / pageSize + (entities.Count % pageSize > 0 ? 1 : 0);
-        if (totalPages == 0) totalPages = 1;
-
         await RespondUpdatablePageAsync((message, page) => {
-            message.Components = PamelloComponentBuilders.PageButtons(PamelloComponentBuilders.Info("Query Result", 
-                entities.Count == 0 ? "Nema rezultata" :
-                    string.Join("\n", entities.Skip(page * pageSize).Take(pageSize).Select(entity => $"{DiscordString.Code(entity.GetType().Name)} {entity.ToDiscordString()}"))
-            ), page != 0, page < totalPages - 1).Build();
+            message.Components = PamelloComponentBuilders.EntitiesList("Query Result", entities, page).Build();
         }, () => [.. entities]);
     }
 }

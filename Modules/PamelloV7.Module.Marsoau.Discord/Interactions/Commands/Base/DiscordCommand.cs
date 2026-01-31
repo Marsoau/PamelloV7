@@ -85,6 +85,10 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         }
     }
 
+    public async Task RespondComponentAsync(MessageComponent component) {
+        await RespondAsync(components: component, ephemeral: true);
+    }
+    
     public async Task RespondLoading() {
         Console.WriteLine("Responding loading");
         if (Context.Interaction.HasResponded) {
