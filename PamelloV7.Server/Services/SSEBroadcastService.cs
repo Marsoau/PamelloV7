@@ -66,7 +66,7 @@ namespace PamelloV7.Server.Services
             throw new NotImplementedException();
             //delete this method later
         }
-        public void BroadcastToPlayer(IPamelloPlayer player, PamelloEvent pamelloEvent) {
+        public void BroadcastToPlayer(IPamelloPlayerOld player, PamelloEvent pamelloEvent) {
             throw new NotImplementedException();
             //delete this method later
         }
@@ -78,7 +78,7 @@ namespace PamelloV7.Server.Services
                 listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public void BroadcastToPlayer(IPamelloPlayer player, IPamelloEvent pamelloEvent)
+        public void BroadcastToPlayer(IPamelloPlayerOld player, IPamelloEvent pamelloEvent)
         {
             foreach (var listener in _listeners) {
                 if (listener.User is null || listener.User.SelectedPlayer?.Id != player?.Id) continue;

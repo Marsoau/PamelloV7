@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
       <ProjectReference Include="..\PamelloV7.Server\PamelloV7.Server.csproj" />
     </ItemGroup>
 

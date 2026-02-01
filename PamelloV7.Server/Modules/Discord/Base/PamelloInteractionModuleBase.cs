@@ -36,10 +36,10 @@ namespace PamelloV7.Server.Modules.Discord.Base
         private IPamelloCommandsModule Commands {
             get => throw new NotImplementedException(); //Context.User.Commands;
         }
-        private IPamelloPlayer Player {
+        private IPamelloPlayerOld Player {
             get => Context.User.RequiredSelectedPlayer;
         }
-        private IPamelloPlayer RequiredPlayer {
+        private IPamelloPlayerOld RequiredPlayer {
             get => Context.User.SelectedPlayer ?? throw new PamelloException("Selected player is required for this command");
         }
 

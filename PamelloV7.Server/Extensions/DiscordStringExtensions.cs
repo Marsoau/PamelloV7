@@ -10,7 +10,7 @@ public static class DiscordStringExtensions
         return DiscordString.Bold(entity.Name) + " " + DiscordString.Code($"[{entity.Id}]");
     }
     
-    public static string ToDiscordFooterString(this IPamelloPlayer player) {
+    public static string ToDiscordFooterString(this IPamelloPlayerOld player) {
         return $"{player.Name} [{player.Id}] {(player.IsProtected ? " (private)" : "")}";
     }
 }

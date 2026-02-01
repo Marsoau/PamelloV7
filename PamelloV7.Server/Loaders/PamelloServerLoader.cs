@@ -21,11 +21,24 @@ public class PamelloServerLoader
     }
     
     public void Load() {
-        var serviceTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => typeof(IPamelloService).IsAssignableFrom(x));
+        var executingAssembly = Assembly.GetExecutingAssembly();
+        var referencedAssemblies = executingAssembly.GetReferencedAssemblies().Where(name => {
+            if (!name.Name?.StartsWith("PamelloV7") ?? false) return false;
+            
+            Console.WriteLine(name.FullName);
+            
+            return true;
+        }).Select(Assembly.Load);
+
+        var assemblies = new List<Assembly>([executingAssembly, ..referencedAssemblies]);
+        
+        var serviceTypes = assemblies.SelectMany(assembly => assembly.GetTypes()).Where(x => !x.IsAbstract && typeof(IPamelloService).IsAssignableFrom(x));
+        
         foreach (var service in serviceTypes) {
             var serviceInterface = service.GetInterfaces()
                 .FirstOrDefault(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
-                
+
+            Console.WriteLine($"Adding: {service.FullName} | {serviceInterface?.Name} ({service.Assembly.GetName().FullName})");
             _assemblyServices.Add(service, serviceInterface);
         }
         

@@ -1,19 +1,18 @@
 using System.Diagnostics;
-using PamelloV7.Core;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Difference;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.Platforms;
-using PamelloV7.Module.Marsoau.Base.Repositories.Database;
-using PamelloV7.Server.Entities.Base;
 using PamelloV7.Core.Events;
+using PamelloV7.Module.Marsoau.Base.Repositories.Database;
+using PamelloV7.Module.Marsoau.Database.Entities.Base;
+using PamelloV7.Server.Entities.Base;
 
-namespace PamelloV7.Module.Marsoau.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Database.Entities;
 
-public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
+public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 {
     private Guid _token;
     
@@ -57,9 +56,9 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         }
     }
 
-    public IPamelloPlayer? PreviousPlayer { get; }
-    public IPamelloPlayer? SelectedPlayer { get; set; }
-    public IPamelloPlayer RequiredSelectedPlayer { get; }
+    public IPamelloPlayerOld? PreviousPlayer { get; }
+    public IPamelloPlayerOld? SelectedPlayer { get; set; }
+    public IPamelloPlayerOld RequiredSelectedPlayer { get; }
 
     public UserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
     
@@ -137,11 +136,11 @@ public class PamelloUser : PamelloEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public bool TrySelectPlayer(IPamelloPlayer? player) {
+    public bool TrySelectPlayer(IPamelloPlayerOld? player) {
         throw new NotImplementedException();
     }
 
-    public void RequireSelectPlayer(IPamelloPlayer? player) {
+    public void RequireSelectPlayer(IPamelloPlayerOld? player) {
         throw new NotImplementedException();
     }
 

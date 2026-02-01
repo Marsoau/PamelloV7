@@ -1,8 +1,7 @@
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Points;
-using PamelloV7.Server.Audio.Points;
 
-namespace PamelloV7.Server.Audio.Modules;
+namespace PamelloV7.Audio.Modules;
 
 public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
 {

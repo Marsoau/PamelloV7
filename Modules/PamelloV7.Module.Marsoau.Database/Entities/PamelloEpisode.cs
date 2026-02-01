@@ -1,18 +1,16 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Audio;
 using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
-using PamelloV7.Server.Entities.Base;
+using PamelloV7.Module.Marsoau.Database.Entities.Base;
 
-namespace PamelloV7.Module.Marsoau.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Database.Entities;
 
-public class PamelloEpisode : PamelloEntity<DatabaseEpisode>, IPamelloEpisode
+public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEpisode
 {
     private string _name;
     private AudioTime _start;

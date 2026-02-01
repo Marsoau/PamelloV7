@@ -29,7 +29,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
         public static Embed BuildSongInfo(IPamelloSong song) {
             return SongInfo(song).Build();
         }
-        public static Embed BuildPlayerInfo(IPamelloPlayer player) {
+        public static Embed BuildPlayerInfo(IPamelloPlayerOld player) {
             return PlayerInfo(player).Build();
         }
         public static Embed BuildPlaylistInfo(IPamelloPlaylist playlist) {
@@ -135,7 +135,7 @@ namespace PamelloV7.Server.Model.Interactions.Builders
             .WithColor(Color.Parse(ServerConfig.Root.Discord.MessageStyles.Info.Color));
         }
 
-        public static EmbedBuilder PlayerInfo(IPamelloPlayer player) {
+        public static EmbedBuilder PlayerInfo(IPamelloPlayerOld player) {
             var fields = new List<EmbedFieldBuilder>();
 
             var currentAudio = player.Queue.Audio;

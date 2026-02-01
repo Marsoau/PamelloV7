@@ -3,7 +3,7 @@ using PamelloV7.Core.Repositories.Base;
 
 namespace PamelloV7.Core.Repositories;
 
-public interface IPamelloPlayerRepository : IPamelloRepository<IPamelloPlayer>
+public interface IPamelloPlayerRepository : IPamelloRepository<IPamelloPlayerOld>
 {
-    public IPamelloPlayer Create(IPamelloUser user, string name);
+    public IPamelloPlayerOld Create(IPamelloUser user, string name);
 }

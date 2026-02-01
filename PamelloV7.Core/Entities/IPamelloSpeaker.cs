@@ -4,5 +4,5 @@ namespace PamelloV7.Core.Entities;
 
 public interface IPamelloSpeaker : IPamelloEntity
 {
-    IPamelloPlayer Player { get; }
+    IPamelloPlayerOld Player { get; }
 }

@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Di
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Osu", "Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj", "{34D0E519-6376-41DB-8C43-FFD9F3FD4063}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Audio", "PamelloV7.Audio\PamelloV7.Audio.csproj", "{6307A65E-E83B-4C97-81B5-DF641F4A48FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{34D0E519-6376-41DB-8C43-FFD9F3FD4063}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34D0E519-6376-41DB-8C43-FFD9F3FD4063}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34D0E519-6376-41DB-8C43-FFD9F3FD4063}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6307A65E-E83B-4C97-81B5-DF641F4A48FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6307A65E-E83B-4C97-81B5-DF641F4A48FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6307A65E-E83B-4C97-81B5-DF641F4A48FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6307A65E-E83B-4C97-81B5-DF641F4A48FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

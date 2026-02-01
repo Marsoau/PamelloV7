@@ -1,21 +1,19 @@
 using System.Diagnostics;
-using PamelloV7.Core.Audio;
 using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
-using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
+using PamelloV7.Module.Marsoau.Database.Entities.Base;
 using PamelloV7.Server.Entities.Base;
 
-namespace PamelloV7.Module.Marsoau.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Database.Entities;
 
-public class PamelloSong : PamelloEntity<DatabaseSong>, IPamelloSong
+public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 {
     private string _name;
     private string _coverUrl;

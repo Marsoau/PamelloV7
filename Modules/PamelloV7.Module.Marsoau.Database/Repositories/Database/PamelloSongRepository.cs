@@ -8,8 +8,8 @@ using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
-using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
+using PamelloV7.Module.Marsoau.Database.Entities;
 using PamelloV7.Server.Entities;
 
 namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;

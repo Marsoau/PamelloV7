@@ -5,7 +5,7 @@ namespace PamelloV7.Core.AudioOld;
 
 public interface IPamelloQueue
 {
-    public IPamelloPlayer Player { get; }
+    public IPamelloPlayerOld Player { get; }
     
     public bool IsRandom { get; set; }
     public bool IsReversed { get; set; }

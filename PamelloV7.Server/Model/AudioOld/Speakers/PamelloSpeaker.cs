@@ -8,7 +8,7 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
 {
     public abstract class PamelloSpeaker : IPamelloSpeaker, IDisposable, IAsyncDisposable, IAudioModuleWithInputs<AudioPushPoint>
     {
-        public IPamelloPlayer Player { get; }
+        public IPamelloPlayerOld Player { get; }
 
         public bool IsDeleted { get; protected set; }
         public abstract bool IsActive { get; }
@@ -28,7 +28,7 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
         }
 
         private static int _idCounter = 1;
-        public PamelloSpeaker(IPamelloPlayer player) {
+        public PamelloSpeaker(IPamelloPlayerOld player) {
             Player = player;
 
             IsDeleted = false;

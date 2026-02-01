@@ -5,11 +5,12 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Events;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
+using PamelloV7.Module.Marsoau.Database.Entities.Base;
 using PamelloV7.Server.Entities.Base;
 
-namespace PamelloV7.Module.Marsoau.Base.Entities;
+namespace PamelloV7.Module.Marsoau.Database.Entities;
 
-public class PamelloPlaylist : PamelloEntity<DatabasePlaylist>, IPamelloPlaylist
+public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamelloPlaylist
 {
     private string _name;
     private bool _isProtected;

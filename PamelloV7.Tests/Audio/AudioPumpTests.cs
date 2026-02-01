@@ -1,7 +1,7 @@
 using PamelloV7.Core.Audio.Services;
-using PamelloV7.Server.Audio.Modules;
-using PamelloV7.Server.Audio.Points;
-using PamelloV7.Server.Audio.Services;
+using PamelloV7.Audio.Modules;
+using PamelloV7.Audio.Points;
+using PamelloV7.Audio.Services;
 
 namespace PamelloV7.Tests.Audio;
 

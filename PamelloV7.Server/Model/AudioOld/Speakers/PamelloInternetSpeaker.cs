@@ -43,7 +43,7 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
 
         public PamelloInternetSpeaker(
             AudioModel parentModel,
-            IPamelloPlayer player,
+            IPamelloPlayerOld player,
             string? name
         ) : base(player) {
             ParentModel = parentModel;

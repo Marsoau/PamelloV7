@@ -7,8 +7,7 @@ using PamelloV7.Core.Services;
 
 namespace PamelloV7.Server.Entities.Base;
 
-public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
-    where TDatabaseEntity : DatabaseEntity
+public abstract class PamelloEntity : IPamelloEntity
 {
     protected readonly IServiceProvider _services;
 
@@ -25,21 +24,18 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
 
     public bool IsChangesGoing => _changesDepth > 0;
     
-    protected TDatabaseEntity _databaseEntity { get; private set; }
-    
     public int Id { get; }
     
     public abstract string Name { get; set; }
 
-    protected PamelloEntity(TDatabaseEntity databaseEntity, IServiceProvider services) {
+    protected PamelloEntity(int id, IServiceProvider services) {
         _services = services;
         
         _events = services.GetRequiredService<IEventsService>();
         
         _sink = new PamelloEntitySink(services, this);
         
-        _databaseEntity = databaseEntity;
-        Id = databaseEntity.Id;
+        Id = id;
         
         _users = services.GetRequiredService<IPamelloUserRepository>();
         _songs = services.GetRequiredService<IPamelloSongRepository>();
@@ -53,12 +49,11 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
         _changesDepth++;
     }
 
-    public void EndChanges() {
+    public virtual void EndChanges() {
         if (_changesDepth > 0) _changesDepth--;
         if (_changesDepth != 0) return;
         
         _sink.Flush();
-        Save();
     }
 
     public virtual IPamelloDTO GetDto() {
@@ -66,20 +61,6 @@ public abstract class PamelloEntity<TDatabaseEntity> : IPamelloEntity
             Id = Id,
             Name = Name,
         };
-    }
-
-    protected abstract void InitBase();
-    public void Init() {
-        if (_databaseEntity is null) return;
-        
-        InitBase();
-        
-        _databaseEntity = null;
-    }
-
-    public abstract void SaveInternal();
-    public void Save() {
-        if (!IsChangesGoing) SaveInternal();
     }
 
     public override string ToString() {

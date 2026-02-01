@@ -10,8 +10,8 @@ namespace PamelloV7.Core
         IPamelloUser User { get; }
 
         // Player commands
-        Task<IPamelloPlayer> PlayerCreate(string playerName);
-        Task<IPamelloPlayer?> PlayerSelect(IPamelloPlayer? player);
+        Task<IPamelloPlayerOld> PlayerCreate(string playerName);
+        Task<IPamelloPlayerOld?> PlayerSelect(IPamelloPlayerOld? player);
         Task<bool> PlayerProtection(bool state);
         Task PlayerDelete();
         Task PlayerResume();

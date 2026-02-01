@@ -18,7 +18,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
 
         private readonly SSEBroadcastService _events;
 
-        public IPamelloPlayer Player { get; }
+        public IPamelloPlayerOld Player { get; }
 
         private readonly IPamelloUserRepository _users;
         private readonly IPamelloSongRepository _songs;
@@ -198,7 +198,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
         public PamelloQueue(
             AudioModel parentModel,
             IServiceProvider services,
-            IPamelloPlayer parrentPlayer
+            IPamelloPlayerOld parrentPlayer
         ) {
             _services = services;
 

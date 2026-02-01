@@ -12,7 +12,7 @@ using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
 {
-    public class PamelloPlayer : IPamelloPlayer, IAudioModuleWithModel
+    public class PamelloPlayer : IPamelloPlayerOld, IAudioModuleWithModel
     {
         private readonly IServiceProvider _services;
         

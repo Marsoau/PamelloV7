@@ -1,8 +1,8 @@
+using PamelloV7.Audio.Points;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
-using PamelloV7.Server.Audio.Points;
 
-namespace PamelloV7.Server.Audio.Services;
+namespace PamelloV7.Audio.Services;
 
 public class PamelloAudioSystem : IPamelloAudioSystem
 {

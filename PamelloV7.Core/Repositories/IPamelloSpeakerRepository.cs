@@ -6,8 +6,8 @@ namespace PamelloV7.Core.Repositories;
 
 public interface IPamelloSpeakerRepository : IPamelloRepository<IPamelloSpeaker>
 {
-    public List<IPamelloPlayer> GetVoicePlayers(ulong vcId);
-    Task<IPamelloInternetSpeaker> ConnectInternet(IPamelloPlayer player, string? name);
+    public List<IPamelloPlayerOld> GetVoicePlayers(ulong vcId);
+    Task<IPamelloInternetSpeaker> ConnectInternet(IPamelloPlayerOld player, string? name);
     
     public Task<T> GetByValueRequired<T>(string value, IPamelloUser? scopeUser)
         where T : class, IPamelloSpeaker;

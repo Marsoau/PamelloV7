@@ -45,8 +45,8 @@ namespace PamelloV7.Server.Services
         private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
 			if (_speakers is null) return;
 
-			List<IPamelloPlayer>? playersFromVc = null;
-			List<IPamelloPlayer>? playersToVc = null;
+			List<IPamelloPlayerOld>? playersFromVc = null;
+			List<IPamelloPlayerOld>? playersToVc = null;
 
 			var user = _users.GetByDiscord(discordUser.Id);
 			if (user is null) return;
@@ -58,8 +58,8 @@ namespace PamelloV7.Server.Services
 				playersToVc = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
 			}
 
-			playersFromVc ??= new List<IPamelloPlayer>();
-			playersToVc ??= new List<IPamelloPlayer>();
+			playersFromVc ??= new List<IPamelloPlayerOld>();
+			playersToVc ??= new List<IPamelloPlayerOld>();
 
 			if (playersToVc.Count == 1) {
 				user.SelectedPlayer = playersToVc.First();

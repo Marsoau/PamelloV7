@@ -26,7 +26,7 @@ namespace PamelloV7.Server.Modules
         private readonly IPamelloPlaylistRepository _playlists;
 
         public IPamelloUser User { get; }
-        private IPamelloPlayer Player {
+        private IPamelloPlayerOld Player {
             get => User.RequiredSelectedPlayer;
         }
 
@@ -80,7 +80,7 @@ namespace PamelloV7.Server.Modules
 
         //player
         [PamelloCommand]
-        public async Task<IPamelloPlayer> PlayerCreate(string playerName) {
+        public async Task<IPamelloPlayerOld> PlayerCreate(string playerName) {
             var player = _players.Create(User, playerName);
             User.SelectedPlayer = player;
 
@@ -98,7 +98,7 @@ namespace PamelloV7.Server.Modules
         }
 
         [PamelloCommand]
-        public async Task<IPamelloPlayer?> PlayerSelect(IPamelloPlayer? player) {
+        public async Task<IPamelloPlayerOld?> PlayerSelect(IPamelloPlayerOld? player) {
             User.RequireSelectPlayer(player);
             
             return User.SelectedPlayer;

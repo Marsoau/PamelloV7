@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
@@ -5,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.SignalR;
+using PamelloV7.Audio.Modules;
 using PamelloV7.Core.Converters;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
@@ -31,6 +33,9 @@ namespace PamelloV7.Server
 
         public async Task MainAsync(string[] args) {
             StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
+            
+            //remove later
+            var _ = typeof(Audio.Services.PamelloAudioSystem);
             
             Console.OutputEncoding = Encoding.UTF8;
 
