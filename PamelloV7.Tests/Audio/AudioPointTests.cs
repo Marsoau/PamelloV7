@@ -4,6 +4,8 @@ namespace PamelloV7.Tests.Audio;
 
 public class AudioPointTests
 {
+    private readonly CancellationTokenSource _cts = new();
+    
     [Fact]
     public void BasicConnections() {
         var a = new AudioPoint(null);
@@ -46,7 +48,7 @@ public class AudioPointTests
             return true;
         };
         
-        Assert.True(a.Pass([1, 2, 3, 4]));
+        Assert.True(a.Pass([1, 2, 3, 4], true, _cts.Token));
         Assert.True(reached);
     }
     
@@ -66,7 +68,7 @@ public class AudioPointTests
         
         a.ConnectedPoint = b;
         
-        Assert.True(b.Pass([1, 2, 3, 4]));
+        Assert.True(b.Pass([1, 2, 3, 4], true, _cts.Token));
         Assert.True(reached);
     }
 }

@@ -1,4 +1,6 @@
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Audio.Modules.Base;
+using PamelloV7.Core.Audio.Points;
 
 namespace PamelloV7.Server.Audio.Points;
 
@@ -38,11 +40,11 @@ public class AudioPoint : IAudioPoint
         ParentModule = parentModule;
     }
 
-    public bool Pass(byte[] audio) {
+    public bool Pass(byte[] audio, bool wait, CancellationToken token) {
         if (ProcessAudio is not null) {
             return ProcessAudio(audio);
         }
         
-        return ConnectedPoint?.Pass(audio) ?? false;
+        return ConnectedPoint?.Pass(audio, wait, token) ?? false;
     }
 }

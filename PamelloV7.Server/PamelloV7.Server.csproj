@@ -41,6 +41,9 @@
     <!--
     -->
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\Data\" />
+  </ItemGroup>
   <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
     <ItemGroup>
       <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
@@ -54,8 +57,4 @@
 
     <Copy SourceFiles="@(ModuleBinaries)" DestinationFolder="$(OutputPath)Modules\" />
   </Target>
-
-  <ItemGroup>
-    <Folder Include="Model\AudioOld\Modules\Outputs\" />
-  </ItemGroup>
 </Project>

@@ -1,4 +1,6 @@
-namespace PamelloV7.Core.Audio;
+using PamelloV7.Core.Audio.Modules.Base;
+
+namespace PamelloV7.Core.Audio.Points;
 
 public interface IAudioPoint
 {
@@ -8,5 +10,5 @@ public interface IAudioPoint
     public IAudioModule? ParentModule { get; }
     
     public Func<byte[], bool>? ProcessAudio { get; set; }
-    public bool Pass(byte[] audio);
+    public bool Pass(byte[] audio, bool wait, CancellationToken token);
 }

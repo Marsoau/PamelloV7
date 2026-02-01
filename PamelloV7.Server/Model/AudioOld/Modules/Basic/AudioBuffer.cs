@@ -1,6 +1,6 @@
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Points;
-using PamelloV7.Server.Model.Data;
+using PamelloV7.Server.Structures;
 
 namespace PamelloV7.Server.Model.AudioOld.Modules.Basic;
 
@@ -14,7 +14,7 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
 
     public AudioModel ParentModel { get; }
 
-    private readonly CircularBuffer<byte> _circle;
+    private readonly RingBuffer<byte> _circle;
     public int Size => _circle.Buffer.Length;
 
     public AudioPushPoint Input;
@@ -23,7 +23,7 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     public bool IsDisposed { get; private set; }
 
     public AudioBuffer(AudioModel parentModel, int size) {
-        _circle = new CircularBuffer<byte>(size);
+        _circle = new RingBuffer<byte>(size);
         
         ParentModel = parentModel;
     }
@@ -45,11 +45,11 @@ public class AudioBuffer : IAudioModuleWithInputs<AudioPushPoint>, IAudioModuleW
     }
 
     private Task<bool> OnRequest(byte[] buffer, bool wait, CancellationToken token) {
-        return _circle.ReadRange(buffer, wait, token);
+        return Task.FromResult(false); //_circle.ReadRange(buffer, wait, token);
     }
     
     private Task<bool> Process(byte[] audio, bool wait, CancellationToken token) {
-        return _circle.WriteRange(audio, wait, token);
+        return Task.FromResult(false); //_circle.WriteRange(audio, wait, token);
     }
 
     public void InitModule() {

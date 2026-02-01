@@ -1,4 +1,4 @@
-namespace PamelloV7.Server.Model.Data;
+namespace PamelloV7.Server.Structures;
 
 public class AwaitingOperation
 {
@@ -6,7 +6,7 @@ public class AwaitingOperation
     public TaskCompletionSource<bool> Completion;
 }
 
-public class CircularBuffer<TType> : IDisposable
+public class RingBuffer<TType> : IDisposable
 {
     public int Tail { get; set; }
     public int Head { get; set; }
@@ -16,47 +16,47 @@ public class CircularBuffer<TType> : IDisposable
     private List<AwaitingOperation> AwaitingWrites { get; set; }
     private List<AwaitingOperation> AwaitingReads { get; set; }
 
-    private bool afterWrite;
+    private bool _afterWrite;
 
-    public CircularBuffer(int size) {
+    public RingBuffer(int size) {
         Buffer = new TType[size];
         
         AwaitingWrites = [];
         AwaitingReads = [];
         
-        afterWrite = false;
+        _afterWrite = false;
     }
 
     public void Write(TType value) {
         Buffer[Head] = value;
         
         if (++Head == Buffer.Length) Head = 0;
-        afterWrite = true;
+        _afterWrite = true;
     }
     
     public TType Read() {
         var value = Buffer[Tail];
         
         if (++Tail == Buffer.Length) Tail = 0;
-        afterWrite = false;
+        _afterWrite = false;
         
         return value;
     }
 
     public int Available()
     {
-        if (Tail == Head) return afterWrite ? 0 : Buffer.Length;
+        if (Tail == Head) return _afterWrite ? 0 : Buffer.Length;
         var distance = Head - Tail;
         return distance < 0 ? -distance : Buffer.Length - distance;
     }
     public int Used()
     {
-        if (Tail == Head) return afterWrite ? Buffer.Length : 0;
+        if (Tail == Head) return _afterWrite ? Buffer.Length : 0;
         var distance = Head - Tail;
         return distance < 0 ? Buffer.Length - -distance : distance;
     }
     
-    public async Task<bool> WriteRange(TType[] values, bool wait, CancellationToken token = default)
+    public bool WriteRange(TType[] values, bool wait, CancellationToken token = default)
     {
         var count = values.Length;
         if (count > Available())
@@ -68,7 +68,7 @@ public class CircularBuffer<TType> : IDisposable
             
             AwaitingWrites.Add(operation);
             
-            if (!await operation.Completion.Task) return false;
+            if (!operation.Completion.Task.Result) return false;
         }
         
         var capacity = Buffer.Length;
@@ -83,7 +83,7 @@ public class CircularBuffer<TType> : IDisposable
         }
 
         Head = (Head + count) % capacity;
-        afterWrite = true;
+        _afterWrite = true;
 
         if (AwaitingReads.Count > 0) _ = Task.Run(() => {
             foreach (var item in AwaitingReads)
@@ -99,7 +99,7 @@ public class CircularBuffer<TType> : IDisposable
         return true;
     }
     
-    public async Task<bool> ReadRange(TType[] destination, bool wait, CancellationToken token = default)
+    public bool ReadRange(TType[] destination, bool wait, CancellationToken token = default)
     {
         var count = destination.Length;
         if (count > Used())
@@ -111,7 +111,7 @@ public class CircularBuffer<TType> : IDisposable
             
             AwaitingReads.Add(operation);
             
-            if (!await operation.Completion.Task) return false;
+            if (!operation.Completion.Task.Result) return false;
         }
         
         var capacity = Buffer.Length;
@@ -126,7 +126,7 @@ public class CircularBuffer<TType> : IDisposable
         }
 
         Tail = (Tail + count) % capacity;
-        afterWrite = false;
+        _afterWrite = false;
         
         if (AwaitingWrites.Count > 0) _ = Task.Run(() => {
             foreach (var item in AwaitingWrites)
