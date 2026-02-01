@@ -6,25 +6,28 @@ namespace PamelloV7.Audio.Services;
 
 public class PamelloAudioSystem : IPamelloAudioSystem
 {
-    public List<IAudioModule> Modules { get; }
+    private readonly List<IAudioModule> _modules;
+    private readonly List<IAudioDependant> _dependants;
     
     public PamelloAudioSystem() {
-        Modules = [];
+        _modules = [];
+        _dependants = [];
     }
     
-    public TAudioModule Register<TAudioModule>(TAudioModule module)
+    public TAudioModule RegisterModule<TAudioModule>(TAudioModule module)
         where TAudioModule : class, IAudioModule
     {
-        Modules.Add(module);
+        Console.WriteLine($"Registering module: {module.GetType().FullName}");
+        _modules.Add(module);
 
-        if (module is IAudioModuleWithInputs moduleWithModel) {
-            for (var i = 0; i < moduleWithModel.MinInputs; i++) {
-                moduleWithModel.AddInput(() => new AudioPoint(module));
+        if (module is IAudioModuleWithInputs moduleWithInputs) {
+            for (var i = moduleWithInputs.Inputs.Count; i < moduleWithInputs.MinInputs; i++) {
+                moduleWithInputs.AddInput(() => new AudioPoint(module));
             }
         }
 
         if (module is IAudioModuleWithOutputs moduleWithOutputs) {
-            for (var i = 0; i < moduleWithOutputs.MinOutputs; i++) {
+            for (var i = moduleWithOutputs.Outputs.Count; i < moduleWithOutputs.MinOutputs; i++) {
                 moduleWithOutputs.AddOutput(() => new AudioPoint(module));
             }
         }
@@ -32,5 +35,17 @@ public class PamelloAudioSystem : IPamelloAudioSystem
         module.InitAudio();
         
         return module;
+    }
+
+    public TAudioModule DeleteModule<TAudioModule>(TAudioModule module) where TAudioModule : class, IAudioModule {
+        throw new NotImplementedException();
+    }
+
+    public TAudioDependant RegisterDependant<TAudioDependant>(TAudioDependant dependant) where TAudioDependant : class, IAudioDependant {
+        Console.WriteLine($"Registering dependant: {dependant.GetType().FullName}");
+        
+        _dependants.Add(dependant);
+        
+        return dependant;
     }
 }

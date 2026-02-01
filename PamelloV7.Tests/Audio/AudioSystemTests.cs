@@ -14,7 +14,7 @@ public class AudioSystemTests
     
     [Fact]
     public void BasicRegister() {
-        var pump = _audio.Register(new AudioPump(2));
+        var pump = _audio.RegisterModule(new AudioPump(2));
         
         Assert.NotNull(pump);
         Assert.NotNull(pump.Input);

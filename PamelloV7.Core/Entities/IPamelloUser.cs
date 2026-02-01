@@ -7,9 +7,9 @@ namespace PamelloV7.Core.Entities;
 [ValueEntity("users")]
 public interface IPamelloUser : IPamelloDatabaseEntity
 {
-    public IPamelloPlayerOld? PreviousPlayer { get; }
-    public IPamelloPlayerOld? SelectedPlayer { get; set; }
-    public IPamelloPlayerOld RequiredSelectedPlayer { get; }
+    public IPamelloPlayer? PreviousPlayer { get; }
+    public IPamelloPlayer? SelectedPlayer { get; set; }
+    public IPamelloPlayer RequiredSelectedPlayer { get; }
     
     public Guid Token { get; }
     
@@ -25,8 +25,8 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloPlaylist> FavoritePlaylists { get; }
 
     public void TryLoadLastPlayer();
-    public bool TrySelectPlayer(IPamelloPlayerOld? player);
-    public void RequireSelectPlayer(IPamelloPlayerOld? player);
+    public bool TrySelectPlayer(IPamelloPlayer? player);
+    public void RequireSelectPlayer(IPamelloPlayer? player);
 
     public void AddAuthorization(UserAuthorization authorization);
     

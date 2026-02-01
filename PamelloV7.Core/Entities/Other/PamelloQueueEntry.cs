@@ -1,6 +1,4 @@
-using PamelloV7.Core.Entities;
-
-namespace PamelloV7.Core.AudioOld;
+namespace PamelloV7.Core.Entities.Other;
 
 public record PamelloQueueEntry(
     IPamelloSong Song,

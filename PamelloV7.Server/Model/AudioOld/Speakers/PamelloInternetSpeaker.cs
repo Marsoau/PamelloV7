@@ -7,7 +7,6 @@ using PamelloV7.Server.Model.AudioOld.Modules.Basic;
 using PamelloV7.Server.Model.AudioOld.Modules.Inputs;
 using PamelloV7.Server.Model.AudioOld.Modules.Pipes;
 using PamelloV7.Server.Model.AudioOld.Points;
-using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Model.Listeners;
 
 namespace PamelloV7.Server.Model.AudioOld.Speakers
@@ -105,8 +104,8 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
             return listener;
         }
         
-        public override DiscordString ToDiscordString() {
-            return DiscordString.Code($"{Name}") + " " + DiscordString.Code($"[{Id}]");
+        public override string ToDiscordString() {
+            return "";
         }
 
         public override IPamelloDTO GetDto() {

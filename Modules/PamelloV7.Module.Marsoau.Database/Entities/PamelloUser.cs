@@ -8,6 +8,7 @@ using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Module.Marsoau.Database.Entities.Base;
+using PamelloV7.Module.Marsoau.Database.Repositories;
 using PamelloV7.Server.Entities.Base;
 
 namespace PamelloV7.Module.Marsoau.Database.Entities;
@@ -56,9 +57,9 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         }
     }
 
-    public IPamelloPlayerOld? PreviousPlayer { get; }
-    public IPamelloPlayerOld? SelectedPlayer { get; set; }
-    public IPamelloPlayerOld RequiredSelectedPlayer { get; }
+    public IPamelloPlayer? PreviousPlayer { get; }
+    public IPamelloPlayer? SelectedPlayer { get; set; }
+    public IPamelloPlayer RequiredSelectedPlayer { get; }
 
     public UserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
     
@@ -136,11 +137,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public bool TrySelectPlayer(IPamelloPlayerOld? player) {
+    public bool TrySelectPlayer(IPamelloPlayer? player) {
         throw new NotImplementedException();
     }
 
-    public void RequireSelectPlayer(IPamelloPlayerOld? player) {
+    public void RequireSelectPlayer(IPamelloPlayer? player) {
         throw new NotImplementedException();
     }
 

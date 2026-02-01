@@ -5,7 +5,6 @@ using Discord.WebSocket;
 using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
-using PamelloV7.Server.Model.Discord;
 
 /*
 namespace PamelloV7.Server.Model.Audio.Speakers

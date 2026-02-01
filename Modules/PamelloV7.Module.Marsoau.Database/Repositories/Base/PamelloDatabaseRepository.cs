@@ -6,18 +6,15 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
+using PamelloV7.Module.Marsoau.Base.Repositories.Base;
 
 namespace PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
-public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : IPamelloDatabaseRepository<TPamelloEntity>
+public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity> : PamelloRepository<TPamelloEntity>, IPamelloDatabaseRepository<TPamelloEntity>
     where TPamelloEntity : IPamelloDatabaseEntity
     where TDatabaseEntity : DatabaseEntity
 {
-    protected readonly IServiceProvider _services;
-    
     private readonly IDatabaseAccessService _database;
-
-    protected readonly List<TPamelloEntity> _loaded;
 
     public abstract string CollectionName { get; }
     
@@ -28,25 +25,9 @@ public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity>
     public event Action? OnInitStart;
     public event Action<int, int>? OnInitProgress;
     public event Action? OnInitEnd;
-
-    protected IPamelloUserRepository _users;
-    protected IPamelloSongRepository _songs;
-    protected IPamelloEpisodeRepository _episodes;
-    protected IPamelloPlaylistRepository _playlists;
     
-    public PamelloDatabaseRepository(IServiceProvider services) {
-        _services = services;
-        
+    public PamelloDatabaseRepository(IServiceProvider services) : base(services) {
         _database = services.GetRequiredService<IDatabaseAccessService>();
-        
-        _loaded = [];
-    }
-
-    public void StartupRepository() {
-        _users = _services.GetRequiredService<IPamelloUserRepository>();
-        _songs = _services.GetRequiredService<IPamelloSongRepository>();
-        _episodes = _services.GetRequiredService<IPamelloEpisodeRepository>();
-        _playlists = _services.GetRequiredService<IPamelloPlaylistRepository>();
     }
 
     public IDatabaseCollection<TDatabaseEntity> GetCollection() {
@@ -107,10 +88,8 @@ public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity>
         return entity;
     }
 
-    public TPamelloEntity GetRequired(int id)
-        => Get(id) ?? throw new PamelloException($"Entity with id {id} was not found");
-    public TPamelloEntity? Get(int id) {
-        var entity = _loaded.FirstOrDefault(e => e.Id == id);
+    public override TPamelloEntity? Get(int id) {
+        var entity = base.Get(id);
         if (entity is not null) return entity;
         
         var databaseEntity = GetCollection().Get(id);
@@ -118,20 +97,4 @@ public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity>
         
         return Load(databaseEntity);
     }
-
-    public async Task<TPamelloEntity> GetByValueRequired(string value, IPamelloUser? scopeUser)
-        => await GetByValue(value, scopeUser) ?? throw new PamelloException($"Entity with value {value} was not found");
-    public Task<TPamelloEntity?> GetByValue(string value, IPamelloUser? scopeUser) {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<TPamelloEntity>> SearchAsync(string query, IPamelloUser? scopeUser = null) {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<TPamelloEntity> GetLoaded() {
-        return _loaded;
-    }
-
-    public abstract void Delete(TPamelloEntity entity);
 }

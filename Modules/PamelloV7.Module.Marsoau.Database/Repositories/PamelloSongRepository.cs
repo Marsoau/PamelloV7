@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Audio;
 using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Platforms;
@@ -10,9 +8,8 @@ using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
-using PamelloV7.Server.Entities;
 
-namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
+namespace PamelloV7.Module.Marsoau.Database.Repositories;
 
 public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, DatabaseSong>, IPamelloSongRepository
 {
@@ -67,12 +64,15 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser) {
+        /*
         var queue = scopeUser.SelectedPlayer?.Queue;
         if (queue is null) return [];
 
         var current = queue.Entries[queue.Position].Song;
 
         return [current];
+        */
+        return [];
     }
 
     public IEnumerable<IPamelloSong> GetRandom(IPamelloUser scopeUser) {

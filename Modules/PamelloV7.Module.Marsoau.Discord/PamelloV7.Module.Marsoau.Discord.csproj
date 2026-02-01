@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
       <ProjectReference Include="..\..\PamelloV7.Core\PamelloV7.Core.csproj" />
     </ItemGroup>
 

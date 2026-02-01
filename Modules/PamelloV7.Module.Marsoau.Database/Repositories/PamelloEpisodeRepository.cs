@@ -1,14 +1,11 @@
-using PamelloV7.Core.Audio;
 using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
-using PamelloV7.Server.Entities;
 
-namespace PamelloV7.Module.Marsoau.Base.Repositories.Database;
+namespace PamelloV7.Module.Marsoau.Database.Repositories;
 
 public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisode, DatabaseEpisode>, IPamelloEpisodeRepository
 {
@@ -34,7 +31,7 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
     }
 
     public IEnumerable<IPamelloEpisode> GetCurrent(IPamelloUser scopeUser) {
-        var episode = scopeUser?.SelectedPlayer?.Queue.Audio?.GetCurrentEpisode();
+        var episode = scopeUser?.SelectedPlayer?.Queue?.CurrentEpisode;
         return episode is not null ? [episode] : [];
     }
 

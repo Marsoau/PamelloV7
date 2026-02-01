@@ -51,7 +51,7 @@ public class InteractionHandler : IPamelloService
     private async Task InteractionsOnSlashCommandExecuted(SlashCommandInfo command, IInteractionContext context, IResult result) {
         if (result.IsSuccess || result.Error != InteractionCommandError.Exception) return;
         if (result is not ExecuteResult executeResult) return;
-        if (executeResult.Exception.InnerException is not PamelloException exception) {
+        if (executeResult.Exception?.InnerException is not PamelloException exception) {
             Console.WriteLine($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
             return;
         }

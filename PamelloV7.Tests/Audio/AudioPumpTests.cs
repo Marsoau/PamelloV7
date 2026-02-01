@@ -21,7 +21,7 @@ public class AudioPumpTests
         var sourceRun = false;
         var destinationRun = false;
         
-        sourcePoint.ProcessAudio = (audio) => {
+        sourcePoint.ProcessAudio = (audio, _, _) => {
             Assert.All(audio, a => Assert.Equal(0, a));
 
             for (var i = 0; i < audio.Length; i++) {
@@ -31,13 +31,13 @@ public class AudioPumpTests
             return sourceRun = true;
         };
         
-        destinationPoint.ProcessAudio = (audio) => {
+        destinationPoint.ProcessAudio = (audio, _, _) => {
             Assert.All(audio, a => Assert.Equal(3, a));
 
             return destinationRun = true;
         };
         
-        var pump = _audio.Register(new AudioPump(10));
+        var pump = _audio.RegisterModule(new AudioPump(10));
         
         pump.Input.ConnectedPoint = sourcePoint;
         pump.Output.ConnectedPoint = destinationPoint;

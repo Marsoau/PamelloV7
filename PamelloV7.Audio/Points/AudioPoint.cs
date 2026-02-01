@@ -30,7 +30,7 @@ public class AudioPoint : IAudioPoint
     }
     public IAudioModule? ParentModule { get; }
 
-    public Func<byte[], bool>? ProcessAudio { get; set; }
+    public Func<byte[], bool, CancellationToken, bool>? ProcessAudio { get; set; }
     
     private static int _idCounter = 1;
     public AudioPoint(IAudioModule parentModule) {
@@ -41,7 +41,7 @@ public class AudioPoint : IAudioPoint
 
     public bool Pass(byte[] audio, bool wait, CancellationToken token) {
         if (ProcessAudio is not null) {
-            return ProcessAudio(audio);
+            return ProcessAudio(audio, wait, token);
         }
         
         return ConnectedPoint?.Pass(audio, wait, token) ?? false;

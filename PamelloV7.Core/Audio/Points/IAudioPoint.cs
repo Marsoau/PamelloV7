@@ -9,6 +9,6 @@ public interface IAudioPoint
     public IAudioPoint? ConnectedPoint { get; set; }
     public IAudioModule? ParentModule { get; }
     
-    public Func<byte[], bool>? ProcessAudio { get; set; }
+    public Func<byte[], bool, CancellationToken, bool>? ProcessAudio { get; set; }
     public bool Pass(byte[] audio, bool wait, CancellationToken token);
 }

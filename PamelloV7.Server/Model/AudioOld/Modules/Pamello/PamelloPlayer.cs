@@ -1,13 +1,15 @@
-﻿using PamelloV7.Core.AudioOld;
+﻿/*
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.EventsOld;
 using PamelloV7.Core.Repositories;
+using PamelloV7.Module.Marsoau.Base.Queue;
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Modules.Basic;
 using PamelloV7.Server.Model.AudioOld.Speakers;
-using PamelloV7.Server.Model.Discord;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
@@ -137,7 +139,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
             Console.WriteLine("MusicLoop ended");
         }
         public async Task MusicLoop() {
-            /*
+            //
             byte[] audio = new byte[2];
             bool success = false;
 
@@ -185,7 +187,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
                     Console.WriteLine($"Play bytes exception: {x}");
                 }
             }
-            */
+            //
         }
 
         public override string ToString() {
@@ -260,7 +262,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
 
             return internetSpeaker;
         }
-        /*
+        //
         public async Task<PamelloDiscordSpeaker?> AddDiscord(DiscordSocketClient client, ulong guildId, ulong vcId) {
             var guild = client.GetGuild(guildId);
             if (guild is null) return null;
@@ -274,6 +276,7 @@ namespace PamelloV7.Server.Model.AudioOld.Modules.Pamello
 
             return speaker;
         }
-        */
+        //
     }
 }
+*/

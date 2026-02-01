@@ -2,7 +2,6 @@
 using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Points;
-using PamelloV7.Server.Model.Discord;
 
 namespace PamelloV7.Server.Model.AudioOld.Speakers
 {
@@ -40,7 +39,7 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
             OnTerminated?.Invoke(this);
         }
 
-        public abstract DiscordString ToDiscordString();
+        public abstract string ToDiscordString();
         public abstract IPamelloDTO GetDto();
         public void Init() {
         }

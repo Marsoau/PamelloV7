@@ -43,51 +43,53 @@ namespace PamelloV7.Server.Services
 		}
 
         private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
-			if (_speakers is null) return;
+	        /*
+	        if (_speakers is null) return;
 
-			List<IPamelloPlayerOld>? playersFromVc = null;
-			List<IPamelloPlayerOld>? playersToVc = null;
+	        List<IPamelloPlayerOld>? playersFromVc = null;
+	        List<IPamelloPlayerOld>? playersToVc = null;
 
-			var user = _users.GetByDiscord(discordUser.Id);
-			if (user is null) return;
+	        var user = _users.GetByDiscord(discordUser.Id);
+	        if (user is null) return;
 
-			if (fromVc.VoiceChannel is not null) {
-				playersFromVc = _speakers.GetVoicePlayers(fromVc.VoiceChannel.Id);
-			}
-			if (toVc.VoiceChannel is not null) {
-				playersToVc = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
-			}
+	        if (fromVc.VoiceChannel is not null) {
+		        playersFromVc = _speakers.GetVoicePlayers(fromVc.VoiceChannel.Id);
+	        }
+	        if (toVc.VoiceChannel is not null) {
+		        playersToVc = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
+	        }
 
-			playersFromVc ??= new List<IPamelloPlayerOld>();
-			playersToVc ??= new List<IPamelloPlayerOld>();
+	        playersFromVc ??= new List<IPamelloPlayerOld>();
+	        playersToVc ??= new List<IPamelloPlayerOld>();
 
-			if (playersToVc.Count == 1) {
-				user.SelectedPlayer = playersToVc.First();
-			}
-			else if (playersToVc.Count > 1 && user.PreviousPlayer is not null && playersToVc.Contains(user.PreviousPlayer)) {
-				user.SelectedPlayer = user.PreviousPlayer;
-			}
-			else if (user.SelectedPlayer is not null && playersFromVc.Contains(user.SelectedPlayer)) {
+	        if (playersToVc.Count == 1) {
+		        user.SelectedPlayer = playersToVc.First();
+	        }
+	        else if (playersToVc.Count > 1 && user.PreviousPlayer is not null && playersToVc.Contains(user.PreviousPlayer)) {
+		        user.SelectedPlayer = user.PreviousPlayer;
+	        }
+	        else if (user.SelectedPlayer is not null && playersFromVc.Contains(user.SelectedPlayer)) {
                 user.SelectedPlayer = null;
             }
 
             Console.WriteLine($"VCC Auto selected player {user.SelectedPlayer?.ToString() ?? "NULL"} for {user}");
+	        */
 
-			/*
-			if (_speakers is null) return;
-			if (toVc.VoiceChannel is null) return;
+	        /*
+	        if (_speakers is null) return;
+	        if (toVc.VoiceChannel is null) return;
 
-			var pamelloUser = _users.GetByDiscord(user.Id);
-			if (pamelloUser is null) return;
+	        var pamelloUser = _users.GetByDiscord(user.Id);
+	        if (pamelloUser is null) return;
 
-			PamelloPlayer? player = null;
+	        PamelloPlayer? player = null;
 
             var vcPlayers = _speakers.GetVoicePlayers(toVc.VoiceChannel.Id);
             if (vcPlayers.Count == 1) player = vcPlayers.First();
 
             Console.WriteLine($"VCC Auto selected player {player?.ToString() ?? "NULL"} for {pamelloUser}");
-			pamelloUser.SelectedPlayer = player;
-			*/
+	        pamelloUser.SelectedPlayer = player;
+	        */
 		}
 
 		public bool IsClientUser(ulong userId) {

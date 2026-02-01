@@ -28,6 +28,8 @@ public class Test : IPamelloModule
         var users = services.GetRequiredService<IPamelloUserRepository>();
         var songs = services.GetRequiredService<IPamelloSongRepository>();
         var playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+        var episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+        var players = services.GetRequiredService<IPamelloPlayerRepository>();
         var logger = services.GetRequiredService<IPamelloLogger>();
         var platforms = services.GetRequiredService<IPlatformService>();
         var commands = services.GetRequiredService<IPamelloCommandsService>();
@@ -36,22 +38,5 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
 
         var me = users.GetRequired(1);
-        var song = await peql.GetSingleRequiredAsync<IPamelloSong>("16", me);
-
-        Console.WriteLine($"File: {song.Sources[0].GetFile().FullName}");
-
-        try {
-            var downloader = song.Sources[0].GetDownloader();
-            Console.WriteLine("Got downloader");
-            var resultTask = downloader.DownloadAsync();
-            if (!resultTask.IsCompleted) {
-                Console.WriteLine("Waiting for download");
-            }
-            var result = await resultTask;
-            Console.WriteLine($"result: {result}");
-        }
-        catch (Exception x) {
-            Console.WriteLine($"No downloader: {x}");
-        }
     }
 }

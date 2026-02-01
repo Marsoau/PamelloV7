@@ -1,6 +1,6 @@
 namespace PamelloV7.Core.Audio.Modules.Base;
 
-public interface IAudioModuleDependant
+public interface IAudioDependant
 {
     
 }

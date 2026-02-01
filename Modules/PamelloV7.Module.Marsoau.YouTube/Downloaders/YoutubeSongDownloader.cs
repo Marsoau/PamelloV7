@@ -16,7 +16,7 @@ public class YoutubeSongDownloader : SongDownloader
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo() {
             FileName = "yt-dlp",
-            Arguments = $@"--quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{file.FullName}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={Source.PK.Key}",
+            Arguments = $@"--extractor-args ""youtube:player_client=android"" --quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{file.FullName}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={Source.PK.Key}",
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
             RedirectStandardOutput = true

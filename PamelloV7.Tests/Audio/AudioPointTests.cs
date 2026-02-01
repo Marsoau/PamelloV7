@@ -18,7 +18,7 @@ public class AudioPointTests
             b.ConnectedPoint = a;
         });
 
-        a.ProcessAudio = _ => true;
+        a.ProcessAudio = (_, _, _) => true;
         a.ConnectedPoint = b;
         
         Assert.Equal(b, a.ConnectedPoint);
@@ -41,7 +41,7 @@ public class AudioPointTests
         
         var reached = false;
         
-        a.ProcessAudio = (audio) => {
+        a.ProcessAudio = (audio, _, _) => {
             reached = true;
             
             Assert.Equal([1, 2, 3, 4], audio);
@@ -59,7 +59,7 @@ public class AudioPointTests
 
         var reached = false;
 
-        a.ProcessAudio = (audio) => {
+        a.ProcessAudio = (audio, _, _) => {
             reached = true;
             
             Assert.Equal([1, 2, 3, 4], audio);

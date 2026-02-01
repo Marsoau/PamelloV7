@@ -6,6 +6,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Events;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Module.Marsoau.Database.Entities.Base;
+using PamelloV7.Module.Marsoau.Database.Repositories;
 using PamelloV7.Server.Entities.Base;
 
 namespace PamelloV7.Module.Marsoau.Database.Entities;
