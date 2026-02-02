@@ -20,14 +20,14 @@ public partial class Song
             case 1: {
                 var song = songs.First();
             
-                await RespondUpdatableAsync(message => {
-                    message.Components = PamelloComponentBuilders.SongInfo(song, Context.User, Services).Build();
-                }, () => [song, ..song.FavoriteBy, ..song.Playlists]);
+                await RespondUpdatableAsync(() =>
+                    PamelloComponentBuilders.SongInfo(song, Context.User, Services).Build()
+                , () => [song, ..song.FavoriteBy, ..song.Playlists]);
             } break;
             case >= 1: {
-                await RespondUpdatablePageAsync((message, page) => {
-                    message.Components = PamelloComponentBuilders.EntitiesList($"{DiscordString.Code(songs.Count)} Songs", songs, page).Build();
-                }, () => [.. songs]);
+                await RespondUpdatablePageAsync(page =>
+                    PamelloComponentBuilders.EntitiesList($"{DiscordString.Code(songs.Count)} Songs", songs, page).Build()
+                , () => [.. songs]);
             } break;
             default:
                 await RespondComponentAsync(PamelloComponentBuilders.Info("Song Info", $"No song found by query `{songQuery}`").Build());
@@ -36,7 +36,7 @@ public partial class Song
     }
 }
 
-public partial class SongInteractions
+public partial class PlayerInteractions
 {
     [ComponentInteraction("song-info-edit-name:*")]
     public async Task EditNameButton(string songQuery) {

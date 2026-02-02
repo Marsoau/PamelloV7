@@ -21,8 +21,8 @@ public partial class Playlist
         var songs = songsQuery is null ? [] : await GetAsync<IPamelloSong>(songsQuery);
         playlist.AddSongs(songs);
 
-        await RespondUpdatableAsync(message => {
-            message.Components = PamelloComponentBuilders.Info("Playlist Created", $"{playlist.ToDiscordString()}").Build();
-        }, playlist);
+        await RespondUpdatableAsync(() =>
+            PamelloComponentBuilders.Info("Playlist Created", $"{playlist.ToDiscordString()}").Build()
+        , playlist);
     }
 }

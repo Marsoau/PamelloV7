@@ -21,10 +21,10 @@ public partial class Playlist
         
         Command<PlaylistRename>().Execute(playlist, newName);
 
-        await RespondUpdatableAsync((message) => {
-            message.Components = PamelloComponentBuilders.RefreshButton(
+        await RespondUpdatableAsync(() =>
+            PamelloComponentBuilders.RefreshButton(
                 PamelloComponentBuilders.Info("Playlist Renamed", playlist.ToDiscordString())
-            ).Build();
-        }, playlist);
+            ).Build()
+        , playlist);
     }
 }

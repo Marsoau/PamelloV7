@@ -17,8 +17,8 @@ public partial class Song
         
         Command<SongRename>().Execute(song, newName);
 
-        await RespondUpdatableAsync((message) => {
-            message.Components = PamelloComponentBuilders.Info("Song Renamed", song.ToDiscordString()).Build();
-        }, song);
+        await RespondUpdatableAsync(() =>
+            PamelloComponentBuilders.Info("Song Renamed", song.ToDiscordString()).Build()
+        , song);
     }
 }

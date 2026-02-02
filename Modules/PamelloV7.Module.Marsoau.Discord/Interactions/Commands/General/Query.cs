@@ -16,8 +16,8 @@ public class Query : DiscordCommand
     ) {
         var entities = await GetAsync(query);
         
-        await RespondUpdatablePageAsync((message, page) => {
-            message.Components = PamelloComponentBuilders.EntitiesList("Query Result", entities, page).Build();
-        }, () => [.. entities]);
+        await RespondUpdatablePageAsync(page =>
+            PamelloComponentBuilders.EntitiesList("Query Result", entities, page).Build()
+        , () => [.. entities]);
     }
 }

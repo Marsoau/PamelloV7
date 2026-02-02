@@ -18,6 +18,11 @@ public class Ping : DiscordCommand
 {
     [SlashCommand("ping", "Ping the bot", runMode: RunMode.Async)]
     public async Task ExecuteAsync() {
+        await RespondUpdatableAsync(() =>
+            PamelloComponentBuilders.Info("Pong!", $"Hi {Context.User.ToDiscordString()}!").Build()
+        , Context.User);
+        return;
+        
         var vc = Context.Guild.GetUser(Context.DiscordUser.Id).VoiceChannel;
         if (vc is null) {
             await RespondAsync("Not in a voice channel");
@@ -37,7 +42,7 @@ public class Ping : DiscordCommand
         }
         
         var audio = Services.GetRequiredService<IPamelloAudioSystem>();
-        var song = await GetSingleRequiredAsync<IPamelloSong>("18");
+        var song = await GetSingleRequiredAsync<IPamelloSong>("33");
 
         var songAudio = audio.RegisterModule(new SongAudio(song, Services));
         var pump = audio.RegisterModule(new AudioPump(4096));
@@ -49,8 +54,6 @@ public class Ping : DiscordCommand
         };
         
         await RespondAsync("definitely playing");
-        
-        await songAudio.TryInitialize();
 
         Console.WriteLine("playing");
         await Task.Run(() => {
@@ -61,10 +64,5 @@ public class Ping : DiscordCommand
         Console.WriteLine("end");
         
         await FollowupAsync("end");
-        
-        return;
-        await RespondUpdatableAsync(message => {
-            message.Components = PamelloComponentBuilders.Info("Pong!", $"Hi {Context.User.ToDiscordString()}!").Build();
-        }, Context.User);
     }
 }

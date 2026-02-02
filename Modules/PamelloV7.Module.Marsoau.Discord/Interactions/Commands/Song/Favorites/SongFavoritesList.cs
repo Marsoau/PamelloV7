@@ -15,11 +15,11 @@ public partial class SongFavorites
     ) {
         var user = await GetSingleRequiredAsync<IPamelloUser>(userQuery);
         
-        await RespondUpdatablePageAsync((message, page) => {
-            message.Components = PamelloComponentBuilders.FavoriteList(
+        await RespondUpdatablePageAsync(page =>
+            PamelloComponentBuilders.FavoriteList(
                 user, ESongOrPlaylist.Song, Context.User, page, 10
-            ).Build();
-        }, () => [.. Context.User.FavoriteSongs, Context.User]);
+            ).Build()
+        , () => [.. Context.User.FavoriteSongs, Context.User]);
     }
 }
 

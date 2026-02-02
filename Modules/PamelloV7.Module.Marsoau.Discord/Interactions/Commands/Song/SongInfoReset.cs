@@ -21,7 +21,7 @@ public partial class Song
             return;
         }
 
-        var message = await RespondUpdatableAsync(message => {
+        var message = await RespondUpdatableAsync(() => {
             var title = "";
             var content = "";
             
@@ -37,7 +37,7 @@ public partial class Song
                 if (processedSongs.Count > 5) content += $"\n{DiscordString.Italic($"... And {processedSongs.Count - 5} more")}";
             }
 
-            message.Components = PamelloComponentBuilders.Info(title, content).Build();
+            return PamelloComponentBuilders.Info(title, content).Build();
         }, () => [.. processedSongs.Skip(processedSongs.Count - 5)]);
 
         foreach (var song in songs) {

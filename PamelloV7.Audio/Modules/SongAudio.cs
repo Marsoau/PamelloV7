@@ -124,7 +124,7 @@ public class SongAudio : IAudioModuleWithOutput
     private async Task<bool> NextBytesAsync(byte[] result, bool wait, CancellationToken token) {
         // Console.WriteLine("next bytes");
         if (_rewinding is not null) await _rewinding;
-        if (_currentChunk is null) return false;
+        if (_currentChunk is null) return await TryInitialize(token);
         // Console.WriteLine("next bytes 2");
 
         if (_position.TimeValue >= _duration.TimeValue) {

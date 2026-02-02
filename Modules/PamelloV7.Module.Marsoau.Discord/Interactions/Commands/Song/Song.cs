@@ -23,5 +23,5 @@ public partial class Song : DiscordCommand
 }
 
 [Map]
-public partial class SongInteractions : DiscordCommand
+public partial class PlayerInteractions : DiscordCommand
 { }
