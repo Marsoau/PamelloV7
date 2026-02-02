@@ -18,6 +18,7 @@ public interface IPamelloPlayer : IPamelloEntity
     public IAudioModule Pump { get; }
     
     public IPamelloQueue? Queue { get; }
+    public IPamelloQueue RequiredQueue { get; }
 
     public bool IsAvailableFor(IPamelloUser user);
 }

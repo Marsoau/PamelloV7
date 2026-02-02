@@ -9,9 +9,11 @@ public static class IEnumerableExtensions
 
     public static int TranslateValueIndex<TType>(this IEnumerable<TType> enumerable, string value, bool includeLastEmpty = false, Func<IEnumerable<TType>, int>? getCurrent = null) {
         var count = enumerable.Count();
-        if (count == 0) return -1;
+        if (count == 0) return includeLastEmpty ? 0 : -1;
         
         if (int.TryParse(value, out var result)) {
+            if (result == 0) return 0;
+            
             if (result > 0) result -= 1;
             
             if (result < 0) {

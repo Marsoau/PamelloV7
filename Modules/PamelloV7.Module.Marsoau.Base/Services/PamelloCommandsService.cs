@@ -47,12 +47,14 @@ public class PamelloCommandsService : IPamelloCommandsService
         if (commandType is null) throw new PamelloException($"Command {requestedType.Name} not found");
         
         var scopeUserField = typeof(PamelloCommand).GetField("ScopeUser");
-        if (scopeUserField is null) throw new PamelloException($"Command {requestedType.Name} does not have ScopeUser field");
+        var servicesField = typeof(PamelloCommand).GetField("Services");
+        if (scopeUserField is null || servicesField is null) throw new PamelloException($"Command {requestedType.Name} should have ScopeUser and Services fields");
         
         var command = Activator.CreateInstance(commandType) as PamelloCommand;
         Debug.Assert(command is not null, "Command cannot be null here");
         
         scopeUserField.SetValue(command, scopeUser);
+        servicesField.SetValue(command, _services);
         
         return command;
     }

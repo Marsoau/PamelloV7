@@ -5,6 +5,7 @@ using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Module.Marsoau.Base.Queue;
 using PamelloV7.Server.Entities.Base;
 
@@ -35,6 +36,7 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     public bool IsPaused { get; set; }
 
     public IPamelloQueue? Queue { get; }
+    public IPamelloQueue RequiredQueue => Queue ?? throw new PamelloException("Player doesnt have a queue");
 
     [OnAudioMap]
     public AudioPump Pump { get; set; }
@@ -58,7 +60,11 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
         Pump = _audio.RegisterModule(new AudioPump(4096));
         Copy = _audio.RegisterModule(new AudioCopy());
     }
-    
+
+    public void InitDependant() {
+        Pump.Start();
+    }
+
     public bool IsAvailableFor(IPamelloUser user) {
         return Owner == user;
     }

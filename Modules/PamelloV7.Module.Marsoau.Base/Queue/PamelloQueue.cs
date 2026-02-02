@@ -142,11 +142,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _songs = services.GetRequiredService<IPamelloSongRepository>();
 
             Player = player;
+            
+            IsNoLeftovers = true;
 
             _entries = [];
         }
 
-        public async Task SetCurrent(PamelloQueueEntry? entry) {
+        public void SetCurrent(PamelloQueueEntry? entry) {
             if (_songAudio is not null) {
                 UnsubscribeCurrentAudioEvents();
                 _audio.DeleteModule(_songAudio);
@@ -161,7 +163,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                     pump.Input.ConnectedPoint = _songAudio.Output;
                 }
                 
-                if (!await _songAudio.TryInitialize()) await SetCurrent(null);
+                //if (!await _songAudio.TryInitialize()) await SetCurrent(null);
             }
 
             if (_songAudio is not null) {
@@ -211,26 +213,26 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         public IPamelloSong? SongAt(int position)
             => _entries.ElementAtOrDefault(position)?.Song;
 
-        public IPamelloSong AddSong(IPamelloSong song, IPamelloUser? adder)
-            => InsertSong(_entries.Count.ToString(), song, adder);
+        public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder)
+            => InsertSongs((_entries.Count + 1).ToString(), songs, adder);
         public IPamelloPlaylist AddPlaylist(IPamelloPlaylist playlist, IPamelloUser? adder)
-            => InsertPlaylist(_entries.Count.ToString(), playlist, adder);
+            => InsertPlaylist((_entries.Count + 1).ToString(), playlist, adder);
 
-        public IPamelloSong InsertSong(string position, IPamelloSong song, IPamelloUser? adder) {
-            Debug.Assert(song is not null, "Null song was inserted into queue");
-
+        public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> songs, IPamelloUser? adder) {
             var insertPosition = TranslateQueuePosition(position, true);
-            _entries.Insert(insertPosition, new PamelloQueueEntry(song, adder));
+            var beforeCount = _entries.Count;
+            
+            _entries.InsertRange(insertPosition, songs.Select(song => new PamelloQueueEntry(song, adder)));
 
             //TODO events here
 
-			if (_entries.Count == 1) {
+			if (beforeCount == 0 && _entries.Count > 0) {
 				SetCurrent(_entries.FirstOrDefault());
                 Position = 0;
 			}
 			else if (insertPosition <= Position) Position++;
 
-            return song;
+            return songs;
 		}
 
         public IPamelloPlaylist InsertPlaylist(string positionValue, IPamelloPlaylist playlist, IPamelloUser? adder) {
@@ -326,7 +328,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             return true;
 		}
-		public async Task<IPamelloSong> GoToSong(string songPositionValue, bool returnBack = false) {
+		public IPamelloSong GoToSong(string songPositionValue, bool returnBack = false) {
 			if (_entries.Count == 0) throw new PamelloException("Queue is empty");
 
 			var nextPosition = TranslateQueuePosition(songPositionValue);
@@ -335,18 +337,18 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             Position = nextPosition;
             var entry = _entries[Position];
 
-            await SetCurrent(entry);
+            SetCurrent(entry);
 
             return entry.Song;
 		}
-		public async Task<IPamelloSong?> GoToNextSong(bool forceRemoveCurrentSong = false) {
+		public IPamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
 			if (_entries.Count == 0)
             {
                 if (!IsFeedRandom) return null;
 
                 var song = _songs.GetRandom(null!).FirstOrDefault();
                 
-                if (song is not null) return AddSong(song, null);
+                if (song is not null) return AddSongs([song], null).FirstOrDefault();
                 
                 IsFeedRandom = false;
                 
@@ -372,15 +374,16 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 //TODO events here
             }
 
-			Position = TranslateQueuePosition(nextPosition.ToString());
+            if (_entries.Count == 0) Position = 0;
+            else Position = nextPosition % _entries.Count;
 
 			if (_entries.Count == 0) {
-                await SetCurrent(null);
+                SetCurrent(null);
                 return null;
 			}
 
             var entry = _entries[Position];
-            await SetCurrent(entry);
+            SetCurrent(entry);
 
 			return entry.Song;
 		}

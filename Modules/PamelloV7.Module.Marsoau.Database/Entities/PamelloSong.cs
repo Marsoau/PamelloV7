@@ -29,6 +29,8 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     public List<IPamelloPlaylist> _songPlaylists;
     public List<string> _associations;
 
+    public new int Id => IsSoftDeleted ? -base.Id : base.Id;
+
     public override string Name {
         get => _name;
         set {

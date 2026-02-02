@@ -20,7 +20,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
 {
     protected UpdatableMessage? _updatableMessage;
     
-    protected IPamelloUser User => Context.User;
+    protected IPamelloUser ScopeUser => Context.User;
     protected IServiceProvider Services => Context.Services;
 
     protected bool IsLoading { get; set; }
@@ -53,22 +53,22 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
 
     public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, User), respond);
+        => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);
 
     public Task<TPamelloEntity?> GetSingleAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync<TPamelloEntity>(query, User), respond);
+        => WithLoadingAsync(PEQL.GetSingleAsync<TPamelloEntity>(query, ScopeUser), respond);
 
     public Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync<TPamelloEntity>(query, User), respond);
+        => WithLoadingAsync(PEQL.GetAsync<TPamelloEntity>(query, ScopeUser), respond);
 
     public Task<IPamelloEntity> GetSingleRequiredAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync(query, User), respond);
+        => WithLoadingAsync(PEQL.GetSingleRequiredAsync(query, ScopeUser), respond);
 
     public Task<IPamelloEntity?> GetSingleAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync(query, User), respond);
+        => WithLoadingAsync(PEQL.GetSingleAsync(query, ScopeUser), respond);
 
     public Task<List<IPamelloEntity>> GetAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync(query, User), respond);
+        => WithLoadingAsync(PEQL.GetAsync(query, ScopeUser), respond);
 
     public Task RespondInfo(string title, string description) {
         return RespondAsync(components: PamelloComponentBuilders.Info(title, description).Build(), ephemeral: true);
