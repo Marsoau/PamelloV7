@@ -19,6 +19,7 @@ public interface IPamelloPlayer : IPamelloEntity
     
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue { get; }
+    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers { get; }
 
     public bool IsAvailableFor(IPamelloUser user);
 }

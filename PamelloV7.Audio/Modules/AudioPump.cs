@@ -28,7 +28,15 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
 
     public Task Start() {
         return _pumpTask = Task.Run(() => {
-            while (!_cts.IsCancellationRequested) Pump();
+            while (!_cts.IsCancellationRequested) {
+                try {
+                    Pump();
+                }
+                catch (Exception x) {
+                    Console.WriteLine($"PUMP EXCEPTION: {x}");
+                    Task.Delay(3000).Wait();
+                }
+            }
         });
     }
 

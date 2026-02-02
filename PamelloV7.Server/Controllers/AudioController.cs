@@ -21,6 +21,7 @@ namespace PamelloV7.Server.Controllers
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 
+        /*
         [HttpGet("Out/{value}")]
         public async Task Out(string value) {
             TryGetUser();
@@ -32,5 +33,6 @@ namespace PamelloV7.Server.Controllers
 
             await Task.Run(() => listener.Completion.Task.Wait(), HttpContext.RequestAborted);
         }
+        */
     }
 }

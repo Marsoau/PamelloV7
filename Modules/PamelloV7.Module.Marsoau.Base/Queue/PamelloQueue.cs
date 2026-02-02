@@ -214,9 +214,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             => _entries.ElementAtOrDefault(position)?.Song;
 
         public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder)
-            => InsertSongs((_entries.Count + 1).ToString(), songs, adder);
+            => InsertSongs(_entries.Count.ToString(), songs, adder);
         public IPamelloPlaylist AddPlaylist(IPamelloPlaylist playlist, IPamelloUser? adder)
-            => InsertPlaylist((_entries.Count + 1).ToString(), playlist, adder);
+            => InsertPlaylist(_entries.Count.ToString(), playlist, adder);
 
         public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> songs, IPamelloUser? adder) {
             var insertPosition = TranslateQueuePosition(position, true);

@@ -6,8 +6,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
 {
     public static class DiscordString
     {
-        public static string User(IPamelloUser user) {
-            var discordAdderId = user.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord")?.PK.Key;
+        public static string User(IPamelloUser? user) {
+            var discordAdderId = user?.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord")?.PK.Key;
             return $"<@{discordAdderId ?? "0"}>";
         }
         public static string Time(DateTime date) {

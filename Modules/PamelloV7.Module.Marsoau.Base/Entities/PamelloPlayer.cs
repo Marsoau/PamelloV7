@@ -37,6 +37,7 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
 
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue => Queue ?? throw new PamelloException("Player doesnt have a queue");
+    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers => [];
 
     [OnAudioMap]
     public AudioPump Pump { get; set; }
@@ -66,6 +67,6 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     }
 
     public bool IsAvailableFor(IPamelloUser user) {
-        return Owner == user;
+        return true; //Owner == user;
     }
 }

@@ -33,7 +33,7 @@ public partial class PlayerQueue
             } break;
             default:
                 await RespondComponentAsync(PamelloComponentBuilders.Info("No Songs Added", $"No songs found by query `{songsQuery}`").Build());
-                break;
+            break;
         }
     }
 }
