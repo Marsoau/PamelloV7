@@ -33,7 +33,7 @@ public class DiscordClientService : IPamelloService
 	public bool IsClientUser(ulong userId) {
 		return DiscordClients.Any(client => client.CurrentUser.Id == userId);
 	}
-
+	
 	public SocketVoiceChannel? GetUserVoiceChannel(IPamelloUser user) {
 		foreach (var client in DiscordClients) {
 			foreach (var guild in client.Guilds) {

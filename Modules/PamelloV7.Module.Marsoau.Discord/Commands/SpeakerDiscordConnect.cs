@@ -14,8 +14,6 @@ public class SpeakerDiscordConnect : PamelloCommand
         
         var vc = clients.GetUserVoiceChannel(ScopeUser);
         if (vc is null) throw new PamelloException("You have to be in a voice channel to connect a speaker");
-
-        //check if there are speaker clients available
         
         var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
         var speaker = new PamelloDiscordSpeaker(speakers.NextId, vc.Guild.Id, ScopeUser.GuaranteedSelectedPlayer, Services);

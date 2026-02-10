@@ -30,7 +30,17 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
     public SpeakerAudioOutput Output { get; }
     IAudioModule IPamelloSpeaker.Output => Output;
 
-    public IEnumerable<IPamelloListener> Listeners { get; }
+    public IEnumerable<IPamelloListener> Listeners {
+        get {
+            if (Guild?.AudioClient is null) return [];
+            var vc = Guild.GetUser(Client.CurrentUser.Id)?.VoiceChannel;
+            if (vc is null) return [];
+
+            return vc.Users.Select(user =>
+                new PamelloDiscordSpeakerListener(user, this, _services)
+            );
+        }
+    }
 
     public override string Name {
         get => Client.CurrentUser.Username ?? $"Speaker-{Id}N";
@@ -43,8 +53,6 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
         _guildId = guildId;
         
         Player = player;
-
-        Listeners = [];
         
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         

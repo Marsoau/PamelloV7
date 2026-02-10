@@ -34,7 +34,7 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
     }
 
     public IEnumerable<IPamelloSpeaker> GetCurrent(IPamelloUser scopeUser) {
-        return scopeUser.SelectedPlayer?.ConnectedSpeakers.Where(speaker => speaker.IsAvailableFor(scopeUser)) ?? [];
+        return scopeUser.SelectedPlayer?.ConnectedSpeakers.Where(speaker => speaker.Listeners.Any(listener => listener.User == scopeUser)) ?? [];
     }
 
     public IEnumerable<IPamelloSpeaker> GetRandom(IPamelloUser scopeUser) {
