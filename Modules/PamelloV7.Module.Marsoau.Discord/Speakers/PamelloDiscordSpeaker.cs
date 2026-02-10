@@ -92,6 +92,12 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
         Guild.AudioClient.Connected += async () => {
             Console.WriteLine("AC Connected");
             Output.Stream = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
+
+            foreach (var listener in Listeners) {
+                if (listener.User is null || listener.User.SelectedPlayer is not null) continue;
+                
+                listener.User.SelectedPlayer = Player;
+            }
         };
     }
 }

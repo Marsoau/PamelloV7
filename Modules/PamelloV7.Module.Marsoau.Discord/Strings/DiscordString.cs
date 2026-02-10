@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Text;
+using Discord;
 using Discord.WebSocket;
 using PamelloV7.Core.Entities;
 
@@ -34,6 +35,17 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
         }
         public static string Spoiler(object? obj) {
             return obj is not null ? $"||{obj}||" : "";
+        }
+        
+        public static string Progress(double progress, int length) {
+            var done = (int)(progress * length);
+            
+            var sb = new StringBuilder();
+            
+            for (var i = 0; i < done; i++) sb.Append('▬');
+            for (var i = done; i < length; i++) sb.Append(' ');
+            
+            return Code($"[{sb}] {progress * 100:0.00}%");
         }
         
         public static string Emote(Emote? emote) {
