@@ -19,7 +19,7 @@ public interface IAudioModuleWithOutputs : IAudioModule
         return point;
     }
 
-    public void RemoveOutputs(int index) {
+    public void RemoveOutputAt(int index) {
         if (index < 0 || index >= Outputs.Count) return;
         
         Outputs.RemoveAt(index);

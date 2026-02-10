@@ -1,13 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
+using PamelloV7.Audio.Points;
 using PamelloV7.Core.Audio.Attributes;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Module.Marsoau.Base.Queue;
-using PamelloV7.Server.Entities.Base;
 
 namespace PamelloV7.Module.Marsoau.Base.Entities;
 
@@ -34,10 +35,12 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     
     [OnAudioMap]
     public bool IsPaused { get; set; }
+    
+    private List<IPamelloSpeaker> _connectedSpeakers;
 
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue => Queue ?? throw new PamelloException("Player doesnt have a queue");
-    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers => [];
+    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers => _connectedSpeakers;
 
     [OnAudioMap]
     public AudioPump Pump { get; set; }
@@ -54,6 +57,8 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
         
         _name = name;
         
+        _connectedSpeakers = [];
+        
         _audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Queue = _audio.RegisterDependant(new PamelloQueue(this, services));
@@ -63,10 +68,24 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     }
 
     public void InitDependant() {
+        Pump.Output.ConnectedPoint = Copy.Input;
+        
         Pump.Start();
     }
 
     public bool IsAvailableFor(IPamelloUser user) {
         return true; //Owner == user;
+    }
+    
+    public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker) {
+        if (Copy is not IAudioModuleWithOutputs copy) throw new Exception("Copy is not IAudioModuleWithOutputs");
+        if (speaker.Output is not IAudioModuleWithInput output) throw new Exception("Speaker output is not IAudioModuleWithInput");
+        
+        var point = copy.AddOutput(() => new AudioPoint(copy));
+        point.ConnectedPoint = output.Input;
+        
+        _connectedSpeakers.Add(speaker);
+
+        return speaker;
     }
 }

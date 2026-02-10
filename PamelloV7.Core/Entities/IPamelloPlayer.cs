@@ -19,7 +19,14 @@ public interface IPamelloPlayer : IPamelloEntity
     
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue { get; }
+    
     public IEnumerable<IPamelloSpeaker> ConnectedSpeakers { get; }
 
-    public bool IsAvailableFor(IPamelloUser user);
+    public bool IsAvailableFor(IPamelloUser user) {
+        if (Owner == user) return true;
+        
+        return ConnectedSpeakers.Any(speaker => speaker.IsAvailableFor(user));
+    }
+
+    public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker);
 }

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Commands;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Difference;
 using PamelloV7.Core.DTO;
@@ -7,15 +9,18 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.Repositories;
+using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Module.Marsoau.Database.Entities.Base;
 using PamelloV7.Module.Marsoau.Database.Repositories;
-using PamelloV7.Server.Entities.Base;
 
 namespace PamelloV7.Module.Marsoau.Database.Entities;
 
 public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 {
+    private readonly IPamelloCommandsService _commands;
+    
     private Guid _token;
     
     private DateTime _joinedAt;
@@ -82,6 +87,9 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         }
     }
 
+    public IPamelloPlayer GuaranteedSelectedPlayer
+        => SelectedPlayer ?? _commands.Get<PlayerCreate>(this).Execute("Player");
+
     public UserAuthorization? SelectedAuthorization => _authorizations.ElementAtOrDefault(SelectedAuthorizationIndex);
     
     public IReadOnlyList<UserAuthorization> Authorizations => _authorizations;
@@ -92,6 +100,8 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     public IReadOnlyList<IPamelloPlaylist> FavoritePlaylists => _favoritePlaylists;
     
     public PamelloUser(DatabaseUser databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
+        _commands = services.GetRequiredService<IPamelloCommandsService>();
+        
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
 
@@ -331,6 +341,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         Save();
         
         return FavoritePlaylists;
+    }
+
+    public string? GetPriorityPlatformKey(string platform) {
+        if (SelectedAuthorization?.PK.Platform == platform) return SelectedAuthorization.PK.Key;
+        return Authorizations.FirstOrDefault(auth => auth.PK.Platform == platform)?.PK.Key;
     }
 
     public IPamelloPlaylist CreatePlaylist(string name) {

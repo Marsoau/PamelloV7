@@ -35,11 +35,12 @@ public class DiscordClientService : IPamelloService
 	}
 
 	public SocketVoiceChannel? GetUserVoiceChannel(IPamelloUser user) {
-		SocketVoiceChannel? vc = null;
 		foreach (var client in DiscordClients) {
 			foreach (var guild in client.Guilds) {
-				//vc = guild.GetUser(user.DiscordId)?.VoiceChannel;
-				if (vc is not null) return vc;
+				if (user.GetPriorityPlatformKey("discord") is not { } discordId) continue;
+				if (guild.GetUser(ulong.Parse(discordId))?.VoiceChannel is not { } vc) continue;
+				
+				return vc;
 			}
 		}
 
@@ -53,6 +54,10 @@ public class DiscordClientService : IPamelloService
 		}
 
 		return null;
+	}
+
+	public DiscordSocketClient? GetAvailableClient(ulong guildId) {
+		return DiscordClients.FirstOrDefault(client => client.GetGuild(guildId).AudioClient is null);
 	}
 
 	public async Task<Emote?> GetEmote(string emoteName) {

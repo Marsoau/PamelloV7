@@ -35,9 +35,25 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var commands = Services.GetRequiredService<IPamelloCommandsService>();
         return commands.Get<TCommand>(Context.User);
     }
-    
-    private async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading) 
-    {
+
+    protected async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
+        Console.WriteLine($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
+        if (task.IsCompleted || !respondWithLoading) {
+            await task;
+            return;
+        }
+        
+        Console.WriteLine("Responding loading");
+            
+        await RespondLoading();
+        await task;
+            
+        Console.WriteLine("Wait end");
+
+        await task;
+    }
+        
+    protected async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
         Console.WriteLine($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
         if (!task.IsCompleted && respondWithLoading) 
         {
@@ -118,7 +134,8 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         };
     }
     public async Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, Func<IPamelloEntity[]> entities) {
-        if (!Context.Interaction.HasResponded) {
+        var needsRefresh = Context.Interaction.HasResponded;
+        if (!needsRefresh) {
             await RespondComponentAsync(getComponent());
         }
         
@@ -135,11 +152,16 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         
         ProcessUpdatableAsync(entities);
         
+        if (needsRefresh) {
+            await _updatableMessage.Refresh();
+        }
+        
         return _updatableMessage;
     }
 
     public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Func<int, MessageComponent> getPageComponent, Func<IPamelloEntity[]> entities) {
-        if (!Context.Interaction.HasResponded) {
+        var needsRefresh = Context.Interaction.HasResponded;
+        if (!needsRefresh) {
             await RespondComponentAsync(getPageComponent(0));
         }
         
@@ -158,7 +180,9 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         
         ProcessUpdatableAsync(entities);
 
-        await _updatableMessage.Refresh();
+        if (needsRefresh) {
+            await _updatableMessage.Refresh();
+        }
         
         return (UpdatablePageMessage)_updatableMessage;
     }

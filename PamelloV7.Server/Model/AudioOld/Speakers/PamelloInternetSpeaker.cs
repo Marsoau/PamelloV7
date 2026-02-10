@@ -1,4 +1,5 @@
-﻿using PamelloV7.Core.AudioOld;
+﻿/*
+using PamelloV7.Core.AudioOld;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Speakers;
 using PamelloV7.Core.Entities;
@@ -132,3 +133,4 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
         }
     }
 }
+*/

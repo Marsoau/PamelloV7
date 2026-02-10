@@ -10,6 +10,7 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IPamelloPlayer? PreviousPlayer { get; }
     public IPamelloPlayer? SelectedPlayer { get; set; }
     public IPamelloPlayer RequiredSelectedPlayer { get; }
+    public IPamelloPlayer GuaranteedSelectedPlayer { get; }
     
     public Guid Token { get; }
     
@@ -39,6 +40,8 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false);
     public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists);
     public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists();
+
+    public string? GetPriorityPlatformKey(string platform);
 
     public IPamelloPlaylist CreatePlaylist(string name);
 }

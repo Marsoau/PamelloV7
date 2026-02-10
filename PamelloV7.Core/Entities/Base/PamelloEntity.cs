@@ -1,11 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Data.Entities.Base;
 using PamelloV7.Core.DTO;
-using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 
-namespace PamelloV7.Server.Entities.Base;
+namespace PamelloV7.Core.Entities.Base;
 
 public abstract class PamelloEntity : IPamelloEntity
 {
@@ -19,6 +17,9 @@ public abstract class PamelloEntity : IPamelloEntity
     protected readonly IPamelloSongRepository _songs;
     protected readonly IPamelloEpisodeRepository _episodes;
     protected readonly IPamelloPlaylistRepository _playlists;
+    
+    protected readonly IPamelloPlayerRepository _players;
+    protected readonly IPamelloSpeakerRepository _speakers;
 
     protected int _changesDepth;
 
@@ -41,6 +42,9 @@ public abstract class PamelloEntity : IPamelloEntity
         _songs = services.GetRequiredService<IPamelloSongRepository>();
         _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
         _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+        
+        _players = services.GetRequiredService<IPamelloPlayerRepository>();
+        _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
 
         _changesDepth = 0;
     }

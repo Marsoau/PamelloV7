@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Entities\Base\" />
       <Folder Include="Events\Services\" />
     </ItemGroup>
 

@@ -1,10 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Entities.Base;
-using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Services;
 
-namespace PamelloV7.Server.Entities.Base;
+namespace PamelloV7.Core.Entities.Base;
 
 public class PamelloEntitySink
 {

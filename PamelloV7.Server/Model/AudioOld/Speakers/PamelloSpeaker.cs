@@ -1,18 +1,22 @@
-﻿using PamelloV7.Core.DTO;
+﻿/*
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Points;
 
 namespace PamelloV7.Server.Model.AudioOld.Speakers
 {
-    public abstract class PamelloSpeaker : IPamelloSpeaker, IDisposable, IAsyncDisposable, IAudioModuleWithInputs<AudioPushPoint>
+    public abstract class PamelloSpeaker : Core.Entities.IPamelloSpeaker, IDisposable, IAsyncDisposable, IAudioModuleWithInputs<AudioPushPoint>
     {
         public IPamelloPlayerOld Player { get; }
+        public bool IsAvailableFor(IPamelloUser user) {
+            throw new NotImplementedException();
+        }
 
         public bool IsDeleted { get; protected set; }
         public abstract bool IsActive { get; }
 
-        public event Action<IPamelloSpeaker>? OnTerminated;
+        public event Action<Core.Entities.IPamelloSpeaker>? OnTerminated;
 
         public int Id { get; private set; }
         public abstract string Name { get; set; }
@@ -27,6 +31,8 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
         }
 
         private static int _idCounter = 1;
+        private IPamelloPlayer _player;
+
         public PamelloSpeaker(IPamelloPlayerOld player) {
             Player = player;
 
@@ -54,5 +60,9 @@ namespace PamelloV7.Server.Model.AudioOld.Speakers
         public int MinInputs => 1;
         public int MaxInputs => 1;
         public abstract AudioPushPoint CreateInput();
+
+        IPamelloPlayer Core.Entities.IPamelloSpeaker.Player => _player;
     }
 }
+
+*/
