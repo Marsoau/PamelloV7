@@ -16,14 +16,12 @@ public static class IEnumerableExtensions
             
             if (result > 0) result -= 1;
             
-            if (result < 0) {
-                result %= includeLastEmpty ? count : count - 1;
-            }
-            else {
-                result %= count;
-            }
+            var originallyZero = result == 0;
+            
+            result %= count;
             
             if (result < 0) result += count;
+            else if (includeLastEmpty && result == 0 && !originallyZero) result = count;
             
             return result;
         }

@@ -4,9 +4,11 @@ using PamelloV7.Audio.Points;
 using PamelloV7.Core.Audio.Attributes;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Module.Marsoau.Base.Queue;
@@ -32,6 +34,7 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
         }
     }
 
+    public EPlayerState State { get; private set; }
     public bool IsProtected { get; set; }
 
     [OnAudioMap]
@@ -100,5 +103,17 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
         _connectedSpeakers.Add(speaker);
 
         return speaker;
+    }
+
+    public override IPamelloDTO GetDto() {
+        return new PamelloPlayerDTO {
+            Id = Id,
+            Name = Name,
+            OwnerId = Owner.Id,
+            IsProtected = IsProtected,
+            State = State,
+            IsPaused = IsPaused,
+            Queue = Queue?.GetDto(),
+        };
     }
 }

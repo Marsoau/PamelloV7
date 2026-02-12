@@ -5,6 +5,7 @@ using PamelloV7.Core.Audio.Attributes;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.DTO.Other;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
@@ -117,7 +118,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
         private SongAudio? _songAudio;
         public IPamelloSong? CurrentSong => _songAudio?.Song;
-        public IPamelloEpisode? CurrentEpisode => null; //TODO actually return episode here
+        public IPamelloEpisode? CurrentEpisode => _songAudio?.GetCurrentEpisode();
 
         private readonly List<PamelloQueueEntry> _entries;
         public IReadOnlyList<PamelloQueueEntry> Entries => _entries;
@@ -213,9 +214,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             => _entries.ElementAtOrDefault(position)?.Song;
 
         public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder)
-            => InsertSongs(_entries.Count.ToString(), songs, adder);
+            => InsertSongs((_entries.Count + 1).ToString(), songs, adder);
         public IPamelloPlaylist AddPlaylist(IPamelloPlaylist playlist, IPamelloUser? adder)
-            => InsertPlaylist(_entries.Count.ToString(), playlist, adder);
+            => InsertPlaylist((_entries.Count + 1).ToString(), playlist, adder);
 
         public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> songs, IPamelloUser? adder) {
             var insertPosition = TranslateQueuePosition(position, true);
@@ -395,6 +396,23 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             Position = 0;
 
             //TODO events here
+        }
+
+        public PamelloQueueDTO GetDto() {
+            return new PamelloQueueDTO() {
+                CurrentSongId = CurrentSong?.Id,
+                CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0,
+                CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0,
+                EntriesDTOs = EntriesDTOs,
+                Position = Position,
+                NextPositionRequest = NextPositionRequest,
+                CurrentEpisodePosition = _songAudio?.GetCurrentEpisodePosition(),
+                
+                IsRandom = IsRandom,
+                IsReversed = IsReversed,
+                IsNoLeftovers = IsNoLeftovers,
+                IsFeedRandom = IsFeedRandom,
+            };
         }
 
         public void Dispose() {

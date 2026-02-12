@@ -1,4 +1,5 @@
 using PamelloV7.Core.DTO;
+using PamelloV7.Core.DTO.Other;
 
 namespace PamelloV7.Core.Entities.Other;
 
@@ -36,4 +37,6 @@ public interface IPamelloQueue
     public IPamelloSong GoToSong(string songPosition, bool returnBack = false);
     public IPamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false);
     public void Clear();
+
+    public PamelloQueueDTO GetDto();
 }
