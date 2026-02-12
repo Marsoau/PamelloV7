@@ -22,13 +22,8 @@ public class SongAudio : IAudioModuleWithOutput
     private MemoryStream? _currentChunk;
     private MemoryStream? _nextChunk;
 
-    private AudioTime _position;
-    private AudioTime _duration;
-
-    public AudioTime Position
-        => _position;
-    public AudioTime Duration
-        => _duration;
+    public AudioTime Position;
+    public AudioTime Duration;
 
     private int? _nextBreakPoint;
     private int? _nextJumpPoint;
@@ -50,7 +45,7 @@ public class SongAudio : IAudioModuleWithOutput
     public int MaxOutputs => 1;
 
     public bool IsEnded { get; private set; }
-    public event Action OnEnded;
+    public Action OnEnded;
 
     public bool IsDisposed { get; private set; }
 
@@ -62,8 +57,8 @@ public class SongAudio : IAudioModuleWithOutput
 
         Outputs = new List<IAudioPoint>(1);
 
-        _position = new AudioTime(0);
-        _duration = new AudioTime(0);
+        Position = new AudioTime(0);
+        Duration = new AudioTime(0);
 
         _chunkSize = new AudioTime(8);
             
@@ -87,8 +82,8 @@ public class SongAudio : IAudioModuleWithOutput
         _nextBreakPoint = null;
         _nextJumpPoint = null;
 
-        _position.TimeValue = 0;
-        _duration.TimeValue = 0;
+        Position.TimeValue = 0;
+        Duration.TimeValue = 0;
     }
 
     public async Task<bool> TryInitialize(CancellationToken token = default) {
@@ -103,7 +98,7 @@ public class SongAudio : IAudioModuleWithOutput
             }
         }
 
-        _duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
+        Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
 
         await LoadChunksAtAsync(0, token);
         if (_currentChunk is null) {
@@ -127,7 +122,7 @@ public class SongAudio : IAudioModuleWithOutput
         if (_currentChunk is null) return await TryInitialize(token);
         // Console.WriteLine("next bytes 2");
 
-        if (_position.TimeValue >= _duration.TimeValue) {
+        if (Position.TimeValue >= Duration.TimeValue) {
             if (IsEnded) return false;
                 
             IsEnded = true;
@@ -135,9 +130,9 @@ public class SongAudio : IAudioModuleWithOutput
             return false;
         }
 
-        if (_position.TotalSeconds == _nextBreakPoint) {
+        if (Position.TotalSeconds == _nextBreakPoint) {
             if (_nextJumpPoint is null) {
-                await RewindTo(_duration, true, token);
+                await RewindTo(Duration, true, token);
                 // Console.WriteLine("false 2");
                 return false;
             }
@@ -145,16 +140,16 @@ public class SongAudio : IAudioModuleWithOutput
             await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
         }
             
-        if (_position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
+        if (Position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
             await MoveForwardAsync(token);
         }
 
-        _currentChunk.Position = _position.TimeValue % _chunkSize.TimeValue;
+        _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
         var count = await _currentChunk.ReadAsync(result, token);
         //Console.WriteLine($"{count}, {result.Length}, {_currentChunk.Length}");
         if (count != result.Length) return false;
             
-        _position.TimeValue += result.Length;
+        Position.TimeValue += result.Length;
         return true;
     }
 
@@ -165,8 +160,8 @@ public class SongAudio : IAudioModuleWithOutput
         foreach (var episode in Song.Episodes) {
             if (
                 (excludeCurrent) ?
-                    (episode.Start.TotalSeconds > _position.TotalSeconds) :
-                    (episode.Start.TotalSeconds >= _position.TotalSeconds)
+                    (episode.Start.TotalSeconds > Position.TotalSeconds) :
+                    (episode.Start.TotalSeconds >= Position.TotalSeconds)
             ) {
                 if (episode.AutoSkip) {
                     if (closestBreakPoint is null || episode.Start.TotalSeconds < closestBreakPoint) {
@@ -207,7 +202,7 @@ public class SongAudio : IAudioModuleWithOutput
             await LoadChunksAtAsync((int)timePosition, token);
         }
 
-        _position.TimeValue = time.TimeValue;
+        Position.TimeValue = time.TimeValue;
 
         UpdatePlaybackPoints(forceEpisodePlayback);
 
@@ -218,7 +213,7 @@ public class SongAudio : IAudioModuleWithOutput
         var episode = Song.Episodes.ElementAtOrDefault(episodePosition);
         if (episode is null) {
             if (episodePosition > 0) {
-                await RewindTo(_duration, forceEpisodePlayback, CancellationToken.None);
+                await RewindTo(Duration, forceEpisodePlayback, CancellationToken.None);
             }
             else {
                 await RewindTo(new AudioTime(0), forceEpisodePlayback, CancellationToken.None);
@@ -235,7 +230,7 @@ public class SongAudio : IAudioModuleWithOutput
         int? closestLeft = null;
 
         for (int i = 0; i < Song.Episodes.Count; i++) {
-            if (Song.Episodes[i].Start.TotalSeconds <= _position.TotalSeconds &&
+            if (Song.Episodes[i].Start.TotalSeconds <= Position.TotalSeconds &&
                 Song.Episodes[i].Start.TotalSeconds > 
                 (closestLeft is not null ?
                     Song.Episodes[closestLeft.Value].Start.TotalSeconds :

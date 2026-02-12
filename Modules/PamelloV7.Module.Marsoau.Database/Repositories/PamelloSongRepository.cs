@@ -64,15 +64,13 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser) {
-        /*
         var queue = scopeUser.SelectedPlayer?.Queue;
         if (queue is null) return [];
 
-        var current = queue.Entries[queue.Position].Song;
+        var current = queue.Entries.ElementAtOrDefault(queue.Position)?.Song;
+        if (current is null) return [];
 
         return [current];
-        */
-        return [];
     }
 
     public IEnumerable<IPamelloSong> GetRandom(IPamelloUser scopeUser) {

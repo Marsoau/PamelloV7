@@ -7,12 +7,14 @@ using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.EventsOld;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
+using PlayerCurrentSongIdUpdated = PamelloV7.Core.Events.PlayerCurrentSongIdUpdated;
+using PlayerCurrentSongTimePassedUpdated = PamelloV7.Core.Events.PlayerCurrentSongTimePassedUpdated;
 
 namespace PamelloV7.Module.Marsoau.Base.Queue
 {
@@ -150,7 +152,6 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
         public void SetCurrent(PamelloQueueEntry? entry) {
             if (_songAudio is not null) {
-                UnsubscribeCurrentAudioEvents();
                 _audio.DeleteModule(_songAudio);
             }
             
@@ -172,7 +173,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             //if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
 
-            //TODO events here
+            _events.Invoke(new PlayerCurrentSongIdUpdated() {
+                CurrentSongId = entry?.Song?.Id
+            });
 
             Current_Position_OnSecondTick();
             Current_Duration_OnSecondTick();
@@ -181,24 +184,20 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         public void SubscribeCurrentAudioEvents() {
             if (_songAudio is null) return;
 
-            _songAudio.Position.OnSecondTick += Current_Position_OnSecondTick;
-            _songAudio.Duration.OnSecondTick += Current_Duration_OnSecondTick;
-            _songAudio.OnEnded += Current_OnEnded;
-        }
-
-        public void UnsubscribeCurrentAudioEvents() {
-            if (_songAudio is null) return;
-
-            _songAudio.Position.OnSecondTick -= Current_Position_OnSecondTick;
-            _songAudio.Duration.OnSecondTick -= Current_Duration_OnSecondTick;
-            _songAudio.OnEnded -= Current_OnEnded;
+            _songAudio.Position.OnSecondTick = Current_Position_OnSecondTick;
+            _songAudio.Duration.OnSecondTick = Current_Duration_OnSecondTick;
+            _songAudio.OnEnded = Current_OnEnded;
         }
 
         private void Current_Duration_OnSecondTick() {
-            //TODO events here
+            _events.Invoke(new PlayerCurrentSongTimeTotalUpdated() {
+                CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0
+            });
         }
         private void Current_Position_OnSecondTick() {
-            //TODO events here
+            _events.Invoke(new PlayerCurrentSongTimePassedUpdated() {
+                CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0
+            });
         }
         private void Current_OnEnded()
         {

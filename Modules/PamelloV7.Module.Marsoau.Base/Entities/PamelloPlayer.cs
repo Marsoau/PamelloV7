@@ -7,6 +7,7 @@ using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Entities.Other;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Module.Marsoau.Base.Queue;
 
@@ -32,10 +33,20 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     }
 
     public bool IsProtected { get; set; }
-    
+
     [OnAudioMap]
-    public bool IsPaused { get; set; }
-    
+    public bool IsPaused {
+        get; set {
+            if (field == value) return;
+
+            field = value;
+            
+            _sink.Invoke(new PlayerIsPausedUpdated() {
+                IsPaused = IsPaused,
+            });
+        }
+    }
+
     private List<IPamelloSpeaker> _connectedSpeakers;
 
     public IPamelloQueue? Queue { get; }
@@ -69,6 +80,8 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
 
     public void InitDependant() {
         Pump.Output.ConnectedPoint = Copy.Input;
+        
+        Pump.Condition = () => !IsPaused;
         
         Pump.Start();
     }

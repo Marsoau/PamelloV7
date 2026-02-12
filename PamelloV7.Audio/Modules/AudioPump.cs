@@ -11,6 +11,8 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
     public IAudioPoint Input => Inputs.First();
     public IAudioPoint Output => Outputs.First();
     
+    public Func<bool> Condition { get; set; }
+    
     private Task? _pumpTask;
 
     private readonly CancellationTokenSource _cts;
@@ -21,6 +23,8 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
         Inputs = new List<IAudioPoint>(1);
         Outputs = new List<IAudioPoint>(1);
         
+        Condition = () => true;
+        
         _cts = new CancellationTokenSource();
         
         _buffer = new byte[bufferSize];
@@ -30,11 +34,17 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
         return _pumpTask = Task.Run(() => {
             while (!_cts.IsCancellationRequested) {
                 try {
+                    while (!Condition()) {
+                        Console.WriteLine("PUMP CONDITION");
+                        Task.Delay(1000).Wait();
+                    }
+                    
                     Pump();
                 }
                 catch (Exception x) {
                     Console.WriteLine($"PUMP EXCEPTION: {x}");
                     Task.Delay(3000).Wait();
+                    Console.WriteLine("PUMP UNFROZEN");
                 }
             }
         });

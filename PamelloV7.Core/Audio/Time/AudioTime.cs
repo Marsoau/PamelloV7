@@ -47,7 +47,7 @@ namespace PamelloV7.Core.Audio.Time
             set => TimeValue = value * 3600 * FrequencyMultiplier;
         }
 
-        public event Action? OnSecondTick;
+        public Action? OnSecondTick { get; set; }
 
         public AudioTime(long timeValue)
         {

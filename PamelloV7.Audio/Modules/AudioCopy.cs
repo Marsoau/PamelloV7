@@ -22,6 +22,6 @@ public class AudioCopy : IAudioModuleWithInput, IAudioModuleWithOutputs
     }
 
     private bool ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
-        return Outputs.Any(output => output.Pass(audio, wait, token));
+        return Outputs.Aggregate(false, (isAny, output) => output.Pass(audio, wait, token) || isAny);
     }
 }

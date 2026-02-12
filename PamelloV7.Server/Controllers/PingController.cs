@@ -11,6 +11,7 @@ public class PingController : PamelloControllerBase
 
     [HttpGet("{*ignored}")]
     public IActionResult Get() {
+        Console.WriteLine($"{DateTime.Now.TimeOfDay} /Ping");
         return Ok("Pong");
     }
 }
