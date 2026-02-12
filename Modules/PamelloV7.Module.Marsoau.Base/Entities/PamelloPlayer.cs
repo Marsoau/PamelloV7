@@ -29,8 +29,11 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
             if (_name == value) return;
             
             _name = value;
-            
-            //invoke event
+
+            _sink.Invoke(new PlayerNameUpdated() {
+                Player = this,
+                NewName = _name
+            });
         }
     }
 

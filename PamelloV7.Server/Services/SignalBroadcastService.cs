@@ -26,13 +26,18 @@ public class SignalBroadcastService : ISignalBroadcastService
         await _hub.Clients.All.SendAsync("Message", message);
     }
     public void Broadcast(IPamelloEvent e) {
-        foreach (var listener in _listeners.Where(x => x.Value != null)) {
+        BroadcastToPlayer(e, null);
+    }
+
+    public void BroadcastToPlayer(IPamelloEvent e, IPamelloPlayer? player) {
+        foreach (var listener in _listeners.Where(x => x.Value is not null && (player is null || x.Value.SelectedPlayer == player))) {
             _hub.Clients.Client(listener.Key).SendAsync("Event", new {
                 Type = e.GetType().Name,
                 Data = (object)e
             }).Wait();
         }
     }
+
 
     public void AddListener(string connectionId) {
         _listeners.Add(connectionId, null);

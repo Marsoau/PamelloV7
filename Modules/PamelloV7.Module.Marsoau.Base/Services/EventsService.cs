@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
@@ -73,17 +74,25 @@ public class EventsService : IEventsService
             }
         }
 
+        var isInfoUpdate = eventType.GetCustomAttribute<InfoUpdateAttribute>() is not null;
+
         if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
             _sse.Broadcast(e);
             _signal.Broadcast(e);
         }
 
-        if (eventType.GetCustomAttribute<InfoUpdateAttribute>() is null) return e;
+        if (!isInfoUpdate) return e;
         
         var property = eventType.GetProperties().FirstOrDefault(prop => prop.GetCustomAttribute<InfoUpdatePropertyAttribute>() is not null);
         if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return e;
 
         if (property.GetValue(e) is not IPamelloEntity entity) return e;
+        if (entity is IPamelloPlayer player) {
+            if (eventType.GetCustomAttribute<BroadcastToPlayerAttribute>() is not null) {
+                _sse.BroadcastToPlayer(e, player);
+                _signal.BroadcastToPlayer(e, player);
+            }
+        }
 
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
             subscription.Invoke(e);

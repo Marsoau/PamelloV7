@@ -78,11 +78,11 @@ namespace PamelloV7.Server.Services
                 listener.ScheduleEvent(pamelloEvent);
             }
         }
-        public void BroadcastToPlayer(IPamelloPlayerOld player, IPamelloEvent pamelloEvent)
-        {
+
+        public void BroadcastToPlayer(IPamelloEvent e, IPamelloPlayer? player) {
             foreach (var listener in _listeners) {
-                if (listener.User is null || listener.User.SelectedPlayer?.Id != player?.Id) continue;
-                listener.ScheduleEvent(pamelloEvent);
+                if (listener.User is null || listener.User.SelectedPlayer != player) continue;
+                listener.ScheduleEvent(e);
             }
         }
         public void BroadcastToUser(IPamelloUser user, IPamelloEvent pamelloEvent)

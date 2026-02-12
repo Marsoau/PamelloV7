@@ -14,8 +14,6 @@ using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
-using PlayerCurrentSongIdUpdated = PamelloV7.Core.Events.PlayerCurrentSongIdUpdated;
-using PlayerCurrentSongTimePassedUpdated = PamelloV7.Core.Events.PlayerCurrentSongTimePassedUpdated;
 
 namespace PamelloV7.Module.Marsoau.Base.Queue
 {
@@ -41,7 +39,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                     IsReversed = false;
                 }
 
-                //TODO events here
+                _events.Invoke(new PlayerQueueIsRandomUpdated() {
+                    Player = Player,
+                    IsRandom = IsRandom
+                });
             }
         }
 
@@ -55,7 +56,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                     IsRandom = false;
                 }
 
-                //TODO events here
+                _events.Invoke(new PlayerQueueIsReversedUpdated() {
+                    Player = Player,
+                    IsReversed = IsReversed
+                });
             }
         }
 
@@ -68,8 +72,11 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (!IsNoLeftovers) {
                     IsFeedRandom = false;
                 }
-
-                //TODO events here
+                
+                _events.Invoke(new PlayerQueueIsNoLeftoversUpdated() {
+                    Player = Player,
+                    IsNoLeftovers = IsNoLeftovers
+                });
             }
         }
 
@@ -87,8 +94,11 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                         GoToNextSong();
                     }
                 }
-
-                //TODO events here
+                
+                _events.Invoke(new PlayerQueueIsFeedRandomUpdated() {
+                    Player = Player,
+                    IsFeedRandom = IsFeedRandom
+                });
             }
         }
 
@@ -100,7 +110,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
                 _nextPositionRequest = value;
 
-                //TODO events here
+                _events.Invoke(new PlayerQueueNextPositionRequestUpdated() {
+                    Player = Player,
+                    NextPositionRequest = NextPositionRequest
+                });
             }
         }
 
@@ -112,7 +125,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
                 _position = value;
 
-                //TODO events here
+                _events.Invoke(new PlayerQueuePositionUpdated() {
+                    Player = Player,
+                    Position = Position
+                });
             }
         }
 
@@ -174,7 +190,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             //if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
 
-            _events.Invoke(new PlayerCurrentSongIdUpdated() {
+            _events.Invoke(new PlayerQueueCurrentSongIdUpdated() {
+                Player = Player,
                 CurrentSongId = entry?.Song?.Id
             });
 
@@ -191,12 +208,14 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         }
 
         private void Current_Duration_OnSecondTick() {
-            _events.Invoke(new PlayerCurrentSongTimeTotalUpdated() {
+            _events.Invoke(new PlayerQueueCurrentSongTimeTotalUpdated() {
+                Player = Player,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0
             });
         }
         private void Current_Position_OnSecondTick() {
-            _events.Invoke(new PlayerCurrentSongTimePassedUpdated() {
+            _events.Invoke(new PlayerQueueCurrentSongTimePassedUpdated() {
+                Player = Player,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0
             });
         }
@@ -224,7 +243,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             
             _entries.InsertRange(insertPosition, songs.Select(song => new PamelloQueueEntry(song, adder)));
 
-            //TODO events here
+            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                Player = Player,
+                EntriesDTOs = EntriesDTOs
+            });
 
 			if (beforeCount == 0 && _entries.Count > 0) {
 				SetCurrent(_entries.FirstOrDefault());
@@ -248,7 +270,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
-            //TODO events here
+            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                Player = Player,
+                EntriesDTOs = EntriesDTOs
+            });
 
 			if (queueWasEmpty) {
 				SetCurrent(_entries.FirstOrDefault());
@@ -281,7 +306,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (songPosition < NextPositionRequest) NextPositionRequest--;
                 else if (songPosition == NextPositionRequest) NextPositionRequest = null;
 
-                //TODO events here
+                _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                    Player = Player,
+                    EntriesDTOs = EntriesDTOs
+                });
             }
 
             return song;
@@ -307,7 +335,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Position++;
             }
 
-            //TODO events here
+            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                Player = Player,
+                EntriesDTOs = EntriesDTOs
+            });
 
             return true;
 		}
@@ -321,7 +352,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 			(_entries[inPosition], _entries[withPosition]) = (_entries[withPosition], _entries[inPosition]);
 
-            //TODO events here
+            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                Player = Player,
+                EntriesDTOs = EntriesDTOs
+            });
 
 			if (inPosition == Position) Position = withPosition;
 			else if (withPosition == Position) Position = inPosition;
@@ -371,7 +405,11 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 _entries.RemoveAt(Position);
 				if (nextPosition > Position) nextPosition--;
 
-                //TODO events here
+                //not sure about this invoking
+                _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                    Player = Player,
+                    EntriesDTOs = EntriesDTOs
+                });
             }
 
             if (_entries.Count == 0) Position = 0;
@@ -395,7 +433,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             SetCurrent(null);
             Position = 0;
 
-            //TODO events here
+            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                Player = Player,
+                EntriesDTOs = EntriesDTOs
+            });
         }
 
         public PamelloQueueDTO GetDto() {
