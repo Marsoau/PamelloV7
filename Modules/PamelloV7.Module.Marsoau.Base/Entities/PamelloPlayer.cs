@@ -80,7 +80,7 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
         
         Queue = _audio.RegisterDependant(new PamelloQueue(this, services));
 
-        Pump = _audio.RegisterModule(new AudioPump(4096));
+        Pump = _audio.RegisterModule(new AudioPump(40960));
         Copy = _audio.RegisterModule(new AudioCopy());
     }
 

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Commands.Base;
 using PamelloV7.Core.Converters;
 using PamelloV7.Core.Entities;
@@ -83,15 +84,19 @@ public class PamelloCommandsService : IPamelloCommandsService
         for (var i = 0; i < parameters.Length; i++) {
             var parameter = parameters[i];
                 
-            if (!query.TryGetValue(parameter.Name, out var queryStringValue) || queryStringValue is null) {
-                throw new PamelloException($"couldnt find required \"{parameter.Name}\"");
+            if (!query.TryGetValue(parameter.Name!, out var queryStringValue) || queryStringValue is null || queryStringValue.Length == 0) {
+                if (!parameter.HasDefaultValue) throw new PamelloException($"couldnt find required \"{parameter.Name}\"");
+                
+                args[i] = parameter.DefaultValue;
+                
+                continue;
             }
 
             var argumentType = parameter.ParameterType;
 
             var isEntityType = false;
             var isManyEntity = false;
-
+            
             if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
                 isEntityType = true;
                 Console.WriteLine($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
@@ -111,12 +116,18 @@ public class PamelloCommandsService : IPamelloCommandsService
             }
 
             if (!isEntityType) {
-                try {
-                    args[i] = TypeDescriptor.GetConverter(argumentType).ConvertFromString(queryStringValue);
+                if (argumentType == typeof(AudioTime)) {
+                    args[i] = AudioTime.FromStrTime(queryStringValue);
                 }
-                catch {
-                    throw new PamelloException($"couldnt convert \"{queryStringValue}\" to type \"{argumentType.Name}\"");
+                else {
+                    try {
+                        args[i] = TypeDescriptor.GetConverter(argumentType).ConvertFromString(queryStringValue);
+                    }
+                    catch {
+                        throw new PamelloException($"couldnt convert \"{queryStringValue}\" to type \"{argumentType.Name}\"");
+                    }
                 }
+                
                 continue;
             }
 

@@ -1,3 +1,4 @@
+using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Other;
 
@@ -25,17 +26,21 @@ public interface IPamelloQueue
     public IReadOnlyList<IPamelloSong> Songs { get; }
     
     public void SetCurrent(PamelloQueueEntry? entry);
+    public Task RewindCurrent(AudioTime toTime);
+    
+    public int? RequestNextPosition(string? positionValue);
 
     public IPamelloSong? SongAt(int position);
     public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder);
-    public IPamelloPlaylist AddPlaylist(IPamelloPlaylist playlist, IPamelloUser? adder);
+    public IEnumerable<IPamelloPlaylist> AddPlaylist(IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder);
     public IEnumerable<IPamelloSong> InsertSongs(string positionValue, IEnumerable<IPamelloSong> songs, IPamelloUser? adder);
-    public IPamelloPlaylist InsertPlaylist(string positionValue, IPamelloPlaylist playlist, IPamelloUser? adder);
+    public IEnumerable<IPamelloPlaylist> InsertPlaylist(string positionValue, IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder);
     public IPamelloSong RemoveSong(string songPositionValue);
     public bool MoveSong(string fromPositionValue, string toPositionValue);
     public bool SwapSongs(string inPositionValue, string withPositionValue);
-    public IPamelloSong GoToSong(string songPosition, bool returnBack = false);
+    public IPamelloSong? GoToSong(string songPositionValue, bool returnBack = false);
     public IPamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false);
+    public Task<IPamelloEpisode?> GoToEpisode(string episodePositionValue);
     public void Clear();
 
     public PamelloQueueDTO GetDto();

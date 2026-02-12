@@ -117,10 +117,8 @@ public class SongAudio : IAudioModuleWithOutput
         return NextBytesAsync(result, wait, token).Result;
     }
     private async Task<bool> NextBytesAsync(byte[] result, bool wait, CancellationToken token) {
-        // Console.WriteLine("next bytes");
         if (_rewinding is not null) await _rewinding;
         if (_currentChunk is null) return await TryInitialize(token);
-        // Console.WriteLine("next bytes 2");
 
         if (Position.TimeValue >= Duration.TimeValue) {
             if (IsEnded) return false;
@@ -139,18 +137,18 @@ public class SongAudio : IAudioModuleWithOutput
 
             await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
         }
-            
-        if (Position.TimeValue / _chunkSize.TimeValue > _currentChunkPosition) {
+
+        var count = 0;
+        while (count < result.Length && Position.TimeValue < Duration.TimeValue) {
+            count += await _currentChunk.ReadAsync(result, count, result.Length - count, token);
+            Position.TimeValue += count;
+        
+            if (count >= result.Length) return true;
+        
             await MoveForwardAsync(token);
         }
 
-        _currentChunk.Position = Position.TimeValue % _chunkSize.TimeValue;
-        var count = await _currentChunk.ReadAsync(result, token);
-        //Console.WriteLine($"{count}, {result.Length}, {_currentChunk.Length}");
-        if (count != result.Length) return false;
-            
-        Position.TimeValue += result.Length;
-        return true;
+        return false;
     }
 
     public void UpdatePlaybackPoints(bool excludeCurrent = false) {
@@ -182,7 +180,7 @@ public class SongAudio : IAudioModuleWithOutput
         //Console.WriteLine($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
     }
 
-    public async Task RewindTo(AudioTime time, bool forceEpisodePlayback, CancellationToken token) {
+    public async Task RewindTo(AudioTime time, bool forceEpisodePlayback = true, CancellationToken token = default) {
         var rewindCompletion = new TaskCompletionSource();
         while (_rewinding is not null) {
             await _rewinding;
@@ -195,14 +193,14 @@ public class SongAudio : IAudioModuleWithOutput
         long timePosition = time.TimeValue / _chunkSize.TimeValue;
         long timeDifferece = time.TimeValue % _chunkSize.TimeValue;
 
+        Position.TimeValue = time.TimeValue;
+
         if (timePosition == _currentChunkPosition + 1) {
             await MoveForwardAsync(token);
         }
         else if (timePosition != _currentChunkPosition) {
             await LoadChunksAtAsync((int)timePosition, token);
         }
-
-        Position.TimeValue = time.TimeValue;
 
         UpdatePlaybackPoints(forceEpisodePlayback);
 
@@ -256,6 +254,8 @@ public class SongAudio : IAudioModuleWithOutput
         _currentChunkPosition = position;
         _currentChunk = await LoadChunkAsync(_currentChunkPosition, token);
         _nextChunkTask = LoadChunkAsync(_currentChunkPosition + 1, token);
+        
+        _currentChunk?.Position = Position.TimeValue % _chunkSize.TimeValue;
             
         _ = Task.Run(async () =>
         {
@@ -268,6 +268,8 @@ public class SongAudio : IAudioModuleWithOutput
         _currentChunk = _nextChunk;
         _nextChunkTask = LoadChunkAsync(++_currentChunkPosition + 1, token);
             
+        _currentChunk?.Position = Position.TimeValue % _chunkSize.TimeValue;
+        
         _ = Task.Run(async () =>
         {
             _nextChunk = await _nextChunkTask;

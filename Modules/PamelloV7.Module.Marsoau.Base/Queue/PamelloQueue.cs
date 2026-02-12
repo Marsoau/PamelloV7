@@ -4,6 +4,7 @@ using PamelloV7.Audio.Modules;
 using PamelloV7.Core.Audio.Attributes;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
+using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.DTO.Other;
 using PamelloV7.Core.Entities;
@@ -199,6 +200,20 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             Current_Duration_OnSecondTick();
         }
 
+        public Task RewindCurrent(AudioTime toTime) {
+            if (_songAudio is null) throw new PamelloException("No current song to rewind");
+            
+            return _songAudio.RewindTo(toTime);
+        }
+
+        public int? RequestNextPosition(string? positionValue) {
+            if (positionValue is null) {
+                return NextPositionRequest = null;
+            }
+            
+            return NextPositionRequest = TranslateQueuePosition(positionValue);
+        }
+
         public void SubscribeCurrentAudioEvents() {
             if (_songAudio is null) return;
 
@@ -226,7 +241,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 
 		private int TranslateQueuePosition(string positionValue, bool includeLastEmpty = false) {
-            return _entries.TranslateValueIndex(positionValue, includeLastEmpty, _ => _position);
+            var index = _entries.TranslateValueIndex(positionValue, includeLastEmpty, _ => _position);
+            return index >= 0 ? index : throw new PamelloException($"Position by value \"{positionValue}\" not found");
 		}
 
         public IPamelloSong? SongAt(int position)
@@ -234,8 +250,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
         public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder)
             => InsertSongs((_entries.Count + 1).ToString(), songs, adder);
-        public IPamelloPlaylist AddPlaylist(IPamelloPlaylist playlist, IPamelloUser? adder)
-            => InsertPlaylist((_entries.Count + 1).ToString(), playlist, adder);
+        public IEnumerable<IPamelloPlaylist> AddPlaylist(IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder)
+            => InsertPlaylist((_entries.Count + 1).ToString(), playlists, adder);
 
         public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> songs, IPamelloUser? adder) {
             var insertPosition = TranslateQueuePosition(position, true);
@@ -257,16 +273,16 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return songs;
 		}
 
-        public IPamelloPlaylist InsertPlaylist(string positionValue, IPamelloPlaylist playlist, IPamelloUser? adder) {
-            if (playlist is null) return null;
+        public IEnumerable<IPamelloPlaylist> InsertPlaylist(string positionValue, IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder) {
+            if (!playlists.Any()) return [];
 
 			var insertPosition = TranslateQueuePosition(positionValue, true);
 
             var queueWasEmpty = _entries.Count == 0;
             var positionMustBeMoved = insertPosition <= Position;
 
-            var playlistSongs = playlist.Songs;
-            foreach (var song in playlistSongs) {
+            var playlistsSongs = playlists.SelectMany(playlist => playlist.Songs).ToList();
+            foreach (var song in playlistsSongs) {
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
@@ -279,10 +295,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				SetCurrent(_entries.FirstOrDefault());
             }
 			else if (positionMustBeMoved) {
-				Position += playlistSongs.Count;
+				Position += playlistsSongs.Count;
             }
 
-            return playlist;
+            return playlists;
         }
 
         public IPamelloSong RemoveSong(string positionValue) {
@@ -426,8 +442,19 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 			return entry.Song;
 		}
 
+        public async Task<IPamelloEpisode?> GoToEpisode(string episodePositionValue) {
+            if (_songAudio is null) throw new PamelloException("No current song to rewind to episode");
+            
+            var episodePosition = _songAudio.Song.Episodes.TranslateValueIndex(
+                episodePositionValue,
+                false,
+                _ => _songAudio.GetCurrentEpisodePosition()
+            );
+            
+            return await _songAudio.RewindToEpisode(episodePosition);
+        }
 
-		public void Clear() {
+        public void Clear() {
 			_entries.Clear();
 
             SetCurrent(null);
@@ -440,7 +467,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         }
 
         public PamelloQueueDTO GetDto() {
-            return new PamelloQueueDTO() {
+            return new PamelloQueueDTO {
                 CurrentSongId = CurrentSong?.Id,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0,

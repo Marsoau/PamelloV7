@@ -72,7 +72,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         get => _selectedPlayer;
         set {
             if (!value?.IsAvailableFor(this) ?? false) return;
-            RequiredSelectedPlayer = value;
+            RequiredSelectedPlayer = value!;
         }
     }
 
@@ -82,8 +82,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
             if (_selectedPlayer == value) return;
             
             _selectedPlayer = value;
-            
-            //events here
+
+            _sink.Invoke(new UserSelectedPlayerUpdated() {
+                User = this,
+                SelectedPlayerId = _selectedPlayer?.Id
+            });
         }
     }
 

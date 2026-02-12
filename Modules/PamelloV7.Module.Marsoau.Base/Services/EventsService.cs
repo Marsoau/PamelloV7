@@ -60,11 +60,11 @@ public class EventsService : IEventsService
     }
 
     public IPamelloEvent Invoke(Type eventType, IPamelloEvent e) {
-        _logger.Log($"Event: {eventType}");
+        //_logger.Log($"Event: {eventType}");
         
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 
-        Console.WriteLine($"{_updateSubscriptions.Count} WATCHERS");
+        //Console.WriteLine($"{_updateSubscriptions.Count} WATCHERS");
         
         foreach (var subscription in _eventSubscriptions) {
             var subscriptionType = subscription.EventType;
