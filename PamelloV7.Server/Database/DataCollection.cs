@@ -39,4 +39,8 @@ public class DatabaseCollection<TDatabaseEntity> : IDatabaseCollection<TDatabase
     public void DeleteMany(Expression<Func<TDatabaseEntity, bool>> predicate) {
         _collection.DeleteMany(predicate);
     }
+
+    public void Drop() {
+        _collection.DeleteAll();
+    }
 }

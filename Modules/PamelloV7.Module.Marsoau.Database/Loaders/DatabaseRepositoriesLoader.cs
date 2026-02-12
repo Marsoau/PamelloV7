@@ -38,7 +38,7 @@ internal static class DatabaseRepositoriesLoader
         Console.Write($"\rLoading {repository.CollectionName}                                 ");
     }
     private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Console.Write($"\rLoading {repository.CollectionName} [{loaded}/{from}]               ");
+        Console.Write($"\rLoading {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnLoadingEnd(IPamelloDatabaseRepository repository) {
         Console.WriteLine($"\nDone");
@@ -48,7 +48,7 @@ internal static class DatabaseRepositoriesLoader
         Console.Write($"\rInitializing {repository.CollectionName}                            ");
     }
     private static void RepositoryOnOnInitProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Console.Write($"\rInitializing {repository.CollectionName} [{loaded}/{from}]          ");
+        Console.Write($"\rInitializing {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnInitEnd(IPamelloDatabaseRepository repository) {
         Console.WriteLine($"\nDone");

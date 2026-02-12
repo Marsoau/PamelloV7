@@ -13,4 +13,5 @@ public interface IDatabaseCollection<TDatabaseEntity>
     public void Save(TDatabaseEntity entity);
     public void Delete(object key);
     public void DeleteMany(Expression<Func<TDatabaseEntity, bool>> predicate);
+    public void Drop();
 }
