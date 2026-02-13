@@ -19,7 +19,7 @@ public partial class SongFavorites
             var content = string.Join("\n", removedSongs.SkipLast(removedSongs.Count - 5).Select(song => $"`[{song.Id}]` {song.Name}"));
             if (removedSongs.Count > 5) content += $"\n_... And {removedSongs.Count - 5} more_";
 
-            return PamelloComponentBuilders.EntitiesList($"Added {removedSongs.Count} Songs", removedSongs, page, noResultsMessage: $"No songs added to favorite by query \"{songsQuery}\"").Build();
+            return Builder<BasicComponentsBuilder>().EntitiesList($"Added {removedSongs.Count} Songs", removedSongs, page, noResultsMessage: $"No songs added to favorite by query \"{songsQuery}\"").Build();
         }, () => [.. removedSongs]);
     }
 }

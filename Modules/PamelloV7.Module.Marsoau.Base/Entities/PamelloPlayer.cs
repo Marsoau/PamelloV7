@@ -48,6 +48,7 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
             field = value;
             
             _sink.Invoke(new PlayerIsPausedUpdated() {
+                Player = this,
                 IsPaused = IsPaused,
             });
         }

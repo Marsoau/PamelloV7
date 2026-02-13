@@ -23,6 +23,8 @@ public class InteractionHandler : IPamelloService
     private readonly DiscordClientService _clients;
     private readonly InteractionService _interactions;
     
+    private readonly DiscordComponentBuildersService _components;
+    
     private readonly IPamelloUserRepository _users;
     
     public InteractionHandler(IServiceProvider services, DiscordClientService clients, InteractionService interactions)
@@ -31,6 +33,8 @@ public class InteractionHandler : IPamelloService
         
         _clients = clients;
         _interactions = interactions;
+        
+        _components = services.GetRequiredService<DiscordComponentBuildersService>();
         
         _users = services.GetRequiredService<IPamelloUserRepository>();
     }
@@ -51,6 +55,7 @@ public class InteractionHandler : IPamelloService
     private async Task InteractionsOnSlashCommandExecuted(SlashCommandInfo command, IInteractionContext context, IResult result) {
         if (result.IsSuccess || result.Error != InteractionCommandError.Exception) return;
         if (result is not ExecuteResult executeResult) return;
+        if (context is not PamelloSocketInteractionContext pamelloContext) return;
         if (executeResult.Exception?.InnerException is not PamelloException exception) {
             Console.WriteLine($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
             return;
@@ -58,11 +63,11 @@ public class InteractionHandler : IPamelloService
         
         if (context.Interaction.HasResponded) {
             Console.WriteLine("Folow ephemerally");
-            await context.Interaction.FollowupAsync(components: PamelloComponentBuilders.Info("Error", exception.Message).Build(), ephemeral: true);
+            await context.Interaction.FollowupAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
         else {
             Console.WriteLine("Responding ephemerally");
-            await context.Interaction.RespondAsync(components: PamelloComponentBuilders.Info("Error", exception.Message).Build(), ephemeral: true);
+            await context.Interaction.RespondAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
     }
 

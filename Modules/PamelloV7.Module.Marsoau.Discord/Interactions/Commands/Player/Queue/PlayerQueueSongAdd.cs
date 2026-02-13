@@ -5,7 +5,6 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Builders;
-using PamelloV7.Module.Marsoau.Discord.Builders.Components;
 using PamelloV7.Module.Marsoau.Discord.Commands;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Services;
@@ -38,16 +37,16 @@ public partial class PlayerQueue
                 var song = addedSongs.First();
             
                 await RespondUpdatableAsync(() =>
-                    PamelloComponentBuilders.RefreshButton(AddedSongsComponent.GetForOne(song)).Build()
+                    Builder<ButtonsBuilder>().RefreshButton(Builder<AddedSongsBuilder>().GetForOne(song)).Build()
                 , song);
             } break;
             case >= 1: {
                 await RespondUpdatablePageAsync(page =>
-                        PamelloComponentBuilders.EntitiesList($"Added {DiscordString.Code(addedSongs.Count)} Songs", addedSongs, page).Build()
+                        Builder<BasicComponentsBuilder>().EntitiesList($"Added {DiscordString.Code(addedSongs.Count)} Songs", addedSongs, page).Build()
                     , () => [.. addedSongs]);
             } break;
             default:
-                await RespondComponentAsync(PamelloComponentBuilders.Info("No Songs Added", $"No songs found by query `{songsQuery}`").Build());
+                await RespondComponentAsync(Builder<BasicComponentsBuilder>().Info("No Songs Added", $"No songs found by query `{songsQuery}`").Build());
             break;
         }
     }

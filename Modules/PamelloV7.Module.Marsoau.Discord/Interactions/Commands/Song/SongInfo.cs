@@ -21,16 +21,16 @@ public partial class Song
                 var song = songs.First();
             
                 await RespondUpdatableAsync(() =>
-                    PamelloComponentBuilders.SongInfo(song, Context.User, Services).Build()
+                    Builder<SongInfoBuilder>().Component(song).Build()
                 , () => [song, ..song.FavoriteBy, ..song.Playlists]);
             } break;
             case >= 1: {
                 await RespondUpdatablePageAsync(page =>
-                    PamelloComponentBuilders.EntitiesList($"{DiscordString.Code(songs.Count)} Songs", songs, page).Build()
+                    Builder<BasicComponentsBuilder>().EntitiesList($"{DiscordString.Code(songs.Count)} Songs", songs, page).Build()
                 , () => [.. songs]);
             } break;
             default:
-                await RespondComponentAsync(PamelloComponentBuilders.Info("Song Info", $"No song found by query `{songQuery}`").Build());
+                await RespondComponentAsync(Builder<BasicComponentsBuilder>().Info("Song Info", $"No song found by query `{songQuery}`").Build());
             break;
         }
     }

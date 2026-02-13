@@ -19,7 +19,7 @@ public class Ping : DiscordCommand
     [SlashCommand("ping", "Ping the bot", runMode: RunMode.Async)]
     public async Task ExecuteAsync() {
         await RespondUpdatableAsync(() =>
-            PamelloComponentBuilders.Info("Pong!", $"Hi {Context.User.ToDiscordString()}!").Build()
+            Builder<BasicComponentsBuilder>().Info("Pong!", $"Hi {Context.User.ToDiscordString()}!").Build()
         , Context.User);
         return;
         

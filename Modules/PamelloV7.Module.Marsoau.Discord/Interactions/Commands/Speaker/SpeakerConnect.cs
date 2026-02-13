@@ -19,7 +19,7 @@ public partial class Speaker
         );
 
         await RespondUpdatableAsync(() =>
-            PamelloComponentBuilders.Info("Speaker Connected", speaker.ToDiscordString()).Build()
+            Builder<BasicComponentsBuilder>().Info("Speaker Connected", speaker.ToDiscordString()).Build()
         , speaker);
     }
 }

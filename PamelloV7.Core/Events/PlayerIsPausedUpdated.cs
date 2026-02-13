@@ -8,5 +8,7 @@ namespace PamelloV7.Core.Events;
 [InfoUpdate]
 public class PlayerIsPausedUpdated : IPamelloEvent
 {
+    [InfoUpdateProperty]
+    public IPamelloPlayer Player { get; set; }
     public bool IsPaused { get; set; }
 }

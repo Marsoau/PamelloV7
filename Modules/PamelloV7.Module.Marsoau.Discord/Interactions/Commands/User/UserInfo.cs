@@ -14,7 +14,7 @@ public partial class User
         var user = await GetSingleRequiredAsync<IPamelloUser>(userQuery);
 
         await RespondUpdatableAsync(() =>
-            PamelloComponentBuilders.UserInfo(user, Context.User, Services).Result.Build()
+            Builder<UserInfoBuilder>().Component(user).Result.Build()
         , user);
     }
 }

@@ -17,7 +17,7 @@ public partial class Song
         var processedSongs = new List<IPamelloSong>();
 
         if (songs.Count == 0) {
-            await RespondComponentAsync(PamelloComponentBuilders.Info("Songs Reset", $"No songs found by query `{songsQuery}`").Build());
+            await RespondComponentAsync(Builder<BasicComponentsBuilder>().Info("Songs Reset", $"No songs found by query `{songsQuery}`").Build());
             return;
         }
 
@@ -37,7 +37,7 @@ public partial class Song
                 if (processedSongs.Count > 5) content += $"\n{DiscordString.Italic($"... And {processedSongs.Count - 5} more")}";
             }
 
-            return PamelloComponentBuilders.Info(title, content).Build();
+            return Builder<BasicComponentsBuilder>().Info(title, content).Build();
         }, () => [.. processedSongs.Skip(processedSongs.Count - 5)]);
 
         foreach (var song in songs) {

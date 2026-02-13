@@ -15,14 +15,12 @@ namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player;
 
 public partial class Player
 {
-    [SlashCommand("create", "Get info about a song", runMode: RunMode.Async)]
-    public async Task Create(
-        [Summary("name", "Name of the player")] string name
-    ) {
-        var player = Command<PlayerCreate>().Execute(name);
-
-        await RespondUpdatableAsync(() =>
-            Builder<BasicComponentsBuilder>().Info("Player Created & Selected", $"{player.ToDiscordString()} ({player.Queue?.Count})").Build()
-        , player);
+    [SlashCommand("pause-toggle", "Toggle the current pause state of the player (resume | pause)")]
+    public async Task PauseToggle() {
+        Command<PlayerPauseToggle>().Execute();
+        
+        await RespondUpdatableAsync(() => 
+            Builder<PlayerPauseToggleBuilder>().Component().Build(),
+        () => Context.User.SelectedPlayer is not null ? [Context.User.SelectedPlayer] : []);
     }
 }

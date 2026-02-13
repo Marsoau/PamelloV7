@@ -1,17 +1,15 @@
 using Discord;
-using Discord.Rest;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Base;
+using PamelloV7.Module.Marsoau.Discord.Builders.Base;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
-namespace PamelloV7.Module.Marsoau.Discord.Builders.Components;
+namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public static class QueueListComponent
+public class QueueListBuilder : PamelloComponentBuilder
 {
-    public static ComponentBuilderV2 Get(IPamelloUser scopeUser, int page, int pageSize) {
+    public ComponentBuilderV2 Get(int page, int pageSize) {
         var container = new ContainerBuilder();
 
-        var queue = scopeUser.RequiredSelectedPlayer.RequiredQueue;
+        var queue = ScopeUser.RequiredSelectedPlayer.RequiredQueue;
         var entries = queue.Entries.ToList();
         
         var totalPages = entries.Count / pageSize + (entries.Count % pageSize > 0 ? 1 : 0);
@@ -64,8 +62,8 @@ public static class QueueListComponent
                     .WithTextDisplay(contentAfter);
         }
 
-        return PamelloComponentBuilders.PageButtons(
-            PamelloComponentBuilders.RefreshButton(
+        return Builder<ButtonsBuilder>().PageButtons(
+            Builder<ButtonsBuilder>().RefreshButton(
                 new ComponentBuilderV2().WithContainer(container)
             )
         , page != 0, page < totalPages - 1);

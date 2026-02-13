@@ -17,7 +17,7 @@ public partial class Player
         var selectedPlayer = Command<PlayerSelect>().Execute(player);
 
         await RespondUpdatableAsync(() =>
-            PamelloComponentBuilders.Info("Player Selected", selectedPlayer.ToDiscordString()).Build()
+            Builder<BasicComponentsBuilder>().Info("Player Selected", selectedPlayer.ToDiscordString()).Build()
         , selectedPlayer);
     }
 }

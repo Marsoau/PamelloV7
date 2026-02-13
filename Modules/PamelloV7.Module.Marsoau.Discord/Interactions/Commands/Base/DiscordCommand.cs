@@ -8,6 +8,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Builders.Base;
 using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Base;
 using PamelloV7.Module.Marsoau.Discord.Messages;
@@ -25,15 +26,21 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
 
     protected bool IsLoading { get; set; }
 
-    private IEntityQueryService? _peql;
     protected IEntityQueryService PEQL =>
-        _peql ??= Services.GetRequiredService<IEntityQueryService>();
+        field ??= Services.GetRequiredService<IEntityQueryService>();
 
     public TCommand Command<TCommand>()
         where TCommand : PamelloCommand, new()
     {
         var commands = Services.GetRequiredService<IPamelloCommandsService>();
         return commands.Get<TCommand>(Context.User);
+    }
+
+    public TBuilder Builder<TBuilder>()
+        where TBuilder : PamelloComponentBuilder
+    {
+        var builders = Services.GetRequiredService<DiscordComponentBuildersService>();
+        return builders.GetBuilder<TBuilder>(Context);
     }
 
     protected async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
@@ -87,7 +94,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         => WithLoadingAsync(PEQL.GetAsync(query, ScopeUser), respond);
 
     public Task RespondInfo(string title, string description) {
-        return RespondAsync(components: PamelloComponentBuilders.Info(title, description).Build(), ephemeral: true);
+        return RespondAsync(components: Builder<BasicComponentsBuilder>().Info(title, description).Build(), ephemeral: true);
     }
 
     public async Task ReleaseInteractionAsync() {
@@ -113,7 +120,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         }
 
         Console.WriteLine("Responding loading, message doesn't exist, creating");
-        await RespondComponentAsync(PamelloComponentBuilders.Defer().Build());
+        await RespondComponentAsync(Builder<BasicComponentsBuilder>().Defer().Build());
     }
 
     public Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, params IPamelloEntity[] entities) {

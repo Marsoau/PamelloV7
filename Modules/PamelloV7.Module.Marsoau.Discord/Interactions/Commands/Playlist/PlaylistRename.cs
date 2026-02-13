@@ -22,8 +22,8 @@ public partial class Playlist
         Command<PlaylistRename>().Execute(playlist, newName);
 
         await RespondUpdatableAsync(() =>
-            PamelloComponentBuilders.RefreshButton(
-                PamelloComponentBuilders.Info("Playlist Renamed", playlist.ToDiscordString())
+            Builder<ButtonsBuilder>().RefreshButton(
+                Builder<BasicComponentsBuilder>().Info("Playlist Renamed", playlist.ToDiscordString())
             ).Build()
         , playlist);
     }
