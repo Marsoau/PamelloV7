@@ -4,7 +4,7 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class QueueListBuilder : PamelloComponentBuilder
+public class QueueListBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 Get(int page, int pageSize) {
         var container = new ContainerBuilder();

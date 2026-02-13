@@ -65,7 +65,7 @@ public class SignalHub : Hub
         await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} of user {user} executed: {commandPath}");
 
         try {
-            return await _commands.ExecuteAsync(commandPath, user);
+            return await _commands.ExecutePathAsync(commandPath, user);
         }
         catch (PamelloException pamelloException) {
             throw new HubException(pamelloException.Message);

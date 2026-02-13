@@ -60,7 +60,7 @@ public class PamelloCommandsService : IPamelloCommandsService
         return command;
     }
 
-    public async Task<object?> ExecuteAsync(string commandPath, IPamelloUser scopeUser) {
+    public async Task<object?> ExecutePathAsync(string commandPath, IPamelloUser scopeUser) {
         Console.WriteLine($"Executing command path: {commandPath}");
         var split = commandPath.Split('?', StringSplitOptions.RemoveEmptyEntries);
         var commandName = split[0];

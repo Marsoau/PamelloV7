@@ -37,7 +37,7 @@ public partial class PlayerQueue
                 var song = addedSongs.First();
             
                 await RespondUpdatableAsync(() =>
-                    Builder<ButtonsBuilder>().RefreshButton(Builder<AddedSongsBuilder>().GetForOne(song)).Build()
+                    Builder<AddedSongsBuilder>().GetForOne(song).Build()
                 , song);
             } break;
             case >= 1: {

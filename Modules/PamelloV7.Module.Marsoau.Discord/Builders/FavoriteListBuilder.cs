@@ -7,7 +7,7 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class FavoriteListBuilder : PamelloComponentBuilder
+public class FavoriteListBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 Component(IPamelloUser user, ESongOrPlaylist songOrPlaylist, int page, int pageSize) {
         IReadOnlyList<IPamelloEntity> items = songOrPlaylist switch {

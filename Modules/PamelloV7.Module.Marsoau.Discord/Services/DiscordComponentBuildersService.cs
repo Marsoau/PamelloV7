@@ -21,7 +21,7 @@ public class DiscordComponentBuildersService : IPamelloService
     }
     
     public TBuilderType GetBuilder<TBuilderType>(PamelloSocketInteractionContext context)
-        where TBuilderType : PamelloComponentBuilder
+        where TBuilderType : PamelloDiscordComponentBuilder
     {
         var servicesField = typeof(TBuilderType).GetField("Services");
         var contextField = typeof(TBuilderType).GetField("Context");

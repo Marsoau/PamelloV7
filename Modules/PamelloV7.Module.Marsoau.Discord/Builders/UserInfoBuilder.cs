@@ -8,7 +8,7 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class UserInfoBuilder : PamelloComponentBuilder
+public class UserInfoBuilder : PamelloDiscordComponentBuilder
 {
     public async Task<ComponentBuilderV2> Component(IPamelloUser user) {
         var containerBuilder = new ContainerBuilder();

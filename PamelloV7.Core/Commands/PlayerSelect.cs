@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Commands;
 
 public class PlayerSelect : PamelloCommand
 {
-    public IPamelloPlayer Execute(IPamelloPlayer player) {
+    public IPamelloPlayer? Execute(IPamelloPlayer? player) {
         return ScopeUser.SelectedPlayer = player;
     }
 }

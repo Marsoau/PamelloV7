@@ -4,7 +4,7 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class PlayerPauseToggleBuilder : PamelloComponentBuilder
+public class PlayerPauseToggleBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 Component() {
         ContainerBuilder containerBuilder;
@@ -22,7 +22,7 @@ public class PlayerPauseToggleBuilder : PamelloComponentBuilder
             containerBuilder
                 .WithSection(new SectionBuilder()
                     .WithAccessory(new ButtonBuilder()
-                        .WithCustomId("player-pause-toggle")
+                        .WithCustomId("pamello-command:PlayerPauseToggle")
                         .WithLabel(SelectedPlayer.IsPaused ? "Resume" : "Pause")
                         .WithStyle(ButtonStyle.Secondary)
                     )

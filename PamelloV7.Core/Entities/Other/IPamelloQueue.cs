@@ -15,9 +15,13 @@ public interface IPamelloQueue
     
     public int? NextPositionRequest { get; set; }
     public int Position { get; set; }
+    public int? EpisodePosition { get; }
     
     public IPamelloSong? CurrentSong { get; }
     public IPamelloEpisode? CurrentEpisode { get; }
+    
+    public AudioTime CurrentSongTimePosition { get; }
+    public AudioTime CurrentSongTimeTotal { get; }
     
     public int Count { get; }
     

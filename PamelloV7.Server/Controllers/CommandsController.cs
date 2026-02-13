@@ -22,7 +22,7 @@ namespace PamelloV7.Server.Controllers
             var commandPath = $"{commandName}{Request.QueryString}";
             StaticLogger.Log($"Command Start: {commandPath}");
 
-            var result = await _commands.ExecuteAsync(commandPath, User);
+            var result = await _commands.ExecutePathAsync(commandPath, User);
             
             return Ok(result);
         }

@@ -5,7 +5,7 @@ using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class SongInfoBuilder : PamelloComponentBuilder
+public class SongInfoBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 Component(IPamelloSong song) {
             ContainerBuilder containerBuilder;

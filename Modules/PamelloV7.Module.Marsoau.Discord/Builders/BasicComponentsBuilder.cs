@@ -1,10 +1,11 @@
 using Discord;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Module.Marsoau.Discord.Builders.Base;
+using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class BasicComponentsBuilder : PamelloComponentBuilder
+public class BasicComponentsBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 Info(string? content)
         => Info(null, content);
@@ -26,15 +27,12 @@ public class BasicComponentsBuilder : PamelloComponentBuilder
         var totalPages = entities.Count / pageSize + (entities.Count % pageSize > 0 ? 1 : 0);
         if (totalPages == 0) totalPages = 1;
 
-        throw new Exception();
-        /*
-        return PageButtons(Info(title,
-            entities.Count == 0 ? noResultsMessage
-                : string.Join("\n", entities.Skip(page * pageSize).Take(pageSize).Select(entity =>
-                        $"{(displayEntityName ? $"{DiscordString.Code(entity.GetType().Name)} " : "")}{entity.ToDiscordString()}"
-                ))
+        return Builder<ButtonsBuilder>().PageButtons(Info(title,
+        entities.Count == 0 ? noResultsMessage
+            : string.Join("\n", entities.Skip(page * pageSize).Take(pageSize).Select(entity =>
+                    $"{(displayEntityName ? $"{DiscordString.Code(entity.GetType().Name)} " : "")}{entity.ToDiscordString()}"
+            ))
         ), page != 0, page < totalPages - 1);
-        */
     }
     
     public ComponentBuilderV2 Defer() {

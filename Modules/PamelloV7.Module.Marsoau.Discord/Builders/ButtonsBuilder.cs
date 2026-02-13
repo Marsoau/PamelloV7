@@ -3,7 +3,7 @@ using PamelloV7.Module.Marsoau.Discord.Builders.Base;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
 
-public class ButtonsBuilder : PamelloComponentBuilder
+public class ButtonsBuilder : PamelloDiscordComponentBuilder
 {
     public ComponentBuilderV2 PageButtons(ComponentBuilderV2 pageBuilder, bool displayPrev, bool displayNext) {
         var actionRow = new ActionRowBuilder();

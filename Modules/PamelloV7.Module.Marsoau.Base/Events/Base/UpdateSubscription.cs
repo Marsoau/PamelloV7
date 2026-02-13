@@ -5,12 +5,12 @@ namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 
 public class UpdateSubscription : IUpdateSubscription
 {
-    public Func<IPamelloEntity[]> WatchedEntities { get; }
+    public Func<IPamelloEntity?[]> WatchedEntities { get; }
     public Func<IPamelloEvent, Task> Handler { get; }
     
     public bool IsDisposed { get; private set; }
     
-    public UpdateSubscription(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity[]> watchedEntities) {
+    public UpdateSubscription(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities) {
         WatchedEntities = watchedEntities;
         Handler = handler;
     }

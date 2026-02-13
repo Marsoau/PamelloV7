@@ -37,7 +37,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
 
     public TBuilder Builder<TBuilder>()
-        where TBuilder : PamelloComponentBuilder
+        where TBuilder : PamelloDiscordComponentBuilder
     {
         var builders = Services.GetRequiredService<DiscordComponentBuildersService>();
         return builders.GetBuilder<TBuilder>(Context);
@@ -127,7 +127,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return RespondUpdatableAsync(getComponent, () => entities);
     }
 
-    private void ProcessUpdatableAsync(Func<IPamelloEntity[]> getEntities) {
+    private void ProcessUpdatableAsync(Func<IPamelloEntity?[]> getEntities) {
         if (_updatableMessage is null) throw new Exception("Updatable message is not set on processing");
         
         var events = Services.GetRequiredService<IEventsService>();
@@ -140,7 +140,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
             subscription.Dispose();
         };
     }
-    public async Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, Func<IPamelloEntity[]> entities) {
+    public async Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, Func<IPamelloEntity?[]> entities) {
         var needsRefresh = Context.Interaction.HasResponded;
         if (!needsRefresh) {
             await RespondComponentAsync(getComponent());

@@ -133,9 +133,14 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             }
         }
 
+        public int? EpisodePosition => _songAudio?.GetCurrentEpisodePosition();
+
         private SongAudio? _songAudio;
         public IPamelloSong? CurrentSong => _songAudio?.Song;
         public IPamelloEpisode? CurrentEpisode => _songAudio?.GetCurrentEpisode();
+        
+        public AudioTime CurrentSongTimePosition => _songAudio?.Position ?? new AudioTime(0);
+        public AudioTime CurrentSongTimeTotal => _songAudio?.Duration ?? new AudioTime(0);
 
         private readonly List<PamelloQueueEntry> _entries;
         public IReadOnlyList<PamelloQueueEntry> Entries => _entries;

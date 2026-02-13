@@ -1,6 +1,8 @@
+using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Messages;
@@ -64,6 +66,15 @@ public class GeneralButtons : DiscordCommand
         }
 
         await message.Refresh();
+        await ReleaseInteractionAsync();
+    }
+
+    [ComponentInteraction("pamello-command:*")]
+    public async Task PamelloCommand(string commandPath) {
+        var commands = Services.GetRequiredService<IPamelloCommandsService>();
+        
+        await commands.ExecutePathAsync(commandPath, ScopeUser);
+        
         await ReleaseInteractionAsync();
     }
 }
