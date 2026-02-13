@@ -3,14 +3,14 @@ using PamelloV7.Core.Audio.Points;
 
 namespace PamelloV7.Module.Marsoau.Discord.Audio;
 
-public class SpeakerAudioOutput : IAudioModuleWithInput
+public class SpeakerAudioSink : IAudioModuleWithInput
 {
     public List<IAudioPoint> Inputs { get; }
     public IAudioPoint Input => Inputs.First();
     
     public Stream? Stream { get; set; }
     
-    public SpeakerAudioOutput() {
+    public SpeakerAudioSink() {
         Inputs = new List<IAudioPoint>(1);
     }
 

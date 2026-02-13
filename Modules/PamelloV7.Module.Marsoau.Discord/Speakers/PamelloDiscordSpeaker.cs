@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Discord.Audio;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Audio.Modules;
 using PamelloV7.Core.Audio.Attributes;
 using PamelloV7.Core.Audio.Modules.Base;
 using PamelloV7.Core.Audio.Services;
@@ -27,8 +28,11 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
     [OnAudioMap]
     public IPamelloPlayer Player { get; }
     
-    public SpeakerAudioOutput Output { get; }
-    IAudioModule IPamelloSpeaker.Output => Output;
+    public AudioBuffer Buffer { get; }
+    public AudioPump Pump { get; }
+    public SpeakerAudioSink Sink { get; }
+    
+    IAudioModule IPamelloSpeaker.Input => Buffer;
 
     public IEnumerable<IPamelloListener> Listeners {
         get {
@@ -56,10 +60,17 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
         
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         
-        Output = audio.RegisterModule(new SpeakerAudioOutput());
+        Buffer = audio.RegisterModule(new AudioBuffer(102400));
+        Pump = audio.RegisterModule(new AudioPump(4096));
+        Sink = audio.RegisterModule(new SpeakerAudioSink());
     }
 
     public void InitDependant() {
+        Pump.Input.ConnectedPoint = Buffer.Output;
+        Pump.Output.ConnectedPoint = Sink.Input;
+        
+        Pump.Start();
+        
         Player.AddSpeaker(this);
     }
 
@@ -91,7 +102,7 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
         Console.WriteLine($"VSU: {Guild.AudioClient}");
         Guild.AudioClient.Connected += async () => {
             Console.WriteLine("AC Connected");
-            Output.Stream = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
+            Sink.Stream = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
 
             foreach (var listener in Listeners) {
                 if (listener.User is null || listener.User.SelectedPlayer is not null) continue;

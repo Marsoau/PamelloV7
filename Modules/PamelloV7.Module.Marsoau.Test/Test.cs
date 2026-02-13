@@ -38,5 +38,11 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
 
         var me = users.GetRequired(1);
+        
+        foreach (var newSong in songs.GetAll(me)) {
+            Console.WriteLine($"[{newSong.Id}]({newSong.Sources.FirstOrDefault()?.PK.Key}){(
+                newSong.Episodes.Count > 0 ? $"<{newSong.Episodes.Count}>" : ""
+            )} {newSong.Name}");
+        }
     }
 }

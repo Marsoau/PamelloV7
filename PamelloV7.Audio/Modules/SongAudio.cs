@@ -138,13 +138,15 @@ public class SongAudio : IAudioModuleWithOutput
             await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
         }
 
-        var count = 0;
-        while (count < result.Length && Position.TimeValue < Duration.TimeValue) {
-            count += await _currentChunk.ReadAsync(result, count, result.Length - count, token);
+        int count;
+        var totalCount = 0;
+        while (totalCount < result.Length && Position.TimeValue < Duration.TimeValue) {
+            totalCount += count = await _currentChunk.ReadAsync(result, totalCount, result.Length - totalCount, token);
+            
             Position.TimeValue += count;
-        
-            if (count >= result.Length) return true;
-        
+            
+            if (totalCount >= result.Length) return true;
+            
             await MoveForwardAsync(token);
         }
 

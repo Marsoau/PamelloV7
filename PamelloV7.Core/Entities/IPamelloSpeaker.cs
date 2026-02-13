@@ -12,7 +12,7 @@ public interface IPamelloSpeaker : IPamelloEntity
     
     IEnumerable<IPamelloListener> Listeners { get; }
     
-    IAudioModule Output { get; }
+    IAudioModule Input { get; }
 
     public void Connect(ulong vcId) {
         
