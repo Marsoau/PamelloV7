@@ -5,6 +5,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
+using PamelloV7.Core.Events.RestorePacks.Base;
 using PamelloV7.Core.History.Services;
 using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Events.Base;
@@ -68,22 +69,28 @@ public class EventsService : IEventsService
     }
 
     public TPamelloEvent Invoke<TPamelloEvent>(IPamelloUser invoker, TPamelloEvent e) where TPamelloEvent : IPamelloEvent {
-        throw new NotImplementedException();
+        return Invoke(e);
     }
 
     public IPamelloEvent Invoke(Type eventType, IPamelloEvent e) {
-        try {
-            return InvokeInternal(eventType, e);
-        }
-        finally {
-            _localEvent.Value = null;
-        }
-    }
-    public IPamelloEvent InvokeInternal(Type eventType, IPamelloEvent e) {
         var parentEvent = _localEvent.Value;
         _localEvent.Value = e;
         
+        try {
+            return InvokeInternal(eventType, e, parentEvent);
+        }
+        finally {
+            _localEvent.Value = parentEvent;
+        }
+    }
+    public IPamelloEvent InvokeInternal(Type eventType, IPamelloEvent e, IPamelloEvent? parentEvent = null) {
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
+
+        if (e is RestorablePamelloEvent restorableEvent) {
+            if (typeof(RevertPack).GetField("Services") is { } servicesProperty) {
+                servicesProperty.SetValue(restorableEvent.RevertPack, _services);
+            }
+        }
         
         foreach (var subscription in _eventSubscriptions) {
             var subscriptionType = subscription.EventType;
@@ -92,9 +99,11 @@ public class EventsService : IEventsService
                 subscription.Invoke(e);
             }
         }
-        
-        if (parentEvent is null) _history.Record(e);
-        else _history.Record(e, parentEvent);
+
+        if (eventType.GetCustomAttribute<HistoricalEventAttribute>() is not null) {
+            if (parentEvent is null) _history.Record(e);
+            else _history.Record(e, parentEvent);
+        }
 
         if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
             _sse.Broadcast(e);

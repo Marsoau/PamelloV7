@@ -39,15 +39,15 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
 
         var me = users.GetRequired(1);
+        var song = songs.GetRequired(70);
 
-        events.Subscribe<Jombis>(async e => {
-            events.Invoke(new PlayerNameUpdated());
+        events.Subscribe<SongDeleted>(async e => {
+            e.RevertPack.Revert();
         });
-        events.Subscribe<TestNestedEvent>(async e => {
-            events.Invoke(new Jombis());
+        events.Subscribe<SongRestored>(async e => {
+            e.RevertPack.Revert();
         });
-
-        events.Invoke(new TestNestedEvent());
-        events.Invoke(new Jombis());
+        
+        songs.Delete(me, song);
     }
 }

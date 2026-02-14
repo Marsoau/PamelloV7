@@ -3,12 +3,15 @@ using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.Events.Base;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
+using PamelloV7.Module.Marsoau.Database.Events.RestorePacks;
 
 namespace PamelloV7.Module.Marsoau.Database.Repositories;
 
@@ -139,21 +142,43 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public override void Delete(IPamelloUser scopeUser, IPamelloSong song) {
-        /*
         var pamelloSong = (PamelloSong)song;
         
-        GetCollection().Delete(song.Id);
-        _loaded.Remove(song);
+        var collection = GetCollection();
+        var databaseSong = collection.Get(song.Id);
+        
+        //collection.Delete(song.Id);
+        //_loaded.Remove(song);
 
         //all other objects that have a link to this song should delete it on this event
         _events.Invoke(scopeUser, new SongDeleted() {
+            RevertPack = new SongDeletionRevertPack() {
+                DatabaseSong = databaseSong,
+            },
             SongId = pamelloSong.Id,
         });
 
         foreach (var source in pamelloSong.Sources) {
-            if (source.GetFile() is { Exists: true } file) file.Delete();
+            //if (source.GetFile() is { Exists: true } file) file.Delete();
         }
-        */
-        throw new NotImplementedException();
+    }
+
+    public void Restore(DatabaseSong databaseSong) {
+        var collection = GetCollection();
+        
+        //if (collection.Get(databaseSong.Id) is not null)
+            //throw new PamelloException("Song already exists in the database");
+        
+        //collection.Add(databaseSong);
+        
+        //var pamelloSong = Load(databaseSong);
+        var pamelloSong = GetRequired(databaseSong.Id);
+
+        _events.Invoke(new SongRestored() {
+            RevertPack = new SongRestoreRevertPack() {
+                SongId = pamelloSong.Id,
+            },
+            Song = pamelloSong
+        });
     }
 }

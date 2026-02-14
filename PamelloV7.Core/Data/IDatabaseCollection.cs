@@ -4,7 +4,7 @@ namespace PamelloV7.Core.Data;
 
 public interface IDatabaseCollection<TDatabaseEntity>
 {
-    public TDatabaseEntity Get(object key);
+    public TDatabaseEntity? Get(object key);
     public IEnumerable<TDatabaseEntity> GetAll();
     
     public int Count();

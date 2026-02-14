@@ -45,6 +45,7 @@ public abstract class PamelloDatabaseRepository<TPamelloEntity, TDatabaseEntity>
         var count = 0;
         var total = entities.Length;
 
+        //foreach (var databaseEntity in entities) {
         foreach (var databaseEntity in entities) {
             Load(databaseEntity, false);
             
