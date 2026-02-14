@@ -17,8 +17,6 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     
     public IPamelloUser? AddedBy { get; }
     
-    public bool IsSoftDeleted { get; }
-    
     public int SelectedSourceIndex { get; set; }
     public SongSource? SelectedSource { get; }
     public IReadOnlyList<SongSource> Sources { get; }
@@ -36,8 +34,8 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public void UnmakeFavorite(IPamelloUser user, bool fromInside = false);
     public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip);
     public IPamelloEpisode AddEpisode(IEpisodeInfo episodeInfo, bool autoSkip);
-    public void RemoveEpisode(IPamelloEpisode episode);
-    public void RemoveEpisodeAt(int position);
+    public void RemoveEpisode(IPamelloEpisode episode, IPamelloUser scopeUser);
+    public void RemoveEpisodeAt(int position, IPamelloUser scopeUser);
     public void RemoveAllEpisodes();
     public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false);
     public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false);

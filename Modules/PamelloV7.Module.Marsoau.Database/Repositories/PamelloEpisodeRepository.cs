@@ -66,7 +66,7 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return episode;
     }
 
-    public override void Delete(IPamelloEpisode episode) {
+    public override void Delete(IPamelloUser scopeUser, IPamelloEpisode episode) {
         var pamelloSong = (PamelloSong)episode.Song;
         
         pamelloSong._songEpisodes.Remove(episode);

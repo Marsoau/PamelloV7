@@ -61,7 +61,7 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Buffer = audio.RegisterModule(new AudioBuffer(102400));
-        Pump = audio.RegisterModule(new AudioPump(4096));
+        Pump = audio.RegisterModule(new AudioPump(128));
         Sink = audio.RegisterModule(new SpeakerAudioSink());
     }
 

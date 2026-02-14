@@ -19,7 +19,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     private string _coverUrl;
     private DateTime _addedAt;
     private IPamelloUser _addedBy;
-    private bool _isSoftDeleted;
     
     public List<SongSource> _sources;
     
@@ -27,8 +26,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     public List<IPamelloEpisode> _songEpisodes;
     public List<IPamelloPlaylist> _songPlaylists;
     public List<string> _associations;
-
-    public new int Id => IsSoftDeleted ? -base.Id : base.Id;
 
     public override string Name {
         get => _name;
@@ -68,11 +65,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         }
     }
 
-    public bool IsSoftDeleted {
-        get => _isSoftDeleted;
-        set => _isSoftDeleted = value;
-    }
-
     public bool IsDownloaded => false;
     public IPamelloUser? AddedBy => _addedBy;
     
@@ -90,7 +82,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         _coverUrl = databaseEntity.CoverUrl;
         _addedAt = databaseEntity.AddedAt;
         _associations = databaseEntity.Associations.ToList();
-        _isSoftDeleted = databaseEntity.IsSoftDeleted;
         
         _selectedSourceIndex = databaseEntity.SelectedSource;
         _sources = databaseEntity.Sources.Select(
@@ -125,6 +116,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
             if (a.Start.TotalSeconds == b.Start.TotalSeconds) return 0;
             return a.Start.TotalSeconds > b.Start.TotalSeconds ? 1 : -1;
         });
+
     }
 
     public override void SaveInternal() {
@@ -137,7 +129,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         databaseSong.CoverUrl = _coverUrl;
 
         databaseSong.Associations = _associations;
-        databaseSong.IsSoftDeleted = _isSoftDeleted;
 
         databaseSong.SelectedSource = SelectedSourceIndex;
         databaseSong.Sources = _sources.Select(source => source.PK).ToList();
@@ -236,15 +227,15 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         return AddEpisode(new AudioTime(episodeInfo.Start), episodeInfo.Name, autoSkip);
     }
 
-    public void RemoveEpisode(IPamelloEpisode episode) {
-        _episodes.Delete(episode);
+    public void RemoveEpisode(IPamelloEpisode episode, IPamelloUser scopeUser) {
+        _episodes.Delete(scopeUser, episode);
     }
 
-    public void RemoveEpisodeAt(int position) {
+    public void RemoveEpisodeAt(int position, IPamelloUser scopeUser) {
         var episode = _songEpisodes.ElementAtOrDefault(position);
         if (episode is null) return;
         
-        _episodes.Delete(episode);
+        _episodes.Delete(scopeUser, episode);
     }
 
     public void RemoveAllEpisodes() {

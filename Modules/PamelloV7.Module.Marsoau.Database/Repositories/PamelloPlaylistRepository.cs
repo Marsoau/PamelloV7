@@ -17,7 +17,7 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
         return new PamelloPlaylist(databaseEntity, _services);
     }
 
-    public override void Delete(IPamelloPlaylist entity) {
+    public override void Delete(IPamelloUser scopeUser, IPamelloPlaylist entity) {
         throw new NotImplementedException();
     }
 

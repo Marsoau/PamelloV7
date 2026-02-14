@@ -18,5 +18,4 @@ public class DatabaseSong : DatabaseEntity
     public List<PlatformKey> Sources { get; set; }
     public int AddedBy { get; set; }
     public DateTime AddedAt { get; set; }
-    public bool IsSoftDeleted { get; set; }
 }

@@ -7,9 +7,10 @@ namespace PamelloV7.Core.Events;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class UserFavoriteSongsUpdated : IPamelloEvent
+public class SongIsSoftDeletedUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloUser User { get; set; }
-    public IEnumerable<IPamelloSong> FavoriteSongs { get; set; }
+    public IPamelloSong Song { get; set; }
+    public bool IsSoftDeleted { get; set; }
 }
+

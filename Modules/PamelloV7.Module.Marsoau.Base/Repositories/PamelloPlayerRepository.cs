@@ -55,7 +55,7 @@ public class PamelloPlayerRepository : PamelloRepository<IPamelloPlayer>, IPamel
         return player;
     }
 
-    public override void Delete(IPamelloPlayer entity) {
+    public override void Delete(IPamelloUser scopeUser, IPamelloPlayer player) {
         throw new NotImplementedException();
     }
 }

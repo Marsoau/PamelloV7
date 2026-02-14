@@ -65,7 +65,7 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
         return speaker;
     }
 
-    public override void Delete(IPamelloSpeaker entity) {
+    public override void Delete(IPamelloUser scopeUser, IPamelloSpeaker speaker) {
         throw new NotImplementedException();
     }
 }

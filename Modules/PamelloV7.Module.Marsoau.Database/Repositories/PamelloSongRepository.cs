@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories;
@@ -136,16 +137,23 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         IPamelloUser? favoriteBy = null) {
         throw new NotImplementedException("because author is gay");
     }
-    
-    public override void Delete(IPamelloSong song) {
+
+    public override void Delete(IPamelloUser scopeUser, IPamelloSong song) {
+        /*
         var pamelloSong = (PamelloSong)song;
         
-        pamelloSong.IsSoftDeleted = true;
-        
-        pamelloSong.Save();
-    }
+        GetCollection().Delete(song.Id);
+        _loaded.Remove(song);
 
-    public void HardDelete(IPamelloSong song) {
-        
+        //all other objects that have a link to this song should delete it on this event
+        _events.Invoke(scopeUser, new SongDeleted() {
+            SongId = pamelloSong.Id,
+        });
+
+        foreach (var source in pamelloSong.Sources) {
+            if (source.GetFile() is { Exists: true } file) file.Delete();
+        }
+        */
+        throw new NotImplementedException();
     }
 }

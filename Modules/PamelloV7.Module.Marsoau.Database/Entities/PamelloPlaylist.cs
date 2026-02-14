@@ -33,7 +33,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         get => _owner;
         set => _owner = value;
     }
-    
+
     public IReadOnlyList<IPamelloSong> Songs => _playlistSongs;
     public IReadOnlyList<IPamelloUser> FavoriteBy => _favoriteBy;
     
@@ -56,6 +56,8 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
             .Select(databaseUser => _users.Get(databaseUser.Id))
             .OfType<IPamelloUser>()
             .ToList();
+        
+        //_events.Subscribe<SongDeleted>(OnSongDeleted);
     }
 
     public override void SaveInternal() {
@@ -122,6 +124,11 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         var count = _playlistSongs.RemoveAll(s => s == song);
         
         if (!fromInside) song.RemoveFromPlaylist(this);
+
+        _sink.Invoke(new PlaylistSongsUpdated() {
+            Playlist = this,
+            Songs = Songs
+        });
         
         Save();
         

@@ -69,7 +69,6 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     //
     
     public IPamelloSong Add(ISongInfo info, IPamelloUser adder);
-
     public IEnumerable<IPamelloSong> Search(
         string querry,
         IPamelloUser scopeUser,

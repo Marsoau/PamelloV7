@@ -5,6 +5,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
+using PamelloV7.Core.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Repositories.Base;
 
@@ -20,6 +21,8 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
     protected IPamelloEpisodeRepository _episodes;
     protected IPamelloPlaylistRepository _playlists;
     
+    protected IEventsService _events;
+    
     protected PamelloRepository(IServiceProvider services) {
         _services = services;
         
@@ -31,6 +34,8 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         _songs = _services.GetRequiredService<IPamelloSongRepository>();
         _episodes = _services.GetRequiredService<IPamelloEpisodeRepository>();
         _playlists = _services.GetRequiredService<IPamelloPlaylistRepository>();
+        
+        _events = _services.GetRequiredService<IEventsService>();
     }
 
     public TPamelloEntity GetRequired(int id)
@@ -43,5 +48,5 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         return _loaded;
     }
 
-    public abstract void Delete(TPamelloEntity entity);
+    public abstract void Delete(IPamelloUser scopeUser, TPamelloEntity entity);
 }

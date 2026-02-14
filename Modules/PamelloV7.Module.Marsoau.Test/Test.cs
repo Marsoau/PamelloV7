@@ -13,6 +13,7 @@ using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Modules;
 using PamelloV7.Core.Platforms;
+using PamelloV7.Module.Marsoau.Test.Events;
 
 namespace PamelloV7.Module.Marsoau.Test;
 
@@ -38,11 +39,15 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
 
         var me = users.GetRequired(1);
-        
-        foreach (var newSong in songs.GetAll(me)) {
-            Console.WriteLine($"[{newSong.Id}]({newSong.Sources.FirstOrDefault()?.PK.Key}){(
-                newSong.Episodes.Count > 0 ? $"<{newSong.Episodes.Count}>" : ""
-            )} {newSong.Name}");
-        }
+
+        events.Subscribe<Jombis>(async e => {
+            events.Invoke(new PlayerNameUpdated());
+        });
+        events.Subscribe<TestNestedEvent>(async e => {
+            events.Invoke(new Jombis());
+        });
+
+        events.Invoke(new TestNestedEvent());
+        events.Invoke(new Jombis());
     }
 }
