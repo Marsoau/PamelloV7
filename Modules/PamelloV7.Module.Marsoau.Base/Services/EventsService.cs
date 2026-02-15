@@ -86,9 +86,9 @@ public class EventsService : IEventsService
     public IPamelloEvent InvokeInternal(Type eventType, IPamelloEvent e, IPamelloEvent? parentEvent = null) {
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 
-        if (e is RestorablePamelloEvent restorableEvent) {
+        if (e is RevertiblePamelloEvent revertibleEvent) {
             if (typeof(RevertPack).GetField("Services") is { } servicesProperty) {
-                servicesProperty.SetValue(restorableEvent.RevertPack, _services);
+                servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
             }
         }
         

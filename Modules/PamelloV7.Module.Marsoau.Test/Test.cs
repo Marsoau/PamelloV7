@@ -7,10 +7,13 @@ using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.PEQL;
 using PamelloV7.Core.Extensions;
+using PamelloV7.Core.History.Records;
+using PamelloV7.Core.History.Services;
 using PamelloV7.Core.Modules;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Module.Marsoau.Test.Events;
@@ -37,17 +40,27 @@ public class Test : IPamelloModule
         var events = services.GetRequiredService<IEventsService>();
         var files = services.GetRequiredService<IFileAccessService>();
         var downloaders = services.GetRequiredService<IDownloadService>();
-
-        var me = users.GetRequired(1);
-        var song = songs.GetRequired(70);
-
+        var history = services.GetRequiredService<IHistoryService>();
+        
         events.Subscribe<SongDeleted>(async e => {
-            e.RevertPack.Revert();
+            Console.WriteLine($"Song {e.SongId} deleted");
+            //e.RevertPack.Revert();
         });
         events.Subscribe<SongRestored>(async e => {
-            e.RevertPack.Revert();
+            Console.WriteLine($"Song {e.Song} restored");
+            //e.RevertPack.Revert();
         });
         
-        songs.Delete(me, song);
+        var record = history.GetRequired(1);
+        Console.WriteLine($"Got record {record.Id} about {record.Event.GetType().Name}");
+        
+        record.Revert();
+
+        var me = users.GetRequired(4);
+        var song = songs.GetRequired(3);
+
+        Console.WriteLine($"Got song: {song}");
+
+        //songs.Delete(me, song);
     }
 }

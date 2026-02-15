@@ -147,8 +147,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         var collection = GetCollection();
         var databaseSong = collection.Get(song.Id);
         
-        //collection.Delete(song.Id);
-        //_loaded.Remove(song);
+        collection.Delete(song.Id);
+        _loaded.Remove(song);
 
         //all other objects that have a link to this song should delete it on this event
         _events.Invoke(scopeUser, new SongDeleted() {
@@ -159,19 +159,19 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         });
 
         foreach (var source in pamelloSong.Sources) {
-            //if (source.GetFile() is { Exists: true } file) file.Delete();
+            if (source.GetFile() is { Exists: true } file) file.Delete();
         }
     }
 
     public void Restore(DatabaseSong databaseSong) {
         var collection = GetCollection();
+
+        if (collection.Get(databaseSong.Id) is not null) {
+            throw new PamelloException("Song already exists in the database");
+        }
         
-        //if (collection.Get(databaseSong.Id) is not null)
-            //throw new PamelloException("Song already exists in the database");
+        collection.Add(databaseSong);
         
-        //collection.Add(databaseSong);
-        
-        //var pamelloSong = Load(databaseSong);
         var pamelloSong = GetRequired(databaseSong.Id);
 
         _events.Invoke(new SongRestored() {
