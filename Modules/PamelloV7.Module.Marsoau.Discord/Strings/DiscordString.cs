@@ -52,16 +52,14 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
             
             var size = length * ProgressChars.Length;
             var filled = (int)(size * progress);
-            var fullFilled = filled / ProgressChars.Length;
-            var notFull = filled % ProgressChars.Length;
             
             for (var i = 0; i < length; i++) {
-                if (i < fullFilled) {
+                if (i < filled / ProgressChars.Length) {
                     sb.Append(ProgressChars.Last());
                     continue;
                 }
-                if (i == fullFilled && notFull > 0) {
-                    sb.Append(ProgressChars[notFull]);
+                if (i == filled / ProgressChars.Length && i != 0) {
+                    sb.Append(ProgressChars[filled % ProgressChars.Length]);
                     continue;
                 }
                 

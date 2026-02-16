@@ -427,6 +427,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             else Position = nextPosition % _entries.Count;
 
 			if (_entries.Count == 0) {
+                if (IsFeedRandom) {
+                    var song = _songs.GetRandom(null!).FirstOrDefault();
+                    
+                    if (song is not null) return AddSongs([song], null).FirstOrDefault();
+                    
+                    IsFeedRandom = false;
+                }
                 SetCurrent(null, scopeUser);
                 return null;
 			}
