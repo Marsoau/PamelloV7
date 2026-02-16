@@ -42,30 +42,25 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
         var history = services.GetRequiredService<IHistoryService>();
         
-        events.Subscribe<SongDeleted>(async e => {
-            Console.WriteLine($"Song {e.Song} deleted");
+        events.Subscribe<SongDeleted>((user, e) => {
+            Console.WriteLine($"Song {e.Song} deleted by {user}");
             //e.RevertPack.Revert();
         });
-        events.Subscribe<SongRestored>(async e => {
+        events.Subscribe<SongRestored>(e => {
             Console.WriteLine($"Song {e.Song} restored");
             //e.RevertPack.Revert();
         });
         
-        //var record = history.GetRequired(1);
-        //Console.WriteLine($"Got record {record.Id} about {record.Event.GetType().Name}");
-
-        //if (record.Event is SongDeleted songDeleted) {
-            //Console.WriteLine($"Song is: {((dynamic)songDeleted.RevertPack).DatabaseSong.Name}");
-        //}
-        
         var me = users.GetRequired(1);
+        var song = songs.GetRequired(16);
+
+        Console.WriteLine($"Got song: <{song.Episodes.Count}> {song}");
+
+        var record = songs.Delete(song, me);
+
+        Console.WriteLine($"Get record: {record}, waiting to revert");
+        Console.ReadKey(true);
         
-        //record.Revert(me);
-
-        //var song = songs.GetRequired(4);
-
-        //Console.WriteLine($"Got song: {song}");
-
-        //songs.Delete(me, song);
+        record.Revert(me);
     }
 }

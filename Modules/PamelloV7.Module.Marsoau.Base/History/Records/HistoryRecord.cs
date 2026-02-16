@@ -9,17 +9,18 @@ public class HistoryRecord : IHistoryRecord
 {
     public int Id { get; set; }
 
-    public IPamelloUser Preformer { get; }
+    public IPamelloUser? Performer { get; set; }
     public IPamelloEvent Event { get; set; }
     public List<IHistoryRecord> NestedRecords { get; set; }
 
     public bool IsRevertible => Event is RevertiblePamelloEvent { RevertPack.IsActivated: true };
     
     public HistoryRecord() { }
-    public HistoryRecord(IPamelloEvent e) {
+    public HistoryRecord(IPamelloEvent e, IPamelloUser? performer) {
         NestedRecords = [];
         
         Event = e;
+        Performer = performer;
     }
 
     public void Revert(IPamelloUser scopeUser) {

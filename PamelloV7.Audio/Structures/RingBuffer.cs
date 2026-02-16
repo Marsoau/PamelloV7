@@ -16,6 +16,9 @@ public class RingBuffer<TType> : IDisposable
     private List<AwaitingOperation> AwaitingWrites { get; set; }
     private List<AwaitingOperation> AwaitingReads { get; set; }
 
+    // 1. Added a lock object to synchronize access to the lists
+    private readonly object _lock = new();
+
     private bool _afterWrite;
 
     public RingBuffer(int size) {
@@ -63,10 +66,18 @@ public class RingBuffer<TType> : IDisposable
         {
             if (!wait) return false;
             
-            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
-            token.Register(() => operation.Completion.SetResult(false));
+            // 2. Use RunContinuationsAsynchronously to prevent deadlocks when SetResult is called inside a lock
+            var operation = new AwaitingOperation {
+                Size = count, 
+                Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+            };
+            token.Register(() => operation.Completion.TrySetResult(false));
             
-            AwaitingWrites.Add(operation);
+            // 3. Lock adding to the list
+            lock (_lock)
+            {
+                AwaitingWrites.Add(operation);
+            }
             
             if (!operation.Completion.Task.Result) return false;
         }
@@ -85,14 +96,22 @@ public class RingBuffer<TType> : IDisposable
         Head = (Head + count) % capacity;
         _afterWrite = true;
 
-        if (AwaitingReads.Count > 0) _ = Task.Run(() => {
-            foreach (var item in AwaitingReads)
+        // Optimization: check count lightly before spawning task (optional but saves overhead)
+        bool hasReaders;
+        lock (_lock) hasReaders = AwaitingReads.Count > 0;
+
+        if (hasReaders) _ = Task.Run(() => {
+            // 4. Lock the iteration and removal
+            lock (_lock)
             {
-                if (item.Size > Used()) continue;
+                foreach (var item in AwaitingReads)
+                {
+                    if (item.Size > Used()) continue;
             
-                AwaitingReads.Remove(item);
-                item.Completion.SetResult(true);
-                break;
+                    AwaitingReads.Remove(item);
+                    item.Completion.TrySetResult(true); // Changed to TrySetResult for safety
+                    break;
+                }
             }
         });
 
@@ -106,10 +125,18 @@ public class RingBuffer<TType> : IDisposable
         {
             if (!wait) return false;
             
-            var operation = new AwaitingOperation {Size = count, Completion = new TaskCompletionSource<bool>()};
-            token.Register(() => operation.Completion.SetResult(false));
+            // 2. Use RunContinuationsAsynchronously
+            var operation = new AwaitingOperation {
+                Size = count, 
+                Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+            };
+            token.Register(() => operation.Completion.TrySetResult(false));
             
-            AwaitingReads.Add(operation);
+            // 3. Lock adding to the list
+            lock (_lock)
+            {
+                AwaitingReads.Add(operation);
+            }
             
             if (!operation.Completion.Task.Result) return false;
         }
@@ -128,14 +155,21 @@ public class RingBuffer<TType> : IDisposable
         Tail = (Tail + count) % capacity;
         _afterWrite = false;
         
-        if (AwaitingWrites.Count > 0) _ = Task.Run(() => {
-            foreach (var item in AwaitingWrites)
+        bool hasWriters;
+        lock (_lock) hasWriters = AwaitingWrites.Count > 0;
+
+        if (hasWriters) _ = Task.Run(() => {
+            // 4. Lock the iteration and removal
+            lock (_lock)
             {
-                if (item.Size > Available()) continue;
+                foreach (var item in AwaitingWrites)
+                {
+                    if (item.Size > Available()) continue;
             
-                AwaitingWrites.Remove(item);
-                item.Completion.SetResult(true);
-                break;
+                    AwaitingWrites.Remove(item);
+                    item.Completion.TrySetResult(true);
+                    break;
+                }
             }
         });
         
@@ -144,13 +178,20 @@ public class RingBuffer<TType> : IDisposable
 
     public void Dispose()
     {
-        foreach (var item in AwaitingWrites)
+        // 5. Lock disposal cleanup
+        lock (_lock)
         {
-            item.Completion.SetResult(false);
-        }
-        foreach (var item in AwaitingReads)
-        {
-            item.Completion.SetResult(false);
+            foreach (var item in AwaitingWrites)
+            {
+                item.Completion.TrySetResult(false);
+            }
+            AwaitingWrites.Clear(); // Good practice to clear references
+
+            foreach (var item in AwaitingReads)
+            {
+                item.Completion.TrySetResult(false);
+            }
+            AwaitingReads.Clear();
         }
     }
 }

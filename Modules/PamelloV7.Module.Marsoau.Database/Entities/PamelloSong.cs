@@ -130,7 +130,8 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         var songCollection = ((PamelloSongRepository)_songs).GetCollection();
         
         var databaseSong = songCollection.Get(Id);
-        Debug.Assert(databaseSong is not null, "Song doesnt exist in the database for some reason, cant save song");
+        if (databaseSong is null) return;
+        //Debug.Assert(databaseSong is not null, "Song doesnt exist in the database for some reason, cant save song");
         
         databaseSong.Name = _name;
         databaseSong.CoverUrl = CoverUrl;

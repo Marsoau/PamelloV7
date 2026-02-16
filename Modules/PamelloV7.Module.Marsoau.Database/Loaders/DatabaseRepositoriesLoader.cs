@@ -32,6 +32,10 @@ internal static class DatabaseRepositoriesLoader
         foreach (var repository in repositories) {
             await repository.InitAllAsync();
         }
+
+        foreach (var repository in repositories) {
+            (repository as IPamelloService)!.Startup(services);
+        }
     }
 
     private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository) {

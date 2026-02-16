@@ -9,7 +9,7 @@ public interface IHistoryRecord
     
     public bool IsRevertible { get; }
     
-    public IPamelloUser Preformer { get; }
+    public IPamelloUser? Performer { get; }
     public IPamelloEvent Event { get; }
     public List<IHistoryRecord> NestedRecords { get; }
     

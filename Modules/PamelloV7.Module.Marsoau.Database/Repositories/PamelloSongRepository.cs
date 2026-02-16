@@ -5,6 +5,7 @@ using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories;
@@ -30,10 +31,12 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             var playlists = e.Song.Playlists.ToList();
             var episodes = e.Song.Episodes.ToList();
             var favoriteBy = e.Song.FavoriteBy.ToList();
+
+            Console.WriteLine($"About to delete {episodes.Count} episodes from {e.Song}");
             
-            foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
+            //foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
             foreach (var episode in episodes) _episodes.Delete(episode, scopeUser);
-            foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
+            //foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
         });
     }
 
@@ -153,7 +156,11 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         throw new NotImplementedException("because author is gay");
     }
 
-    public override void Delete(IPamelloSong song, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloSong entity, IPamelloUser? scopeUser) {
+        return DeleteAsync(entity, scopeUser).GetAwaiter().GetResult();
+    }
+
+    public async Task<IHistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         var collection = GetCollection();
@@ -163,7 +170,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         _loaded.Remove(song);
 
         //all other objects that have a link to this song should delete it on this event
-        _events.InvokeAsync(scopeUser, new SongDeleted() {
+        var record = await _events.InvokeAsync(scopeUser, new SongDeleted() {
             RevertPack = new SongDeletionRevertPack() {
                 DatabaseSong = databaseSong,
             },
@@ -173,6 +180,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         foreach (var source in pamelloSong.Sources) {
             if (source.GetFile() is { Exists: true } file) file.Delete();
         }
+        
+        return record;
     }
 
     public void Restore(IPamelloUser scopeUser, DatabaseSong databaseSong) {

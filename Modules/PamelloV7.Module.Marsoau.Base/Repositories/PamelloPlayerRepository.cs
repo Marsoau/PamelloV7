@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Audio.Services;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Base;
@@ -55,7 +56,7 @@ public class PamelloPlayerRepository : PamelloRepository<IPamelloPlayer>, IPamel
         return player;
     }
 
-    public override void Delete(IPamelloPlayer player, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloPlayer player, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

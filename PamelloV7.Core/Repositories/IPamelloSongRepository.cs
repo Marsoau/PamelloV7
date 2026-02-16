@@ -1,5 +1,6 @@
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories.Base;
@@ -69,6 +70,8 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     //
     
     public IPamelloSong Add(ISongInfo info, IPamelloUser adder);
+    public Task<IHistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser);
+    
     public IEnumerable<IPamelloSong> Search(
         string querry,
         IPamelloUser scopeUser,

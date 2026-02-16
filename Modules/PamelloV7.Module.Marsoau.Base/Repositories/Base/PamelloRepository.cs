@@ -3,6 +3,7 @@ using PamelloV7.Core.Data;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Repositories.Base;
 using PamelloV7.Core.Services;
@@ -48,5 +49,5 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         return _loaded;
     }
 
-    public abstract void Delete(TPamelloEntity entity, IPamelloUser? scopeUser);
+    public abstract IHistoryRecord Delete(TPamelloEntity entity, IPamelloUser? scopeUser);
 }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Platforms;
 using PamelloV7.Core.Platforms.Infos;
 using PamelloV7.Core.Repositories;
@@ -89,7 +90,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         return Load(databaseUser);
     }
 
-    public override void Delete(IPamelloUser entity, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloUser entity, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

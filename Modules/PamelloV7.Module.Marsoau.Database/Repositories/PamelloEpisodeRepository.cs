@@ -1,10 +1,13 @@
 using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
+using PamelloV7.Module.Marsoau.Database.Events.RestorePacks;
 
 namespace PamelloV7.Module.Marsoau.Database.Repositories;
 
@@ -67,15 +70,44 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return episode;
     }
 
-    public override void Delete(IPamelloEpisode episode, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloEpisode episode, IPamelloUser? scopeUser) {
+        var collection = GetCollection();
+        
         var pamelloSong = (PamelloSong)episode.Song;
+        var databaseEpisode = collection.Get(episode.Id)!;
         
         pamelloSong._songEpisodes.Remove(episode);
         
         _loaded.Remove(episode);
-        GetCollection().Delete(episode.Id);
+        collection.Delete(episode.Id);
         
         pamelloSong.Save();
+
+        var record = _events.InvokeAsync(scopeUser, new EpisodeDeleted() {
+            RevertPack = new EpisodeDeletionRevertPack() {
+                DatabaseEpisode = databaseEpisode
+            },
+            Episode = episode
+        }).GetAwaiter().GetResult();
+        
+        return record;
+    }
+    
+    public void Restore(IPamelloUser scopeUser, DatabaseEpisode databaseEpisode) {
+        var collection = GetCollection();
+
+        if (collection.Get(databaseEpisode.Id) is not null) {
+            throw new PamelloException("Episode already exists in the database");
+        }
+        
+        collection.Add(databaseEpisode);
+        
+        var episode = GetRequired(databaseEpisode.Id);
+
+        _events.InvokeAsync(scopeUser, new EpisodeRestored() {
+            RevertPack = new SongRestoreRevertPack(),
+            Episode = episode
+        });
     }
 
     public void DeleteAllFrom(IPamelloSong song, IPamelloUser scopeUser) {

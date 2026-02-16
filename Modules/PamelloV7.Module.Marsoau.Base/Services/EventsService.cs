@@ -52,6 +52,7 @@ public class EventsService : IEventsService
         }
         
         //addition
+        _eventSubscriptions.Add(castedSubscription);
         
         return subscription;
     }
@@ -113,10 +114,10 @@ public class EventsService : IEventsService
 
         if (eventType.GetCustomAttribute<HistoricalEventAttribute>() is not null) {
             if (parentEvent is not null) {
-                _history.Record(e, parentEvent);
+                _history.Record(e, parentEvent, invoker);
             }
             else {
-                record = _history.Record(e);
+                record = _history.Record(e, invoker);
             }
         }
 

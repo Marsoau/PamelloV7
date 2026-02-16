@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Data;
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.RestorePacks.Base;
 using PamelloV7.Core.Exceptions;
@@ -31,8 +32,8 @@ public class HistoryService : IHistoryService
     private void Save(IHistoryRecord record) {
         var collection = GetCollection();
         
+        collection.Drop();
         collection.Add((HistoryRecord)record);
-        //collection.Drop();
     }
 
     public IHistoryRecord GetRequired(int id)
@@ -53,10 +54,10 @@ public class HistoryService : IHistoryService
         return record;
     }
     
-    public IHistoryRecord Record(IPamelloEvent e) {
+    public IHistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser) {
         Console.Write($"Record event: ");
 
-        var record = _unfinished.FirstOrDefault(record => record.Event == e) ?? new HistoryRecord(e);
+        var record = _unfinished.FirstOrDefault(record => record.Event == e) ?? new HistoryRecord(e, scopeUser);
         
         Write(record);
         Save(record);
@@ -64,18 +65,18 @@ public class HistoryService : IHistoryService
         return record;
     }
 
-    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent) {
+    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent, IPamelloUser? scopeUser) {
         Console.WriteLine($"Record nested event: {nestedEvent.GetType().Name}; in parent event: {parentEvent.GetType().Name}");
 
         if (_unfinished.FirstOrDefault(record => record.Event == parentEvent) is { } unfinishedParent) {
-            unfinishedParent.NestedRecords.Add(new HistoryRecord(nestedEvent));
+            unfinishedParent.NestedRecords.Add(new HistoryRecord(nestedEvent, scopeUser));
             
             Console.WriteLine($"Added nested {nestedEvent.GetType().Name} to {unfinishedParent.Event.GetType().Name}");
         }
         else if (_unfinished.FirstOrDefault(record => record.Event == nestedEvent) is { } unfinishedNested) {
             _unfinished.Remove(unfinishedNested);
             
-            var record = new HistoryRecord(parentEvent);
+            var record = new HistoryRecord(parentEvent, scopeUser);
             record.NestedRecords.Add(unfinishedNested);
 
             Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedRecords.First()}");
@@ -83,8 +84,8 @@ public class HistoryService : IHistoryService
             _unfinished.Add(record);
         }
         else {
-            var record = new HistoryRecord(parentEvent);
-            record.NestedRecords.Add(new HistoryRecord(nestedEvent));
+            var record = new HistoryRecord(parentEvent, scopeUser);
+            record.NestedRecords.Add(new HistoryRecord(nestedEvent, scopeUser));
             _unfinished.Add(record);
 
             Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedRecords.First()}");
