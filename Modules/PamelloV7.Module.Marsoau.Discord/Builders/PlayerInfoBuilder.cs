@@ -56,7 +56,6 @@ public class PlayerInfoBuilder : PamelloDiscordComponentBuilder
                             DiscordString.Progress((double)SelectedPlayer.Queue.CurrentSongTimePosition.TotalSeconds / SelectedPlayer.Queue.CurrentSongTimeTotal.TotalSeconds, 20)
                         } {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimeTotal.ToShortString())}
                         """
-                        
                     )
                 )
                 ;
@@ -80,7 +79,7 @@ public class PlayerInfoBuilder : PamelloDiscordComponentBuilder
                         .WithStyle(ButtonStyle.Secondary)
                     )
                     .WithTextDisplay(
-                        $"{DiscordString.Code(SelectedPlayer.Queue.EpisodePosition)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
+                        $"{DiscordString.Code(SelectedPlayer.Queue.EpisodePosition + 1)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
                     )
                 )
                 ;

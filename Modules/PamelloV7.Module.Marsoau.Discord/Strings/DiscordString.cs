@@ -41,14 +41,32 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
         public static string Spoiler(object? obj) {
             return obj is not null ? $"||{obj}||" : "";
         }
+
+        private static readonly char NoChar = '\u2800';
+        private static readonly char[] ProgressChars = [
+            '\u2840', '\u2844', '\u2846', '\u2847', '\u28C7', '\u28E7', '\u28F7', '\u28FF'
+        ];
         
         public static string Progress(double progress, int length, bool percent = false) {
-            var done = (int)(progress * length);
-            
             var sb = new StringBuilder();
             
-            for (var i = 0; i < done; i++) sb.Append('▬');
-            for (var i = done; i < length; i++) sb.Append(' ');
+            var size = length * ProgressChars.Length;
+            var filled = (int)(size * progress);
+            var fullFilled = filled / ProgressChars.Length;
+            var notFull = filled % ProgressChars.Length;
+            
+            for (var i = 0; i < length; i++) {
+                if (i < fullFilled) {
+                    sb.Append(ProgressChars.Last());
+                    continue;
+                }
+                if (i == fullFilled && notFull > 0) {
+                    sb.Append(ProgressChars[notFull]);
+                    continue;
+                }
+                
+                sb.Append(NoChar);
+            }
             
             if (!percent) return Code($"[{sb}]");
             return Code($"[{sb}] {progress * 100:0.00}%");
