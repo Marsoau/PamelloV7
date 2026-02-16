@@ -30,107 +30,96 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         [OnAudioMap]
         public IPamelloPlayer Player { get; }
 
-        public bool IsRandom {
-            get; set {
-                if (field == value) return;
+        public bool IsRandom { get; private set; }
+        public void SetIsRandom(bool state, IPamelloUser? scopeUser) {
+            if (IsRandom == state) return;
 
-                field = value;
+            IsRandom = state;
 
-                if (IsRandom) {
-                    IsReversed = false;
+            if (IsRandom) {
+                IsReversed = false;
+            }
+
+            _events.InvokeAsync(scopeUser, new PlayerQueueIsRandomUpdated() {
+                Player = Player,
+                IsRandom = IsRandom
+            });
+        }
+
+        public bool IsReversed { get; private set; }
+        public void SetIsReversed(bool state, IPamelloUser? scopeUser) {
+            if (IsReversed == state) return;
+
+            IsReversed = state;
+
+            if (IsReversed) {
+                IsRandom = false;
+            }
+
+            _events.InvokeAsync(scopeUser, new PlayerQueueIsReversedUpdated() {
+                Player = Player,
+                IsReversed = IsReversed
+            });
+        }
+
+        public bool IsNoLeftovers { get; private set; }
+        public void SetIsNoLeftovers(bool state, IPamelloUser? scopeUser) {
+            if (IsNoLeftovers == state) return;
+
+            IsNoLeftovers = state;
+
+            if (!IsNoLeftovers) {
+                IsFeedRandom = false;
+            }
+            
+            _events.InvokeAsync(scopeUser, new PlayerQueueIsNoLeftoversUpdated() {
+                Player = Player,
+                IsNoLeftovers = IsNoLeftovers
+            });
+        }
+
+        public bool IsFeedRandom { get; private set; }
+        public void SetIsFeedRandom(bool state, IPamelloUser? scopeUser) {
+            if (IsFeedRandom == state) return;
+
+            IsFeedRandom = state;
+
+            if (IsFeedRandom) {
+                IsNoLeftovers = true;
+
+                if (_entries.Count == 0) {
+                    GoToNextSong();
                 }
-
-                _events.Invoke(new PlayerQueueIsRandomUpdated() {
-                    Player = Player,
-                    IsRandom = IsRandom
-                });
             }
+            
+            _events.InvokeAsync(scopeUser, new PlayerQueueIsFeedRandomUpdated() {
+                Player = Player,
+                IsFeedRandom = IsFeedRandom
+            });
         }
 
-        public bool IsReversed {
-            get; set {
-                if (field == value) return;
+        public int? NextPositionRequest { get; private set; }
+        public void SetNextPositionRequest(int? position, IPamelloUser? scopeUser) {
+            if (NextPositionRequest == position) return;
 
-                field = value;
+            NextPositionRequest = position;
 
-                if (IsReversed) {
-                    IsRandom = false;
-                }
-
-                _events.Invoke(new PlayerQueueIsReversedUpdated() {
-                    Player = Player,
-                    IsReversed = IsReversed
-                });
-            }
+            _events.InvokeAsync(scopeUser, new PlayerQueueNextPositionRequestUpdated() {
+                Player = Player,
+                NextPositionRequest = NextPositionRequest
+            });
         }
 
-        public bool IsNoLeftovers {
-            get; set {
-                if (field == value) return;
+        public int Position { get; private set; }
+        public void SetPosition(int position, IPamelloUser? scopeUser) {
+            if (Position == position) return;
 
-                field = value;
+            Position = position;
 
-                if (!IsNoLeftovers) {
-                    IsFeedRandom = false;
-                }
-                
-                _events.Invoke(new PlayerQueueIsNoLeftoversUpdated() {
-                    Player = Player,
-                    IsNoLeftovers = IsNoLeftovers
-                });
-            }
-        }
-
-        public bool IsFeedRandom {
-            get;
-            set {
-                if (field == value) return;
-
-                field = value;
-
-                if (IsFeedRandom) {
-                    IsNoLeftovers = true;
-
-                    if (_entries.Count == 0) {
-                        GoToNextSong();
-                    }
-                }
-                
-                _events.Invoke(new PlayerQueueIsFeedRandomUpdated() {
-                    Player = Player,
-                    IsFeedRandom = IsFeedRandom
-                });
-            }
-        }
-
-        private int? _nextPositionRequest;
-        public int? NextPositionRequest {
-            get => _nextPositionRequest;
-            set {
-                if (_nextPositionRequest == value) return;
-
-                _nextPositionRequest = value;
-
-                _events.Invoke(new PlayerQueueNextPositionRequestUpdated() {
-                    Player = Player,
-                    NextPositionRequest = NextPositionRequest
-                });
-            }
-        }
-
-        private int _position;
-        public int Position {
-            get => _position;
-            set {
-                if (_position == value) return;
-
-                _position = value;
-
-                _events.Invoke(new PlayerQueuePositionUpdated() {
-                    Player = Player,
-                    Position = Position
-                });
-            }
+            _events.InvokeAsync(scopeUser, new PlayerQueuePositionUpdated() {
+                Player = Player,
+                Position = Position
+            });
         }
 
         public int? EpisodePosition => _songAudio?.GetCurrentEpisodePosition();
@@ -173,7 +162,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _entries = [];
         }
 
-        public void SetCurrent(PamelloQueueEntry? entry) {
+        public void SetCurrent(PamelloQueueEntry? entry, IPamelloUser? scopeUser) {
             if (_songAudio is not null) {
                 _audio.DeleteModule(_songAudio);
             }
@@ -196,7 +185,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             //if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
 
-            _events.Invoke(new PlayerQueueCurrentSongIdUpdated() {
+            _events.InvokeAsync(null, new PlayerQueueCurrentSongIdUpdated() {
                 Player = Player,
                 CurrentSongId = entry?.Song?.Id
             });
@@ -205,13 +194,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             Current_Duration_OnSecondTick();
         }
 
-        public Task RewindCurrent(AudioTime toTime) {
+        public Task RewindCurrent(AudioTime toTime, IPamelloUser? scopeUser) {
             if (_songAudio is null) throw new PamelloException("No current song to rewind");
             
             return _songAudio.RewindTo(toTime);
         }
 
-        public int? RequestNextPosition(string? positionValue) {
+        public int? RequestNextPosition(string? positionValue, IPamelloUser? scopeUser) {
             if (positionValue is null) {
                 return NextPositionRequest = null;
             }
@@ -228,13 +217,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         }
 
         private void Current_Duration_OnSecondTick() {
-            _events.Invoke(new PlayerQueueCurrentSongTimeTotalUpdated() {
+            _events.InvokeAsync(null, new PlayerQueueCurrentSongTimeTotalUpdated() {
                 Player = Player,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0
             });
         }
         private void Current_Position_OnSecondTick() {
-            _events.Invoke(new PlayerQueueCurrentSongTimePassedUpdated() {
+            _events.InvokeAsync(null, new PlayerQueueCurrentSongTimePassedUpdated() {
                 Player = Player,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0
             });
@@ -246,7 +235,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 
 		private int TranslateQueuePosition(string positionValue, bool includeLastEmpty = false) {
-            var index = _entries.TranslateValueIndex(positionValue, includeLastEmpty, _ => _position);
+            var index = _entries.TranslateValueIndex(positionValue, includeLastEmpty, _ => Position);
             return index >= 0 ? index : throw new PamelloException($"Position by value \"{positionValue}\" not found");
 		}
 
@@ -264,13 +253,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             
             _entries.InsertRange(insertPosition, songs.Select(song => new PamelloQueueEntry(song, adder)));
 
-            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+            _events.InvokeAsync(adder, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
 
 			if (beforeCount == 0 && _entries.Count > 0) {
-				SetCurrent(_entries.FirstOrDefault());
+				SetCurrent(_entries.FirstOrDefault(), adder);
                 Position = 0;
 			}
 			else if (insertPosition <= Position) Position++;
@@ -291,13 +280,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
-            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+            _events.InvokeAsync(adder, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
 
 			if (queueWasEmpty) {
-				SetCurrent(_entries.FirstOrDefault());
+				SetCurrent(_entries.FirstOrDefault(), adder);
             }
 			else if (positionMustBeMoved) {
 				Position += playlistsSongs.Count;
@@ -306,7 +295,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return playlists;
         }
 
-        public IPamelloSong RemoveSong(string positionValue) {
+        public IPamelloSong RemoveSong(string positionValue, IPamelloUser? scopeUser) {
             if (_entries.Count == 0) throw new PamelloException("Queue is empty");
 
             IPamelloSong? song;
@@ -319,7 +308,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 			var songPosition = TranslateQueuePosition(positionValue);
 			song = _entries[songPosition].Song;
 			
-			if (Position == songPosition) GoToNextSong(true);
+			if (Position == songPosition) GoToNextSong(forceRemoveCurrentSong: true);
 			else {
                 _entries.RemoveAt(songPosition);
 
@@ -327,7 +316,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (songPosition < NextPositionRequest) NextPositionRequest--;
                 else if (songPosition == NextPositionRequest) NextPositionRequest = null;
 
-                _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                     Player = Player,
                     EntriesDTOs = EntriesDTOs
                 });
@@ -335,7 +324,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             return song;
 		}
-		public bool MoveSong(string fromPositionValue, string toPositionValue) {
+		public bool MoveSong(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
 			if (_entries.Count < 2) return false;
 
 			var fromPosition = TranslateQueuePosition(fromPositionValue);
@@ -356,14 +345,15 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Position++;
             }
 
-            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
 
             return true;
 		}
-		public bool SwapSongs(string inPositionValue, string withPositionValue) {
+
+        public bool SwapSongs(string inPositionValue, string withPositionValue, IPamelloUser? scopeUser) {
 			if (_entries.Count < 2) return false;
 
 			var inPosition = TranslateQueuePosition(inPositionValue);
@@ -373,7 +363,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 			(_entries[inPosition], _entries[withPosition]) = (_entries[withPosition], _entries[inPosition]);
 
-            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
@@ -383,7 +373,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             return true;
 		}
-		public IPamelloSong GoToSong(string songPositionValue, bool returnBack = false) {
+		public IPamelloSong GoToSong(string songPositionValue, IPamelloUser? scopeUser, bool returnBack = false) {
 			if (_entries.Count == 0) throw new PamelloException("Queue is empty");
 
 			var nextPosition = TranslateQueuePosition(songPositionValue);
@@ -392,11 +382,11 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             Position = nextPosition;
             var entry = _entries[Position];
 
-            SetCurrent(entry);
+            SetCurrent(entry, scopeUser);
 
             return entry.Song;
 		}
-		public IPamelloSong? GoToNextSong(bool forceRemoveCurrentSong = false) {
+		public IPamelloSong? GoToNextSong(IPamelloUser? scopeUser = null, bool forceRemoveCurrentSong = false) {
 			if (_entries.Count == 0)
             {
                 if (!IsFeedRandom) return null;
@@ -427,7 +417,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				if (nextPosition > Position) nextPosition--;
 
                 //not sure about this invoking
-                _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+                _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                     Player = Player,
                     EntriesDTOs = EntriesDTOs
                 });
@@ -437,17 +427,17 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             else Position = nextPosition % _entries.Count;
 
 			if (_entries.Count == 0) {
-                SetCurrent(null);
+                SetCurrent(null, scopeUser);
                 return null;
 			}
 
             var entry = _entries[Position];
-            SetCurrent(entry);
+            SetCurrent(entry, scopeUser);
 
 			return entry.Song;
 		}
 
-        public async Task<IPamelloEpisode?> GoToEpisode(string episodePositionValue) {
+        public async Task<IPamelloEpisode?> GoToEpisode(string episodePositionValue, IPamelloUser? scopeUser) {
             if (_songAudio is null) throw new PamelloException("No current song to rewind to episode");
             
             var episodePosition = _songAudio.Song.Episodes.TranslateValueIndex(
@@ -459,13 +449,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return await _songAudio.RewindToEpisode(episodePosition);
         }
 
-        public void Clear() {
+        public void Clear(IPamelloUser? scopeUser = null) {
 			_entries.Clear();
 
-            SetCurrent(null);
+            SetCurrent(null, scopeUser);
             Position = 0;
 
-            _events.Invoke(new PlayerQueueEntriesDTOsUpdated() {
+            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });

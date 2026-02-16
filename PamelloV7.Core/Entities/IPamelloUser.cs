@@ -7,8 +7,9 @@ namespace PamelloV7.Core.Entities;
 [ValueEntity("users")]
 public interface IPamelloUser : IPamelloDatabaseEntity
 {
-    public IPamelloPlayer? PreviousPlayer { get; }
-    public IPamelloPlayer? SelectedPlayer { get; set; }
+    public string? AvatarUrl { get; }
+    
+    public IPamelloPlayer? SelectedPlayer { get; }
     public IPamelloPlayer RequiredSelectedPlayer { get; }
     public IPamelloPlayer GuaranteedSelectedPlayer { get; }
     
@@ -16,7 +17,7 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     
     public DateTime JoinedAt { get; }
 
-    public int SelectedAuthorizationIndex { get; set; }
+    public int SelectedAuthorizationIndex { get; }
     public UserAuthorization? SelectedAuthorization { get; }
     public IReadOnlyList<UserAuthorization> Authorizations { get; }
     
@@ -25,23 +26,23 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloSong> FavoriteSongs { get; }
     public IReadOnlyList<IPamelloPlaylist> FavoritePlaylists { get; }
 
-    public void TryLoadLastPlayer();
-    public bool TrySelectPlayer(IPamelloPlayer? player);
-    public void RequireSelectPlayer(IPamelloPlayer? player);
-
-    public void AddAuthorization(UserAuthorization authorization);
+    public IPamelloPlayer? SelectPlayer(IPamelloPlayer? player, bool autoSelected = false);
     
-    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false);
-    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false);
-    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition);
+    public void SelectAuthorization(int index, bool autoSelected = false);
+
+    public void AddAuthorization(UserAuthorization authorization, bool autoAdded = false);
+    
+    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false);
+    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false, bool automatic = false);
+    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition, bool automatic = false);
     public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs);
-    public IEnumerable<IPamelloSong> ClearFavoriteSongs();
-    public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist song, int? position = null, bool fromInside = false);
-    public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false);
-    public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists);
-    public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists();
+    public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false);
+    
+    public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist song, int? position = null, bool fromInside = false, bool automatic = false);
+    public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false, bool automatic = false);
+    public IPamelloPlaylist? MoveFavoritePlaylist(int fromPosition, int toPosition, bool automatic = false);
+    public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists, bool automatic = false);
+    public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists(bool automatic = false);
 
     public string? GetPriorityPlatformKey(string platform);
-
-    public IPamelloPlaylist CreatePlaylist(string name);
 }

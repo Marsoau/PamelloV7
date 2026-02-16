@@ -27,7 +27,8 @@ public abstract class PamelloEntity : IPamelloEntity
     
     public int Id { get; }
     
-    public abstract string Name { get; set; }
+    public abstract string Name { get; protected set; }
+    public abstract string SetName(string name, IPamelloUser scopeUser);
 
     protected PamelloEntity(int id, IServiceProvider services) {
         _services = services;

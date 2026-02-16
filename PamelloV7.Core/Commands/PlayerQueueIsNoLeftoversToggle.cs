@@ -5,7 +5,8 @@ namespace PamelloV7.Core.Commands;
 public class PlayerQueueIsNoLeftoversToggle : PamelloCommand
 {
     public bool Execute() {
-        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.IsNoLeftovers = !ScopeUser.RequiredSelectedPlayer.RequiredQueue.IsNoLeftovers;
+        RequiredQueue.SetIsNoLeftovers(!RequiredQueue.IsNoLeftovers, ScopeUser);
+        return RequiredQueue.IsNoLeftovers;
     }
 }
 

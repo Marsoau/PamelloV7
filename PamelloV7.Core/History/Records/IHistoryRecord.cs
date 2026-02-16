@@ -1,3 +1,4 @@
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Base;
 
 namespace PamelloV7.Core.History.Records;
@@ -8,8 +9,9 @@ public interface IHistoryRecord
     
     public bool IsRevertible { get; }
     
+    public IPamelloUser Preformer { get; }
     public IPamelloEvent Event { get; }
     public List<IHistoryRecord> NestedRecords { get; }
     
-    public void Revert();
+    public void Revert(IPamelloUser scopeUser);
 }

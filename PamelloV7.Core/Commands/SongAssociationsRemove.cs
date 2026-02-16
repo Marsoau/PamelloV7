@@ -6,6 +6,6 @@ namespace PamelloV7.Core.Commands;
 public class SongAssociationsRemove : PamelloCommand
 {
     public bool Execute(IPamelloSong song, string association) {
-        return song.RemoveAssociation(association);
+        return song.RemoveAssociation(association, ScopeUser);
     }
 }

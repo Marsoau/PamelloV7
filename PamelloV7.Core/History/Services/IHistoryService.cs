@@ -9,6 +9,6 @@ public interface IHistoryService : IPamelloService
     public IHistoryRecord GetRequired(int id);
     public IHistoryRecord Get(int id);
     
-    public void Record(IPamelloEvent e);
+    public IHistoryRecord Record(IPamelloEvent e);
     public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent);
 }

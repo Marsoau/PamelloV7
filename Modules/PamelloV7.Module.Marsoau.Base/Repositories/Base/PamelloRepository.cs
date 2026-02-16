@@ -48,5 +48,5 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         return _loaded;
     }
 
-    public abstract void Delete(IPamelloUser scopeUser, TPamelloEntity entity);
+    public abstract void Delete(TPamelloEntity entity, IPamelloUser? scopeUser);
 }

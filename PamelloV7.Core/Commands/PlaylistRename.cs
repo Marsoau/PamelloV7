@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Commands;
 public class PlaylistRename : PamelloCommand
 {
     public IPamelloPlaylist Execute(IPamelloPlaylist playlist, string newName) {
-        playlist.Name = newName;
+        playlist.SetName(newName, ScopeUser);
         
         return playlist;
     }

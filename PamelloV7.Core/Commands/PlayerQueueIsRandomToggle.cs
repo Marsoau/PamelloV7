@@ -5,7 +5,8 @@ namespace PamelloV7.Core.Commands;
 public class PlayerQueueIsRandomToggle : PamelloCommand
 {
     public bool Execute() {
-        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.IsRandom = !ScopeUser.RequiredSelectedPlayer.RequiredQueue.IsRandom;
+        RequiredQueue.SetIsRandom(!RequiredQueue.IsRandom, ScopeUser);
+        return RequiredQueue.IsRandom;
     }
 }
 

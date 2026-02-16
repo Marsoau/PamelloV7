@@ -12,8 +12,9 @@ public interface IPamelloPlayer : IPamelloEntity
 {
     public IPamelloUser Owner { get; }
     
-    public bool IsProtected { get; set; }
-    public bool IsPaused { get; set; }
+    public bool IsProtected { get; }
+    public bool IsPaused { get; }
+    public bool SetPause(bool state, IPamelloUser? scopeUser);
     
     public IAudioModule Pump { get; }
     

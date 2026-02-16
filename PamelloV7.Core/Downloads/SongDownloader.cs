@@ -29,7 +29,7 @@ public abstract class SongDownloader
         set {
             _progress = value;
 
-            _events.Invoke(new SongSourceDownloadProgressUpdated() {
+            _events.InvokeAsync(null, new SongSourceDownloadProgressUpdated() {
                 Song = Source.Song,
                 SourceIndex = SourceIndex,
                 Progress = _progress

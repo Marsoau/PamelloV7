@@ -4,6 +4,7 @@ using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Events;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Module.Marsoau.Database.Entities.Base;
@@ -20,7 +21,20 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
 
     public override string Name {
         get => _name;
-        set => _name = value;
+        protected set => throw new NotImplementedException();
+    }
+    public override string SetName(string name, IPamelloUser scopeUser) {
+        if (_name == name) return _name;
+
+        _name = name;
+        _sink.Invoke(scopeUser, new EpisodeNameUpdated() {
+            Episode = this,
+            NewName = _name
+        });
+
+        Save();
+        
+        return _name;
     }
 
     public AudioTime Start {

@@ -147,7 +147,7 @@ namespace PamelloV7.Server
             });
             
             var events = App.Services.GetRequiredService<IEventsService>();
-            events.Invoke(new PamelloStarted() {
+            events.InvokeAsync(null, new PamelloStarted() {
                 Services = App.Services
             });
         }

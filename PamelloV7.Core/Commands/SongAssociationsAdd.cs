@@ -6,6 +6,6 @@ namespace PamelloV7.Core.Commands;
 public class SongAssociationsAdd : PamelloCommand
 {
     public bool Execute(IPamelloSong song, string newAssociation) {
-        return song.AddAssociation(newAssociation);
+        return song.AddAssociation(newAssociation, ScopeUser);
     }
 }

@@ -19,7 +19,7 @@ public partial class Playlist
         var playlist = playlists.Add(playlistName, Context.User);
         
         var songs = songsQuery is null ? [] : await GetAsync<IPamelloSong>(songsQuery);
-        playlist.AddSongs(songs);
+        playlist.AddSongs(songs, ScopeUser);
 
         await RespondUpdatableAsync(() =>
             Builder<BasicComponentsBuilder>().Info("Playlist Created", $"{playlist.ToDiscordString()}").Build()

@@ -1,3 +1,4 @@
+using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
@@ -11,6 +12,6 @@ namespace PamelloV7.Core.Events;
 [PamelloEventCategory(EEventCategory.Destructive)]
 public class SongDeleted : RevertiblePamelloEvent, IPamelloEvent
 {
-    public int SongId { get; set; }
+    public IPamelloSong Song { get; set; }
 }
 

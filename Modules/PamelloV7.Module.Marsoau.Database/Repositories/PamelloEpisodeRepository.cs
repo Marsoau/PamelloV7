@@ -1,6 +1,7 @@
 using PamelloV7.Core.Audio.Time;
 using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
@@ -44,9 +45,9 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return song.Episodes;
     }
 
-    public IPamelloEpisode Add(AudioTime start, string name, bool autoSkip, IPamelloSong song) {
+    public IPamelloEpisode Add(AudioTime start, string name, bool autoSkip, IPamelloSong song, IPamelloUser scopeUser) {
         var songEpisodes = ((PamelloSong)song)._songEpisodes;
-        if (songEpisodes.Any(e => e.Start.TotalSeconds == start.TotalSeconds)) return null;
+        if (songEpisodes.Any(e => e.Start.TotalSeconds == start.TotalSeconds)) throw new PamelloException("Episode with this start time already exists");
         
         var databaseEpisode = new DatabaseEpisode() {
             StartSeconds = start.TotalSeconds,
@@ -66,7 +67,7 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return episode;
     }
 
-    public override void Delete(IPamelloUser scopeUser, IPamelloEpisode episode) {
+    public override void Delete(IPamelloEpisode episode, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)episode.Song;
         
         pamelloSong._songEpisodes.Remove(episode);
@@ -77,7 +78,7 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         pamelloSong.Save();
     }
 
-    public void DeleteAllFrom(IPamelloSong song) {
+    public void DeleteAllFrom(IPamelloSong song, IPamelloUser scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         pamelloSong._songEpisodes.Clear();

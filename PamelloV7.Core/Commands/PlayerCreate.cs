@@ -11,7 +11,7 @@ public class PlayerCreate : PamelloCommand
         var players = Services.GetRequiredService<IPamelloPlayerRepository>();
         var player = players.Create(name, ScopeUser);
         
-        ScopeUser.SelectedPlayer = player;
+        ScopeUser.SelectPlayer(player);
         
         return player;
     }

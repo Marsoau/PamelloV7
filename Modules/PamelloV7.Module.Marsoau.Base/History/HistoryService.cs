@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Data;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.RestorePacks.Base;
@@ -30,8 +31,8 @@ public class HistoryService : IHistoryService
     private void Save(IHistoryRecord record) {
         var collection = GetCollection();
         
-        collection.Drop();
         collection.Add((HistoryRecord)record);
+        //collection.Drop();
     }
 
     public IHistoryRecord GetRequired(int id)
@@ -42,20 +43,25 @@ public class HistoryService : IHistoryService
         var record = collection.Get(id);
         if (record?.Event is not RevertiblePamelloEvent revertibleEvent) return record;
         
-        if (typeof(RevertPack).GetField("Services") is { } servicesProperty) {
+        if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
             servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
+        }
+        if (revertibleEvent.RevertPack.GetType().GetField("Event") is { } eventProperty) {
+            eventProperty.SetValue(revertibleEvent.RevertPack, record.Event);
         }
 
         return record;
     }
     
-    public void Record(IPamelloEvent e) {
+    public IHistoryRecord Record(IPamelloEvent e) {
         Console.Write($"Record event: ");
 
         var record = _unfinished.FirstOrDefault(record => record.Event == e) ?? new HistoryRecord(e);
         
         Write(record);
         Save(record);
+        
+        return record;
     }
 
     public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent) {

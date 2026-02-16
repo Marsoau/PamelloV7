@@ -40,7 +40,7 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
             var vc = Guild.GetUser(Client.CurrentUser.Id)?.VoiceChannel;
             if (vc is null) return [];
 
-            return vc.Users.Select(user =>
+            return vc.ConnectedUsers.Select(user =>
                 new PamelloDiscordSpeakerListener(user, this, _services)
             );
         }
@@ -48,9 +48,13 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
 
     public override string Name {
         get => Client.CurrentUser.Username ?? $"Speaker-{Id}N";
-        set => throw new PamelloException("Cannot set name of a discord speaker");
+        protected set => SetName(value, null);
     }
-    
+
+    public override string SetName(string name, IPamelloUser scopeUser) {
+        throw new PamelloException("Cannot set name of a discord speaker");
+    }
+
     public PamelloDiscordSpeaker(int id, ulong guildId, IPamelloPlayer player, IServiceProvider services) : base(id, services) {
         _clients = services.GetRequiredService<DiscordClientService>();
         
@@ -107,7 +111,7 @@ public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDepen
             foreach (var listener in Listeners) {
                 if (listener.User is null || listener.User.SelectedPlayer is not null) continue;
                 
-                listener.User.SelectedPlayer = Player;
+                listener.User.SelectPlayer(Player, true);
             }
         };
     }

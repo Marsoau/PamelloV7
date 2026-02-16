@@ -35,12 +35,14 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     
     public override string Name {
         get => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
-        set => throw new NotImplementedException();
+        protected set => throw new NotImplementedException();
+    }
+    public override string SetName(string name, IPamelloUser scopeUser) {
+        throw new NotImplementedException();
     }
 
     public string? AvatarUrl {
         get => SelectedAuthorization?.Info?.AvatarUrl;
-        set => throw new NotImplementedException();
     }
 
     public Guid Token => _token;
@@ -48,47 +50,16 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     
     private int _selectedAuthorizationIndex;
 
-    public int SelectedAuthorizationIndex {
-        get => _selectedAuthorizationIndex;
-        set {
-            if (value == _selectedAuthorizationIndex) return;
-            
-            _selectedAuthorizationIndex = value;
-            _sink.Invoke(new UserSelectedAuthorizationIndexUpdated() {
-                User = this,
-                SelectedAuthorizationIndex = value
-            });
-            
-            Save();
-        }
-    }
+    public int SelectedAuthorizationIndex { get; set; }
     
     private IPamelloPlayer? _previousPlayer;
-    private IPamelloPlayer? _selectedPlayer;
 
     public IPamelloPlayer? PreviousPlayer { get; }
 
-    public IPamelloPlayer? SelectedPlayer {
-        get => _selectedPlayer;
-        set {
-            if (!value?.IsAvailableFor(this) ?? false) return;
-            RequiredSelectedPlayer = value!;
-        }
-    }
+    public IPamelloPlayer? SelectedPlayer { get; private set; }
 
-    public IPamelloPlayer RequiredSelectedPlayer {
-        get => _selectedPlayer ?? throw new PamelloException("Selected player required");
-        set {
-            if (_selectedPlayer == value) return;
-            
-            _selectedPlayer = value;
-
-            _sink.Invoke(new UserSelectedPlayerUpdated() {
-                User = this,
-                SelectedPlayerId = _selectedPlayer?.Id
-            });
-        }
-    }
+    public IPamelloPlayer RequiredSelectedPlayer
+        => SelectedPlayer ?? throw new PamelloException("Selected player required");
 
     public IPamelloPlayer GuaranteedSelectedPlayer
         => SelectedPlayer ?? _commands.Get<PlayerCreate>(this).Execute("Player");
@@ -171,6 +142,20 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
+    public IPamelloPlayer? SelectPlayer(IPamelloPlayer? player, bool autoSelected = false) {
+        if (!player?.IsAvailableFor(this) ?? false) throw new PamelloException("That player is not available for this user");
+        if (SelectedPlayer == player) return SelectedPlayer;
+        
+        SelectedPlayer = player;
+
+        _sink.Invoke(autoSelected ? null : this, new UserSelectedPlayerUpdated() {
+            User = this,
+            SelectedPlayerId = SelectedPlayer?.Id
+        });
+        
+        return SelectedPlayer;
+    }
+
     public bool TrySelectPlayer(IPamelloPlayer? player) {
         throw new NotImplementedException();
     }
@@ -179,18 +164,30 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public void AddAuthorization(UserAuthorization authorization) {
+    public void SelectAuthorization(int value, bool autoSelected = false) {
+        if (SelectedAuthorizationIndex == value) return;
+
+        SelectedAuthorizationIndex = value;
+        _sink.Invoke(null, new UserSelectedAuthorizationIndexUpdated() {
+            User = this,
+            SelectedAuthorizationIndex = SelectedAuthorizationIndex
+        });
+
+        Save();
+    }
+    
+    public void AddAuthorization(UserAuthorization authorization, bool automatic = false) {
         throw new NotImplementedException();
     }
 
-    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false) {
+    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false) {
         if (_favoriteSongs.Contains(song)) return null;
         
         _favoriteSongs.Insert(position ?? _favoriteSongs.Count, song);
 
-        if (!fromInside) song.MakeFavorite(this, true);
+        if (!fromInside) song.MakeFavorite(this, true, automatic);
         
-        _sink.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -200,12 +197,12 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return song;
     }
 
-    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false) {
+    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false, bool automatic = false) {
         if (!_favoriteSongs.Remove(song)) return null;
         
-        if (!fromInside) song.UnmakeFavorite(this, true);
+        if (!fromInside) song.UnmakeFavorite(this, true, automatic);
         
-        _sink.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -215,14 +212,14 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return song;
     }
 
-    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition) {
+    public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition, bool autoMoved) {
         var song = _favoriteSongs.ElementAtOrDefault(fromPosition);
         if (song is null) return null;
         
         _favoriteSongs.RemoveAt(fromPosition);
         _favoriteSongs.Insert(toPosition < fromPosition ? toPosition : toPosition - 1, song);
 
-        _sink.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -245,7 +242,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _favoriteSongs = filteredSongs;
         
-        _sink.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -255,7 +252,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return FavoriteSongs;
     }
 
-    public IEnumerable<IPamelloSong> ClearFavoriteSongs() {
+    public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false) {
         var before = new List<IPamelloSong>(_favoriteSongs);
         foreach (var song in before) {
             song.UnmakeFavorite(this, true);
@@ -263,7 +260,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _favoriteSongs.Clear();
         
-        _sink.Invoke(new UserFavoriteSongsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
             User = this,
             FavoriteSongs = FavoriteSongs
         });
@@ -273,14 +270,14 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return FavoriteSongs;
     }
 
-    public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
+    public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false, bool automatic = false) {
         if (_favoritePlaylists.Contains(playlist)) return null;
         
         _favoritePlaylists.Insert(position ?? _favoriteSongs.Count, playlist);
 
-        if (!fromInside) playlist.MakeFavorite(this, true);
+        if (!fromInside) playlist.MakeFavorite(this, true, automatic);
         
-        _sink.Invoke(new UserFavoritePlaylistsUpdated {
+        _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated {
             User = this,
             FavoritePlaylists = FavoritePlaylists
         });
@@ -290,12 +287,12 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return playlist;
     }
 
-    public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false) {
+    public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false, bool automatic = false) {
         if (!_favoritePlaylists.Remove(playlist)) return null;
         
-        if (!fromInside) playlist.UnmakeFavorite(this, true);
+        if (!fromInside) playlist.UnmakeFavorite(this, true, automatic);
         
-        _sink.Invoke(new UserFavoritePlaylistsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
             FavoritePlaylists = FavoritePlaylists
         });
@@ -305,7 +302,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return playlist;
     }
 
-    public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists) {
+    public IPamelloPlaylist? MoveFavoritePlaylist(int fromPosition, int toPosition, bool automatic = false) {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists, bool automatic = false) {
         var filteredPlaylists = new List<IPamelloPlaylist>();
         newPlaylists.ForEach(playlist => {
             if (!filteredPlaylists.Contains(playlist)) filteredPlaylists.Add(playlist);
@@ -313,12 +314,12 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         var difference = DifferenceResult<IPamelloPlaylist>.From(_favoritePlaylists, filteredPlaylists, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
         
-        foreach (var (pos, playlist) in difference.Deleted) playlist.UnmakeFavorite(this, true);
-        foreach (var (pos, playlist) in difference.Added) playlist.MakeFavorite(this, true);
+        foreach (var (_, playlist) in difference.Deleted) playlist.UnmakeFavorite(this, true, automatic);
+        foreach (var (_, playlist) in difference.Added) playlist.MakeFavorite(this, true, automatic);
         
         _favoritePlaylists = filteredPlaylists;
         
-        _sink.Invoke(new UserFavoritePlaylistsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
             FavoritePlaylists = FavoritePlaylists
         });
@@ -328,7 +329,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return FavoritePlaylists;
     }
 
-    public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists() {
+    public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists(bool automatic = false) {
         var before = new List<IPamelloPlaylist>(_favoritePlaylists);
         foreach (var playlist in before) {
             playlist.UnmakeFavorite(this, true);
@@ -336,7 +337,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _favoritePlaylists.Clear();
         
-        _sink.Invoke(new UserFavoritePlaylistsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
             FavoritePlaylists = FavoritePlaylists
         });
@@ -349,10 +350,6 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     public string? GetPriorityPlatformKey(string platform) {
         if (SelectedAuthorization?.PK.Platform == platform) return SelectedAuthorization.PK.Key;
         return Authorizations.FirstOrDefault(auth => auth.PK.Platform == platform)?.PK.Key;
-    }
-
-    public IPamelloPlaylist CreatePlaylist(string name) {
-        return _playlists.Add(name, this);
     }
 
     public override IPamelloDTO GetDto() {

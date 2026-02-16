@@ -11,7 +11,10 @@ public class DatabaseAccessService : IDatabaseAccessService
 {
     private readonly LiteDatabase _db;
     
+    private IPamelloUserRepository _users;
     private IPamelloSongRepository _songs;
+    private IPamelloEpisodeRepository _episodes;
+    private IPamelloPlaylistRepository _playlists;
 
     public DatabaseAccessService() {
         _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite.db", GetMapper());
@@ -24,11 +27,31 @@ public class DatabaseAccessService : IDatabaseAccessService
     private BsonMapper GetMapper() {
         var mapper = new BsonMapper();
         
-        mapper.RegisterType<IPamelloSong>(pamelloEntity => {
-            return pamelloEntity.Id;
-        }, value => {
-            return _songs.GetRequired(value);
-        });
+        mapper.RegisterType<IPamelloSong>(
+            pamelloEntity => pamelloEntity.Id,
+            id => _songs.GetRequired(id)
+        );
+        mapper.RegisterType<IPamelloPlaylist>(
+            pamelloEntity => pamelloEntity.Id,
+            id => _playlists.GetRequired(id)
+        );
+        mapper.RegisterType<IPamelloEpisode>(
+            pamelloEntity => pamelloEntity.Id,
+            id => _episodes.GetRequired(id)
+        );
+        mapper.RegisterType<IPamelloUser>(
+            pamelloEntity => pamelloEntity.Id,
+            id => _users.GetRequired(id)
+        );
+        
+        mapper.RegisterType<IPamelloPlayer>(
+            _ => BsonValue.Null,
+            _ => null
+        );
+        mapper.RegisterType<IPamelloSpeaker>(
+            _ => BsonValue.Null,
+            _ => null
+        );
         
         return mapper;
     }

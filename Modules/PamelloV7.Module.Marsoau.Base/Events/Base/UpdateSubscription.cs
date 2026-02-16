@@ -15,7 +15,7 @@ public class UpdateSubscription : IUpdateSubscription
         Handler = handler;
     }
 
-    public Task Invoke(IPamelloEvent e) {
+    public Task InvokeAsync(IPamelloEvent e) {
         return Handler(e);
     }
 

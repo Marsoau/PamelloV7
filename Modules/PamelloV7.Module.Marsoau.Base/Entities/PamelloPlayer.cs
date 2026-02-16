@@ -22,38 +22,41 @@ public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
     public IPamelloUser Owner { get; }
     
     private string _name;
-    
+
     public override string Name {
         get => _name;
-        set {
-            if (_name == value) return;
-            
-            _name = value;
+        protected set => throw new NotImplementedException();
+    }
+    public override string SetName(string value, IPamelloUser scopeUser) {
+        if (_name == value) return _name;
 
-            _sink.Invoke(new PlayerNameUpdated() {
-                Player = this,
-                NewName = _name
-            });
-        }
+        _name = value;
+        _sink.Invoke(scopeUser, new PlayerNameUpdated() {
+            Player = this,
+            NewName = _name
+        });
+        
+        return _name;
     }
 
     public EPlayerState State { get; private set; }
     public bool IsProtected { get; set; }
 
     [OnAudioMap]
-    public bool IsPaused {
-        get; set {
-            if (field == value) return;
+    public bool IsPaused { get; private set; }
+    public bool SetPause(bool state, IPamelloUser? scopeUser) {
+        if (IsPaused == state) return IsPaused;
 
-            field = value;
-            
-            _sink.Invoke(new PlayerIsPausedUpdated() {
-                Player = this,
-                IsPaused = IsPaused,
-            });
-        }
+        IsPaused = state;
+        
+        _sink.Invoke(scopeUser, new PlayerIsPausedUpdated() {
+            Player = this,
+            IsPaused = IsPaused,
+        });
+        
+        return IsPaused;
     }
-
+    
     private List<IPamelloSpeaker> _connectedSpeakers;
 
     public IPamelloQueue? Queue { get; }

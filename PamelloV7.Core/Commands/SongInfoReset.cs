@@ -13,7 +13,7 @@ public class SongInfoReset : PamelloCommand
         if (source is null) throw new PamelloException($"No source found by index `{index}` in song {song}");
 
         await source.UpdateInfo();
-        source.SetInfoToSong();
+        source.ResetSongInfo(ScopeUser);
         
         return song;
     }

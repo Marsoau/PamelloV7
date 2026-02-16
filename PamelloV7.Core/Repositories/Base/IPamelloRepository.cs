@@ -11,5 +11,5 @@ public interface IPamelloRepository<TEntity>
     public TEntity? Get(int id);
     public TEntity GetRequired(int id);
 
-    public void Delete(IPamelloUser scopeUser, TEntity entity);
+    public void Delete(TEntity entity, IPamelloUser? scopeUser);
 }

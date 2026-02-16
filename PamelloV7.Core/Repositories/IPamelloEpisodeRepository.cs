@@ -30,6 +30,6 @@ public interface IPamelloEpisodeRepository : IPamelloDatabaseRepository<IPamello
     [ValuePoint("song")]
     public IEnumerable<IPamelloEpisode> GetFromSong(IPamelloUser scopeUser, IPamelloSong song);
     
-    public IPamelloEpisode Add(AudioTime start, string name, bool autoSkip, IPamelloSong song);
-    public void DeleteAllFrom(IPamelloSong song);
+    public IPamelloEpisode Add(AudioTime start, string name, bool autoSkip, IPamelloSong song, IPamelloUser scopeUser);
+    public void DeleteAllFrom(IPamelloSong song, IPamelloUser scopeUser);
 }

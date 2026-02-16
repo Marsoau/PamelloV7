@@ -9,6 +9,6 @@ public class PlayerDelete : PamelloCommand
 {
     public void Execute() {
         var players = Services.GetRequiredService<IPamelloPlayerRepository>();
-        players.Delete(ScopeUser, ScopeUser.RequiredSelectedPlayer);
+        players.Delete(ScopeUser.RequiredSelectedPlayer, ScopeUser);
     }
 }

@@ -16,9 +16,6 @@ namespace PamelloV7.Module.Marsoau.Database.Entities;
 public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 {
     private string _name;
-    private string _coverUrl;
-    private DateTime _addedAt;
-    private IPamelloUser _addedBy;
     
     public List<SongSource> _sources;
     
@@ -29,44 +26,55 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 
     public override string Name {
         get => _name;
-        set {
-            if (_name == value) return;
-            
-            _name = value;
-            _sink.Invoke(new SongNameUpdated {
-                Song = this,
-                NewName = _name
-            });
-            
-            Save();
-        }
+        protected set => throw new NotImplementedException();
+    }
+    public override string SetName(string value, IPamelloUser? scopeUser) {
+        if (_name == value) return _name;
+
+        _name = value;
+        _sink.Invoke(scopeUser, new SongNameUpdated {
+            Song = this,
+            NewName = _name
+        });
+
+        Save();
+        
+        return _name;
     }
 
-    public string CoverUrl {
-        get => _coverUrl;
-        set => _coverUrl = value;
+    public string CoverUrl { get; private set; }
+
+    public string SetCoverUrl(string value, IPamelloUser? scopeUser) {
+        if (CoverUrl == value) return CoverUrl;
+
+        CoverUrl = value;
+        
+        _sink.Invoke(scopeUser, new SongNameUpdated {
+            Song = this,
+            NewName = Name
+        });
+
+        Save();
+        
+        return CoverUrl;
     }
 
-    public DateTime AddedAt => _addedAt;
+    public DateTime AddedAt { get; }
 
-    private int _selectedSourceIndex;
-
-    public int SelectedSourceIndex {
-        get => _selectedSourceIndex;
-        set {
-            if (value == _selectedSourceIndex) return;
+    public int SelectedSourceIndex { get; private set; }
+    public void SelectSource(int index, IPamelloUser? scopeUser) {
+        if (index == SelectedSourceIndex) return;
             
-            _selectedSourceIndex = value;
+        SelectedSourceIndex = index;
 
-            _sink.Invoke(new SongSelectedSourceIndexUpdated() {
-                Song = this,
-                SelectedSourceIndex = SelectedSourceIndex
-            });
-        }
+        _sink.Invoke(scopeUser, new SongSelectedSourceIndexUpdated() {
+            Song = this,
+            SelectedSourceIndex = SelectedSourceIndex
+        });
     }
 
-    public bool IsDownloaded => false;
-    public IPamelloUser? AddedBy => _addedBy;
+    public bool IsDownloaded => SelectedSource?.IsDownloaded() ?? false;
+    public IPamelloUser? AddedBy { get; private set; }
     
     public SongSource? SelectedSource => _sources.ElementAtOrDefault(SelectedSourceIndex);
     
@@ -79,11 +87,11 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     
     public PamelloSong(DatabaseSong databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
-        _coverUrl = databaseEntity.CoverUrl;
-        _addedAt = databaseEntity.AddedAt;
+        CoverUrl = databaseEntity.CoverUrl;
+        AddedAt = databaseEntity.AddedAt;
         _associations = databaseEntity.Associations.ToList();
         
-        _selectedSourceIndex = databaseEntity.SelectedSource;
+        SelectedSourceIndex = databaseEntity.SelectedSource;
         _sources = databaseEntity.Sources.Select(
             pk => new SongSource(services, this, pk)
         ).ToList();
@@ -94,7 +102,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         var databaseEpisodes = ((PamelloEpisodeRepository)_episodes).GetCollection().GetAll();
         var databaseUsers = ((PamelloUserRepository)_users).GetCollection().GetAll();
         
-        _addedBy = _users.Get(_databaseEntity.AddedBy)!;
+        AddedBy = _users.Get(_databaseEntity.AddedBy)!;
         
         _favoriteBy = databaseUsers
             .Where(databaseUser => databaseUser.FavoriteSongIds.Contains(Id))
@@ -116,7 +124,6 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
             if (a.Start.TotalSeconds == b.Start.TotalSeconds) return 0;
             return a.Start.TotalSeconds > b.Start.TotalSeconds ? 1 : -1;
         });
-
     }
 
     public override void SaveInternal() {
@@ -126,7 +133,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         Debug.Assert(databaseSong is not null, "Song doesnt exist in the database for some reason, cant save song");
         
         databaseSong.Name = _name;
-        databaseSong.CoverUrl = _coverUrl;
+        databaseSong.CoverUrl = CoverUrl;
 
         databaseSong.Associations = _associations;
 
@@ -149,11 +156,11 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     * 
     */
 
-    public void AddSource(SongSource source) {
+    public void AddSource(SongSource source, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 
-    public bool AddAssociation(string association) {
+    public bool AddAssociation(string association, IPamelloUser? scopeUser) {
         if (!association.All(char.IsLetter)) return false;
         association = association.ToLowerInvariant();
         
@@ -166,7 +173,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         
         _associations.Add(association);
 
-        _sink.Invoke(new SongAssociationsUpdated() {
+        _sink.Invoke(scopeUser, new SongAssociationsUpdated() {
             Song = this,
             Associations = _associations
         });
@@ -176,12 +183,12 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         return true;
     }
 
-    public bool RemoveAssociation(string association) {
+    public bool RemoveAssociation(string association, IPamelloUser? scopeUser) {
         if (!_associations.Contains(association)) return false;
         
         _associations.Remove(association);
 
-        _sink.Invoke(new SongAssociationsUpdated() {
+        _sink.Invoke(scopeUser, new SongAssociationsUpdated() {
             Song = this,
             Associations = _associations
         });
@@ -191,14 +198,14 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         return true;
     }
 
-    public void MakeFavorite(IPamelloUser user, bool fromInside = false) {
+    public void MakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false) {
         if (_favoriteBy.Contains(user)) return;
         
         _favoriteBy.Add(user);
         
         if (!fromInside) user.AddFavoriteSong(this, null, true);
 
-        _sink.Invoke(new SongFavoriteByUpdated() {
+        _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
             FavoriteBy = FavoriteBy
         });
@@ -206,12 +213,12 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         Save();
     }
 
-    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false) {
+    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false) {
         if (!_favoriteBy.Remove(user)) return;
         
         if (!fromInside) user.RemoveFavoriteSong(this, true);
 
-        _sink.Invoke(new SongFavoriteByUpdated() {
+        _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
             FavoriteBy = FavoriteBy
         });
@@ -219,43 +226,43 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         Save();
     }
 
-    public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip) {
-        return _episodes.Add(start, name, autoSkip, this);
+    public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip, IPamelloUser scopeUser) {
+        return _episodes.Add(start, name, autoSkip, this, scopeUser);
     }
 
-    public IPamelloEpisode AddEpisode(IEpisodeInfo episodeInfo, bool autoSkip) {
-        return AddEpisode(new AudioTime(episodeInfo.Start), episodeInfo.Name, autoSkip);
+    public IPamelloEpisode AddEpisode(IEpisodeInfo episodeInfo, bool autoSkip, IPamelloUser scopeUser) {
+        return AddEpisode(new AudioTime(episodeInfo.Start), episodeInfo.Name, autoSkip, scopeUser);
     }
 
     public void RemoveEpisode(IPamelloEpisode episode, IPamelloUser scopeUser) {
-        _episodes.Delete(scopeUser, episode);
+        _episodes.Delete(episode, scopeUser);
     }
 
     public void RemoveEpisodeAt(int position, IPamelloUser scopeUser) {
         var episode = _songEpisodes.ElementAtOrDefault(position);
         if (episode is null) return;
         
-        _episodes.Delete(scopeUser, episode);
+        _episodes.Delete(episode, scopeUser);
     }
 
-    public void RemoveAllEpisodes() {
-        _episodes.DeleteAllFrom(this);
+    public void RemoveAllEpisodes(IPamelloUser scopeUser) {
+        _episodes.DeleteAllFrom(this, scopeUser);
     }
 
-    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false) {
+    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, int? position = null, bool fromInside = false) {
         if (!_songPlaylists.Contains(playlist)) _songPlaylists.Add(playlist);
         
-        if (!fromInside) playlist.AddSongs([this], position, true);
+        if (!fromInside) playlist.AddSongs([this], scopeUser, position, fromInside);
 
         Save();
         
         return playlist;
     }
 
-    public void RemoveFromPlaylist(IPamelloPlaylist playlist, bool fromInside = false) {
+    public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, bool fromInside = false) {
         if (!_songPlaylists.Remove(playlist)) return;
 
-        if (!fromInside) playlist.RemoveSong(this, fromInside);
+        if (!fromInside) playlist.RemoveSong(this, scopeUser, fromInside);
     }
 
     public override IPamelloDTO GetDto() {

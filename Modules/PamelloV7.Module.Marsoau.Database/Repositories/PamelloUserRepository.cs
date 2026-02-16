@@ -89,7 +89,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         return Load(databaseUser);
     }
 
-    public override void Delete(IPamelloUser scopeUser, IPamelloUser entity) {
+    public override void Delete(IPamelloUser entity, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

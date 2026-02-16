@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Events.Base;
+using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Services;
 
 namespace PamelloV7.Core.Entities.Base;
@@ -24,11 +25,16 @@ public class PamelloEntitySink
         _savedEvents = [];
     }
 
-    public TPamelloEvent Invoke<TPamelloEvent>(TPamelloEvent e)
+    public void Invoke<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
+        where TPamelloEvent : IPamelloEvent
+    {
+        _ = InvokeAsync(invoker, e);
+    }
+    public async Task<IHistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
         where TPamelloEvent : IPamelloEvent
     {
         if (!_entity.IsChangesGoing) {
-            return _events.Invoke(e);
+            return await _events.InvokeAsync(invoker, e);
         }
         
         if (_savedEvents.ContainsKey(e.GetType())) {
@@ -38,12 +44,12 @@ public class PamelloEntitySink
             _savedEvents.Add(e.GetType(), e);
         }
         
-        return e;
+        return null;
     }
 
     public void Flush() {
         foreach (var (type, e) in _savedEvents) {
-            _events.Invoke(type, e);
+            _events.InvokeAsync(type, null, e); //TODO actually get a user here
         }
         
         _savedEvents.Clear();

@@ -6,7 +6,7 @@ namespace PamelloV7.Core.Commands;
 public class PlayerQueueGoToEpisode : PamelloCommand
 {
     public Task<IPamelloEpisode?> Execute(string position) {
-        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.GoToEpisode(position);
+        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.GoToEpisode(position, ScopeUser);
     }
 }
 

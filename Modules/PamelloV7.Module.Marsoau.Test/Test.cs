@@ -43,7 +43,7 @@ public class Test : IPamelloModule
         var history = services.GetRequiredService<IHistoryService>();
         
         events.Subscribe<SongDeleted>(async e => {
-            Console.WriteLine($"Song {e.SongId} deleted");
+            Console.WriteLine($"Song {e.Song} deleted");
             //e.RevertPack.Revert();
         });
         events.Subscribe<SongRestored>(async e => {
@@ -51,15 +51,20 @@ public class Test : IPamelloModule
             //e.RevertPack.Revert();
         });
         
-        var record = history.GetRequired(1);
-        Console.WriteLine($"Got record {record.Id} about {record.Event.GetType().Name}");
+        //var record = history.GetRequired(1);
+        //Console.WriteLine($"Got record {record.Id} about {record.Event.GetType().Name}");
+
+        //if (record.Event is SongDeleted songDeleted) {
+            //Console.WriteLine($"Song is: {((dynamic)songDeleted.RevertPack).DatabaseSong.Name}");
+        //}
         
-        record.Revert();
+        var me = users.GetRequired(1);
+        
+        //record.Revert(me);
 
-        var me = users.GetRequired(4);
-        var song = songs.GetRequired(3);
+        //var song = songs.GetRequired(4);
 
-        Console.WriteLine($"Got song: {song}");
+        //Console.WriteLine($"Got song: {song}");
 
         //songs.Delete(me, song);
     }

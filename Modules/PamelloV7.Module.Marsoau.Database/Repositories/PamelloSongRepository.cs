@@ -24,7 +24,19 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     public PamelloSongRepository(IServiceProvider services) : base(services) {
         _platforms = services.GetRequiredService<IPlatformService>();
     }
-    
+
+    public void Startup(IServiceProvider services) {
+        _events.Subscribe<SongDeleted>((scopeUser, e) => {
+            var playlists = e.Song.Playlists.ToList();
+            var episodes = e.Song.Episodes.ToList();
+            var favoriteBy = e.Song.FavoriteBy.ToList();
+            
+            foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
+            foreach (var episode in episodes) _episodes.Delete(episode, scopeUser);
+            foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
+        });
+    }
+
     protected override IPamelloSong CreatePamelloEntity(DatabaseSong databaseEntity) {
         return new PamelloSong(databaseEntity, _services);
     }
@@ -128,7 +140,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         song._songEpisodes = [];
 
         foreach (var episodeInfo in info.Episodes) {
-            _episodes.Add(new AudioTime(episodeInfo.Start), episodeInfo.Name, false, song);
+            _episodes.Add(new AudioTime(episodeInfo.Start), episodeInfo.Name, false, song, adder);
         }
         
         song.Init();
@@ -141,21 +153,21 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         throw new NotImplementedException("because author is gay");
     }
 
-    public override void Delete(IPamelloUser scopeUser, IPamelloSong song) {
+    public override void Delete(IPamelloSong song, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         var collection = GetCollection();
-        var databaseSong = collection.Get(song.Id);
+        var databaseSong = collection.Get(song.Id)!;
         
         collection.Delete(song.Id);
         _loaded.Remove(song);
 
         //all other objects that have a link to this song should delete it on this event
-        _events.Invoke(scopeUser, new SongDeleted() {
+        _events.InvokeAsync(scopeUser, new SongDeleted() {
             RevertPack = new SongDeletionRevertPack() {
                 DatabaseSong = databaseSong,
             },
-            SongId = pamelloSong.Id,
+            Song = pamelloSong,
         });
 
         foreach (var source in pamelloSong.Sources) {
@@ -163,7 +175,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         }
     }
 
-    public void Restore(DatabaseSong databaseSong) {
+    public void Restore(IPamelloUser scopeUser, DatabaseSong databaseSong) {
         var collection = GetCollection();
 
         if (collection.Get(databaseSong.Id) is not null) {
@@ -174,10 +186,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         var pamelloSong = GetRequired(databaseSong.Id);
 
-        _events.Invoke(new SongRestored() {
-            RevertPack = new SongRestoreRevertPack() {
-                SongId = pamelloSong.Id,
-            },
+        _events.InvokeAsync(scopeUser, new SongRestored() {
+            RevertPack = new SongRestoreRevertPack(),
             Song = pamelloSong
         });
     }

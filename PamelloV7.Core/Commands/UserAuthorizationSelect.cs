@@ -9,7 +9,7 @@ public class UserAuthorizationSelect : PamelloCommand
     public bool Execute(int index) {
         if (index < 0 || index >= ScopeUser.Authorizations.Count) return false;
 
-        ScopeUser.SelectedAuthorizationIndex = index;
+        ScopeUser.SelectAuthorization(index);
 
         return true;
     }

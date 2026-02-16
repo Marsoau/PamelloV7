@@ -47,17 +47,17 @@ public class SongSource
         return platform.GetSongUrl(PK.Key);
     }
 
-    public void SetInfoToSong() {
+    public void ResetSongInfo(IPamelloUser scopeUser) {
         if (Info is null) return;
         
         Song.StartChanges();
         
-        Song.Name = Info.Name;
-        Song.CoverUrl = Info.CoverUrl;
+        Song.SetName(Info.Name, scopeUser);
+        Song.SetCoverUrl(Info.CoverUrl, scopeUser);
         
-        Song.RemoveAllEpisodes();
+        Song.RemoveAllEpisodes(scopeUser);
         foreach (var episodeInfo in Info.Episodes) {
-            Song.AddEpisode(episodeInfo, false);
+            Song.AddEpisode(episodeInfo, false, scopeUser);
         }
         
         Song.EndChanges();
