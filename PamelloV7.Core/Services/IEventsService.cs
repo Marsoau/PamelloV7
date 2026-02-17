@@ -19,7 +19,7 @@ public interface IEventsService : IPamelloService
 
     public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities);
     
-    public Task<IHistoryRecord?> InvokeAsync(Type type, IPamelloUser? invoker, IPamelloEvent e);
-    public Task<IHistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
+    public Task<HistoryRecord?> InvokeAsync(Type type, IPamelloUser? invoker, IPamelloEvent e);
+    public Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
         where TPamelloEvent : IPamelloEvent;
 }

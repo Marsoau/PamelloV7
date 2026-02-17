@@ -7,9 +7,11 @@ namespace PamelloV7.Core.History.Services;
 
 public interface IHistoryService : IPamelloService
 {
-    public IHistoryRecord GetRequired(int id);
-    public IHistoryRecord Get(int id);
+    public HistoryRecord GetRequired(int id);
+    public HistoryRecord? Get(int id);
     
-    public IHistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser);
-    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent, IPamelloUser? scopeUser);
+    public HistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser);
+    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent);
+
+    public void FullReset();
 }

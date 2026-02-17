@@ -76,11 +76,11 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public Task<IHistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e) where TPamelloEvent : IPamelloEvent {
+    public Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e) where TPamelloEvent : IPamelloEvent {
         return InvokeAsync(typeof(TPamelloEvent), invoker, e);
     }
 
-    public async Task<IHistoryRecord?> InvokeAsync(Type eventType, IPamelloUser? invoker, IPamelloEvent e) {
+    public async Task<HistoryRecord?> InvokeAsync(Type eventType, IPamelloUser? invoker, IPamelloEvent e) {
         var parentEvent = _localEvent.Value;
         _localEvent.Value = e;
         
@@ -91,7 +91,7 @@ public class EventsService : IEventsService
             _localEvent.Value = parentEvent;
         }
     }
-    public async Task<IHistoryRecord?> InvokeInternal(Type eventType, IPamelloUser? invoker, IPamelloEvent e, IPamelloEvent? parentEvent) {
+    public async Task<HistoryRecord?> InvokeInternal(Type eventType, IPamelloUser? invoker, IPamelloEvent e, IPamelloEvent? parentEvent) {
         Console.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
         await Task.Run(async () => {
             var tasks = _eventSubscriptions
@@ -110,11 +110,11 @@ public class EventsService : IEventsService
             }
         }
 
-        IHistoryRecord? record = null;
+        HistoryRecord? record = null;
 
         if (eventType.GetCustomAttribute<HistoricalEventAttribute>() is not null) {
             if (parentEvent is not null) {
-                _history.Record(e, parentEvent, invoker);
+                _history.Record(e, parentEvent);
             }
             else {
                 record = _history.Record(e, invoker);

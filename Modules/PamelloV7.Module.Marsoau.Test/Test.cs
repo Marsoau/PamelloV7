@@ -42,6 +42,8 @@ public class Test : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>();
         var history = services.GetRequiredService<IHistoryService>();
         
+        return;
+        
         events.Subscribe<SongDeleted>((user, e) => {
             Console.WriteLine($"Song {e.Song} deleted by {user}");
             //e.RevertPack.Revert();
@@ -52,7 +54,7 @@ public class Test : IPamelloModule
         });
         
         var me = users.GetRequired(1);
-        var song = songs.GetRequired(16);
+        var song = songs.GetRequired(9);
 
         Console.WriteLine($"Got song: <{song.Episodes.Count}> {song}");
 

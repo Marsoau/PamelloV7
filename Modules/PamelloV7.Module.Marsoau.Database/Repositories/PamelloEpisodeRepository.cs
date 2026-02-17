@@ -70,7 +70,7 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         return episode;
     }
 
-    public override IHistoryRecord Delete(IPamelloEpisode episode, IPamelloUser? scopeUser) {
+    public override HistoryRecord Delete(IPamelloEpisode episode, IPamelloUser? scopeUser) {
         var collection = GetCollection();
         
         var pamelloSong = (PamelloSong)episode.Song;

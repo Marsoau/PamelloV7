@@ -30,7 +30,7 @@ public class PamelloEntitySink
     {
         _ = InvokeAsync(invoker, e);
     }
-    public async Task<IHistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
+    public async Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
         where TPamelloEvent : IPamelloEvent
     {
         if (!_entity.IsChangesGoing) {

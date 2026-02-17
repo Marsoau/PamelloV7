@@ -70,7 +70,7 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     //
     
     public IPamelloSong Add(ISongInfo info, IPamelloUser adder);
-    public Task<IHistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser);
+    public Task<HistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser);
     
     public IEnumerable<IPamelloSong> Search(
         string querry,

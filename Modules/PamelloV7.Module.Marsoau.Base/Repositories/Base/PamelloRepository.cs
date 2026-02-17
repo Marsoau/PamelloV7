@@ -49,5 +49,5 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         return _loaded;
     }
 
-    public abstract IHistoryRecord Delete(TPamelloEntity entity, IPamelloUser? scopeUser);
+    public abstract HistoryRecord Delete(TPamelloEntity entity, IPamelloUser? scopeUser);
 }

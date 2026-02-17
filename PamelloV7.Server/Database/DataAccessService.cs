@@ -22,6 +22,9 @@ public class DatabaseAccessService : IDatabaseAccessService
 
     public void Startup(IServiceProvider services) {
         _songs = services.GetRequiredService<IPamelloSongRepository>();
+        _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+        _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+        _users = services.GetRequiredService<IPamelloUserRepository>();
     }
 
     private BsonMapper GetMapper() {

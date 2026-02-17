@@ -7,7 +7,6 @@ using PamelloV7.Core.Events.RestorePacks.Base;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.History.Records;
 using PamelloV7.Core.History.Services;
-using PamelloV7.Module.Marsoau.Base.History.Records;
 
 namespace PamelloV7.Module.Marsoau.Base.History;
 
@@ -17,7 +16,8 @@ public class HistoryService : IHistoryService
 
     private readonly IDatabaseAccessService _database;
     
-    private readonly List<IHistoryRecord> _unfinished;
+    private readonly List<NestedPamelloEvent> _unfinished;
+    private readonly List<HistoryRecord> _records;
     
     public HistoryService(IServiceProvider services) {
         _services = services;
@@ -25,78 +25,90 @@ public class HistoryService : IHistoryService
         _database = services.GetRequiredService<IDatabaseAccessService>();
 
         _unfinished = [];
+        _records = [];
     }
     
     private IDatabaseCollection<HistoryRecord> GetCollection() => _database.GetCollection<HistoryRecord>("history");
 
-    private void Save(IHistoryRecord record) {
-        var collection = GetCollection();
-        
-        collection.Drop();
-        collection.Add((HistoryRecord)record);
+    public void Startup(IServiceProvider services) {
+        Console.WriteLine("Stated up history service");
     }
 
-    public IHistoryRecord GetRequired(int id)
-        => Get(id) ?? throw new PamelloException($"History record with id {id} not found");
-    public IHistoryRecord? Get(int id) {
-        var collection = GetCollection();
-        
-        var record = collection.Get(id);
-        if (record?.Event is not RevertiblePamelloEvent revertibleEvent) return record;
-        
-        if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
-            servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
-        }
-        if (revertibleEvent.RevertPack.GetType().GetField("Event") is { } eventProperty) {
-            eventProperty.SetValue(revertibleEvent.RevertPack, record.Event);
-        }
+    public void FullReset() {
+        GetCollection().Drop();
+        _records.Clear();
+    }
 
+    public void WriteAll() {
+        var all = GetCollection().GetAll().ToList();
+        Console.WriteLine($"All records: {all.Count}");
+
+        foreach (var record in all) {
+            Console.WriteLine($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
+        }
+    }
+
+    private HistoryRecord Save(NestedPamelloEvent nested, IPamelloUser? scopeUser) {
+        _unfinished.Remove(nested);
+        
+        var collection = GetCollection();
+        var record = new HistoryRecord(nested, scopeUser);
+        
+        collection.Add(record);
+        _records.Add(record);
+
+        record.Nested.ActivateRestorePacks(_services);
+        
         return record;
+    }
+
+    public HistoryRecord GetRequired(int id)
+        => Get(id) ?? throw new PamelloException($"History record with id {id} not found");
+    public HistoryRecord? Get(int id) {
+        return _records.FirstOrDefault(record => record.Id == id);
     }
     
-    public IHistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser) {
+    public HistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser) {
         Console.Write($"Record event: ");
 
-        var record = _unfinished.FirstOrDefault(record => record.Event == e) ?? new HistoryRecord(e, scopeUser);
+        var nested = _unfinished.FirstOrDefault(record => record.Event == e) ?? new NestedPamelloEvent(e);
+        var record = Save(nested, scopeUser);
         
-        Write(record);
-        Save(record);
+        Write(record.Nested);
         
         return record;
     }
 
-    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent, IPamelloUser? scopeUser) {
+    public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent) {
         Console.WriteLine($"Record nested event: {nestedEvent.GetType().Name}; in parent event: {parentEvent.GetType().Name}");
 
         if (_unfinished.FirstOrDefault(record => record.Event == parentEvent) is { } unfinishedParent) {
-            unfinishedParent.NestedRecords.Add(new HistoryRecord(nestedEvent, scopeUser));
+            unfinishedParent.NestedEvents.Add(new NestedPamelloEvent(nestedEvent));
             
             Console.WriteLine($"Added nested {nestedEvent.GetType().Name} to {unfinishedParent.Event.GetType().Name}");
         }
         else if (_unfinished.FirstOrDefault(record => record.Event == nestedEvent) is { } unfinishedNested) {
             _unfinished.Remove(unfinishedNested);
             
-            var record = new HistoryRecord(parentEvent, scopeUser);
-            record.NestedRecords.Add(unfinishedNested);
+            var record = new NestedPamelloEvent(parentEvent);
+            record.NestedEvents.Add(unfinishedNested);
 
-            Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedRecords.First()}");
+            Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedEvents.First()}");
             
             _unfinished.Add(record);
         }
         else {
-            var record = new HistoryRecord(parentEvent, scopeUser);
-            record.NestedRecords.Add(new HistoryRecord(nestedEvent, scopeUser));
+            var record = new NestedPamelloEvent(parentEvent);
+            record.NestedEvents.Add(new NestedPamelloEvent(nestedEvent));
             _unfinished.Add(record);
 
-            Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedRecords.First()}");
+            Console.WriteLine($"Added new: {record.Event.GetType().Name} with {record.NestedEvents.First()}");
         }
     }
 
-    private void Write(IHistoryRecord record) {
-        _unfinished.Remove(record);
-
-        Console.Write($"{record.Event.GetType().Name} ({record.NestedRecords.Count})");
-        if (record.NestedRecords.FirstOrDefault() is { } firstNested) {
+    private void Write(NestedPamelloEvent nested) {
+        Console.Write($"{nested.Event.GetType().Name} ({nested.NestedEvents.Count})");
+        if (nested.NestedEvents.FirstOrDefault() is { } firstNested) {
             Console.Write(" -> ");
             Write(firstNested);
         }

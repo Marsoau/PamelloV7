@@ -56,7 +56,7 @@ public class PamelloPlayerRepository : PamelloRepository<IPamelloPlayer>, IPamel
         return player;
     }
 
-    public override IHistoryRecord Delete(IPamelloPlayer player, IPamelloUser? scopeUser) {
+    public override HistoryRecord Delete(IPamelloPlayer player, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

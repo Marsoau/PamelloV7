@@ -156,11 +156,11 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         throw new NotImplementedException("because author is gay");
     }
 
-    public override IHistoryRecord Delete(IPamelloSong entity, IPamelloUser? scopeUser) {
+    public override HistoryRecord Delete(IPamelloSong entity, IPamelloUser? scopeUser) {
         return DeleteAsync(entity, scopeUser).GetAwaiter().GetResult();
     }
 
-    public async Task<IHistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser) {
+    public async Task<HistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         var collection = GetCollection();
