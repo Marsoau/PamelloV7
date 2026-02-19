@@ -11,11 +11,11 @@ public class PamelloEntitySink
     
     private readonly IEventsService _events;
     
-    private readonly IPamelloEntity _entity;
+    private readonly IPamelloDynamicEntity _entity;
     
     private readonly Dictionary<Type, KeyValuePair<IPamelloUser?, IPamelloEvent>> _savedEvents;
     
-    public PamelloEntitySink(IServiceProvider services, IPamelloEntity entity) {
+    public PamelloEntitySink(IServiceProvider services, IPamelloDynamicEntity entity) {
         _services = services;
         
         _events = services.GetRequiredService<IEventsService>();

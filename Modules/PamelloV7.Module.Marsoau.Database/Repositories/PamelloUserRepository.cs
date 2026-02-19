@@ -90,7 +90,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         return Load(databaseUser);
     }
 
-    public override HistoryRecord Delete(IPamelloUser entity, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloUser entity, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

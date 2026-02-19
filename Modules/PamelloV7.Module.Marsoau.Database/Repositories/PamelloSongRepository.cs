@@ -159,7 +159,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         throw new NotImplementedException("because author is gay");
     }
 
-    public override HistoryRecord Delete(IPamelloSong song, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloSong song, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         var collection = GetCollection();

@@ -15,7 +15,7 @@ using PamelloV7.Module.Marsoau.Base.Queue;
 
 namespace PamelloV7.Module.Marsoau.Base.Entities;
 
-public class PamelloPlayer : PamelloEntity, IPamelloPlayer, IAudioDependant
+public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependant
 {
     private readonly IPamelloAudioSystem _audio;
     

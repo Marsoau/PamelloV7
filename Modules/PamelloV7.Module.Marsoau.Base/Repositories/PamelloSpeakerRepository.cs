@@ -66,7 +66,7 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
         return speaker;
     }
 
-    public override HistoryRecord Delete(IPamelloSpeaker speaker, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloSpeaker speaker, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 }

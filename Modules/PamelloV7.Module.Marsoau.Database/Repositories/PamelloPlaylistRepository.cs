@@ -18,7 +18,7 @@ public class PamelloPlaylistRepository : PamelloDatabaseRepository<IPamelloPlayl
         return new PamelloPlaylist(databaseEntity, _services);
     }
 
-    public override HistoryRecord Delete(IPamelloPlaylist entity, IPamelloUser? scopeUser) {
+    public override IHistoryRecord Delete(IPamelloPlaylist entity, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 

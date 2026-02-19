@@ -16,7 +16,7 @@ using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Speakers;
 
-public class PamelloDiscordSpeaker : PamelloEntity, IPamelloSpeaker, IAudioDependant
+public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAudioDependant
 {
     private readonly DiscordClientService _clients;
     

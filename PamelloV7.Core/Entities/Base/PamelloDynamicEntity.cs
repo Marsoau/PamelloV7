@@ -5,7 +5,7 @@ using PamelloV7.Core.Services;
 
 namespace PamelloV7.Core.Entities.Base;
 
-public abstract class PamelloEntity : IPamelloEntity
+public abstract class PamelloDynamicEntity : IPamelloDynamicEntity
 {
     protected readonly IServiceProvider _services;
 
@@ -30,7 +30,7 @@ public abstract class PamelloEntity : IPamelloEntity
     public abstract string Name { get; protected set; }
     public abstract string SetName(string name, IPamelloUser scopeUser);
 
-    protected PamelloEntity(int id, IServiceProvider services) {
+    protected PamelloDynamicEntity(int id, IServiceProvider services) {
         _services = services;
         
         _events = services.GetRequiredService<IEventsService>();

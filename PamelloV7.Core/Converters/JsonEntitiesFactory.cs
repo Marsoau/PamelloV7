@@ -17,12 +17,15 @@ public class JsonEntitiesFactory : JsonConverterFactory
         _scopeUser = scopeUser;
     }
     
-    public static readonly JsonSerializerOptions Options = new JsonSerializerOptions {Converters = {new JsonEntitiesFactory()}};
+    public static readonly JsonSerializerOptions Options = new JsonSerializerOptions {Converters = {new JsonEntitiesFactory(), new PamelloEventConverter()}, UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement};
     public static JsonSerializerOptions GetOptions(IServiceProvider services, IPamelloUser scopeUser)
-        => new JsonSerializerOptions {Converters = {new JsonEntitiesFactory(services, scopeUser)}};
-    
-    public override bool CanConvert(Type typeToConvert)
-        => typeToConvert.IsAssignableTo(typeof(IPamelloEntity));
+        => new JsonSerializerOptions {Converters = {new JsonEntitiesFactory(services, scopeUser)}, UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement};
+
+    public override bool CanConvert(Type typeToConvert) {
+        if (typeToConvert.IsAssignableTo(typeof(IPamelloEntity))) return true;
+        
+        return false;
+    }
 
     public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
         var converterType = typeof(EntityToIdConverter<>).MakeGenericType(typeToConvert);

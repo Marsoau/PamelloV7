@@ -1,16 +1,25 @@
+using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Services.Base;
+using PamelloV7.Core.Services.PEQL;
 
 namespace PamelloV7.Core.History.Services;
 
-public interface IHistoryService : IPamelloService
+[EntityProvider("history")]
+public interface IHistoryService : IPamelloService, IEntityProvider
 {
-    public HistoryRecord GetRequired(int id);
-    public HistoryRecord? Get(int id);
+    [IdPoint]
+    public IHistoryRecord? Get(IPamelloUser scopeUser, int id);
     
-    public HistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser);
+    [ValuePoint("all")]
+    public IEnumerable<IHistoryRecord> GetAll(IPamelloUser scopeUser);
+    
+    public IHistoryRecord? GetRequired(int id);
+    public IHistoryRecord? Get(int id);
+    
+    public IHistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser);
     public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent);
 
     public void FullReset();

@@ -4,6 +4,7 @@ using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.History.Services;
 using PamelloV7.Core.Modules;
 using PamelloV7.Core.Repositories;
 using PamelloV7.Core.Services;
@@ -29,6 +30,8 @@ public class Base : IPamelloModule
         
         var downloaders = services.GetRequiredService<IDownloadService>() as DownloadService;
         downloaders?.Load();
+
+        services.GetRequiredService<IHistoryService>().Startup(services);
 
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();

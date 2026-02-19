@@ -7,7 +7,7 @@ using PamelloV7.Core.Services;
 
 namespace PamelloV7.Module.Marsoau.Database.Entities.Base;
 
-public abstract class PamelloDatabaseEntity<TDatabaseEntity> : PamelloEntity
+public abstract class PamelloDatabaseEntity<TDatabaseEntity> : PamelloDynamicEntity
     where TDatabaseEntity : DatabaseEntity
 {
     protected TDatabaseEntity _databaseEntity { get; private set; }

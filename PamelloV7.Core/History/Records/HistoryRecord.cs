@@ -1,13 +1,15 @@
+using PamelloV7.Core.DTO;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Exceptions;
 
 namespace PamelloV7.Core.History.Records;
 
-public class HistoryRecord
+public class HistoryRecord : IHistoryRecord
 {
     public int Id { get; set; }
-    
+    public string Name => Nested.Event.GetType().Name;
+
     public IPamelloUser? Performer { get; set; }
     public NestedPamelloEvent Nested { get; set; }
     
@@ -25,5 +27,15 @@ public class HistoryRecord
         if (!Nested.IsRevertible()) throw new PamelloException("Event is not revertible");
         
         Nested.Revert(scopeUser);
+    }
+    
+    public IPamelloDTO GetDto() {
+        return new HistoryRecordDTO() {
+            Id = Id,
+            Name = Name,
+            PerformerId = Performer?.Id,
+            Nested = Nested.GetDto(),
+            CreatedAt = CreatedAt
+        };
     }
 }

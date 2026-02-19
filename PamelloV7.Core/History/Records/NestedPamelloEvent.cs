@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using PamelloV7.Core.DTO.Other;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Exceptions;
@@ -13,7 +15,10 @@ public class NestedPamelloEvent
     public bool IsRevertible() => Event is RevertiblePamelloEvent { RevertPack.IsActivated: true };
     public bool IsPropagated() => _isPropagated;
     
+    [JsonPropertyName("event")]
     public IPamelloEvent Event { get; set; }
+    
+    [JsonPropertyName("nestedEvents")]
     public List<NestedPamelloEvent> NestedEvents { get; set; }
 
     public NestedPamelloEvent() { }
@@ -58,5 +63,13 @@ public class NestedPamelloEvent
         }
         
         _isPropagated = true;
+    }
+
+    public NestedEventDTO GetDto() {
+        return new NestedEventDTO() {
+            EventName = Event.GetType().Name,
+            EventData = Event,
+            NestedEvents = NestedEvents.Select(nestedEvent => nestedEvent.GetDto()).ToList()
+        };
     }
 }

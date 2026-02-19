@@ -12,5 +12,5 @@ public interface IPamelloRepository<TEntity>
     public TEntity? Get(int id);
     public TEntity GetRequired(int id);
 
-    public HistoryRecord Delete(TEntity entity, IPamelloUser? scopeUser);
+    public IHistoryRecord Delete(TEntity entity, IPamelloUser? scopeUser);
 }

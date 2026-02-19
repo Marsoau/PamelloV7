@@ -15,6 +15,6 @@ public interface IEventsService : IPamelloService
 
     public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities);
     
-    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e);
-    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action);
+    public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e);
+    public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action);
 }

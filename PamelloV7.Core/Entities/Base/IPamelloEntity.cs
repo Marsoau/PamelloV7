@@ -6,12 +6,6 @@ public interface IPamelloEntity
 {
     public int Id { get; }
     public string Name { get; }
-    public string SetName(string name, IPamelloUser scopeUser);
-    
-    public bool IsChangesGoing { get; }
-    
-    public void StartChanges();
-    public void EndChanges();
 
     public IPamelloDTO GetDto();
 

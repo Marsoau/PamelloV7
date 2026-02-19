@@ -66,11 +66,11 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e) {
+    public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e) {
         return Invoke(invoker, e, null);
     }
     
-    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action) {
+    public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action) {
         var parentEvent = _localEvent.Value;
         _localEvent.Value = e;
         
@@ -82,7 +82,7 @@ public class EventsService : IEventsService
         }
     }
     
-    public HistoryRecord? InvokeInternal(IPamelloEvent e, IPamelloEvent? parentEvent, IPamelloUser? invoker, Action? additionalAction) {
+    public IHistoryRecord? InvokeInternal(IPamelloEvent e, IPamelloEvent? parentEvent, IPamelloUser? invoker, Action? additionalAction) {
         var eventType = e.GetType();
         
         Console.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
@@ -101,7 +101,7 @@ public class EventsService : IEventsService
             }
         }
 
-        HistoryRecord? record = null;
+        IHistoryRecord? record = null;
 
         if (eventType.GetCustomAttribute<HistoricalEventAttribute>() is not null) {
             if (parentEvent is not null) {

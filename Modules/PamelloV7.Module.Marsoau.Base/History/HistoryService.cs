@@ -18,7 +18,7 @@ public class HistoryService : IHistoryService
     private readonly IDatabaseAccessService _database;
     
     private readonly List<NestedPamelloEvent> _unfinished;
-    private readonly List<HistoryRecord> _records;
+    private readonly List<IHistoryRecord> _records;
     
     public HistoryService(IServiceProvider services) {
         _services = services;
@@ -30,6 +30,10 @@ public class HistoryService : IHistoryService
     }
     
     private IDatabaseCollection<HistoryRecord> GetCollection() => _database.GetCollection<HistoryRecord>("history");
+
+    public void Startup(IServiceProvider services) {
+        GetCollection().GetAll().ToList().ForEach(databaseRecord => Load(databaseRecord));
+    }
 
     public void FullReset() {
         GetCollection().Drop();
@@ -44,27 +48,39 @@ public class HistoryService : IHistoryService
         }
     }
 
-    private HistoryRecord Save(NestedPamelloEvent nested, IPamelloUser? scopeUser) {
+    private IHistoryRecord Load(HistoryRecord databaseRecord) {
+        _records.Insert(0, databaseRecord);
+        
+        databaseRecord.Nested.ActivateRestorePacks(_services);
+        
+        return databaseRecord;
+    }
+
+    private IHistoryRecord Save(NestedPamelloEvent nested, IPamelloUser? scopeUser) {
         _unfinished.Remove(nested);
         
         var collection = GetCollection();
-        var record = new HistoryRecord(nested, scopeUser);
+        var databaseRecord = new HistoryRecord(nested, scopeUser);
+        collection.Add(databaseRecord);
         
-        collection.Add(record);
-        _records.Add(record);
-
-        record.Nested.ActivateRestorePacks(_services);
-        
-        return record;
+        return Load(databaseRecord);
     }
 
-    public HistoryRecord GetRequired(int id)
+    public IHistoryRecord? Get(IPamelloUser scopeUser, int id) {
+        return Get(id);
+    }
+
+    public IEnumerable<IHistoryRecord> GetAll(IPamelloUser scopeUser) {
+        return _records.ToList();
+    }
+
+    public IHistoryRecord? GetRequired(int id)
         => Get(id) ?? throw new PamelloException($"History record with id {id} not found");
-    public HistoryRecord? Get(int id) {
+    public IHistoryRecord? Get(int id) {
         return _records.FirstOrDefault(record => record.Id == id);
     }
     
-    public HistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser) {
+    public IHistoryRecord Record(IPamelloEvent e, IPamelloUser? scopeUser) {
         Debug.Write($"Record event: ");
 
         var nested = _unfinished.FirstOrDefault(record => record.Event == e) ?? new NestedPamelloEvent(e);
