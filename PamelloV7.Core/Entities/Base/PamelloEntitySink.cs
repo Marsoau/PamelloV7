@@ -13,7 +13,7 @@ public class PamelloEntitySink
     
     private readonly IPamelloEntity _entity;
     
-    private readonly Dictionary<Type, IPamelloEvent> _savedEvents;
+    private readonly Dictionary<Type, KeyValuePair<IPamelloUser?, IPamelloEvent>> _savedEvents;
     
     public PamelloEntitySink(IServiceProvider services, IPamelloEntity entity) {
         _services = services;
@@ -28,28 +28,21 @@ public class PamelloEntitySink
     public void Invoke<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
         where TPamelloEvent : IPamelloEvent
     {
-        _ = InvokeAsync(invoker, e);
-    }
-    public async Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
-        where TPamelloEvent : IPamelloEvent
-    {
         if (!_entity.IsChangesGoing) {
-            return await _events.InvokeAsync(invoker, e);
+            _events.Invoke(invoker, e);
         }
         
         if (_savedEvents.ContainsKey(e.GetType())) {
-            _savedEvents[e.GetType()] = e;
+            _savedEvents[e.GetType()] = new KeyValuePair<IPamelloUser?, IPamelloEvent>(invoker, e);
         }
         else {
-            _savedEvents.Add(e.GetType(), e);
+            _savedEvents.Add(e.GetType(), new KeyValuePair<IPamelloUser?, IPamelloEvent>(invoker, e));
         }
-        
-        return null;
     }
 
     public void Flush() {
         foreach (var (type, e) in _savedEvents) {
-            _events.InvokeAsync(type, null, e); //TODO actually get a user here
+            _events.Invoke(e.Key, e.Value);
         }
         
         _savedEvents.Clear();

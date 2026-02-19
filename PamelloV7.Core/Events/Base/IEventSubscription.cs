@@ -7,8 +7,5 @@ public interface IEventSubscription
 {
     public Type EventType { get; }
 
-    public void Invoke(IPamelloUser? scopeUser, IPamelloEvent e) {
-        InvokeAsync(scopeUser, e).GetAwaiter().GetResult();
-    }
-    public Task InvokeAsync(IPamelloUser? scopeUser, IPamelloEvent e);
+    public void Invoke(IPamelloUser? scopeUser, IPamelloEvent e);
 }

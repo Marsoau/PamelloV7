@@ -40,10 +40,9 @@ public class HistoryService : IHistoryService
     }
 
     public void WriteAll() {
-        var all = GetCollection().GetAll().ToList();
-        Console.WriteLine($"All records: {all.Count}");
+        Console.WriteLine($"All records: {_records.Count}");
 
-        foreach (var record in all) {
+        foreach (var record in _records) {
             Console.WriteLine($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
         }
     }

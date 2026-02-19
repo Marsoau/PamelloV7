@@ -83,12 +83,12 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         
         pamelloSong.Save();
 
-        var record = _events.InvokeAsync(scopeUser, new EpisodeDeleted() {
+        var record = _events.Invoke(scopeUser, new EpisodeDeleted() {
             RevertPack = new EpisodeDeletionRevertPack() {
                 DatabaseEpisode = databaseEpisode
             },
             Episode = episode
-        }).GetAwaiter().GetResult();
+        })!;
         
         return record;
     }
@@ -104,8 +104,8 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         
         var episode = GetRequired(databaseEpisode.Id);
 
-        _events.InvokeAsync(scopeUser, new EpisodeRestored() {
-            RevertPack = new SongRestoreRevertPack(),
+        _events.Invoke(scopeUser, new EpisodeRestored() {
+            RevertPack = new EpisodeRestoreRevertPack(),
             Episode = episode
         });
     }

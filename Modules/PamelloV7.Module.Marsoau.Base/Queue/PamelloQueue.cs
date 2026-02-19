@@ -40,7 +40,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 IsReversed = false;
             }
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueIsRandomUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueIsRandomUpdated() {
                 Player = Player,
                 IsRandom = IsRandom
             });
@@ -56,7 +56,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 IsRandom = false;
             }
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueIsReversedUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueIsReversedUpdated() {
                 Player = Player,
                 IsReversed = IsReversed
             });
@@ -72,7 +72,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 IsFeedRandom = false;
             }
             
-            _events.InvokeAsync(scopeUser, new PlayerQueueIsNoLeftoversUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueIsNoLeftoversUpdated() {
                 Player = Player,
                 IsNoLeftovers = IsNoLeftovers
             });
@@ -92,7 +92,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 }
             }
             
-            _events.InvokeAsync(scopeUser, new PlayerQueueIsFeedRandomUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueIsFeedRandomUpdated() {
                 Player = Player,
                 IsFeedRandom = IsFeedRandom
             });
@@ -104,7 +104,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             NextPositionRequest = position;
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueNextPositionRequestUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueNextPositionRequestUpdated() {
                 Player = Player,
                 NextPositionRequest = NextPositionRequest
             });
@@ -116,7 +116,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             Position = position;
 
-            _events.InvokeAsync(scopeUser, new PlayerQueuePositionUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueuePositionUpdated() {
                 Player = Player,
                 Position = Position
             });
@@ -185,7 +185,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             //if (entry?.Adder is not null) entry.Adder.SongsPlayed++;
 
-            _events.InvokeAsync(null, new PlayerQueueCurrentSongIdUpdated() {
+            _events.Invoke(null, new PlayerQueueCurrentSongIdUpdated() {
                 Player = Player,
                 CurrentSongId = entry?.Song?.Id
             });
@@ -217,13 +217,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         }
 
         private void Current_Duration_OnSecondTick() {
-            _events.InvokeAsync(null, new PlayerQueueCurrentSongTimeTotalUpdated() {
+            _events.Invoke(null, new PlayerQueueCurrentSongTimeTotalUpdated() {
                 Player = Player,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0
             });
         }
         private void Current_Position_OnSecondTick() {
-            _events.InvokeAsync(null, new PlayerQueueCurrentSongTimePassedUpdated() {
+            _events.Invoke(null, new PlayerQueueCurrentSongTimePassedUpdated() {
                 Player = Player,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0
             });
@@ -253,7 +253,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             
             _entries.InsertRange(insertPosition, songs.Select(song => new PamelloQueueEntry(song, adder)));
 
-            _events.InvokeAsync(adder, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(adder, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
@@ -280,7 +280,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
-            _events.InvokeAsync(adder, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(adder, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
@@ -316,7 +316,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (songPosition < NextPositionRequest) NextPositionRequest--;
                 else if (songPosition == NextPositionRequest) NextPositionRequest = null;
 
-                _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+                _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                     Player = Player,
                     EntriesDTOs = EntriesDTOs
                 });
@@ -345,7 +345,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Position++;
             }
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
@@ -363,7 +363,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 			(_entries[inPosition], _entries[withPosition]) = (_entries[withPosition], _entries[inPosition]);
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });
@@ -417,7 +417,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				if (nextPosition > Position) nextPosition--;
 
                 //not sure about this invoking
-                _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+                _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                     Player = Player,
                     EntriesDTOs = EntriesDTOs
                 });
@@ -462,7 +462,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             SetCurrent(null, scopeUser);
             Position = 0;
 
-            _events.InvokeAsync(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
             });

@@ -26,43 +26,64 @@ public class Test : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Test module";
     public ELoadingStage Stage => ELoadingStage.Late;
+    
+    private IEntityQueryService _peql;
+    private IPamelloUserRepository _users;
+    private IPamelloSongRepository _songs;
+    private IPamelloPlaylistRepository _playlists;
+    private IPamelloEpisodeRepository _episodes;
+    private IPamelloPlayerRepository _players;
+    private IPamelloLogger _logger;
+    private IPlatformService _platforms;
+    private IPamelloCommandsService _commands;
+    private IEventsService _events;
+    private IFileAccessService _files;
+    private IDownloadService _downloaders;
+    private IHistoryService _history;
+    
+    private IPamelloUser _me => _users.GetRequired(1);
+    private IPamelloUser _ferrout => _users.GetRequired(3);
+    private IPamelloUser _pivozavr => _users.GetRequired(2);
+    private IPamelloUser _jombis => _users.GetRequired(4);
 
     public async Task StartupAsync(IServiceProvider services) {
-        var peql = services.GetRequiredService<IEntityQueryService>();
-        var users = services.GetRequiredService<IPamelloUserRepository>();
-        var songs = services.GetRequiredService<IPamelloSongRepository>();
-        var playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
-        var episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
-        var players = services.GetRequiredService<IPamelloPlayerRepository>();
-        var logger = services.GetRequiredService<IPamelloLogger>();
-        var platforms = services.GetRequiredService<IPlatformService>();
-        var commands = services.GetRequiredService<IPamelloCommandsService>();
-        var events = services.GetRequiredService<IEventsService>();
-        var files = services.GetRequiredService<IFileAccessService>();
-        var downloaders = services.GetRequiredService<IDownloadService>();
-        var history = services.GetRequiredService<IHistoryService>();
+        _peql = services.GetRequiredService<IEntityQueryService>();
+        _users = services.GetRequiredService<IPamelloUserRepository>();
+        _songs = services.GetRequiredService<IPamelloSongRepository>();
+        _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
+        _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
+        _players = services.GetRequiredService<IPamelloPlayerRepository>();
+        _logger = services.GetRequiredService<IPamelloLogger>();
+        _platforms = services.GetRequiredService<IPlatformService>();
+        _commands = services.GetRequiredService<IPamelloCommandsService>();
+        _events = services.GetRequiredService<IEventsService>();
+        _files = services.GetRequiredService<IFileAccessService>();
+        _downloaders = services.GetRequiredService<IDownloadService>();
+        _history = services.GetRequiredService<IHistoryService>();
         
-        return;
+        _history.FullReset();
+        _history.WriteAll();
         
-        events.Subscribe<SongDeleted>((user, e) => {
+        _events.Subscribe<SongDeleted>((user, e) => {
             Console.WriteLine($"Song {e.Song} deleted by {user}");
             //e.RevertPack.Revert();
         });
-        events.Subscribe<SongRestored>(e => {
+        _events.Subscribe<SongRestored>(e => {
             Console.WriteLine($"Song {e.Song} restored");
             //e.RevertPack.Revert();
         });
         
-        var me = users.GetRequired(1);
-        var song = songs.GetRequired(9);
+        var song = _songs.GetRequired(11);
 
         Console.WriteLine($"Got song: <{song.Episodes.Count}> {song}");
 
-        var record = songs.Delete(song, me);
+        var record = _songs.Delete(song, _me);
 
         Console.WriteLine($"Get record: {record}, waiting to revert");
         Console.ReadKey(true);
         
-        record.Revert(me);
+        record.Revert(_me);
+        
+        _history.WriteAll();
     }
 }

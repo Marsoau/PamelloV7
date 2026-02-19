@@ -14,4 +14,5 @@ public interface IHistoryService : IPamelloService
     public void Record(IPamelloEvent nestedEvent, IPamelloEvent parentEvent);
 
     public void FullReset();
+    public void WriteAll();
 }

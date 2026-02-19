@@ -38,6 +38,9 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             foreach (var episode in episodes) _episodes.Delete(episode, scopeUser);
             //foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
         });
+        //we could slaos soubscribe to SongRestore in the way we would execute all inner revert packs inside the subscription
+        //so all inner events are recorded as the ones inside SongRestore
+        //triggering revert pack invokation propagation from this subscription will result in all underlying revert packs be executed on exit from the SongRestore pack, so it should check if it was propagated before doing so
     }
 
     protected override IPamelloSong CreatePamelloEntity(DatabaseSong databaseEntity) {
@@ -156,11 +159,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         throw new NotImplementedException("because author is gay");
     }
 
-    public override HistoryRecord Delete(IPamelloSong entity, IPamelloUser? scopeUser) {
-        return DeleteAsync(entity, scopeUser).GetAwaiter().GetResult();
-    }
-
-    public async Task<HistoryRecord> DeleteAsync(IPamelloSong song, IPamelloUser? scopeUser) {
+    public override HistoryRecord Delete(IPamelloSong song, IPamelloUser? scopeUser) {
         var pamelloSong = (PamelloSong)song;
         
         var collection = GetCollection();
@@ -170,12 +169,12 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         _loaded.Remove(song);
 
         //all other objects that have a link to this song should delete it on this event
-        var record = await _events.InvokeAsync(scopeUser, new SongDeleted() {
+        var record = _events.Invoke(scopeUser, new SongDeleted() {
             RevertPack = new SongDeletionRevertPack() {
                 DatabaseSong = databaseSong,
             },
             Song = pamelloSong,
-        });
+        })!;
 
         foreach (var source in pamelloSong.Sources) {
             if (source.GetFile() is { Exists: true } file) file.Delete();
@@ -195,9 +194,19 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         var pamelloSong = GetRequired(databaseSong.Id);
 
-        _events.InvokeAsync(scopeUser, new SongRestored() {
-            RevertPack = new SongRestoreRevertPack(),
-            Song = pamelloSong
-        });
+        if (NestedPamelloEvent.Current.Value is { } currentNested) {
+            _events.Invoke(scopeUser, new SongRestored() {
+                RevertPack = new SongRestoreRevertPack(),
+                Song = pamelloSong
+            }, () => {
+                currentNested.Propagate(scopeUser);
+            });
+        }
+        else {
+            _events.Invoke(scopeUser, new SongRestored() {
+                RevertPack = new SongRestoreRevertPack(),
+                Song = pamelloSong
+            });
+        }
     }
 }

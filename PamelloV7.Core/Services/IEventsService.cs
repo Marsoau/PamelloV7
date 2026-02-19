@@ -8,10 +8,6 @@ namespace PamelloV7.Core.Services;
 
 public interface IEventsService : IPamelloService
 {
-    public IEventSubscription Subscribe<TEventType>(Func<TEventType, Task> handler)
-        where TEventType : IPamelloEvent;
-    public IEventSubscription Subscribe<TEventType>(Func<IPamelloUser?, TEventType, Task> handler)
-        where TEventType : IPamelloEvent;
     public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler)
         where TEventType : IPamelloEvent;
     public IEventSubscription Subscribe<TEventType>(Action<IPamelloUser?, TEventType> handler)
@@ -19,7 +15,6 @@ public interface IEventsService : IPamelloService
 
     public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities);
     
-    public Task<HistoryRecord?> InvokeAsync(Type type, IPamelloUser? invoker, IPamelloEvent e);
-    public Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
-        where TPamelloEvent : IPamelloEvent;
+    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e);
+    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action);
 }

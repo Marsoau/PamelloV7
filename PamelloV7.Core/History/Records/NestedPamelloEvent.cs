@@ -6,7 +6,12 @@ namespace PamelloV7.Core.History.Records;
 
 public class NestedPamelloEvent
 {
+    public static AsyncLocal<NestedPamelloEvent?> Current { get; set; } = new();
+    
+    private bool _isPropagated;
+    
     public bool IsRevertible() => Event is RevertiblePamelloEvent { RevertPack.IsActivated: true };
+    public bool IsPropagated() => _isPropagated;
     
     public IPamelloEvent Event { get; set; }
     public List<NestedPamelloEvent> NestedEvents { get; set; }
@@ -35,10 +40,23 @@ public class NestedPamelloEvent
     }
     
     public void Revert(IPamelloUser scopeUser) {
+        var previousNested = Current.Value;
+        Current.Value = this;
+        
         ((RevertiblePamelloEvent)Event).RevertPack.Revert(scopeUser);
 
+        Propagate(scopeUser);
+        
+        Current.Value = previousNested;
+    }
+
+    public void Propagate(IPamelloUser scopeUser) {
+        if (_isPropagated) return;
+        
         foreach (var nestedRecord in NestedEvents.Where(nestedEvent => nestedEvent.IsRevertible())) {
             nestedRecord.Revert(scopeUser);
         }
+        
+        _isPropagated = true;
     }
 }

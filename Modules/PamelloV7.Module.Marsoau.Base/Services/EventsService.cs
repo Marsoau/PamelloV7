@@ -27,6 +27,7 @@ public class EventsService : IEventsService
     private readonly List<IUpdateSubscription> _updateSubscriptions;
 
     private static AsyncLocal<IPamelloEvent?> _localEvent = new();
+    private static AsyncLocal<List<IEventSubscription>> _localScopedSubscriptions = new();
     
     public EventsService(IServiceProvider services) {
         _services = services;
@@ -39,12 +40,12 @@ public class EventsService : IEventsService
         _eventSubscriptions = [];
         _updateSubscriptions = [];
     }
-    
-    public IEventSubscription Subscribe<TEventType>(Func<TEventType, Task> handler) where TEventType : IPamelloEvent {
+
+    public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler) where TEventType : IPamelloEvent {
         return Subscribe<TEventType>((_, e) => handler(e));
     }
 
-    public IEventSubscription Subscribe<TEventType>(Func<IPamelloUser?, TEventType, Task> handler) where TEventType : IPamelloEvent {
+    public IEventSubscription Subscribe<TEventType>(Action<IPamelloUser?, TEventType> handler) where TEventType : IPamelloEvent {
         var subscription = new EventSubscription<TEventType>(handler);
 
         if (subscription is not IEventSubscription castedSubscription) {
@@ -57,17 +58,6 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler) where TEventType : IPamelloEvent {
-        return Subscribe<TEventType>((_, e) => handler(e));
-    }
-
-    public IEventSubscription Subscribe<TEventType>(Action<IPamelloUser?, TEventType> handler) where TEventType : IPamelloEvent {
-        return Subscribe<TEventType>((user, e) => {
-            handler(user, e);
-            return Task.CompletedTask;
-        });
-    }
-
     public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities) {
         var subscription = new UpdateSubscription(handler, watchedEntities);
         
@@ -76,32 +66,33 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public Task<HistoryRecord?> InvokeAsync<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e) where TPamelloEvent : IPamelloEvent {
-        return InvokeAsync(typeof(TPamelloEvent), invoker, e);
+    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e) {
+        return Invoke(invoker, e, null);
     }
-
-    public async Task<HistoryRecord?> InvokeAsync(Type eventType, IPamelloUser? invoker, IPamelloEvent e) {
+    
+    public HistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action) {
         var parentEvent = _localEvent.Value;
         _localEvent.Value = e;
         
         try {
-            return await InvokeInternal(eventType, invoker, e, parentEvent);
+            return InvokeInternal(e, parentEvent, invoker, action);
         }
         finally {
             _localEvent.Value = parentEvent;
         }
     }
-    public async Task<HistoryRecord?> InvokeInternal(Type eventType, IPamelloUser? invoker, IPamelloEvent e, IPamelloEvent? parentEvent) {
+    
+    public HistoryRecord? InvokeInternal(IPamelloEvent e, IPamelloEvent? parentEvent, IPamelloUser? invoker, Action? additionalAction) {
+        var eventType = e.GetType();
+        
         Console.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
-        await Task.Run(async () => {
-            var tasks = _eventSubscriptions
-                .Where(subscription => subscription.EventType == eventType)
-                .Select(subscription => subscription.InvokeAsync(invoker, e));
-            
-            await Task.WhenAll(tasks);
-        });
+        foreach (var subscription in _eventSubscriptions.Where(subscription => subscription.EventType == eventType)) {
+            subscription.Invoke(invoker, e);
+        }
 
-        if (e is RevertiblePamelloEvent revertibleEvent) {
+        additionalAction?.Invoke();
+        
+        if (e is RevertiblePamelloEvent { RevertPack.IsActivated: false } revertibleEvent) {
             if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
                 servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
             }
@@ -142,9 +133,9 @@ public class EventsService : IEventsService
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
-            await subscription.InvokeAsync(e);
+            subscription.InvokeAsync(e);
         }
-
+        
         return record;
     }
 }
