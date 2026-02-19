@@ -61,29 +61,6 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         
-        _history.FullReset();
-        _history.WriteAll();
-        
-        _events.Subscribe<SongDeleted>((user, e) => {
-            Console.WriteLine($"Song {e.Song} deleted by {user}");
-            //e.RevertPack.Revert();
-        });
-        _events.Subscribe<SongRestored>(e => {
-            Console.WriteLine($"Song {e.Song} restored");
-            //e.RevertPack.Revert();
-        });
-        
-        var song = _songs.GetRequired(11);
-
-        Console.WriteLine($"Got song: <{song.Episodes.Count}> {song}");
-
-        var record = _songs.Delete(song, _me);
-
-        Console.WriteLine($"Get record: {record}, waiting to revert");
-        Console.ReadKey(true);
-        
-        record.Revert(_me);
-        
         _history.WriteAll();
     }
 }

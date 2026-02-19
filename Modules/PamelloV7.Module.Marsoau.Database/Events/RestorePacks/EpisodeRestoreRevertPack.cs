@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events;
@@ -17,6 +18,6 @@ public class EpisodeRestoreRevertPack : RevertPack<EpisodeRestored>
         
         episodes.Delete(Event.Episode, scopeUser);
         
-        Console.WriteLine($"Reverted episode restore, {Event.Episode} is deleted");
+        Debug.WriteLine($"Reverted episode restore, {Event.Episode} is deleted");
     }
 }

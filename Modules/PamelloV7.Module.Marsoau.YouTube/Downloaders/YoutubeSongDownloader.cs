@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using PamelloV7.Core.Attributes;
 using PamelloV7.Core.Downloads;
 using PamelloV7.Core.Entities.Other;
@@ -11,15 +12,31 @@ namespace PamelloV7.Module.Marsoau.YouTube.Downloaders;
 public class YoutubeSongDownloader : SongDownloader
 {
     public YoutubeSongDownloader(IServiceProvider services, SongSource source) : base(services, source) { }
-
+    
     protected override async Task<EDownloadResult> InternalDownloadAsync(FileInfo file) {
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo() {
             FileName = "yt-dlp",
-            Arguments = $@"--extractor-args ""youtube:player_client=android"" --quiet --newline --progress --no-wait-for-video --no-keep-video --no-audio-multistreams --extract-audio --output ""{file.FullName}"" --audio-format opus --progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s"" https://www.youtube.com/watch?v={Source.PK.Key}",
+            Arguments = string.Join(' ',
+                //$@"--plugin-dirs ""/home/marsoau/.config/yt-dlp/plugins""",
+                $@"--extractor-args ""youtube:player_client=android""",
+                $@"--quiet",
+                //$@"--verbose",
+                $@"--newline",
+                $@"--progress",
+                $@"--no-wait-for-video",
+                $@"--no-keep-video",
+                $@"--no-audio-multistreams",
+                $@"--extract-audio",
+                $@"--output ""{file.FullName}""",
+                $@"--audio-format opus",
+                $@"--progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s""",
+                $@"https://www.youtube.com/watch?v={Source.PK.Key}"
+            ),
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
-            RedirectStandardOutput = true
+            RedirectStandardOutput = true,
+            EnvironmentVariables = { ["PYTHONPATH"] = "/home/marsoau/.config/yt-dlp/plugins" }
         };
 
         if (!process.Start()) {

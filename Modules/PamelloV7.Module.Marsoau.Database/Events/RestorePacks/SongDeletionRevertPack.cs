@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data.Entities;
@@ -16,7 +17,7 @@ public class SongDeletionRevertPack : RevertPack<SongDeleted>
     protected override void RevertInternal(IPamelloUser scopeUser) {
         var songs = (PamelloSongRepository)Services.GetRequiredService<IPamelloSongRepository>();
 
-        Console.WriteLine($"Reverted song deletion, song is restored: {DatabaseSong.Name}");
+        Debug.WriteLine($"Reverted song deletion, song is restored: {DatabaseSong.Name}");
         
         songs.Restore(scopeUser, DatabaseSong);
     }

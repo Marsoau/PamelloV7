@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Web;
 using System.Net.Http;
 using System.Text.Json;
@@ -14,6 +15,8 @@ namespace PamelloV7.Module.Marsoau.YouTube.Platforms;
 
 public class YoutubeSongPlatform : ISongPlatform
 {
+    private Process? _tokenServerProcess;
+    
     private readonly IHttpClientFactory _httpClientFactory;
     
     public string Name => "youtube";
@@ -21,7 +24,29 @@ public class YoutubeSongPlatform : ISongPlatform
     public YoutubeSongPlatform(IServiceProvider services) {
         _httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
     }
+
+    public void Startup() {
+        /*
+        Console.WriteLine("Starting youtube token server");
+        Console.ReadLine();
+        if (_tokenServerProcess is not null) return;
+        
+        _tokenServerProcess = new Process();
+        _tokenServerProcess.StartInfo = new ProcessStartInfo() {
+            FileName = $"{AppContext.BaseDirectory}utils/bgutil-pot",
+            Arguments = "server",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        
+        _tokenServerProcess.Start();
+        */
+    }
     
+    public void Shutdown() {
+        _tokenServerProcess?.Kill();
+    }
+
     public string ValueToKey(string value) {
         var id = value;
 

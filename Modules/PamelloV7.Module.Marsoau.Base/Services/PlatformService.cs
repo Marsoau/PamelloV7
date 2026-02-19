@@ -29,6 +29,7 @@ public class PlatformService : IPlatformService
             switch (Activator.CreateInstance(platformType, _services)) {
                 case ISongPlatform songPlatform:
                     _songPlatforms.Add(songPlatform);
+                    songPlatform.Startup();
                     break;
                 case IUserPlatform userPlatform:
                     _userPlatforms.Add(userPlatform);

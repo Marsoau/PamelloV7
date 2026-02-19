@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Data.Entities;
@@ -15,8 +16,8 @@ public class EpisodeDeletionRevertPack : RevertPack<EpisodeDeleted>
 
     protected override void RevertInternal(IPamelloUser scopeUser) {
         var episodes = (PamelloEpisodeRepository)Services.GetRequiredService<IPamelloEpisodeRepository>();
-
-        Console.WriteLine($"Reverted episode deletion, episode is restored: {DatabaseEpisode.Name}");
+        
+        Debug.WriteLine($"Reverted episode deletion, episode is restored: {DatabaseEpisode.Name}");
         
         episodes.Restore(scopeUser, DatabaseEpisode);
     }
