@@ -2,7 +2,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Messages;

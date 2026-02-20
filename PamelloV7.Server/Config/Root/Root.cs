@@ -1,5 +1,5 @@
 using System.Reflection;
-using PamelloV7.Core.Config;
+using PamelloV7.Framework.Config;
 
 namespace PamelloV7.Server.Config.Root;
 

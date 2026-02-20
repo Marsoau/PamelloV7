@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Exceptions;
 

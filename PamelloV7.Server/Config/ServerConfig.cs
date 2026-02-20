@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
-using PamelloV7.Core.Attributes;
+using PamelloV7.Framework.Attributes;
 
 namespace PamelloV7.Server.Config;
 

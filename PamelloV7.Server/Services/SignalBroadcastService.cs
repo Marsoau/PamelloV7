@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Events.Base;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Hubs;
 
 namespace PamelloV7.Server.Services;

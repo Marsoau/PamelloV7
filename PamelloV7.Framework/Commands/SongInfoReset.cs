@@ -1,0 +1,20 @@
+using PamelloV7.Framework.Commands.Base;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Exceptions;
+
+namespace PamelloV7.Framework.Commands;
+
+public class SongInfoReset : PamelloCommand
+{
+    public async Task<IPamelloSong> Execute(IPamelloSong song, int index) {
+        if (index < 0 || index >= song.Sources.Count) throw new PamelloException("No source can be found");
+        
+        var source = song.Sources.ElementAtOrDefault(index);
+        if (source is null) throw new PamelloException($"No source found by index `{index}` in song {song}");
+
+        await source.UpdateInfo();
+        source.ResetSongInfo(ScopeUser);
+        
+        return song;
+    }
+}

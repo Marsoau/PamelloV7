@@ -1,6 +1,6 @@
 using osu.NET;
 using osu.NET.Authorization;
-using PamelloV7.Core.Services.Base;
+using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Osu.Config;
 
 namespace PamelloV7.Module.Marsoau.Osu.Services;

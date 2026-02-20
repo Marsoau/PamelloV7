@@ -2,8 +2,8 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Modules;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Modules;
 using PamelloV7.Module.Marsoau.Discord.Handlers;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;

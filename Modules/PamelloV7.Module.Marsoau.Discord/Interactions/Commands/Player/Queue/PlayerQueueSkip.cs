@@ -1,7 +1,7 @@
 using Discord;
 using Discord.Interactions;
-using PamelloV7.Core.Commands;
-using PamelloV7.Core.Entities.Base;
+using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 

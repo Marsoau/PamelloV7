@@ -4,14 +4,14 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.Commands.Base;
-using PamelloV7.Core.Converters;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Base;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Services;
-using PamelloV7.Core.Services.PEQL;
+using PamelloV7.Framework.Audio.Time;
+using PamelloV7.Framework.Commands.Base;
+using PamelloV7.Framework.Converters;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Services;
+using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
 

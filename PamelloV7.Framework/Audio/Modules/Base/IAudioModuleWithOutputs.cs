@@ -1,0 +1,27 @@
+using PamelloV7.Framework.Audio.Points;
+
+namespace PamelloV7.Framework.Audio.Modules.Base;
+
+public interface IAudioModuleWithOutputs : IAudioModule
+{
+    bool IAudioModule.HasOutputs => true;
+    
+    public List<IAudioPoint> Outputs { get; }
+    
+    public int MinOutputs { get; }
+    public int MaxOutputs => Outputs.Capacity;
+    
+    public TAudioPoint AddOutput<TAudioPoint>(Func<TAudioPoint> create) where TAudioPoint : IAudioPoint {
+        var point = create();
+        
+        Outputs.Add(point);
+        
+        return point;
+    }
+
+    public void RemoveOutputAt(int index) {
+        if (index < 0 || index >= Outputs.Count) return;
+        
+        Outputs.RemoveAt(index);
+    }
+}

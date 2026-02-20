@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
-using PamelloV7.Core.Entities;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Server.Model;
 using PamelloV7.Server.Extensions;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Server.Exceptions;
 
 namespace PamelloV7.Server.Controllers.Base

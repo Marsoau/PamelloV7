@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Platforms;
-using PamelloV7.Core.Platforms.Infos;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Platforms.Infos;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
 

@@ -1,6 +1,6 @@
 using PamelloV7.Audio.Points;
-using PamelloV7.Core.Audio.Modules.Base;
-using PamelloV7.Core.Audio.Points;
+using PamelloV7.Framework.Audio.Modules.Base;
+using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Audio.Modules;
 

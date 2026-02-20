@@ -1,11 +1,11 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Downloads;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Downloads;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
 

@@ -1,6 +1,6 @@
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Events.Base;
-using PamelloV7.Core.History.Records;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.History.Records;
 
 namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 

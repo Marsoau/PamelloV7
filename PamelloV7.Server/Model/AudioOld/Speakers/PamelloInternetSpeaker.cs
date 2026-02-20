@@ -1,8 +1,8 @@
 ﻿/*
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.DTO;
-using PamelloV7.Core.DTO.Speakers;
-using PamelloV7.Core.Entities;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.DTO.Speakers;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Modules.Basic;
 using PamelloV7.Server.Model.AudioOld.Modules.Inputs;

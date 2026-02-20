@@ -1,8 +1,8 @@
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Commands;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;

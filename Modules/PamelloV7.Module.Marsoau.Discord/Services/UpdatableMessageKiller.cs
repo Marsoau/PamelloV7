@@ -1,5 +1,5 @@
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.Services.Base;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Messages;
 

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Repositories.Base;
-using PamelloV7.Core.Services.Base;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Repositories.Base;
+using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 
 namespace PamelloV7.Server.Loaders;

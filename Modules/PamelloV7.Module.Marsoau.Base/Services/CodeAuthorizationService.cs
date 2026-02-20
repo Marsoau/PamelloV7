@@ -1,5 +1,5 @@
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
 

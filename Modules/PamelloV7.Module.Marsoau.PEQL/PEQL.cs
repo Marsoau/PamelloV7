@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Modules;
-using PamelloV7.Core.Services;
-using PamelloV7.Core.Services.PEQL;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Services;
+using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.PEQL.Services;
 
 namespace PamelloV7.Module.Marsoau.PEQL;

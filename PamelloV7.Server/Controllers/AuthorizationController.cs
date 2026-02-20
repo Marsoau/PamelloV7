@@ -3,9 +3,9 @@ using Microsoft.Extensions.Primitives;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Model.Listeners;
 
 namespace PamelloV7.Server.Controllers

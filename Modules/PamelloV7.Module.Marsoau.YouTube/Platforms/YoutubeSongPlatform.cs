@@ -5,10 +5,10 @@ using System.Text.Json;
 using AngleSharp;
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Platforms;
-using PamelloV7.Core.Platforms.Infos;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Platforms.Infos;
 using PamelloV7.Module.Marsoau.YouTube.Platforms.Infos;
 
 namespace PamelloV7.Module.Marsoau.YouTube.Platforms;

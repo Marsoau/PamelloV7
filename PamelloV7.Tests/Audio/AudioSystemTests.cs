@@ -1,4 +1,4 @@
-using PamelloV7.Core.Audio.Services;
+using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Audio.Services;
 

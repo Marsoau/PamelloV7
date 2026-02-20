@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Text.Json;
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Config;
-using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Loaders;

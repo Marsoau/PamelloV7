@@ -1,6 +1,6 @@
 using osu.NET.Models.Users;
-using PamelloV7.Core.Platforms;
-using PamelloV7.Core.Platforms.Infos;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Platforms.Infos;
 
 namespace PamelloV7.Module.Marsoau.Osu.Platforms.Infos;
 

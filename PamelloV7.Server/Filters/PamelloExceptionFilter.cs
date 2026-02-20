@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Server.Exceptions;
 
 namespace PamelloV7.Server.Filters

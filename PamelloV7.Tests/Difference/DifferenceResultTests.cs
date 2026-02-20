@@ -1,4 +1,4 @@
-using PamelloV7.Core.Difference;
+using PamelloV7.Framework.Difference;
 
 namespace PamelloV7.Tests.Difference;
 

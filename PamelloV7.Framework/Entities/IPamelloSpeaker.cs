@@ -1,0 +1,24 @@
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Audio.Modules.Base;
+using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Entities.Other;
+
+namespace PamelloV7.Framework.Entities;
+
+[ValueEntity("speakers")]
+public interface IPamelloSpeaker : IPamelloEntity
+{
+    IPamelloPlayer? Player { get; }
+    
+    IEnumerable<IPamelloListener> Listeners { get; }
+    
+    IAudioModule Input { get; }
+
+    public void Connect(ulong vcId) {
+        
+    }
+    
+    public bool IsAvailableFor(IPamelloUser user) {
+        return Listeners.Any(listener => listener.User == user);
+    }
+}

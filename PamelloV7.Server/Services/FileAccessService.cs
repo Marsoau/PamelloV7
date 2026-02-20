@@ -1,6 +1,6 @@
-using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Services;

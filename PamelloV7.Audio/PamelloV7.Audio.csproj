@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+      <ProjectReference Include="..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
     </ItemGroup>
 
 </Project>

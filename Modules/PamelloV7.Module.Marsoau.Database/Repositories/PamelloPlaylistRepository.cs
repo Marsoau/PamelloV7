@@ -1,8 +1,8 @@
-using PamelloV7.Core.Data.Entities;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.History.Records;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Data.Entities;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database.Base;
 using PamelloV7.Module.Marsoau.Database.Entities;
 

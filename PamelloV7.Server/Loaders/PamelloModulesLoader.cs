@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Modules;
-using PamelloV7.Core.Services.Base;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Services;
 

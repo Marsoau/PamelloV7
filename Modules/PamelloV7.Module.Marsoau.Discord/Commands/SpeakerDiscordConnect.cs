@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Commands.Base;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Commands.Base;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Speakers;
 

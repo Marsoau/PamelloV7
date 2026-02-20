@@ -1,5 +1,5 @@
-using PamelloV7.Core.Config;
-using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Exceptions;
 
 namespace PamelloV7.Module.Marsoau.Discord.Config.Root.Tokens;
 

@@ -1,8 +1,8 @@
-﻿using PamelloV7.Core.Audio;
-using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.Platforms;
-using PamelloV7.Core.Platforms.Infos;
+﻿using PamelloV7.Framework.Audio;
+using PamelloV7.Framework.Audio.Time;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Platforms.Infos;
 
 namespace PamelloV7.Module.Marsoau.YouTube.Platforms.Infos
 {

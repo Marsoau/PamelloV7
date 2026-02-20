@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Downloads;
-using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.Enumerators;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Downloads;
+using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Enumerators;
 
 namespace PamelloV7.Module.Marsoau.YouTube.Downloaders;
 

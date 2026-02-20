@@ -1,12 +1,12 @@
-﻿using PamelloV7.Core.Entities;
+﻿using PamelloV7.Framework.Entities;
 using PamelloV7.Server.Model;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events.Base;
-using PamelloV7.Core.EventsOld;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.EventsOld;
 using PamelloV7.Server.Model.Listeners;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Server.Services
 {

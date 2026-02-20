@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\PamelloV7.Core\PamelloV7.Core.csproj" />
+      <ProjectReference Include="..\..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
       <ProjectReference Include="..\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj" />
     </ItemGroup>
 

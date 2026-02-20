@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Model;
 

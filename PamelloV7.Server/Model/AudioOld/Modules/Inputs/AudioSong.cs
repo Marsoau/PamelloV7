@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using PamelloV7.Core.Audio.Time;
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Enumerators;
+using PamelloV7.Framework.Audio.Time;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Enumerators;
 using PamelloV7.Server.Config;
 using PamelloV7.Server.Extensions;
 using PamelloV7.Server.Model.AudioOld.Interfaces;

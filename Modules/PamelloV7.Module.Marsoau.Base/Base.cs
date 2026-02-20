@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Data;
-using PamelloV7.Core.Data.Entities;
-using PamelloV7.Core.Downloads;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.Events;
-using PamelloV7.Core.History.Services;
-using PamelloV7.Core.Modules;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Data;
+using PamelloV7.Framework.Data.Entities;
+using PamelloV7.Framework.Downloads;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Events;
+using PamelloV7.Framework.History.Services;
+using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.Base.Services;
 
 namespace PamelloV7.Module.Marsoau.Base;

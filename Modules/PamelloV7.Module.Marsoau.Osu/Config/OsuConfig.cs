@@ -1,4 +1,4 @@
-using PamelloV7.Core.Attributes;
+using PamelloV7.Framework.Attributes;
 
 namespace PamelloV7.Module.Marsoau.Osu.Config;
 

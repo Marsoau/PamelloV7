@@ -1,9 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services.Base;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Config;
 
 namespace PamelloV7.Module.Marsoau.Discord.Services;

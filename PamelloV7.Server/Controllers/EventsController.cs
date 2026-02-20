@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PamelloV7.Core.Enumerators;
+using PamelloV7.Framework.Enumerators;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Server.Services;
 using System.Text.Json;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Server.Controllers
 {

@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Data.Entities;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Events;
-using PamelloV7.Core.Events.InfoUpdate;
-using PamelloV7.Core.Events.RestorePacks.Base;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Data.Entities;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.InfoUpdate;
+using PamelloV7.Framework.Events.RestorePacks.Base;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Database.Repositories;
 
 namespace PamelloV7.Module.Marsoau.Database.Events.RestorePacks;

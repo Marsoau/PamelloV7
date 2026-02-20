@@ -1,8 +1,8 @@
 using LiteDB;
-using PamelloV7.Core.Data;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Base;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Data;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Database;

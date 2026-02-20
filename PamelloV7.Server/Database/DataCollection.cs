@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using LiteDB;
-using PamelloV7.Core.Data;
-using PamelloV7.Core.Data.Entities.Base;
+using PamelloV7.Framework.Data;
+using PamelloV7.Framework.Data.Entities.Base;
 
 namespace PamelloV7.Server.Database;
 

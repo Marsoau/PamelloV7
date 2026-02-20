@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
-using PamelloV7.Core.Converters;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.Repositories;
-using PamelloV7.Core.Services;
+using PamelloV7.Framework.Converters;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Hubs;

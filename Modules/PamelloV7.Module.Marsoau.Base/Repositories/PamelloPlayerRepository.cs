@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Audio.Services;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.History.Records;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.Audio.Services;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.Base.Repositories.Base;
 

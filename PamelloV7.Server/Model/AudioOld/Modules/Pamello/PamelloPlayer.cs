@@ -1,11 +1,11 @@
 ﻿/*
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.DTO;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Other;
-using PamelloV7.Core.Enumerators;
-using PamelloV7.Core.EventsOld;
-using PamelloV7.Core.Repositories;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.EventsOld;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Base.Queue;
 using PamelloV7.Server.Model.AudioOld.Interfaces;
 using PamelloV7.Server.Model.AudioOld.Modules.Basic;

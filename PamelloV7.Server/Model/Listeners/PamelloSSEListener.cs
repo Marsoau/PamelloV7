@@ -1,10 +1,10 @@
-﻿using PamelloV7.Core.Enumerators;
+﻿using PamelloV7.Framework.Enumerators;
 using System.Text.Json;
-using PamelloV7.Core.Converters;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Events;
-using PamelloV7.Core.Events.Base;
-using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Converters;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Exceptions;
 
 namespace PamelloV7.Server.Model.Listeners
 {

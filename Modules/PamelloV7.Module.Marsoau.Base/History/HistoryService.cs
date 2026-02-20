@@ -1,13 +1,13 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Data;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.Events.Base;
-using PamelloV7.Core.Events.RestorePacks.Base;
-using PamelloV7.Core.Exceptions;
-using PamelloV7.Core.History.Records;
-using PamelloV7.Core.History.Services;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Data;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Events.RestorePacks.Base;
+using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.History.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.History;
 

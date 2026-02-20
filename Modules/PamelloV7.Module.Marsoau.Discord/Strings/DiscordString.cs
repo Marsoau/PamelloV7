@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Discord;
 using Discord.WebSocket;
-using PamelloV7.Core.Entities;
+using PamelloV7.Framework.Entities;
 
 namespace PamelloV7.Module.Marsoau.Discord.Strings
 {

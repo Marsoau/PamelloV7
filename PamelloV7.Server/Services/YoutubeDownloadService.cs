@@ -1,9 +1,9 @@
-﻿using PamelloV7.Core.Enumerators;
+﻿using PamelloV7.Framework.Enumerators;
 using PamelloV7.Server.Model;
 using System.Diagnostics;
 using System.Text;
-using PamelloV7.Core.Entities;
-using PamelloV7.Core.EventsOld;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.EventsOld;
 using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Services

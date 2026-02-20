@@ -1,5 +1,5 @@
-using PamelloV7.Core.Attributes;
-using PamelloV7.Core.Config;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config;
 
 namespace PamelloV7.Module.Marsoau.Discord.Config;
 

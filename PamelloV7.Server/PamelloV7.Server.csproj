@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
-    <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+    <ProjectReference Include="..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj">

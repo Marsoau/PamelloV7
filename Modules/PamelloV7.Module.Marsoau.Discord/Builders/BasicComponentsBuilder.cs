@@ -1,5 +1,5 @@
 using Discord;
-using PamelloV7.Core.Entities.Base;
+using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Module.Marsoau.Discord.Builders.Base;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 

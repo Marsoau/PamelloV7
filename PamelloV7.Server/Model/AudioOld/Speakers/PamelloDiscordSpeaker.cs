@@ -2,9 +2,9 @@
 using System.Text;
 using Discord.Audio;
 using Discord.WebSocket;
-using PamelloV7.Core.AudioOld;
-using PamelloV7.Core.DTO;
-using PamelloV7.Core.DTO.Speakers;
+using PamelloV7.Framework.AudioOld;
+using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.DTO.Speakers;
 
 /*
 namespace PamelloV7.Server.Model.Audio.Speakers

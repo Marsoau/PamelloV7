@@ -1,5 +1,5 @@
-using PamelloV7.Core.Entities.Base;
-using PamelloV7.Core.Events.Base;
+using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Events.Base;
 
 namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 
