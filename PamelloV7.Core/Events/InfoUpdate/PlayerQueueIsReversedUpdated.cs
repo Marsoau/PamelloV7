@@ -3,13 +3,14 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
-[Broadcast]
+[BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class SongAssociationsUpdated : IPamelloEvent
+public class PlayerQueueIsReversedUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloSong Song { get; set; }
-    public IEnumerable<string> Associations { get; set; }
+    public IPamelloPlayer Player { get; set; }
+    public bool IsReversed { get; set; }
 }
+

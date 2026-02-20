@@ -3,13 +3,14 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueCurrentSongTimePassedUpdated : IPamelloEvent
+public class PlayerQueueIsRandomUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }
-    public int CurrentSongTimePassed { get; set; }
+    public bool IsRandom { get; set; }
 }
+

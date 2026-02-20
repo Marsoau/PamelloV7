@@ -3,14 +3,13 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
-[BroadcastToPlayer]
+[Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueNextPositionRequestUpdated : IPamelloEvent
+public class UserSelectedAuthorizationIndexUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloPlayer Player { get; set; }
-    public int? NextPositionRequest { get; set; }
+    public IPamelloUser User { get; set; }
+    public int SelectedAuthorizationIndex { get; set; }
 }
-

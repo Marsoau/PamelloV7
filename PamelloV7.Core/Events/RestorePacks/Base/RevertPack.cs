@@ -8,6 +8,8 @@ namespace PamelloV7.Core.Events.RestorePacks.Base;
 public abstract class RevertPack<TEventType> : IRevertPack
     where TEventType : RevertiblePamelloEvent, IPamelloEvent
 {
+    public bool IsExpired { get; set; }
+    
     [JsonIgnore]
     public readonly IServiceProvider Services;
     [JsonIgnore]
@@ -23,5 +25,11 @@ public abstract class RevertPack<TEventType> : IRevertPack
         RevertInternal(scopeUser);
     }
 
+    public bool DidExpire() {
+        if (IsExpired) return true;
+        return DidExpireInternal();
+    }
+
     protected abstract void RevertInternal(IPamelloUser scopeUser);
+    protected virtual bool DidExpireInternal() => false;
 }

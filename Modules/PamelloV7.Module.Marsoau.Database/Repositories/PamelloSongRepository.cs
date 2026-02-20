@@ -4,6 +4,7 @@ using PamelloV7.Core.Data.Entities;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
+using PamelloV7.Core.Events.InfoUpdate;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.History.Records;
 using PamelloV7.Core.Platforms;

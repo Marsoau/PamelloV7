@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.Events.InfoUpdate;
 using PamelloV7.Core.Services;
 
 namespace PamelloV7.Core.Downloads;

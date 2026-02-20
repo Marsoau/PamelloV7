@@ -10,6 +10,8 @@ using PamelloV7.Core.DTO.Other;
 using PamelloV7.Core.Entities;
 using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events;
+using PamelloV7.Core.Events.InfoUpdate;
+using PamelloV7.Core.Events.Miscellaneous;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Core.Extensions;
 using PamelloV7.Core.Repositories;
@@ -247,7 +249,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         public IEnumerable<IPamelloPlaylist> AddPlaylist(IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder)
             => InsertPlaylist((_entries.Count + 1).ToString(), playlists, adder);
 
-        public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> songs, IPamelloUser? adder) {
+        public IEnumerable<IPamelloSong> InsertSongs(string position, IEnumerable<IPamelloSong> esongs, IPamelloUser? adder) {
+            var songs = esongs.ToList();
+            
             var insertPosition = TranslateQueuePosition(position, true);
             var beforeCount = _entries.Count;
             
@@ -256,6 +260,11 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _events.Invoke(adder, new PlayerQueueEntriesDTOsUpdated() {
                 Player = Player,
                 EntriesDTOs = EntriesDTOs
+            });
+            _events.Invoke(adder, new SongAddedToQueue() {
+                Player = Player,
+                Songs = songs,
+                QueuePosition = insertPosition
             });
 
 			if (beforeCount == 0 && _entries.Count > 0) {

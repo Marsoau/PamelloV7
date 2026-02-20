@@ -74,6 +74,10 @@ public class HistoryService : IHistoryService
         return _records.ToList();
     }
 
+    public IEnumerable<IHistoryRecord> GetLast(IPamelloUser scopeUser, int count = 1) {
+        return _records.Take(count).ToList();
+    }
+
     public IHistoryRecord? GetRequired(int id)
         => Get(id) ?? throw new PamelloException($"History record with id {id} not found");
     public IHistoryRecord? Get(int id) {

@@ -3,13 +3,14 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class UserFavoritePlaylistsUpdated : IPamelloEvent
+public class SongIsSoftDeletedUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloUser User { get; set; }
-    public IEnumerable<IPamelloPlaylist> FavoritePlaylists { get; set; }
+    public IPamelloSong Song { get; set; }
+    public bool IsSoftDeleted { get; set; }
 }
+

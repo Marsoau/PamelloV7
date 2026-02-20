@@ -121,14 +121,14 @@ public class EntityQueryService : IEntityQueryService
         var quotesDepth = 0;
 
         for (var i = value.Length - 1; i >= 0; i--) {
-            var descriptor = Operators.FirstOrDefault(descriptor => descriptor.Symbol == value[i]);
-            if (descriptor is null) continue;
-            
             switch (value[i]) {
                 case ')': quotesDepth++; continue;
                 case '(': quotesDepth--; continue;
             }
             if (quotesDepth > 0) continue;
+            
+            var descriptor = Operators.FirstOrDefault(descriptor => descriptor.Symbol == value[i]);
+            if (descriptor is null) continue;
             
             var operatorQuery = value[..i];
             var operatorValue = value[(i + 1)..];

@@ -72,22 +72,32 @@ public class EntityProviderContainer
             var strArg = stringArgsValues.ElementAtOrDefault(i);
             var type = argumentsInfos[i + 1].ParameterType;
 
+            Console.WriteLine($"looking at {argumentsInfos[i + 1].Name} of type {type}");
+
             if (strArg is null) {
-                arguments[i] = null;
+                Console.WriteLine($"strArg {strArg} is null");
+                if (argumentsInfos[i + 1].HasDefaultValue) {
+                    Console.WriteLine($"Default value: {argumentsInfos[i + 1].DefaultValue}");
+                    arguments[i] = argumentsInfos[i + 1].DefaultValue;
+                }
+                else {
+                    Console.WriteLine("Setting null");
+                    arguments[i] = null;
+                }
+                
                 continue;
             }
 
-            if (type == typeof(IPamelloUser)) {
-                arguments[i] = await _peql.GetSingleAsync<IPamelloUser>(strArg, scopeUser);
+            if (type.IsAssignableTo(typeof(IPamelloEntity))) {
+                arguments[i] = await _peql.ReflectiveGetSingleAsync(type, strArg, scopeUser);
             }
-            else if (type == typeof(IPamelloSong)) {
-                arguments[i] = await _peql.GetSingleAsync<IPamelloSong>(strArg, scopeUser);
-            }
-            else if (type == typeof(IPamelloEpisode)) {
-                arguments[i] = await _peql.GetSingleAsync<IPamelloEpisode>(strArg, scopeUser);
-            }
-            else if (type == typeof(IPamelloPlaylist)) {
-                arguments[i] = await _peql.GetSingleAsync<IPamelloPlaylist>(strArg, scopeUser);
+            else if (
+                type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+                && type.GenericTypeArguments.First() is { } entityType
+                && entityType.IsAssignableTo(typeof(IPamelloEntity))
+            ) {
+                arguments[i] = await _peql.ReflectiveGetAsync(entityType, strArg, scopeUser);
             }
             else {
                 arguments[i] = TypeDescriptor.GetConverter(argumentsInfos[i + 1].ParameterType).ConvertFromString(strArg);

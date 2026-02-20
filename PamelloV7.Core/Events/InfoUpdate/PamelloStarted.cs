@@ -1,6 +1,6 @@
 using PamelloV7.Core.Events.Base;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
 public class PamelloStarted : IPamelloEvent
 {

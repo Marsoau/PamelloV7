@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Entities;
@@ -85,8 +86,8 @@ public class EventsService : IEventsService
     public IHistoryRecord? InvokeInternal(IPamelloEvent e, IPamelloEvent? parentEvent, IPamelloUser? invoker, Action? additionalAction) {
         var eventType = e.GetType();
         
-        Console.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
-        foreach (var subscription in _eventSubscriptions.Where(subscription => subscription.EventType == eventType)) {
+        Debug.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
+        foreach (var subscription in _eventSubscriptions.Where(subscription => subscription.EventType.IsAssignableFrom(eventType))) {
             subscription.Invoke(invoker, e);
         }
 

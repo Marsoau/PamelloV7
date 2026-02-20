@@ -3,13 +3,15 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class UserFavoriteSongsUpdated : IPamelloEvent
+public class EpisodeNameUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloUser User { get; set; }
-    public IEnumerable<IPamelloSong> FavoriteSongs { get; set; }
+    public IPamelloEpisode Episode { get; set; }
+    
+    public string NewName { get; set; }
 }
+

@@ -1,16 +1,15 @@
 using PamelloV7.Core.Entities;
-using PamelloV7.Core.Entities.Other;
 using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class UserSelectedAuthorizationIndexUpdated : IPamelloEvent
+public class PlayerNameUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloUser User { get; set; }
-    public int SelectedAuthorizationIndex { get; set; }
+    public IPamelloPlayer Player { get; set; }
+    public string NewName { get; set; }
 }

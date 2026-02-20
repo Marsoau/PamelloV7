@@ -16,6 +16,9 @@ public interface IHistoryService : IPamelloService, IEntityProvider
     [ValuePoint("all")]
     public IEnumerable<IHistoryRecord> GetAll(IPamelloUser scopeUser);
     
+    [ValuePoint("last")]
+    public IEnumerable<IHistoryRecord> GetLast(IPamelloUser scopeUser, int count = 1);
+    
     public IHistoryRecord? GetRequired(int id);
     public IHistoryRecord? Get(int id);
     

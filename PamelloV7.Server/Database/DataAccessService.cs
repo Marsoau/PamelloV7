@@ -17,7 +17,7 @@ public class DatabaseAccessService : IDatabaseAccessService
     private IPamelloPlaylistRepository _playlists;
 
     public DatabaseAccessService() {
-        _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite.db", GetMapper());
+        _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite-old70.db", GetMapper());
     }
 
     public void Startup(IServiceProvider services) {

@@ -3,13 +3,14 @@ using PamelloV7.Core.Events.Attributes;
 using PamelloV7.Core.Events.Base;
 using PamelloV7.Core.Events.Enumerators;
 
-namespace PamelloV7.Core.Events;
+namespace PamelloV7.Core.Events.InfoUpdate;
 
-[Broadcast]
+[BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlaylistSongsUpdated : IPamelloEvent
+public class PlayerQueuePositionUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
-    public IPamelloPlaylist Playlist { get; set; }
-    public IEnumerable<IPamelloSong> Songs { get; set; }
+    public IPamelloPlayer Player { get; set; }
+    public int Position { get; set; }
 }
+

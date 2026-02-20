@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using PamelloV7.Core.DTO.Other;
 using PamelloV7.Core.Entities;
@@ -29,6 +30,10 @@ public class NestedPamelloEvent
 
     public bool ActivateRestorePacks(IServiceProvider services) {
         if (Event is not RevertiblePamelloEvent revertibleEvent) return false;
+        if (revertibleEvent.RevertPack is null) {
+            Debug.WriteLine("Restore pack is null on revertible event on activation");
+            return false;
+        }
         
         if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
             servicesProperty.SetValue(revertibleEvent.RevertPack, services);

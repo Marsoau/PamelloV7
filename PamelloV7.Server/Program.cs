@@ -11,6 +11,7 @@ using PamelloV7.Core.Converters;
 using PamelloV7.Core.Enumerators;
 using PamelloV7.Core.Events;
 using PamelloV7.Core.Events.Base;
+using PamelloV7.Core.Events.InfoUpdate;
 using PamelloV7.Core.Services;
 using PamelloV7.Core.Services.Base;
 using PamelloV7.Server.Hubs;
