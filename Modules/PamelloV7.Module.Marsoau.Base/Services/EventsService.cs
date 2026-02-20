@@ -82,10 +82,14 @@ public class EventsService : IEventsService
         
         Debug.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
         foreach (var subscription in _eventSubscriptions.Where(subscription => subscription.EventType.IsAssignableFrom(eventType))) {
-            var invokerProperty = subscription.EventType.GetProperty("Invoker")!;
-            invokerProperty.SetValue(e, invoker);
+            if (subscription.EventType.GetProperty("Invoker") is { } subscriptionInvokerProperty) {
+                subscriptionInvokerProperty.SetValue(e, invoker);
+            }
             
             subscription.Invoke(e);
+        }
+        if (eventType.GetProperty("Invoker") is { } invokerProperty) {
+            invokerProperty.SetValue(e, invoker);
         }
 
         additionalAction?.Invoke();
