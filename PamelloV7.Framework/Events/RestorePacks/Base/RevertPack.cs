@@ -6,7 +6,7 @@ using PamelloV7.Framework.Exceptions;
 namespace PamelloV7.Framework.Events.RestorePacks.Base;
 
 public abstract class RevertPack<TEventType> : IRevertPack
-    where TEventType : RevertiblePamelloEvent, IPamelloEvent
+    where TEventType : IRevertiblePamelloEvent, IPamelloEvent
 {
     public bool IsExpired { get; set; }
     
@@ -21,6 +21,7 @@ public abstract class RevertPack<TEventType> : IRevertPack
     
     public void Revert(IPamelloUser scopeUser) {
         if (!IsActivated) throw new PamelloException("Revert pack is not activated yet");
+        if (DidExpire()) throw new PamelloException("Revert pack has expired");
         
         RevertInternal(scopeUser);
     }

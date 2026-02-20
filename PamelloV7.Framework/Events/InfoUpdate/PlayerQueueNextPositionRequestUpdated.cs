@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueNextPositionRequestUpdated : IPamelloEvent
+public partial class PlayerQueueNextPositionRequestUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }

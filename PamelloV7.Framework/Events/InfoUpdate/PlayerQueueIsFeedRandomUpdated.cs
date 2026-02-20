@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueIsFeedRandomUpdated : IPamelloEvent
+public partial class PlayerQueueIsFeedRandomUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }

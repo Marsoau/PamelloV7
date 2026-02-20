@@ -10,8 +10,6 @@ public interface IEventsService : IPamelloService
 {
     public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler)
         where TEventType : IPamelloEvent;
-    public IEventSubscription Subscribe<TEventType>(Action<IPamelloUser?, TEventType> handler)
-        where TEventType : IPamelloEvent;
 
     public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities);
     

@@ -5,7 +5,7 @@ using PamelloV7.Framework.Events.Enumerators;
 namespace PamelloV7.Module.Marsoau.Test.Events;
 
 [PamelloEventCategory(EEventCategory.Miscellaneous)]
-public class A : IPamelloEvent
+public partial class A : IPamelloEvent
 {
     
 }

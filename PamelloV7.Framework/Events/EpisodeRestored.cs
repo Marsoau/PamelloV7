@@ -8,7 +8,7 @@ namespace PamelloV7.Framework.Events;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Creative)]
-public class EpisodeRestored : RevertiblePamelloEvent, IPamelloEvent
+public partial class EpisodeRestored : IRevertiblePamelloEvent, IPamelloEvent
 {
     public IPamelloEpisode Episode { get; set; }
 }

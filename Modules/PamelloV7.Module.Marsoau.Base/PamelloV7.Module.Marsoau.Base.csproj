@@ -13,7 +13,6 @@
 
     <ItemGroup>
       <Folder Include="Entities\Base\" />
-      <Folder Include="Events\Services\" />
       <Folder Include="History\Records\" />
     </ItemGroup>
 

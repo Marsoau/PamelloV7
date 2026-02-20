@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class EpisodeNameUpdated : IPamelloEvent
+public partial class EpisodeNameUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloEpisode Episode { get; set; }

@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueIsReversedUpdated : IPamelloEvent
+public partial class PlayerQueueIsReversedUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }

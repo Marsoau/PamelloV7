@@ -28,7 +28,6 @@ public class EventsService : IEventsService
     private readonly List<IUpdateSubscription> _updateSubscriptions;
 
     private static AsyncLocal<IPamelloEvent?> _localEvent = new();
-    private static AsyncLocal<List<IEventSubscription>> _localScopedSubscriptions = new();
     
     public EventsService(IServiceProvider services) {
         _services = services;
@@ -43,17 +42,12 @@ public class EventsService : IEventsService
     }
 
     public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler) where TEventType : IPamelloEvent {
-        return Subscribe<TEventType>((_, e) => handler(e));
-    }
-
-    public IEventSubscription Subscribe<TEventType>(Action<IPamelloUser?, TEventType> handler) where TEventType : IPamelloEvent {
         var subscription = new EventSubscription<TEventType>(handler);
 
         if (subscription is not IEventSubscription castedSubscription) {
             throw new Exception("Failed to cast subscription");
         }
         
-        //addition
         _eventSubscriptions.Add(castedSubscription);
         
         return subscription;
@@ -88,12 +82,15 @@ public class EventsService : IEventsService
         
         Debug.WriteLine($"User {invoker?.ToString() ?? "NONE"} invoking event: {eventType.Name}");
         foreach (var subscription in _eventSubscriptions.Where(subscription => subscription.EventType.IsAssignableFrom(eventType))) {
-            subscription.Invoke(invoker, e);
+            var invokerProperty = subscription.EventType.GetProperty("Invoker")!;
+            invokerProperty.SetValue(e, invoker);
+            
+            subscription.Invoke(e);
         }
 
         additionalAction?.Invoke();
         
-        if (e is RevertiblePamelloEvent { RevertPack.IsActivated: false } revertibleEvent) {
+        if (e is IRevertiblePamelloEvent { RevertPack.IsActivated: false } revertibleEvent) {
             if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
                 servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
             }

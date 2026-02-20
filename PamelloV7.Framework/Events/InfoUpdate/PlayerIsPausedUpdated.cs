@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerIsPausedUpdated : IPamelloEvent
+public partial class PlayerIsPausedUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }

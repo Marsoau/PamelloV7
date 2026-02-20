@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlayerQueueCurrentSongTimeTotalUpdated : IPamelloEvent
+public partial class PlayerQueueCurrentSongTimeTotalUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlayer Player { get; set; }

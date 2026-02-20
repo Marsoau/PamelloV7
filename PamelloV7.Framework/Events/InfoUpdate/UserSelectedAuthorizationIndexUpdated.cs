@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class UserSelectedAuthorizationIndexUpdated : IPamelloEvent
+public partial class UserSelectedAuthorizationIndexUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloUser User { get; set; }

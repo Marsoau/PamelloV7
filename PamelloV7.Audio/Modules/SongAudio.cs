@@ -116,7 +116,7 @@ public class SongAudio : IAudioModuleWithOutput
     private bool NextBytes(byte[] result, bool wait, CancellationToken token) {
         return NextBytesAsync(result, wait, token).Result;
     }
-    private async Task<bool> NextBytesAsync(byte[] result, bool wait, CancellationToken token) {
+    private async Task<bool> NextBytesAsync(byte[] audio, bool wait, CancellationToken token) {
         if (_rewinding is not null) await _rewinding;
         if (_currentChunk is null) return await TryInitialize(token);
 
@@ -140,12 +140,12 @@ public class SongAudio : IAudioModuleWithOutput
 
         int count;
         var totalCount = 0;
-        while (totalCount < result.Length && Position.TimeValue < Duration.TimeValue) {
-            totalCount += count = await _currentChunk.ReadAsync(result, totalCount, result.Length - totalCount, token);
+        while (totalCount < audio.Length && Position.TimeValue < Duration.TimeValue) {
+            totalCount += count = await _currentChunk.ReadAsync(audio, totalCount, audio.Length - totalCount, token);
             
             Position.TimeValue += count;
             
-            if (totalCount >= result.Length) return true;
+            if (totalCount >= audio.Length) return true;
             
             await MoveForwardAsync(token);
         }

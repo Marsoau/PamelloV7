@@ -9,17 +9,13 @@ public class EventSubscription<TEventType> : IEventSubscription
 {
     public Type EventType => typeof(TEventType);
     
-    public Action<IPamelloUser?, TEventType> Handler { get; }
+    public Action<TEventType> Handler { get; }
     
-    public EventSubscription(Action<TEventType> handler) : this(
-        (_, e) => handler(e)
-    ) { }
-    
-    public EventSubscription(Action<IPamelloUser?, TEventType> handler) {
+    public EventSubscription(Action<TEventType> handler) {
         Handler = handler;
     }
 
-    public void Invoke(IPamelloUser? scopeUser, IPamelloEvent e) {
-        Handler(scopeUser, (TEventType)e);
+    public void Invoke(IPamelloEvent e) {
+        Handler((TEventType)e);
     }
 }

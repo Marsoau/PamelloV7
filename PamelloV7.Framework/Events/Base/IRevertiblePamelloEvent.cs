@@ -4,7 +4,7 @@ using PamelloV7.Framework.Events.RestorePacks;
 
 namespace PamelloV7.Framework.Events.Base;
 
-public abstract class RevertiblePamelloEvent
+public interface IRevertiblePamelloEvent
 {
     [JsonIgnore]
     public IRevertPack RevertPack { get; set; }

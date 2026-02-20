@@ -7,5 +7,5 @@ public interface IEventSubscription
 {
     public Type EventType { get; }
 
-    public void Invoke(IPamelloUser? scopeUser, IPamelloEvent e);
+    public void Invoke(IPamelloEvent e);
 }

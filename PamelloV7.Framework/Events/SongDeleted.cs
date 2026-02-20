@@ -10,7 +10,7 @@ namespace PamelloV7.Framework.Events;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Destructive)]
-public class SongDeleted : RevertiblePamelloEvent, IPamelloEvent
+public partial class SongDeleted : IRevertiblePamelloEvent, IPamelloEvent
 {
     public IPamelloSong Song { get; set; }
 }

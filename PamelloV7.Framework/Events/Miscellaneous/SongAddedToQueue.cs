@@ -10,10 +10,9 @@ namespace PamelloV7.Framework.Events.Miscellaneous;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Miscellaneous)]
-public class SongAddedToQueue : RevertiblePamelloEvent, IPamelloEvent
+public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePamelloEvent
 {
-    public IPamelloPlayer Player { get; set; }
-    public IEnumerable<IPamelloSong> Songs { get; set; }
+    public IEnumerable<IPamelloSong> AddedSongs { get; set; }
     public int QueuePosition { get; set; }
 }
 

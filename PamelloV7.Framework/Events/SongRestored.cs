@@ -8,7 +8,7 @@ namespace PamelloV7.Framework.Events;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Creative)]
-public class SongRestored : RevertiblePamelloEvent, IPamelloEvent
+public partial class SongRestored : IRevertiblePamelloEvent, IPamelloEvent
 {
     public IPamelloSong Song { get; set; }
 }

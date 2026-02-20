@@ -7,7 +7,7 @@ namespace PamelloV7.Module.Marsoau.Test.Events;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Miscellaneous)]
-public class TestEvent : IPamelloEvent
+public partial class TestEvent : IPamelloEvent
 {
     public int Value { get; set; }
 }

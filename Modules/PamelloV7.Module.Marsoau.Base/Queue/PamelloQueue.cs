@@ -138,12 +138,6 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         public int Count => _entries.Count;
 
         public IReadOnlyList<IPamelloSong> Songs => _entries.Select(entry => entry.Song).ToList();
-
-        public IEnumerable<PamelloQueueEntryDTO> EntriesDTOs
-            => _entries.Select(entry => new PamelloQueueEntryDTO() {
-                SongId = entry.Song.Id,
-                AdderId = entry.Adder?.Id
-            });
         
         public IEnumerable<int> SongsIds => Songs.Select(song => song.Id);
 
@@ -257,13 +251,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             
             _entries.InsertRange(insertPosition, songs.Select(song => new PamelloQueueEntry(song, adder)));
 
-            _events.Invoke(adder, new PlayerQueueEntriesDTOsUpdated() {
-                Player = Player,
-                EntriesDTOs = EntriesDTOs
-            });
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
-                Songs = songs,
+                Entries = Entries,
+                AddedSongs = songs,
                 QueuePosition = insertPosition
             });
 
@@ -289,9 +280,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				_entries.Insert(insertPosition++, new PamelloQueueEntry(song, adder));
             }
 
-            _events.Invoke(adder, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(adder, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                EntriesDTOs = EntriesDTOs
+                Entries = Entries
             });
 
 			if (queueWasEmpty) {
@@ -325,15 +316,43 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (songPosition < NextPositionRequest) NextPositionRequest--;
                 else if (songPosition == NextPositionRequest) NextPositionRequest = null;
 
-                _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+                _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                     Player = Player,
-                    EntriesDTOs = EntriesDTOs
+                    Entries = Entries
                 });
             }
 
             return song;
 		}
-		public bool MoveSong(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
+
+        public int RemoveSongsRange(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
+            
+            var fromPosition = TranslateQueuePosition(fromPositionValue);
+            var toPosition = TranslateQueuePosition(toPositionValue);
+            
+            if (fromPosition > toPosition) (fromPosition, toPosition) = (toPosition, fromPosition);
+            
+            var removedCount = toPosition - fromPosition + 1;
+
+            _entries.RemoveRange(fromPosition, removedCount);
+
+            if (Position >= fromPosition && Position <= toPosition) {
+                Position = fromPosition;
+                if (Position > 0) Position--;
+                
+                SetPosition(Position, null);
+                SetCurrent(Entries.ElementAtOrDefault(Position), null);
+            }
+
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
+                Player = Player,
+                Entries = Entries
+            });
+
+            return removedCount;
+        }
+
+        public bool MoveSong(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
 			if (_entries.Count < 2) return false;
 
 			var fromPosition = TranslateQueuePosition(fromPositionValue);
@@ -354,9 +373,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Position++;
             }
 
-            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                EntriesDTOs = EntriesDTOs
+                Entries = Entries
             });
 
             return true;
@@ -372,9 +391,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
 			(_entries[inPosition], _entries[withPosition]) = (_entries[withPosition], _entries[inPosition]);
 
-            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                EntriesDTOs = EntriesDTOs
+                Entries = Entries
             });
 
 			if (inPosition == Position) Position = withPosition;
@@ -395,6 +414,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             return entry.Song;
 		}
+
 		public IPamelloSong? GoToNextSong(IPamelloUser? scopeUser = null, bool forceRemoveCurrentSong = false) {
 			if (_entries.Count == 0)
             {
@@ -426,9 +446,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				if (nextPosition > Position) nextPosition--;
 
                 //not sure about this invoking
-                _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+                _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                     Player = Player,
-                    EntriesDTOs = EntriesDTOs
+                    Entries = Entries
                 });
             }
 
@@ -471,9 +491,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             SetCurrent(null, scopeUser);
             Position = 0;
 
-            _events.Invoke(scopeUser, new PlayerQueueEntriesDTOsUpdated() {
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                EntriesDTOs = EntriesDTOs
+                Entries = Entries
             });
         }
 
@@ -482,7 +502,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 CurrentSongId = CurrentSong?.Id,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0,
-                EntriesDTOs = EntriesDTOs,
+                Entries = Entries,
                 Position = Position,
                 NextPositionRequest = NextPositionRequest,
                 CurrentEpisodePosition = _songAudio?.GetCurrentEpisodePosition(),

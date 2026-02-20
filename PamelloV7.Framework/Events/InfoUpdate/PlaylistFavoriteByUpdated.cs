@@ -7,7 +7,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
-public class PlaylistFavoriteByUpdated : IPamelloEvent
+public partial class PlaylistFavoriteByUpdated : IPamelloEvent
 {
     [InfoUpdateProperty]
     public IPamelloPlaylist Playlist { get; set; }

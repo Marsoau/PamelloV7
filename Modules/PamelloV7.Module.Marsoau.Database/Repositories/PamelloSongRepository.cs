@@ -28,7 +28,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public void Startup(IServiceProvider services) {
-        _events.Subscribe<SongDeleted>((scopeUser, e) => {
+        _events.Subscribe<SongDeleted>(e => {
             var playlists = e.Song.Playlists.ToList();
             var episodes = e.Song.Episodes.ToList();
             var favoriteBy = e.Song.FavoriteBy.ToList();
@@ -36,7 +36,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             Console.WriteLine($"About to delete {episodes.Count} episodes from {e.Song}");
             
             //foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
-            foreach (var episode in episodes) _episodes.Delete(episode, scopeUser);
+            foreach (var episode in episodes) _episodes.Delete(episode, e.Invoker);
             //foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
         });
         //we could slaos soubscribe to SongRestore in the way we would execute all inner revert packs inside the subscription
