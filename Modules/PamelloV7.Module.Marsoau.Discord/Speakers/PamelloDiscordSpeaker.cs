@@ -32,7 +32,11 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     public AudioPump Pump { get; }
     public SpeakerAudioSink Sink { get; }
     
-    IAudioModule IPamelloSpeaker.Input => Buffer;
+    IAudioModule IPamelloSpeaker.InputModule => Buffer;
+    
+    public bool IsAvailableFor(IPamelloUser user) {
+        return Listeners.Any(listener => listener.User == user);
+    }
 
     public IEnumerable<IPamelloListener> Listeners {
         get {

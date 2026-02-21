@@ -6,6 +6,8 @@ using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Services;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;
+using PamelloV7.Server.Exceptions;
+using PamelloV7.Server.Speakers;
 
 namespace PamelloV7.Server.Controllers
 {
@@ -21,18 +23,22 @@ namespace PamelloV7.Server.Controllers
             _users = services.GetRequiredService<IPamelloUserRepository>();
         }
 
-        /*
         [HttpGet("Out/{value}")]
         public async Task Out(string value) {
             TryGetUser();
-            
-            var speaker = await _speakers.GetByValueRequired<IPamelloInternetSpeaker>(value, User);
-            
-            var listener = await speaker.AddListener(Response, HttpContext.RequestAborted, User);
-            Console.WriteLine($"{(User is null ? $"Unknown ISL-{listener.Id} connection" : $"User {User} connects ISL-{listener.Id}")} to <{speaker.Name}>");
 
-            await Task.Run(() => listener.Completion.Task.Wait(), HttpContext.RequestAborted);
+            Console.WriteLine($"GOT: {HttpContext.Request.Path}");
+
+            var speaker = _speakers.GetByName(User, value);
+            if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloControllerException(BadRequest($"Speaker \"{value}\" not found"));
+            
+            var listener = await internetSpeaker.CreateListener(Response, HttpContext.RequestAborted, User);
+            Console.WriteLine($"{(User is null ? $"Unknown ISL connection" : $"User {User} connects ISL")} to <{speaker.Name}>");
+
+            await Task.Delay(-1, HttpContext.RequestAborted);
+            Console.WriteLine("REQUEST ABORTED");
+            Console.WriteLine("REQUEST ABORTED");
+            Console.WriteLine("REQUEST ABORTED");
         }
-        */
     }
 }

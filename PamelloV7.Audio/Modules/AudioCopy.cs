@@ -10,7 +10,7 @@ public class AudioCopy : IAudioModuleWithInput, IAudioModuleWithOutputs
     public List<IAudioPoint> Outputs { get; }
     
     public IAudioPoint Input => Inputs.First();
-    public int MinOutputs => 1;
+    public int MinOutputs => 0;
     
     public AudioCopy() {
         Inputs = new List<IAudioPoint>(1);
@@ -22,6 +22,7 @@ public class AudioCopy : IAudioModuleWithInput, IAudioModuleWithOutputs
     }
 
     private bool ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
-        return Outputs.Aggregate(false, (isAny, output) => output.Pass(audio, wait, token) || isAny);
+        var result = Outputs.Aggregate(false, (isAny, output) => output.Pass(audio, wait, token) || isAny);
+        return result;
     }
 }

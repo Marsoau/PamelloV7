@@ -35,9 +35,6 @@ namespace PamelloV7.Server
         public async Task MainAsync(string[] args) {
             StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
             
-            //remove later
-            var _ = typeof(Audio.Services.PamelloAudioSystem);
-            
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);

@@ -103,10 +103,10 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     
     public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker) {
         if (Copy is not IAudioModuleWithOutputs copy) throw new Exception("Copy is not IAudioModuleWithOutputs");
-        if (speaker.Input is not IAudioModuleWithInput output) throw new Exception("Speaker output is not IAudioModuleWithInput");
+        if (speaker.InputModule is not IAudioModuleWithInput speakerInputModule) throw new Exception("Speaker output is not IAudioModuleWithInput");
         
         var point = copy.AddOutput(() => new AudioPoint(copy));
-        point.ConnectedPoint = output.Input;
+        point.ConnectedPoint = speakerInputModule.Input;
         
         _connectedSpeakers.Add(speaker);
 

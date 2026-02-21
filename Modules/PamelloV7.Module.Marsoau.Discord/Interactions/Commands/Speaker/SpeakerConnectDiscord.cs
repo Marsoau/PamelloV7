@@ -12,8 +12,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Speaker;
 
 public partial class Speaker
 {
-    [SlashCommand("connect", "Connect discord speaker to a voice channel")]
-    public async Task Connect() {
+    [SlashCommand("connect-discord", "Connect discord speaker to a voice channel")]
+    public async Task ConnectDiscord() {
         var speaker = await WithLoadingAsync(
             Command<SpeakerDiscordConnect>().Execute()
         );

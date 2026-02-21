@@ -8,17 +8,11 @@ namespace PamelloV7.Framework.Entities;
 [ValueEntity("speakers")]
 public interface IPamelloSpeaker : IPamelloEntity
 {
-    IPamelloPlayer? Player { get; }
+    IPamelloPlayer Player { get; }
     
     IEnumerable<IPamelloListener> Listeners { get; }
     
-    IAudioModule Input { get; }
-
-    public void Connect(ulong vcId) {
-        
-    }
+    IAudioModule InputModule { get; }
     
-    public bool IsAvailableFor(IPamelloUser user) {
-        return Listeners.Any(listener => listener.User == user);
-    }
+    public bool IsAvailableFor(IPamelloUser user);
 }

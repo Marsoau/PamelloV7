@@ -43,6 +43,7 @@
     -->
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Listeners\" />
     <Folder Include="Model\Data\" />
   </ItemGroup>
   <Target Name="CopyModulesAfterBuild" AfterTargets="Build">

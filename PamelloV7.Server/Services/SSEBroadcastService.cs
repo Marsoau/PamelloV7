@@ -66,10 +66,6 @@ namespace PamelloV7.Server.Services
             throw new NotImplementedException();
             //delete this method later
         }
-        public void BroadcastToPlayer(IPamelloPlayerOld player, PamelloEvent pamelloEvent) {
-            throw new NotImplementedException();
-            //delete this method later
-        }
         
         public void Broadcast(IPamelloEvent pamelloEvent)
         {

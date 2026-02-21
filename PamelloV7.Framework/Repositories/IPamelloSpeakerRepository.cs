@@ -7,6 +7,7 @@ using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Repositories;
 
+[EntityProvider("speakers")]
 public interface IPamelloSpeakerRepository : IPamelloRepository<IPamelloSpeaker>, IEntityProvider, IPamelloService
 {
     public int NextId { get; }

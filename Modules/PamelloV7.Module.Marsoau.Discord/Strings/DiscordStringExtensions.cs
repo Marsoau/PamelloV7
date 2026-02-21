@@ -13,6 +13,10 @@ public static class DiscordStringExtensions
     {
         return $"{DiscordString.Bold(DiscordString.Code($"[{entity.Id}]"))} {DiscordString.Ecranate(entity.Name)}";
     }
+    public static string ToDiscordString(this IPamelloInternetSpeaker internetSpeaker)
+    {
+        return $"{DiscordString.Bold(DiscordString.Code($"[{internetSpeaker.Id}]"))} {DiscordString.Url(DiscordString.Ecranate(internetSpeaker.Name), internetSpeaker.GetUrl())}";
+    }
     
     public static string ToDiscordString(this IPamelloPlaylist playlist)
     {

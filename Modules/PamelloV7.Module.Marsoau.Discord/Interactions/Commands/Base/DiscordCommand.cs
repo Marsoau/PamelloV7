@@ -35,6 +35,10 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var commands = Services.GetRequiredService<IPamelloCommandsService>();
         return commands.Get<TCommand>(Context.User);
     }
+    public async Task<object?> Command(string commandPath) {
+        var commands = Services.GetRequiredService<IPamelloCommandsService>();
+        return await commands.ExecutePathAsync(commandPath, Context.User);
+    }
 
     public TBuilder Builder<TBuilder>()
         where TBuilder : PamelloDiscordComponentBuilder

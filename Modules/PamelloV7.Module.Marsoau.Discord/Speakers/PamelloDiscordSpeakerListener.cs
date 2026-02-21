@@ -13,10 +13,15 @@ public class PamelloDiscordSpeakerListener : IPamelloListener
     
     public SocketUser DiscordUser { get; }
     public IPamelloSpeaker Speaker { get; }
-    public IPamelloUser? User => _users.GetByPlatformKey(new PlatformKey("discord", DiscordUser.Id.ToString()));
+
+    public IPamelloUser? User {
+        get => field ?? _users.GetByPlatformKey(new PlatformKey("discord", DiscordUser.Id.ToString()));
+        private init => field = value;
+    }
 
     public PamelloDiscordSpeakerListener(SocketUser discordUser, IPamelloSpeaker speaker, IServiceProvider services) {
         _users = services.GetRequiredService<IPamelloUserRepository>();
+        User = null;
         
         DiscordUser = discordUser;
         Speaker = speaker;
