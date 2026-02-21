@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.EventsOld;
 using PamelloV7.Framework.Services;
 using PamelloV7.Server.Hubs;
 
@@ -30,9 +31,18 @@ public class SignalBroadcastService : ISignalBroadcastService
     }
 
     public void BroadcastToPlayer(IPamelloEvent e, IPamelloPlayer? player) {
+        List<Type> nestedTypes = [];
+        
+        var currentBaseType = e.GetType().BaseType;
+        while (currentBaseType is not null && currentBaseType != typeof(object)) {
+            nestedTypes.Add(currentBaseType);
+            currentBaseType = currentBaseType.BaseType;
+        }
+        
         foreach (var listener in _listeners.Where(x => x.Value is not null && (player is null || x.Value.SelectedPlayer == player))) {
             _hub.Clients.Client(listener.Key).SendAsync("Event", new {
                 Type = e.GetType().Name,
+                NestedTypes = nestedTypes.Select(x => x.Name),
                 Data = (object)e
             }).Wait();
         }

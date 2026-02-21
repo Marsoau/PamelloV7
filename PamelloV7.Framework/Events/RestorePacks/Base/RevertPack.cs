@@ -15,22 +15,23 @@ public abstract class RevertPack<TEventType> : IRevertPack
     [JsonIgnore]
     public readonly TEventType Event;
     
+    [JsonIgnore]
     IPamelloEvent IRevertPack.Event => Event;
     
     public bool IsActivated => Services is not null && Event is not null;
     
     public void Revert(IPamelloUser scopeUser) {
         if (!IsActivated) throw new PamelloException("Revert pack is not activated yet");
-        if (DidExpire()) throw new PamelloException("Revert pack has expired");
+        if (!DidNotExpire(scopeUser)) throw new PamelloException("Revert pack has expired");
         
         RevertInternal(scopeUser);
     }
 
-    public bool DidExpire() {
+    public bool DidNotExpire(IPamelloUser scopeUser) {
         if (IsExpired) return true;
-        return DidExpireInternal();
+        return DidNotExpireInternal(scopeUser);
     }
 
     protected abstract void RevertInternal(IPamelloUser scopeUser);
-    protected virtual bool DidExpireInternal() => false;
+    protected virtual bool DidNotExpireInternal(IPamelloUser scopeUser) => false;
 }

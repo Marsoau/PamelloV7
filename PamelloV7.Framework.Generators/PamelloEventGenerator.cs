@@ -31,11 +31,26 @@ public class PamelloEventGenerator : IIncrementalGenerator
 
         var implementsPamelloEvent = InheritsFrom(classSymbol, "IPamelloEvent");
         var implementsRevertible = InheritsFrom(classSymbol, "IRevertiblePamelloEvent");
-
+        
         if (!implementsPamelloEvent && !implementsRevertible) return default;
+        
+        var baseImplementsPamelloEvent = InheritsFrom(classSymbol.BaseType, "IPamelloEvent");
+        var baseImplementsRevertible = InheritsFrom(classSymbol.BaseType, "IRevertiblePamelloEvent");
+
 
         var hasInvoker = classSymbol.GetMembers("Invoker").Any();
         var hasRevertPack = classSymbol.GetMembers("RevertPack").Any();
+        var hasDefaultPack = false;
+        
+        if (implementsRevertible) {
+            var nestedTypes = classSymbol.GetTypeMembers("Pack");
+            
+            if (nestedTypes.Length > 0) {
+                if (nestedTypes[0] is { IsAbstract: false, Arity: 0 } packType) {
+                    hasDefaultPack = packType.Constructors.Any(c => c.Parameters.Length == 0 && !c.IsStatic);
+                }
+            }
+        }
 
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace 
             ? string.Empty 
@@ -44,8 +59,9 @@ public class PamelloEventGenerator : IIncrementalGenerator
         return new EventClassDescriptor(
             namespaceName, 
             classSymbol.Name, 
-            NeedsInvoker: implementsPamelloEvent && !hasInvoker, 
-            NeedsRevertPack: implementsRevertible && !hasRevertPack
+            NeedsInvoker: implementsPamelloEvent && !baseImplementsPamelloEvent && !hasInvoker, 
+            NeedsRevertPack: implementsRevertible && !baseImplementsRevertible && !hasRevertPack,
+            hasDefaultPack
         );
     }
 
@@ -71,15 +87,18 @@ public class PamelloEventGenerator : IIncrementalGenerator
               #nullable enable
 
               using PamelloV7.Framework.Entities;
-              using PamelloV7.Framework.Events.RestorePacks;
-              using PamelloV7.Framework.Events.Base; //test
-
+              using PamelloV7.Framework.Events.RestorePacks.Base;
+              using PamelloV7.Framework.Events.Base;
+              using System.Text.Json.Serialization;
+              
               namespace {{eventClass.Namespace}}
               {
                   partial class {{eventClass.ClassName}}
                   {
-                      {{(eventClass.NeedsInvoker ? "public IPamelloUser? Invoker { get; set; }" : "//invoker is not needed")}}
-                      {{(eventClass.NeedsRevertPack ? "public IRevertPack RevertPack { get; set; }" : "//revert pack is not needed")}}
+                      {{(eventClass.NeedsInvoker ? "public IPamelloUser? Invoker { get; set; } " : "//invoker is not needed")}}
+                      {{(eventClass.NeedsRevertPack ? $"[JsonIgnore] public IRevertPack RevertPack {{ get; set; }}{(
+                          eventClass.HasDefaultPack ? " = new Pack();" : " //default pack is not needed"
+                      )}" : "//revert pack is not needed")}}
                   }
               }
               """;

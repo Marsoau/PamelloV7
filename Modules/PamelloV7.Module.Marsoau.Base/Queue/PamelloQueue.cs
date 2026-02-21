@@ -253,7 +253,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
-                Entries = Entries,
+                Entries = new List<PamelloQueueEntry>(Entries),
                 AddedSongs = songs,
                 QueuePosition = insertPosition
             });
@@ -326,13 +326,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 		}
 
         public int RemoveSongsRange(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
-            
             var fromPosition = TranslateQueuePosition(fromPositionValue);
             var toPosition = TranslateQueuePosition(toPositionValue);
             
             if (fromPosition > toPosition) (fromPosition, toPosition) = (toPosition, fromPosition);
             
             var removedCount = toPosition - fromPosition + 1;
+            if (removedCount > _entries.Count) removedCount = _entries.Count;
 
             _entries.RemoveRange(fromPosition, removedCount);
 
