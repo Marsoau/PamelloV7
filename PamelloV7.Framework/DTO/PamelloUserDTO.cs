@@ -8,7 +8,7 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Framework.DTO
 {
-    public record PamelloUserDTO : IPamelloDTO
+    public record PamelloUserDTO : PamelloEntityDto
     {
         [JsonPropertyName("avatarUrl")]
 		public string? AvatarUrl { get; set; }

@@ -175,7 +175,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         Save();
     }
 
-    public override IPamelloDTO GetDto() {
+    public override PamelloEntityDto GetDto() {
         return new PamelloPlaylistDTO {
             Id = Id,
             Name = Name,

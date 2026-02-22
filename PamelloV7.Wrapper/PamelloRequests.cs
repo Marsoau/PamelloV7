@@ -49,10 +49,10 @@ public class PamelloRequests
     public async Task<string> ExecuteCommandAsync(string commandPath) => await (await GetAsync($"Command/{commandPath}")).Content.ReadAsStringAsync();
     public async Task<TType> ExecuteCommandAsync<TType>(string commandPath) => await GetFromJsonAsync<TType>($"Command/{commandPath}");
 
-    public Task<List<IPamelloDTO>> GetEntitiesAsync(string fullQuery)
-        => GetEntitiesAsync<IPamelloDTO>(fullQuery);
+    public Task<List<PamelloEntityDto>> GetEntitiesAsync(string fullQuery)
+        => GetEntitiesAsync<PamelloEntityDto>(fullQuery);
     public async Task<List<TPamelloDto>> GetEntitiesAsync<TPamelloDto>(string fullQuery)
-        where TPamelloDto : IPamelloDTO
+        where TPamelloDto : PamelloEntityDto
     {
         var type = typeof(TPamelloDto);
         

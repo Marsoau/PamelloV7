@@ -268,7 +268,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         if (!fromInside) playlist.RemoveSong(this, scopeUser, fromInside);
     }
 
-    public override IPamelloDTO GetDto() {
+    public override PamelloEntityDto GetDto() {
         return new PamelloSongDTO {
             Id = Id,
             Name = Name,

@@ -62,8 +62,8 @@ public abstract class PamelloDynamicEntity : IPamelloDynamicEntity
         _sink.Flush();
     }
 
-    public virtual IPamelloDTO GetDto() {
-        return new PamelloEntityDTO() {
+    public virtual PamelloEntityDto GetDto() {
+        return new PamelloEntityDto {
             Id = Id,
             Name = Name,
         };

@@ -11,7 +11,7 @@ using PamelloV7.Framework.Enumerators;
 
 namespace PamelloV7.Framework.DTO
 {
-    public record PamelloPlayerDTO : IPamelloDTO
+    public record PamelloPlayerDTO : PamelloEntityDto
     {
         [JsonPropertyName("ownerId")]
         public int OwnerId { get; set; }

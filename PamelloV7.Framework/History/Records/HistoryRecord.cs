@@ -31,7 +31,7 @@ public class HistoryRecord : IHistoryRecord
         Nested.Revert(scopeUser);
     }
     
-    public IPamelloDTO GetDto() {
+    public PamelloEntityDto GetDto() {
         return new HistoryRecordDTO() {
             Id = Id,
             Name = Name,

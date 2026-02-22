@@ -80,7 +80,7 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
         return $"[{Id}] {Name} ({Start})";
     }
 
-    public override IPamelloDTO GetDto() {
+    public override PamelloEntityDto GetDto() {
         return new PamelloEpisodeDTO {
             Id = Id,
             Name = Name,

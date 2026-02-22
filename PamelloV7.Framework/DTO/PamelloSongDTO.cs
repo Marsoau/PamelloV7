@@ -8,7 +8,7 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Framework.DTO
 {
-    public record PamelloSongDTO : IPamelloDTO
+    public record PamelloSongDTO : PamelloEntityDto
     {
         [JsonPropertyName("coverUrl")]
         public string CoverUrl { get; set; }

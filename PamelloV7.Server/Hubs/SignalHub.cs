@@ -29,14 +29,14 @@ public class SignalHub : Hub
         Console.WriteLine($"Connected: {Context.ConnectionId}");
         
         _broadcast.AddListener(Context.ConnectionId);
-        await _broadcast.BroadcastMessageAsync($"Connected new {Context.ConnectionId} client");
+        await _broadcast.BroadcastMessageAsync(null, null, $"Connected new {Context.ConnectionId} client");
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception) {
         Console.WriteLine($"Disconnected: {Context.ConnectionId}");
         
         _broadcast.RemoveListener(Context.ConnectionId);
-        await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} disconnected");
+        await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} disconnected");
     }
 
     public async Task Authorize(string userToken) {
@@ -49,21 +49,28 @@ public class SignalHub : Hub
         
         if (user is null) throw new PamelloException("User not found");
         
-        await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} authorized as {user}");
+        await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} authorized as {user}");
         
         _broadcast.AssignUser(Context.ConnectionId, user);
     }
     public async Task Unauthorize() {
-        await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} unauthorized");
+        await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} unauthorized");
         
         _broadcast.AbandonUser(Context.ConnectionId);
+    }
+
+    public async Task Message(string message) {
+        var user = _broadcast.GetUser(Context.ConnectionId);
+        if (user is null) throw new HubException("You have to be authorized to send messages");
+        
+        await _broadcast.BroadcastMessageAsync(user, null, message);
     }
 
     public async Task<object?> Command(string commandPath) {
         var user = _broadcast.GetUser(Context.ConnectionId);
         if (user is null) throw new HubException("You have to be authorized to execute commands");
         
-        await _broadcast.BroadcastMessageAsync($"Client {Context.ConnectionId} of user {user} executed: {commandPath}");
+        await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} of user {user} executed: {commandPath}");
 
         try {
             return await _commands.ExecutePathAsync(commandPath, user);

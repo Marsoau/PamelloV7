@@ -355,7 +355,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return Authorizations.FirstOrDefault(auth => auth.PK.Platform == platform)?.PK.Key;
     }
 
-    public override IPamelloDTO GetDto() {
+    public override PamelloEntityDto GetDto() {
         return new PamelloUserDTO {
             Id = Id,
             Name = Name,
