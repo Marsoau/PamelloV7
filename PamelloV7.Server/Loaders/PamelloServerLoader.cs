@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Config;
@@ -89,7 +90,9 @@ public class PamelloServerLoader
                     options.PayloadSerializerOptions.Converters.Add(converter);
                 }
             });
-        services.AddHttpClient();
+        services.AddHttpClient(Options.DefaultName, client => {
+            client.DefaultRequestHeaders.Add("User-Agent", $"PamelloV7/{Assembly.GetExecutingAssembly().GetName().Version}");
+        });
 
         services.AddCors(options => {
             options.AddDefaultPolicy(builder => builder

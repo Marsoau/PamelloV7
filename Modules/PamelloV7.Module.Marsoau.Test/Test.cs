@@ -60,18 +60,5 @@ public class Test : IPamelloModule
         _files = services.GetRequiredService<IFileAccessService>();
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
-
-        _history.WriteAll();
-
-        _events.Subscribe<A>(e => Console.WriteLine($"A by {e.Invoker}"));
-        _events.Subscribe<B>(e => Console.WriteLine($"B by {e.Invoker}"));
-        _events.Subscribe<C>(e => Console.WriteLine($"C by {e.Invoker}"));
-
-        Console.WriteLine("Invoking A");
-        _events.Invoke(_me, new A());
-        Console.WriteLine("Invoking B");
-        _events.Invoke(_ferrout, new B());
-        Console.WriteLine("Invoking C");
-        _events.Invoke(_pivozavr, new C());
     }
 }
