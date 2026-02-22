@@ -91,8 +91,18 @@ public class SongAudio : IAudioModuleWithOutput
 
         if (!(Song.SelectedSource?.IsDownloaded() ?? false)) { //if (!Song.SelectedSource.IsDownloaded) {
             if (Song.SelectedSource is null) return false;
+
+            EDownloadResult result;
+            try {
+                result = await Song.SelectedSource.GetDownloader().DownloadAsync();
+            }
+            catch (Exception x) {
+                Console.WriteLine($"Exception downloading song {Song}: {x}");
+                Clean();
+                return false;
+            }
             
-            if (await Song.SelectedSource.GetDownloader().DownloadAsync() != EDownloadResult.Success) {
+            if (result != EDownloadResult.Success) {
                 Clean();
                 return false;
             }
@@ -118,7 +128,7 @@ public class SongAudio : IAudioModuleWithOutput
     }
     private async Task<bool> NextBytesAsync(byte[] audio, bool wait, CancellationToken token) {
         if (_rewinding is not null) await _rewinding;
-        if (_currentChunk is null) return await TryInitialize(token);
+        if (_currentChunk is null) return false; //return await TryInitialize(token);
 
         if (Position.TimeValue >= Duration.TimeValue) {
             if (IsEnded) return false;

@@ -171,8 +171,6 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 if (Player.Pump is IAudioModuleWithInput pump) {
                     pump.Input.ConnectedPoint = _songAudio.Output;
                 }
-                
-                //if (!await _songAudio.TryInitialize()) await SetCurrent(null);
             }
 
             if (_songAudio is not null) {
@@ -188,6 +186,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             Current_Position_OnSecondTick();
             Current_Duration_OnSecondTick();
+
+            if (_songAudio is not null) _ = Task.Run(async () => {
+                if (!await _songAudio.TryInitialize()) GoToNextSong(null, true);
+            });
         }
 
         public Task RewindCurrent(AudioTime toTime, IPamelloUser? scopeUser) {
