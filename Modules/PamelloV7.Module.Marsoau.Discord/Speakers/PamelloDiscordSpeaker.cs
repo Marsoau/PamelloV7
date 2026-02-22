@@ -42,9 +42,10 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         get {
             if (Guild?.AudioClient is null) return [];
             var vc = Guild.GetUser(Client.CurrentUser.Id)?.VoiceChannel;
+            
             if (vc is null) return [];
 
-            return vc.ConnectedUsers.Select(user =>
+            return vc.ConnectedUsers.Where(user => user.Id != Client.CurrentUser.Id).Select(user =>
                 new PamelloDiscordSpeakerListener(user, this, _services)
             );
         }

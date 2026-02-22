@@ -4,6 +4,7 @@ using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using PamelloV7.Module.Marsoau.Discord.Speakers;
 
 namespace PamelloV7.Module.Marsoau.Discord.Strings;
 
@@ -16,6 +17,10 @@ public static class DiscordStringExtensions
     public static string ToDiscordString(this IPamelloInternetSpeaker internetSpeaker)
     {
         return $"{DiscordString.Bold(DiscordString.Code($"[{internetSpeaker.Id}]"))} {DiscordString.Url(DiscordString.Ecranate(internetSpeaker.Name), internetSpeaker.GetUrl())}";
+    }
+    public static string ToDiscordString(this PamelloDiscordSpeaker discordSpeaker)
+    {
+        return $"{DiscordString.Bold(DiscordString.Code($"[{discordSpeaker.Id}]"))} {DiscordString.User(discordSpeaker.Client.CurrentUser.Id)}";
     }
     
     public static string ToDiscordString(this IPamelloPlaylist playlist)

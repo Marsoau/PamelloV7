@@ -1,5 +1,8 @@
+using System.Text;
 using Discord;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders.Base;
+using PamelloV7.Module.Marsoau.Discord.Speakers;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Builders;
@@ -52,10 +55,10 @@ public class PlayerInfoBuilder : PamelloDiscordComponentBuilder
                     )
                     .WithTextDisplay(
                         $"""
-                        ### {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimePosition.ToShortString())} {
+                         ### {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimePosition.ToShortString())} {
                             DiscordString.Progress((double)SelectedPlayer.Queue.CurrentSongTimePosition.TotalSeconds / SelectedPlayer.Queue.CurrentSongTimeTotal.TotalSeconds, 20)
                         } {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimeTotal.ToShortString())}
-                        """
+                         """
                     )
                 )
                 ;
@@ -119,6 +122,38 @@ public class PlayerInfoBuilder : PamelloDiscordComponentBuilder
                 )
                 .WithTextDisplay($"Feed Random: {GetEnabledDisabled(SelectedPlayer.Queue.IsFeedRandom)}")
             );
+        
+        var speakersBuilder = new StringBuilder();
+
+        foreach (var speaker in SelectedPlayer.ConnectedSpeakers) {
+            speakersBuilder.AppendLine($"- {speaker switch {
+                IPamelloInternetSpeaker internetSpeaker => internetSpeaker.ToDiscordString(),
+                PamelloDiscordSpeaker discordSpeaker => discordSpeaker.ToDiscordString(),
+                _ => speaker.ToDiscordString()
+            }}");
+
+            var unknown = 0;
+            foreach (var listener in speaker.Listeners) {
+                string discordString;
+                
+                if (listener.User is null) {
+                    if (listener is PamelloDiscordSpeakerListener discordListener) {
+                        discordString = DiscordString.User(discordListener.DiscordUser.Id);
+                    }
+                    else {
+                        unknown++;
+                        continue;
+                    }
+                }
+                else {
+                    discordString = listener.User.ToDiscordString();
+                }
+                
+                speakersBuilder.AppendLine($"  - {discordString}");
+            }
+            
+            if (unknown > 0) speakersBuilder.AppendLine($"  - {DiscordString.Italic($"{unknown} Unknown")}");
+        }
 
         containerBuilder
             .WithSeparator()
@@ -129,7 +164,19 @@ public class PlayerInfoBuilder : PamelloDiscordComponentBuilder
                     .WithDisabled(SelectedPlayer.Queue.Count == 0)
                     .WithStyle(ButtonStyle.Secondary)
                 )
+                .WithButton(new ButtonBuilder()
+                    .WithCustomId("pamello-command:PlayerQueueClear")
+                    .WithLabel("Clear Queue")
+                    .WithDisabled(SelectedPlayer.Queue.Count == 0)
+                    .WithStyle(ButtonStyle.Secondary)
+                )
             );
+
+        if (speakersBuilder.Length > 0) {
+            containerBuilder
+                .WithSeparator()
+                .WithTextDisplay(speakersBuilder.ToString());
+        }
         
         return componentBuilder;
     }

@@ -14,7 +14,10 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
             discordAuthorization = user?.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord");
             if (discordAuthorization is null) return "<@0>";
             
-            return $"<@{discordAuthorization.PK.Key}>";
+            return User(ulong.Parse(discordAuthorization.PK.Key));
+        }
+        public static string User(ulong userId) {
+            return $"<@{userId}>";
         }
         public static string Time(DateTime date) {
             return $"<t:{((DateTimeOffset)date).ToUnixTimeSeconds()}:f>";
