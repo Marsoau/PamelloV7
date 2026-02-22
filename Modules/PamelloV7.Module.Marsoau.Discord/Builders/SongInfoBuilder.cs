@@ -116,7 +116,7 @@ public class SongInfoBuilder : PamelloDiscordComponentBuilder
                 .WithActionRow(new ActionRowBuilder()
                     .WithButton(new ButtonBuilder()
                         //.WithCustomId("player-queue-song-add")
-                        .WithCustomId("refresh")
+                        .WithCustomId($"pamello-command:PlayerQueueSongAdd?songs={song.Id}")
                         .WithLabel("Add to queue")
                         .WithStyle(ButtonStyle.Primary)
                     )

@@ -11,7 +11,7 @@ public partial class Song
 {
     [SlashCommand("info", "Get info about a song", runMode: RunMode.Async)]
     public async Task Info(
-        [Summary("song", "Single song query")] string songQuery = "16"
+        [Summary("song", "Single song query")] string songQuery = "current"
     ) {
         Console.WriteLine($"BSQ: {DateTime.Now.TimeOfDay}");
         var songs = await GetAsync<IPamelloSong>(songQuery);

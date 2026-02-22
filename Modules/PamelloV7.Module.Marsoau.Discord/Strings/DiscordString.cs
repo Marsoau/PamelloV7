@@ -38,6 +38,9 @@ namespace PamelloV7.Module.Marsoau.Discord.Strings
         public static string Code(object? obj) {
             return obj is not null ? $"`{obj}`" : "";
         }
+        public static string CodeBlock(object? obj, string language = "plaintext") {
+            return obj is not null ? $"```{language}\n{obj}\n```" : "";
+        }
         public static string Spoiler(object? obj) {
             return obj is not null ? $"||{obj}||" : "";
         }

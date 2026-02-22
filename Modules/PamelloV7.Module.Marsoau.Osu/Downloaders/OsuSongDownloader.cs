@@ -23,7 +23,18 @@ public class OsuSongDownloader : SongDownloader
         var response = await _httpClientFactory.CreateClient().GetAsync(downloadUrl);
         
         using var oszStream = new MemoryStream();
-        await response.Content.CopyToAsync(oszStream);
+        using var downloadStream = await response.Content.ReadAsStreamAsync();
+        
+        var total = response.Content.Headers.ContentLength ?? 0;
+        
+        var buffer = new byte[total / 20];
+        
+        int bytesRead;
+        var totalBytesRead = 0;
+        while ((totalBytesRead += bytesRead = await downloadStream.ReadAsync(buffer, 0, buffer.Length)) < total || bytesRead > 0) {
+            await oszStream.WriteAsync(buffer, 0, bytesRead);
+            Progress = (double)totalBytesRead / total;
+        }
         
         oszStream.Position = 0;
 

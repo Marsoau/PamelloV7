@@ -9,7 +9,7 @@ public partial class SongFavorites
 {
     [SlashCommand("add", "Add songs to your favorites")]
     public async Task Add(
-        [Summary("songs", "Songs query")] string songsQuery
+        [Summary("songs", "Songs query")] string songsQuery = "current"
     ) {
         var songs = await GetAsync<IPamelloSong>(songsQuery);
         
