@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace PamelloV7.Framework.DTO;
+namespace PamelloV7.Core.Dto;
 
 public record PamelloEntityDTO : IPamelloDTO
 {

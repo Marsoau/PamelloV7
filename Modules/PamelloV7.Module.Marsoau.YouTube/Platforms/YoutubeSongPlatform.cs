@@ -5,6 +5,7 @@ using System.Text.Json;
 using AngleSharp;
 using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Platforms;

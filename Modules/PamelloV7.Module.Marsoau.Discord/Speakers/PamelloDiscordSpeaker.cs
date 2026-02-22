@@ -3,6 +3,7 @@ using Discord.Audio;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Dto;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;

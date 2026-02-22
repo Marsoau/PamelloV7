@@ -1,5 +1,6 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;

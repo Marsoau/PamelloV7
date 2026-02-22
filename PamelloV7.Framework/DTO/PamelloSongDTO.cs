@@ -4,17 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Framework.DTO
 {
     public record PamelloSongDTO : IPamelloDTO
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        
         [JsonPropertyName("coverUrl")]
         public string CoverUrl { get; set; }
 

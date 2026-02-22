@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Dto;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Difference;

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using PamelloV7.Framework.Events.Base;
 
 namespace PamelloV7.Framework.DTO.Other;

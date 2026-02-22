@@ -31,6 +31,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Audio", "PamelloV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Framework.Generators", "PamelloV7.Framework.Generators\PamelloV7.Framework.Generators.csproj", "{BEDFD040-9A2B-4B9D-AD2F-EAB6FFA3AD17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Wrapper", "PamelloV7.Wrapper\PamelloV7.Wrapper.csproj", "{65713F36-705B-4EC4-83C9-BF06F34B6368}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Core", "PamelloV7.Core\PamelloV7.Core.csproj", "{EC52AA86-1864-415C-9562-F743D4D9D3B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.TestClient", "PamelloV7.TestClient\PamelloV7.TestClient.csproj", "{4B143A21-BBA0-44EE-816B-036A94CA4BDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +95,18 @@ Global
 		{BEDFD040-9A2B-4B9D-AD2F-EAB6FFA3AD17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEDFD040-9A2B-4B9D-AD2F-EAB6FFA3AD17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEDFD040-9A2B-4B9D-AD2F-EAB6FFA3AD17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65713F36-705B-4EC4-83C9-BF06F34B6368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65713F36-705B-4EC4-83C9-BF06F34B6368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65713F36-705B-4EC4-83C9-BF06F34B6368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65713F36-705B-4EC4-83C9-BF06F34B6368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,3 +1,5 @@
+using PamelloV7.Core.Dto;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;

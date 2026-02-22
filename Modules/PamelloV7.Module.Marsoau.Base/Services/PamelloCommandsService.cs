@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Time;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Converters;
@@ -62,9 +63,9 @@ public class PamelloCommandsService : IPamelloCommandsService
 
     public async Task<object?> ExecutePathAsync(string commandPath, IPamelloUser scopeUser) {
         Console.WriteLine($"Executing command path: {commandPath}");
-        var split = commandPath.Split('?', StringSplitOptions.RemoveEmptyEntries);
-        var commandName = split[0];
-        var queryCollection = HttpUtility.ParseQueryString(split.Length > 1 ? split[1] : "");
+        var splitPos = commandPath.IndexOf('?');
+        var commandName = splitPos != -1 ? commandPath[..splitPos] : commandPath;
+        var queryCollection = HttpUtility.ParseQueryString(splitPos != -1 ? commandPath[(splitPos + 1)..] : "");
         var query = queryCollection.AllKeys
             .OfType<string>()
             .ToDictionary(key => key, key => queryCollection[key]);

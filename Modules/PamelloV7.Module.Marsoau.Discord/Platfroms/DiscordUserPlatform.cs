@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Platforms.Infos;

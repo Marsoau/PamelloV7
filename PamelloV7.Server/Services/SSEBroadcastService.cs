@@ -1,4 +1,5 @@
-﻿using PamelloV7.Framework.Entities;
+﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Server.Model;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events.Base;

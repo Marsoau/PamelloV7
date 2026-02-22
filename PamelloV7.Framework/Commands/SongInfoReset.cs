@@ -1,3 +1,4 @@
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;

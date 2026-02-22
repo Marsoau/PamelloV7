@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;

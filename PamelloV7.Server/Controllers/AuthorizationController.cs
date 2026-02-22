@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Services;
 using PamelloV7.Server.Exceptions;

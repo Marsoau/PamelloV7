@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;

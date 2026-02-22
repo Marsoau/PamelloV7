@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Exceptions;

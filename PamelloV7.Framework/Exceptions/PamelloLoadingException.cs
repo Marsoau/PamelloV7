@@ -1,3 +1,5 @@
+using PamelloV7.Core.Exceptions;
+
 namespace PamelloV7.Framework.Exceptions;
 
 public class PamelloLoadingException : PamelloException

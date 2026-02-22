@@ -1,4 +1,4 @@
-﻿namespace PamelloV7.Framework.Exceptions
+﻿namespace PamelloV7.Core.Exceptions
 {
     public class PamelloException : Exception
     {

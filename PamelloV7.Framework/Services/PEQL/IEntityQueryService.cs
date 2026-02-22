@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;

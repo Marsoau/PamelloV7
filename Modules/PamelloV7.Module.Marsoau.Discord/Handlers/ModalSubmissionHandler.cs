@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;

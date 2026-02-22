@@ -1,3 +1,4 @@
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Time;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;

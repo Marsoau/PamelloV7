@@ -1,3 +1,4 @@
+using PamelloV7.Core.Dto;
 using PamelloV7.Framework.DTO;
 
 namespace PamelloV7.Framework.Entities.Base;

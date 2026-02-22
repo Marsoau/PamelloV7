@@ -1,4 +1,5 @@
-﻿using PamelloV7.Framework.Exceptions;
+﻿using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Exceptions;
 
 namespace PamelloV7.Framework.Audio.Time
 {
