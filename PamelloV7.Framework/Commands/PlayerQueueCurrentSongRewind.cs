@@ -1,4 +1,4 @@
-using PamelloV7.Framework.Audio.Time;
+using PamelloV7.Core.Audio;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;

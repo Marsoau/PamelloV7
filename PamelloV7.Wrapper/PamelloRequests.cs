@@ -46,8 +46,8 @@ public class PamelloRequests
     
     public async Task<bool> PingAsync() => (await GetAsync("Ping")).IsSuccessStatusCode;
     
-    public async Task<string> ExecuteCommandAsync(string command) => await (await GetAsync($"Command/{command}")).Content.ReadAsStringAsync();
-    public async Task<TType> ExecuteCommandAsync<TType>(string command) => await GetFromJsonAsync<TType>($"Command/{command}");
+    public async Task<string> ExecuteCommandAsync(string commandPath) => await (await GetAsync($"Command/{commandPath}")).Content.ReadAsStringAsync();
+    public async Task<TType> ExecuteCommandAsync<TType>(string commandPath) => await GetFromJsonAsync<TType>($"Command/{commandPath}");
 
     public Task<List<IPamelloDTO>> GetEntitiesAsync(string fullQuery)
         => GetEntitiesAsync<IPamelloDTO>(fullQuery);

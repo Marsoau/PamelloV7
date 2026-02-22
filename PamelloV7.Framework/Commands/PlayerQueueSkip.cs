@@ -6,6 +6,8 @@ namespace PamelloV7.Framework.Commands;
 public class PlayerQueueSkip : PamelloCommand
 {
     public IPamelloSong? Execute() {
-        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.GoToNextSong(ScopeUser);
+        var currentSong = RequiredQueue.CurrentSong;
+        RequiredQueue.GoToNextSong(ScopeUser);
+        return currentSong;
     }
 }

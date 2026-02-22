@@ -1,5 +1,5 @@
-﻿using PamelloV7.Framework.Audio;
-using PamelloV7.Framework.Audio.Time;
+﻿using PamelloV7.Core.Audio;
+using PamelloV7.Framework.Audio;
 using PamelloV7.Framework.AudioOld;
 
 namespace PamelloV7.Server.Model.Youtube

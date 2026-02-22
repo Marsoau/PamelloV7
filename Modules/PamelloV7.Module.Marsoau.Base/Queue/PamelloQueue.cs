@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
-using PamelloV7.Framework.Audio.Time;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.DTO.Other;
 using PamelloV7.Framework.Entities;

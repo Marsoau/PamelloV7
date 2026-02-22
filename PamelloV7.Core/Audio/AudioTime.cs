@@ -1,7 +1,6 @@
 ﻿using PamelloV7.Core.Exceptions;
-using PamelloV7.Framework.Exceptions;
 
-namespace PamelloV7.Framework.Audio.Time
+namespace PamelloV7.Core.Audio
 {
     public struct AudioTime
     {

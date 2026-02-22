@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using PamelloV7.Framework.Audio.Time;
+using PamelloV7.Core.Audio;
 using PamelloV7.Framework.AudioOld;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;

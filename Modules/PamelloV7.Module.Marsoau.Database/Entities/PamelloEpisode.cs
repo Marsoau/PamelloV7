@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Dto;
-using PamelloV7.Framework.Audio.Time;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
