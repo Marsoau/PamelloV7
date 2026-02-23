@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
@@ -60,5 +61,18 @@ public class Test : IPamelloModule
         _files = services.GetRequiredService<IFileAccessService>();
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
+
+        var song = _songs.GetRequired(81);
+        var safeContainer = new SafeStoredEntity<IPamelloSong>(song, services);
+        
+        Console.WriteLine($"Before deleted: {safeContainer.Entity}");
+
+        song.IsDeleted = true;
+        
+        Console.WriteLine($"After deleted: {safeContainer.Entity}");
+        
+        song.IsDeleted = false;
+        
+        Console.WriteLine($"After restored: {safeContainer.Entity}");
     }
 }

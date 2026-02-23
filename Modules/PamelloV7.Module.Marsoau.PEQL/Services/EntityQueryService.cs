@@ -75,7 +75,16 @@ public class EntityQueryService : IEntityQueryService
         => (await InternalGetAsync(query, scopeUser))
             .Where(e => e is not null)
             .ToList();
-    
+
+    public TPamelloEntity? GetById<TPamelloEntity>(int id)
+        where TPamelloEntity : class, IPamelloEntity
+    {
+        var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
+        if (attribute is null) return null;
+        
+        return (TPamelloEntity)Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
+    }
+
     private async Task<List<IPamelloEntity>> InternalGetAsync(string query, IPamelloUser scopeUser) {
         if (scopeUser is null) throw new PamelloException("User is required to execute PEQL queries");
         

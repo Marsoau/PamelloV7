@@ -57,6 +57,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         protected set => SetName(value, null);
     }
 
+    public override bool IsDeleted { get; set; }
+
     public override string SetName(string name, IPamelloUser scopeUser) {
         throw new PamelloException("Cannot set name of a discord speaker");
     }

@@ -69,4 +69,8 @@ public interface IEntityQueryService : IPamelloService
             _ => (IEnumerable<IPamelloEntity>)result 
         };
     }
+    
+    //id
+    public TPamelloEntity? GetById<TPamelloEntity>(int id)
+        where TPamelloEntity : class, IPamelloEntity;
 }

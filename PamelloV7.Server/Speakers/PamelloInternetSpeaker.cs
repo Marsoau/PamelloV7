@@ -15,6 +15,8 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     private readonly IPamelloAudioSystem _audio;
     
     public override string Name { get; protected set; }
+    public override bool IsDeleted { get; set; }
+
     public override string SetName(string name, IPamelloUser scopeUser) {
         return Name = name;
     }

@@ -11,6 +11,7 @@ public class HistoryRecord : IHistoryRecord
 {
     public int Id { get; set; }
     public string Name => Nested.Event.GetType().Name;
+    public bool IsDeleted { get; set; }
 
     public IPamelloUser? Performer { get; set; }
     public NestedPamelloEvent Nested { get; set; }

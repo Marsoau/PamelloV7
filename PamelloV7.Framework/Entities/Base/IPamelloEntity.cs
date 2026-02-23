@@ -7,6 +7,8 @@ public interface IPamelloEntity
 {
     public int Id { get; }
     public string Name { get; }
+    
+    public bool IsDeleted { get; set; }
 
     public PamelloEntityDto GetDto();
 

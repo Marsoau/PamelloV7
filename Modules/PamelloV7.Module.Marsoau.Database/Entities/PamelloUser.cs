@@ -40,6 +40,9 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         get => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
         protected set => throw new NotImplementedException();
     }
+
+    public override bool IsDeleted { get; set; }
+
     public override string SetName(string name, IPamelloUser scopeUser) {
         throw new NotImplementedException();
     }

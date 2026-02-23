@@ -25,6 +25,9 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         get => _name;
         protected set => throw new NotImplementedException();
     }
+
+    public override bool IsDeleted { get; set; }
+
     public override string SetName(string name, IPamelloUser scopeUser) {
         if (_name == name) return _name;
 

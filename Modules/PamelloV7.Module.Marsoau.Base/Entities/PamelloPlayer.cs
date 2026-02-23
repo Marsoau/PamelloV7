@@ -30,6 +30,9 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         get => _name;
         protected set => throw new NotImplementedException();
     }
+
+    public override bool IsDeleted { get; set; }
+
     public override string SetName(string value, IPamelloUser scopeUser) {
         if (_name == value) return _name;
 
