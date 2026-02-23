@@ -82,7 +82,11 @@ public class EntityQueryService : IEntityQueryService
         var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
         if (attribute is null) return null;
         
-        return (TPamelloEntity)Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
+        var entity = (TPamelloEntity)Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
+        
+        if (entity?.IsDeleted ?? false) return null;
+        
+        return entity;
     }
 
     private async Task<List<IPamelloEntity>> InternalGetAsync(string query, IPamelloUser scopeUser) {

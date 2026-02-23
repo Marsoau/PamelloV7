@@ -4,10 +4,13 @@ using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Containers;
 
+public static class SafeStoredEntityStaticContainer
+{
+    public static IEntityQueryService PEQL;
+}
 public class SafeStoredEntity<TEntityType>
     where TEntityType : class, IPamelloEntity
 {
-    private readonly IEntityQueryService _peql;
 
     private int _id;
     private TEntityType? _entity;
@@ -18,7 +21,7 @@ public class SafeStoredEntity<TEntityType>
             if (_id == value) return;
             
             _id = value;
-            _entity = _peql.GetById<TEntityType>(_id);
+            _entity = SafeStoredEntityStaticContainer.PEQL.GetById<TEntityType>(_id);
         }
     }
 
@@ -26,7 +29,7 @@ public class SafeStoredEntity<TEntityType>
         get {
             if (_entity?.IsDeleted ?? false) _entity = null;
             
-            return _entity ??= _peql.GetById<TEntityType>(_id);
+            return _entity ??= SafeStoredEntityStaticContainer.PEQL.GetById<TEntityType>(_id);
         }
         set {
             if (ReferenceEquals(_entity, value)) return;
@@ -36,13 +39,11 @@ public class SafeStoredEntity<TEntityType>
         }
     }
     
-    public SafeStoredEntity(int id, IServiceProvider services) {
-        _peql = services.GetRequiredService<IEntityQueryService>();
+    public SafeStoredEntity(int id) {
         Id = id;
     }
 
-    public SafeStoredEntity(TEntityType? entity, IServiceProvider services) {
-        _peql = services.GetRequiredService<IEntityQueryService>();
+    public SafeStoredEntity(TEntityType? entity) {
         Entity = entity;
     }
 }

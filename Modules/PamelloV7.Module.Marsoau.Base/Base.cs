@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Data;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Downloads;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.History.Services;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
+using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.Base.Services;
 
 namespace PamelloV7.Module.Marsoau.Base;
@@ -22,6 +25,8 @@ public class Base : IPamelloModule
     public void Configure(IServiceCollection services) {
     }
     public async Task StartupAsync(IServiceProvider services) {
+        SafeStoredEntityStaticContainer.PEQL = services.GetRequiredService<IEntityQueryService>();
+        
         var platforms = services.GetRequiredService<IPlatformService>() as PlatformService;
         platforms?.Load();
 

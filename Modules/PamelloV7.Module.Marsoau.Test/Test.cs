@@ -63,16 +63,17 @@ public class Test : IPamelloModule
         _history = services.GetRequiredService<IHistoryService>();
 
         var song = _songs.GetRequired(81);
-        var safeContainer = new SafeStoredEntity<IPamelloSong>(song, services);
         
-        Console.WriteLine($"Before deleted: {safeContainer.Entity}");
+        var safeContainer = new TestContainer(song);
+        
+        Console.WriteLine($"Before deleted: {safeContainer.Song}");
 
         song.IsDeleted = true;
         
-        Console.WriteLine($"After deleted: {safeContainer.Entity}");
+        Console.WriteLine($"After deleted: {safeContainer.Song}");
         
         song.IsDeleted = false;
         
-        Console.WriteLine($"After restored: {safeContainer.Entity}");
+        Console.WriteLine($"After restored: {safeContainer.Song}");
     }
 }
