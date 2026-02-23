@@ -36,7 +36,7 @@ public class Base : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>() as DownloadService;
         downloaders?.Load();
 
-        services.GetRequiredService<IHistoryService>().Startup(services);
+        //services.GetRequiredService<IHistoryService>().Startup(services);
 
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();

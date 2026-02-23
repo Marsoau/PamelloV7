@@ -59,6 +59,7 @@ public class HistoryService : IHistoryService
 
     private IHistoryRecord Save(NestedPamelloEvent nested, IPamelloUser? scopeUser) {
         _unfinished.Remove(nested);
+        return null!;
         
         var collection = GetCollection();
         var databaseRecord = new HistoryRecord(nested, scopeUser);

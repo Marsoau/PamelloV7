@@ -3,10 +3,6 @@ using PamelloV7.Framework.Entities;
 
 namespace PamelloV7.Module.Marsoau.Test;
 
-[SafeStored<IPamelloSong>("Song")]
+[SafeStored<IPamelloSong>("Songusina")]
 public partial class TestContainer
-{
-    public TestContainer(IPamelloSong song) {
-        Song = song;
-    }
-}
+{ }

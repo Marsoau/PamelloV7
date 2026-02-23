@@ -6,6 +6,7 @@ using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
@@ -62,18 +63,28 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
 
-        var song = _songs.GetRequired(81);
-        
-        var safeContainer = new TestContainer(song);
-        
-        Console.WriteLine($"Before deleted: {safeContainer.Song}");
+        var songs = new SafeStoredEntities<IPamelloSong>([30, 31, 80, 81, 82]);
+        var kokosoko = _songs.GetRequired(81);
 
-        song.IsDeleted = true;
+        WriteSongs(songs);
+
+        Console.WriteLine("Deleting kokosoko");
         
-        Console.WriteLine($"After deleted: {safeContainer.Song}");
+        kokosoko.IsDeleted = true;
         
-        song.IsDeleted = false;
+        WriteSongs(songs);
         
-        Console.WriteLine($"After restored: {safeContainer.Song}");
+        Console.WriteLine("Restoring kokosoko");
+        
+        kokosoko.IsDeleted = false;
+        
+        WriteSongs(songs);
+    }
+
+    public void WriteSongs(IEnumerable<IPamelloSong> songs) {
+        var counter = 0;
+        foreach (var song in songs) {
+            Console.WriteLine($"{counter++}: {song}");
+        }
     }
 }
