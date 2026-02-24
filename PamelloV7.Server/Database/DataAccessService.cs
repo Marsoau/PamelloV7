@@ -58,6 +58,11 @@ public class DatabaseAccessService : IDatabaseAccessService
                 return;
             }
             
+            if ((safeEntitiesProperty?.PropertyType.IsGenericType ?? false) && (
+                    safeEntitiesProperty.PropertyType.GenericTypeArguments.FirstOrDefault() == typeof(IPamelloPlayer) ||
+                    safeEntitiesProperty.PropertyType.GenericTypeArguments.FirstOrDefault() == typeof(IPamelloSpeaker)
+                )) return;
+            
             memberMapper.Getter = (obj) => {
                 if (safeEntityField?.GetValue(obj) is ISafeStoredEntity { } entity) return $"{entity.EntityType.FullName}^{entity.Id}";
                 if (safeEntitiesProperty?.GetValue(obj) is ISafeStoredEntities { } entities) return $"{entities.EntitiesType.FullName}|{string.Join(",", entities.InternalIds)}";
