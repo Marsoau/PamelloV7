@@ -12,15 +12,21 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<SafeStoredEntitiesClassDescriptor> classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
+                predicate: (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 } or RecordDeclarationSyntax { AttributeLists.Count: > 0 },
                 transform: GetDescriptor
-            ).Where(descriptor => descriptor.EntityInfos.Count > 0);
+            ).Where(descriptor => descriptor.SingleEntitiesInfos.Count > 0);
         
         context.RegisterSourceOutput(classDeclarations, ExecuteGeneration);
     }
 
     private static SafeStoredEntitiesClassDescriptor GetDescriptor(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
-        var classDeclaration = (ClassDeclarationSyntax)context.Node;
+        var classDeclaration = context.Node;
+
+        var category = classDeclaration switch {
+            ClassDeclarationSyntax => ECategory.Class,
+            RecordDeclarationSyntax => ECategory.Record,
+            _ => throw new Exception($"Unexpected node type: {classDeclaration.GetType()}")
+        };
         
         if (context.SemanticModel.GetDeclaredSymbol(classDeclaration, cancellationToken) is not INamedTypeSymbol classSymbol) {
             return default;
@@ -28,36 +34,45 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 
         var entitiesInfos = new List<SafeStoredEntityDescriptor>();
 
+        var debugOutput = "";
+
         foreach (var attribute in classSymbol.GetAttributes()) {
             var attributeClass = attribute.AttributeClass;
-            if (attributeClass is null || attributeClass.Name != "SafeStoredAttribute") continue;
+            if (attributeClass is null || attributeClass.Name != "SafeEntityAttribute") continue;
 
             var type = attributeClass.TypeArguments.FirstOrDefault();
             if (type is null) continue;
             
             var argument = attribute.ConstructorArguments.FirstOrDefault();
             if (argument.Value is not string propertyName) continue;
+
+            var attributes = attribute.ConstructorArguments.ElementAtOrDefault(1);
+            var attributesTypes = attributes.Values.Select(v => v.Value?.ToString()).OfType<string>().ToArray();
+
+            debugOutput += $"Count: {attributesTypes.Length}; {string.Join("; ", attributes.Values.Select(value => value.Value?.GetType()))}";
             
-            entitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName));
+            entitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
         }
         
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace 
             ? string.Empty 
             : classSymbol.ContainingNamespace.ToDisplayString();
         
-        return new SafeStoredEntitiesClassDescriptor(namespaceName, classSymbol.Name, entitiesInfos);
+        return new SafeStoredEntitiesClassDescriptor(namespaceName, classSymbol.Name, category, entitiesInfos, debugOutput);
     }
 
     private static void ExecuteGeneration(SourceProductionContext context, SafeStoredEntitiesClassDescriptor descriptor) {
         var propertiesSb = new StringBuilder();
 
-        foreach (var propertyInfo in descriptor.EntityInfos) {
+        foreach (var propertyInfo in descriptor.SingleEntitiesInfos) {
             propertiesSb.AppendLine(
                 $$"""
-                          protected readonly SafeStoredEntity<{{propertyInfo.EntityType.GetFullName()}}> _{{propertyInfo.PropertyName.ToLower()}} = new(0);
-                          public {{propertyInfo.EntityType.GetFullName()}} {{propertyInfo.PropertyName}} {
-                              get => _{{propertyInfo.PropertyName.ToLower()}}.Entity!;
-                              set => _{{propertyInfo.PropertyName.ToLower()}}.Entity = value;
+                          public readonly SafeStoredEntity<{{propertyInfo.EntityType.GetFullName()}}> _safe{{propertyInfo.PropertyName}} = new(0);
+                          // With {{propertyInfo.PropertyAttributes.Length}} attributes
+                          {{string.Join("\n", propertyInfo.PropertyAttributes.Select(attribute => $"[{attribute}]"))}}
+                          public {{propertyInfo.EntityType.GetFullName()}}? {{propertyInfo.PropertyName}} {
+                              get => _safe{{propertyInfo.PropertyName}}.Entity!;
+                              set => _safe{{propertyInfo.PropertyName}}.Entity = value;
                           }
                   """
             );
@@ -72,12 +87,18 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 
               namespace {{descriptor.Namespace}}
               {
-                  partial class {{descriptor.ClassName}}
+                  partial {{descriptor.Category switch {
+                      ECategory.Class => "class",
+                      ECategory.Record => "record",
+                      _ => throw new Exception($"Unexpected category: {descriptor.Category}")
+                  }}} {{descriptor.ClassName}}
                   {
               {{propertiesSb}}
-                      // {{descriptor.EntityInfos.Count}} {{(descriptor.EntityInfos.Count == 1 ? "entity" : "entities")}} added
+                      // {{descriptor.SingleEntitiesInfos.Count}} {{(descriptor.SingleEntitiesInfos.Count == 1 ? "entity" : "entities")}} added
                   }
               }
+              
+              //debug: {{descriptor.DebugOutput}}
               """;
         
         context.AddSource($"{descriptor.ClassName}.g.cs", SourceText.From(source, Encoding.UTF8));

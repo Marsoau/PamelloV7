@@ -5,7 +5,7 @@ using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Containers;
 
-public class SafeStoredEntities<TEntityType> : IEnumerable<TEntityType>
+public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<TEntityType>
     where TEntityType : class, IPamelloEntity
 {
     private List<SafeStoredEntity<TEntityType>> _safeEntities;
@@ -15,11 +15,21 @@ public class SafeStoredEntities<TEntityType> : IEnumerable<TEntityType>
         set => _safeEntities = value.Select(id => new SafeStoredEntity<TEntityType>(id)).ToList();
         
     }
+
     public IEnumerable<TEntityType?> InternalEntities {
         get => _safeEntities.Select(safeEntity => safeEntity.Entity);
         set => _safeEntities = value.Select(entity => new SafeStoredEntity<TEntityType>(entity)).ToList();
     }
     
+    IEnumerable<IPamelloEntity?> ISafeStoredEntities.InternalEntities {
+        get => InternalEntities;
+        set => InternalEntities = value.OfType<TEntityType>();
+    }
+    IEnumerable<IPamelloEntity> ISafeStoredEntities.Entities =>
+        _safeEntities.Select(x => x.Entity).OfType<IPamelloEntity>();
+
+    Type ISafeStoredEntities.EntitiesType => typeof(TEntityType);
+
     public SafeStoredEntities() {
         _safeEntities = [];
     }
@@ -30,11 +40,11 @@ public class SafeStoredEntities<TEntityType> : IEnumerable<TEntityType>
         InternalEntities = entities;
     }
 
-    public IEnumerator<TEntityType> GetEnumerator() {
-        return _safeEntities.Select(x => x.Entity).OfType<TEntityType>().GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public IEnumerator<TEntityType> GetEnumerator()
+        => _safeEntities.Select(x => x.Entity).OfType<TEntityType>().GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return GetEnumerator();
+    public override string ToString() {
+        return $"<{typeof(TEntityType).Name}>[{string.Join(", ", InternalIds)}]";
     }
 }

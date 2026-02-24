@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Server.Loaders;
 
 namespace PamelloV7.Module.Marsoau.Database;
@@ -13,6 +15,8 @@ public class Database : IPamelloModule
     public ELoadingStage Stage => ELoadingStage.Earliest;
 
     public async Task StartupAsync(IServiceProvider services) {
+        SafeStoredEntityStaticContainer.PEQL = services.GetRequiredService<IEntityQueryService>();
+        
         var collection = services.GetRequiredService<IServiceCollection>();
         
         DatabaseRepositoriesLoader.Load(collection, services).Wait();

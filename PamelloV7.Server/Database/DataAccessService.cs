@@ -1,8 +1,13 @@
+using System.Reflection;
 using LiteDB;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Data;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Database;
@@ -11,50 +16,108 @@ public class DatabaseAccessService : IDatabaseAccessService
 {
     private readonly LiteDatabase _db;
     
-    private IPamelloUserRepository _users;
-    private IPamelloSongRepository _songs;
-    private IPamelloEpisodeRepository _episodes;
-    private IPamelloPlaylistRepository _playlists;
+    private IAssemblyTypeResolver _typeResolver;
 
     public DatabaseAccessService() {
         _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite-old70.db", GetMapper());
     }
 
     public void Startup(IServiceProvider services) {
-        _songs = services.GetRequiredService<IPamelloSongRepository>();
-        _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
-        _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
-        _users = services.GetRequiredService<IPamelloUserRepository>();
+        _typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
     }
 
     private BsonMapper GetMapper() {
         var mapper = new BsonMapper();
+
+        mapper.ResolveMember = (parentType, memberInfo, memberMapper) => {
+            FieldInfo? safeEntityField = null;
+            PropertyInfo? safeEntitiesProperty = null;
+
+            if (parentType.GetProperty(memberInfo.Name) is { } property) {
+                if (memberMapper.DataType.IsAssignableTo(typeof(ISafeStoredEntities))) {
+                    safeEntitiesProperty = property;
+                }
+            }
+
+            if (safeEntitiesProperty is null) {
+                var type = parentType;
+                var currentField = type.GetField($"_safe{memberInfo.Name}");
+                while (type.BaseType != null && currentField is null) {
+                    type = type.BaseType;
+                        
+                    currentField = type.GetField($"_safe{memberInfo.Name}");
+                }
+                
+                safeEntityField = currentField;
+            }
+
+            if (safeEntitiesProperty is null && safeEntityField is null) {
+                if (!memberMapper.DataType.IsAssignableTo(typeof(IPamelloEntity))) return;
+                
+                memberMapper.IsIgnore = true;
+                return;
+            }
+            
+            memberMapper.Getter = (obj) => {
+                if (safeEntityField?.GetValue(obj) is ISafeStoredEntity { } entity) return $"{entity.EntityType.FullName}^{entity.Id}";
+                if (safeEntitiesProperty?.GetValue(obj) is ISafeStoredEntities { } entities) return $"{entities.EntitiesType.FullName}|{string.Join(",", entities.InternalIds)}";
+
+                return null;
+            };
+            memberMapper.Setter = (obj, value) => {
+                if (value == null) return;
+
+                if (safeEntitiesProperty is not null) {
+                    safeEntitiesProperty.SetValue(obj, value);
+                }
+                else if (safeEntityField is not null) {
+                    safeEntityField.SetValue(obj, value);
+                }
+            };
+            
+            memberMapper.Serialize = (getterValue, bm) => {
+                if (getterValue is string stringData) {
+                    Console.WriteLine($"Mapping: {stringData}");
+                    return new BsonValue(stringData); 
+                }
+                return BsonValue.Null;
+            };
         
-        mapper.RegisterType<IPamelloSong>(
-            pamelloEntity => pamelloEntity.Id,
-            id => _songs.GetRequired(id)
-        );
-        mapper.RegisterType<IPamelloPlaylist>(
-            pamelloEntity => pamelloEntity.Id,
-            id => _playlists.GetRequired(id)
-        );
-        mapper.RegisterType<IPamelloEpisode>(
-            pamelloEntity => pamelloEntity.Id,
-            id => _episodes.GetRequired(id)
-        );
-        mapper.RegisterType<IPamelloUser>(
-            pamelloEntity => pamelloEntity.Id,
-            id => _users.GetRequired(id)
-        );
+            memberMapper.Deserialize = (bsonValue, m) => {
+                if (bsonValue.IsNull || bsonValue.AsString is not { } entityString) return null;
+
+                if (entityString.IndexOf('|') is {} idsPosition && idsPosition != -1) {
+                    var typeName = entityString[..idsPosition];
+                    
+                    var entitiesType = _typeResolver.GetByFullName(typeName);
+                    if (entitiesType is null) return null;
+                    
+                    var entitiesIds = entityString[(idsPosition + 1)..].Split(',').Select(int.Parse);
+                    
+                    var safeType = typeof(SafeStoredEntities<>).MakeGenericType(entitiesType);
+                    var safeEntities = Activator.CreateInstance(safeType, entitiesIds);
+                    
+                    return safeEntities;
+                }
+                
+                if (entityString.IndexOf('^') is { } idPosition && idPosition != -1) {
+                    var typeName = entityString[..idPosition];
+                    
+                    var entityType = _typeResolver.GetByFullName(typeName);
+                    if (entityType is null) return null;
+                    
+                    var entityId = int.Parse(entityString[(idPosition + 1)..]);
+                    
+                    var safeType = typeof(SafeStoredEntity<>).MakeGenericType(entityType);
+                    var safeEntity = Activator.CreateInstance(safeType, entityId);
+                    
+                    return safeEntity;
+                }
+
+                return null;
+            };
+        };
         
-        mapper.RegisterType<IPamelloPlayer>(
-            _ => BsonValue.Null,
-            _ => null
-        );
-        mapper.RegisterType<IPamelloSpeaker>(
-            _ => BsonValue.Null,
-            _ => null
-        );
         
         return mapper;
     }

@@ -89,13 +89,21 @@ public class PamelloEventGenerator : IIncrementalGenerator
               using PamelloV7.Framework.Entities;
               using PamelloV7.Framework.Events.RestorePacks.Base;
               using PamelloV7.Framework.Events.Base;
+              using PamelloV7.Framework.Containers;
               using System.Text.Json.Serialization;
               
               namespace {{eventClass.Namespace}}
               {
                   partial class {{eventClass.ClassName}}
                   {
-                      {{(eventClass.NeedsInvoker ? "public IPamelloUser? Invoker { get; set; } " : "//invoker is not needed")}}
+                      {{(eventClass.NeedsInvoker ? 
+              """
+                      public readonly SafeStoredEntity<IPamelloUser> _safeInvoker = new(0);
+                      public IPamelloUser? Invoker {
+                          get => _safeInvoker.Entity!;
+                          set => _safeInvoker.Entity = value;
+                      }
+              """ : "//invoker is not needed")}}
                       {{(eventClass.NeedsRevertPack ? $"[JsonIgnore] public IRevertPack RevertPack {{ get; set; }}{(
                           eventClass.HasDefaultPack ? " = new Pack();" : " //default pack is not needed"
                       )}" : "//revert pack is not needed")}}

@@ -11,6 +11,7 @@ using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
+using PamelloV7.Module.Marsoau.Base.History;
 using PamelloV7.Module.Marsoau.Base.Services;
 
 namespace PamelloV7.Module.Marsoau.Base;
@@ -25,8 +26,6 @@ public class Base : IPamelloModule
     public void Configure(IServiceCollection services) {
     }
     public async Task StartupAsync(IServiceProvider services) {
-        SafeStoredEntityStaticContainer.PEQL = services.GetRequiredService<IEntityQueryService>();
-        
         var platforms = services.GetRequiredService<IPlatformService>() as PlatformService;
         platforms?.Load();
 
@@ -36,7 +35,9 @@ public class Base : IPamelloModule
         var downloaders = services.GetRequiredService<IDownloadService>() as DownloadService;
         downloaders?.Load();
 
-        //services.GetRequiredService<IHistoryService>().Startup(services);
+        var history = services.GetRequiredService<IHistoryService>() as HistoryService;
+        //history?.FullReset();
+        history?.Startup(services);
 
         /*
         var songs = services.GetRequiredService<IPamelloSongRepository>();

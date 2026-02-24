@@ -22,7 +22,7 @@ public abstract class SongDownloader
     private int? _sourceIndex;
 
     private int SourceIndex
-        => _sourceIndex ??= Source.Song.Sources.ToList().IndexOf(Source);
+        => _sourceIndex ??= Source.Song?.Sources.ToList().IndexOf(Source) ?? -1;
 
     private double _progress;
     public double Progress {

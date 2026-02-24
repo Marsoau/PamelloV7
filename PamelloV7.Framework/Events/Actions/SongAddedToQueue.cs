@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
@@ -24,7 +25,7 @@ public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePa
         }
     }
     
-    public IEnumerable<IPamelloSong> AddedSongs { get; set; }
+    public SafeStoredEntities<IPamelloSong> AddedSongs { get; set; }
     public int QueuePosition { get; set; }
 }
 

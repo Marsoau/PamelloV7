@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
@@ -7,10 +8,10 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
+
+[SafeEntity<IPamelloPlayer>("Player", typeof(InfoUpdatePropertyAttribute))]
 public partial class PlayerQueuePositionUpdated : IPamelloEvent
 {
-    [InfoUpdateProperty]
-    public IPamelloPlayer Player { get; set; }
     public int Position { get; set; }
 }
 

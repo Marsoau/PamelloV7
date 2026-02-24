@@ -42,7 +42,8 @@ public class OsuSongDownloader : SongDownloader
         
         Console.WriteLine($"zip: {zipArchive.Entries.Count};");
         
-        var audioEntry = zipArchive.Entries.FirstOrDefault(entry => entry.FullName == "audio.mp3");
+        var audioEntry = zipArchive.Entries.FirstOrDefault(entry => entry.FullName == "audio.mp3")
+            ?? zipArchive.Entries.FirstOrDefault(entry => entry.FullName.EndsWith(".mp3"));
         if (audioEntry is null) throw new Exception("Cant find audio file in the zip archive");
         
         audioEntry.ExtractToFile(file.FullName, true);

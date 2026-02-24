@@ -1,0 +1,11 @@
+{
+    "Server": {
+        "Host": "http://*:41630",
+        "HostName": "",
+        "DataPath": "/s/marsoau/PamelloTestData",
+        "DisabledModules": [
+            //"Marsoau/Osu",
+            //"Marsoau/Discord"
+        ]
+    }
+}

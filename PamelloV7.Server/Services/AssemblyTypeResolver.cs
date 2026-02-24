@@ -12,6 +12,9 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     public Type? GetByName(string name) {
         return GetAll().FirstOrDefault(x => x.Name == name);
     }
+    public Type? GetByFullName(string fullName) {
+        return GetAll().FirstOrDefault(x => x.FullName == fullName);
+    }
 
     public IEnumerable<Type> GetWithAttribute<TAttribute>() {
         return GetAll().Where(x => x.GetCustomAttribute(typeof(TAttribute)) is not null);

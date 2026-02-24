@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Events.RestorePacks;
 using PamelloV7.Framework.Events.RestorePacks.Base;
 using PamelloV7.Framework.Entities;
@@ -10,8 +11,8 @@ namespace PamelloV7.Framework.Events;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Destructive)]
+
+[SafeEntity<IPamelloSong>("Song")]
 public partial class SongDeleted : IRevertiblePamelloEvent, IPamelloEvent
-{
-    public IPamelloSong Song { get; set; }
-}
+{ }
 

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Exceptions;
@@ -27,7 +28,13 @@ public class PamelloRequests
 
     public async Task<TType> GetFromJsonAsync<TType>([StringSyntax("Uri")] string url, bool requireUser = false) {
         var response = await GetAsync(url, requireUser);
-        return await response.Content.ReadFromJsonAsync<TType>() ?? throw new PamelloException($"Cannot read response as {typeof(TType).Name}");
+        
+        var content = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Content to read as json: {content}");
+        
+        var o = JsonSerializer.Deserialize<TType>(content);
+        
+        return o ?? throw new PamelloException($"Cannot read response as {typeof(TType).Name}");
     }
     public async Task<HttpResponseMessage> GetAsync([StringSyntax("Uri")] string url, bool requireUser = false) {
         var request = new HttpRequestMessage(HttpMethod.Get, url);

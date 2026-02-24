@@ -11,8 +11,8 @@ public partial class PlayerQueue
 {
     [SlashCommand("skip", "Skip the current song")]
     public async Task Skip() {
-        var oldSong = Context.User.RequiredSelectedPlayer.RequiredQueue.CurrentSong;
-        var newSong = Command<PlayerQueueSkip>().Execute();
+        var oldSong = Command<PlayerQueueSkip>().Execute();
+        var newSong = Context.User.RequiredSelectedPlayer.RequiredQueue.CurrentSong;
 
         await RespondUpdatableAsync(() =>
             Builder<ButtonsBuilder>().RefreshButton(Builder<SkippedSongComponent>().Component(oldSong, newSong)).Build()

@@ -6,6 +6,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.DTO.Other;
 using PamelloV7.Framework.Entities;
@@ -257,7 +258,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
                 Entries = new List<PamelloQueueEntry>(Entries),
-                AddedSongs = songs,
+                AddedSongs = new SafeStoredEntities<IPamelloSong>(songs),
                 QueuePosition = insertPosition
             });
 

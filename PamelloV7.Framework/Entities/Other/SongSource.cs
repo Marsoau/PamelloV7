@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Platforms;
@@ -7,15 +8,14 @@ using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Entities.Other;
 
-public class SongSource
+[SafeEntity<IPamelloSong>("Song")]
+public partial class SongSource
 {
     private readonly IServiceProvider _services;
     
     private readonly IPlatformService _platfroms;
     private readonly IDownloadService _downloads;
     private readonly IFileAccessService _files;
-    
-    public IPamelloSong Song { get; }
 
     public ISongInfo? Info { get; private set; }
 
@@ -49,18 +49,20 @@ public class SongSource
 
     public void ResetSongInfo(IPamelloUser scopeUser) {
         if (Info is null) return;
+
+        var song = _safeSong.RequiredEntity;
         
-        Song.StartChanges();
+        song.StartChanges();
         
-        Song.SetName(Info.Name, scopeUser);
-        Song.SetCoverUrl(Info.CoverUrl, scopeUser);
+        song.SetName(Info.Name, scopeUser);
+        song.SetCoverUrl(Info.CoverUrl, scopeUser);
         
-        Song.RemoveAllEpisodes(scopeUser);
+        song.RemoveAllEpisodes(scopeUser);
         foreach (var episodeInfo in Info.Episodes) {
-            Song.AddEpisode(episodeInfo, false, scopeUser);
+            song.AddEpisode(episodeInfo, false, scopeUser);
         }
         
-        Song.EndChanges();
+        song.EndChanges();
     }
     
     public bool IsDownloaded()

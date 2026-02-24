@@ -6,6 +6,7 @@ public interface IAssemblyTypeResolver : IPamelloService
 {
     public IEnumerable<Type> GetAll();
     public Type? GetByName(string name);
+    public Type? GetByFullName(string fullName);
     public IEnumerable<Type> GetWithAttribute<TAttribute>();
     public IEnumerable<Type> GetInheritorsOf<TType>();
     public IEnumerable<Type> GetInheritorsOf(params Type[] types);

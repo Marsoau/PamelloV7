@@ -1,15 +1,15 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Platforms.Infos;
 using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Entities.Other;
 
-public class UserAuthorization
+[SafeEntity<IPamelloUser>("User")]
+public partial class UserAuthorization
 {
     private readonly IPlatformService _platfroms;
-    
-    public IPamelloUser User { get; }
     
     private IUserInfo? _info;
     public IUserInfo? Info {
