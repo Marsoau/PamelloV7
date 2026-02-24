@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Destructive;
 using PamelloV7.Framework.Events.RestorePacks.Base;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Database.Repositories;

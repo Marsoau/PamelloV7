@@ -13,7 +13,7 @@ namespace PamelloV7.Framework.Events.Actions;
 [PamelloEventCategory(EEventCategory.Action)]
 public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePamelloEvent
 {
-    public class Pack : RevertPack<SongAddedToQueue>
+    public partial class Pack
     {
         protected override void RevertInternal(IPamelloUser scopeUser) {
             Event.Player.RequiredQueue.RemoveSongsRange((Event.QueuePosition + 1).ToString(), (Event.QueuePosition + Event.AddedSongs.Count()).ToString(), scopeUser);

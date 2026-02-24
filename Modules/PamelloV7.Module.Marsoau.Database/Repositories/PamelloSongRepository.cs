@@ -5,6 +5,8 @@ using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Events.Creative;
+using PamelloV7.Framework.Events.Destructive;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.History.Records;
@@ -143,15 +145,15 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         GetCollection().Add(databaseSong);
         
-        var song = (PamelloSong)Load(databaseSong, false);
+        var song = (PamelloSong)Load(databaseSong);
 
-        song._songEpisodes = [];
-
-        foreach (var episodeInfo in info.Episodes) {
-            _episodes.Add(new AudioTime(episodeInfo.Start), episodeInfo.Name, false, song, adder);
-        }
-        
-        song.Init();
+        _events.Invoke(adder, new SongCreated() {
+            Song = song
+        }, () => {
+            foreach (var episodeInfo in info.Episodes) {
+                _episodes.Add(new AudioTime(episodeInfo.Start), episodeInfo.Name, false, song, adder);
+            }
+        });
 
         return song;
     }
@@ -177,6 +179,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             },
             Song = pamelloSong,
         })!;
+        
+        song.IsDeleted = true;
 
         foreach (var source in pamelloSong.Sources) {
             if (source.GetFile() is { Exists: true } file) file.Delete();

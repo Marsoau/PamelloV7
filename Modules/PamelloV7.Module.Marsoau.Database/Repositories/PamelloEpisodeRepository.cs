@@ -3,6 +3,8 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Creative;
+using PamelloV7.Framework.Events.Destructive;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.Repositories;
@@ -67,6 +69,10 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         int i;
         for (i = 0; i < songEpisodes.Count && songEpisodes[i].Start.TotalSeconds < start.TotalSeconds; i++);
         songEpisodes.Insert(i, episode);
+
+        _events.Invoke(scopeUser, new EpisodeCreated() {
+            Episode = episode
+        });
         
         return episode;
     }

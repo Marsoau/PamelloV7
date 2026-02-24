@@ -96,7 +96,7 @@ public class PamelloEventGenerator : IIncrementalGenerator
               {
                   partial class {{eventClass.ClassName}}
                   {
-                      {{(eventClass.NeedsInvoker ? 
+              {{(eventClass.NeedsInvoker ? 
               """
                       public readonly SafeStoredEntity<IPamelloUser> _safeInvoker = new(0);
                       public IPamelloUser? Invoker {
@@ -104,6 +104,8 @@ public class PamelloEventGenerator : IIncrementalGenerator
                           set => _safeInvoker.Entity = value;
                       }
               """ : "//invoker is not needed")}}
+              
+                      {{(!eventClass.HasDefaultPack ? "" : $"partial class Pack : RevertPack<{eventClass.ClassName}>;")}}
                       {{(eventClass.NeedsRevertPack ? $"[JsonIgnore] public IRevertPack RevertPack {{ get; set; }}{(
                           eventClass.HasDefaultPack ? " = new Pack();" : " //default pack is not needed"
                       )}" : "//revert pack is not needed")}}
