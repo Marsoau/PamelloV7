@@ -12,9 +12,11 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<SafeStoredEntitiesClassDescriptor> classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 } or RecordDeclarationSyntax { AttributeLists.Count: > 0 },
+                predicate: (node, _) => node
+                    is ClassDeclarationSyntax { AttributeLists.Count: > 0 }
+                    or RecordDeclarationSyntax { AttributeLists.Count: > 0 },
                 transform: GetDescriptor
-            ).Where(descriptor => descriptor.SingleEntitiesInfos.Count > 0);
+            ).Where(descriptor => descriptor is { SingleEntitiesInfos.Count: > 0} or { ManyEntitiesInfos.Count: > 0 });
         
         context.RegisterSourceOutput(classDeclarations, ExecuteGeneration);
     }
@@ -32,13 +34,19 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             return default;
         }
 
-        var entitiesInfos = new List<SafeStoredEntityDescriptor>();
+        var singleEntitiesInfos = new List<SafeStoredEntityDescriptor>();
+        var manyEntitiesInfos = new List<SafeStoredEntityDescriptor>();
 
         var debugOutput = "";
 
         foreach (var attribute in classSymbol.GetAttributes()) {
             var attributeClass = attribute.AttributeClass;
-            if (attributeClass is null || attributeClass.Name != "SafeEntityAttribute") continue;
+            if (attributeClass is null) continue;
+            
+            var isMany = attributeClass.Name == "SafeEntitiesAttribute";
+            var isSingle = attributeClass.Name == "SafeEntityAttribute";
+            
+            if (!isMany && !isSingle) continue;
 
             var type = attributeClass.TypeArguments.FirstOrDefault();
             if (type is null) continue;
@@ -51,19 +59,34 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 
             debugOutput += $"Count: {attributesTypes.Length}; {string.Join("; ", attributes.Values.Select(value => value.Value?.GetType()))}";
             
-            entitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
+            if (isMany) manyEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
+            if (isSingle) singleEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
         }
         
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace 
             ? string.Empty 
             : classSymbol.ContainingNamespace.ToDisplayString();
         
-        return new SafeStoredEntitiesClassDescriptor(namespaceName, classSymbol.Name, category, entitiesInfos, debugOutput);
+        return new SafeStoredEntitiesClassDescriptor(
+            namespaceName,
+            classSymbol.Name,
+            category,
+            singleEntitiesInfos,
+            manyEntitiesInfos,
+            debugOutput
+        );
     }
 
     private static void ExecuteGeneration(SourceProductionContext context, SafeStoredEntitiesClassDescriptor descriptor) {
         var propertiesSb = new StringBuilder();
 
+        foreach (var propertyInfo in descriptor.ManyEntitiesInfos) {
+            propertiesSb.AppendLine(
+                $$"""
+                          public SafeStoredEntities<{{propertyInfo.EntityType.GetFullName()}}> {{propertyInfo.PropertyName}} { get; set; } = new();
+                  """
+            );
+        }
         foreach (var propertyInfo in descriptor.SingleEntitiesInfos) {
             propertiesSb.AppendLine(
                 $$"""
@@ -101,6 +124,6 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
               //debug: {{descriptor.DebugOutput}}
               """;
         
-        context.AddSource($"{descriptor.ClassName}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{descriptor.ClassName}.Entities.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
@@ -11,21 +12,22 @@ namespace PamelloV7.Framework.Events.Actions;
 [Broadcast]
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Action)]
+
+[SafeEntities<IPamelloSong>("AddedSongs")]
 public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePamelloEvent
 {
     public partial class Pack
     {
         protected override void RevertInternal(IPamelloUser scopeUser) {
-            Event.Player.RequiredQueue.RemoveSongsRange((Event.QueuePosition + 1).ToString(), (Event.QueuePosition + Event.AddedSongs.Count()).ToString(), scopeUser);
+            Event.Player!.RequiredQueue.RemoveSongsRange((Event.InsertPosition + 1).ToString(), (Event.InsertPosition + Event.AddedSongs.Count()).ToString(), scopeUser);
         }
 
         protected override bool DidNotExpireInternal(IPamelloUser scopeUser) {
-            if (Event.Player != scopeUser.SelectedPlayer) return false;
+            if (Event.Player != scopeUser.SelectedPlayer || Event.Player is null) return false;
             return scopeUser.SelectedPlayer?.Queue?.Entries.SequenceEqual(Event.Entries) ?? false;
         }
     }
     
-    public SafeStoredEntities<IPamelloSong> AddedSongs { get; set; }
-    public int QueuePosition { get; set; }
+    public int InsertPosition { get; set; }
 }
 

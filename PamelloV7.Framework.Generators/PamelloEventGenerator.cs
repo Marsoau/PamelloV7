@@ -96,9 +96,9 @@ public class PamelloEventGenerator : IIncrementalGenerator
               {
                   partial class {{eventClass.ClassName}}
                   {
-              {{(eventClass.NeedsInvoker ? 
+                      {{(eventClass.NeedsInvoker ? 
               """
-                      public readonly SafeStoredEntity<IPamelloUser> _safeInvoker = new(0);
+              public readonly SafeStoredEntity<IPamelloUser> _safeInvoker = new(0);
                       public IPamelloUser? Invoker {
                           get => _safeInvoker.Entity!;
                           set => _safeInvoker.Entity = value;
@@ -113,6 +113,6 @@ public class PamelloEventGenerator : IIncrementalGenerator
               }
               """;
 
-        context.AddSource($"{eventClass.ClassName}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{eventClass.ClassName}.Event.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

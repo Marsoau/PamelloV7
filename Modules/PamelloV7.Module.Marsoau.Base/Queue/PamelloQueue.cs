@@ -259,7 +259,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Player = Player,
                 Entries = new List<PamelloQueueEntry>(Entries),
                 AddedSongs = new SafeStoredEntities<IPamelloSong>(songs),
-                QueuePosition = insertPosition
+                InsertPosition = insertPosition
             });
 
 			if (beforeCount == 0 && _entries.Count > 0) {

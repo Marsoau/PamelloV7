@@ -12,6 +12,7 @@ public readonly record struct SafeStoredEntitiesClassDescriptor(
     string ClassName,
     ECategory Category,
     List<SafeStoredEntityDescriptor> SingleEntitiesInfos,
+    List<SafeStoredEntityDescriptor> ManyEntitiesInfos,
     string DebugOutput = ""
 );
 
