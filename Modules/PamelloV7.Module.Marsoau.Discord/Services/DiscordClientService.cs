@@ -1,16 +1,22 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Config;
+using PamelloV7.Module.Marsoau.Discord.Speakers;
 
 namespace PamelloV7.Module.Marsoau.Discord.Services;
 
 public class DiscordClientService : IPamelloService
 {
 	private readonly IServiceProvider _services;
+	
+	private readonly IPamelloUserRepository _users;
+	private readonly IPamelloSpeakerRepository _speakers;
 	
 	private readonly UpdatableMessageKiller _updatableMessageKiller;
 
@@ -23,6 +29,9 @@ public class DiscordClientService : IPamelloService
 	public DiscordClientService(IServiceProvider services) {
 		_services = services;
 		
+		_users = services.GetRequiredService<IPamelloUserRepository>();
+		_speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
+		
 		_updatableMessageKiller = services.GetRequiredService<UpdatableMessageKiller>();
 
 		DiscordClients = new DiscordSocketClient[1];
@@ -30,8 +39,49 @@ public class DiscordClientService : IPamelloService
 		DiscordClients[0] = services.GetRequiredService<DiscordSocketClient>();
 	}
 
+	public void LateStartup() {
+		Main.UserVoiceStateUpdated += Client_UserVoiceStateUpdated;
+	}
+
+	private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
+		var user = _users.GetByPlatformKey(new PlatformKey("discord", discordUser.Id.ToString()));
+		if (user is null) return;
+
+		Console.WriteLine($"User {user}, from {fromVc.VoiceChannel?.Name ?? "NONE"} to {toVc.VoiceChannel?.Name ?? "NONE"}");
+		
+		var fromVcPlayers = GetVoicePlayers(user, fromVc.VoiceChannel);
+		var toVcPlayers = GetVoicePlayers(user, toVc.VoiceChannel);
+
+		switch (toVcPlayers.Count) {
+			case > 1:
+				Console.WriteLine("Too much speakers, cant decide on auto selection");
+				return;
+			case 1:
+				user.SelectPlayer(toVcPlayers.First(), true);
+				return;
+		}
+
+		if (user.SelectedPlayer is null) return;
+		if (!fromVcPlayers.Contains(user.SelectedPlayer)) return;
+		
+		user.SelectPlayer(null, true);
+
+		Console.WriteLine($"Auto selected player {user.SelectedPlayer} for {user}");
+	}
+
 	public bool IsClientUser(ulong userId) {
 		return DiscordClients.Any(client => client.CurrentUser.Id == userId);
+	}
+
+	public List<IPamelloPlayer> GetVoicePlayers(IPamelloUser scopeUser, SocketVoiceChannel? vc) {
+		if (vc is null) return [];
+		return _speakers
+			.GetAll(scopeUser)
+			.OfType<PamelloDiscordSpeaker>()
+			.Select(speaker => speaker.Player)
+			.Distinct()
+			.ToList()
+			;
 	}
 	
 	public SocketVoiceChannel? GetUserVoiceChannel(IPamelloUser user) {

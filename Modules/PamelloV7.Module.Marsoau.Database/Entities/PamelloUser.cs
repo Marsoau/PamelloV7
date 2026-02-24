@@ -149,8 +149,8 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     }
 
     public IPamelloPlayer? SelectPlayer(IPamelloPlayer? player, bool autoSelected = false) {
-        if (!player?.IsAvailableFor(this) ?? false) throw new PamelloException("That player is not available for this user");
         if (SelectedPlayer == player) return SelectedPlayer;
+        if (!player?.IsAvailableFor(this) ?? false) throw new PamelloException("That player is not available for this user");
         
         SelectedPlayer = player;
 

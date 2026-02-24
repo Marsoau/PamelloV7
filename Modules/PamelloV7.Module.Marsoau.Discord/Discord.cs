@@ -54,6 +54,8 @@ public class Discord : IPamelloModule
         await clients.Main.StartAsync();
 
         whenReady.Task.Wait();
+        
+        clients.LateStartup();
     }
 
     public async Task DiscordLog(LogMessage message) {

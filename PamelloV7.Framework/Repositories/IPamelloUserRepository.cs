@@ -32,11 +32,6 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     public IPamelloUser? GetByToken(Guid token);
     
     public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false);
-
-    //awaits deletion
-    public IPamelloUser? GetByDiscord(ulong discordId, bool createIfNotFound = true) {
-        throw new NotImplementedException();
-    }
     
     public IPamelloUser Add(IUserInfo info);
 }
