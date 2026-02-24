@@ -3,7 +3,6 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Server.Model;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events.Base;
-using PamelloV7.Framework.EventsOld;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;
@@ -63,11 +62,6 @@ namespace PamelloV7.Server.Services
             return GetListener(eventsToken) ?? throw new PamelloException($"Events with token \"{eventsToken}\" doesnt exist");
         }
 
-        public void Broadcast(PamelloEvent pamelloEvent) {
-            throw new NotImplementedException();
-            //delete this method later
-        }
-        
         public void Broadcast(IPamelloEvent pamelloEvent)
         {
             foreach (var listener in _listeners) {

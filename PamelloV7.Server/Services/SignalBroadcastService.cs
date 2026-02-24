@@ -4,7 +4,6 @@ using PamelloV7.Core.Dto.Signal;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
-using PamelloV7.Framework.EventsOld;
 using PamelloV7.Framework.Services;
 using PamelloV7.Server.Hubs;
 

@@ -1,8 +1,6 @@
-﻿using PamelloV7.Framework.AudioOld;
-
-namespace PamelloV7.Server.Model.Listeners
+﻿namespace PamelloV7.Server.Model.Listeners
 {
-    public abstract class PamelloListener : IPamelloListener, IDisposable
+    public abstract class PamelloListener : IDisposable
     {
         protected readonly HttpResponse _response;
 

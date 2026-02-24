@@ -42,10 +42,6 @@
     <!--
     -->
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Listeners\" />
-    <Folder Include="Model\Data\" />
-  </ItemGroup>
   <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
     <ItemGroup>
       <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />

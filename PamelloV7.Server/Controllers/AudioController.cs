@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PamelloV7.Framework.AudioOld;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Server.Services;
 using PamelloV7.Framework.Exceptions;
