@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Dto;
@@ -10,7 +9,7 @@ using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
 using PamelloV7.Wrapper.Exceptions;
 
-namespace PamelloV7.Wrapper;
+namespace PamelloV7.Wrapper.Requests;
 
 public class PamelloRequests : IPamelloCommandInvoker
 {
@@ -68,8 +67,8 @@ public class PamelloRequests : IPamelloCommandInvoker
         }
     }
     
-    public async Task<string> ExecuteCommandAsync(string commandPath) => await (await GetAsync($"Command/{commandPath}")).Content.ReadAsStringAsync();
-    public async Task<TType> ExecuteCommandAsync<TType>(string commandPath) => await GetFromJsonAsync<TType>($"Command/{commandPath}");
+    public async Task<string> ExecuteCommandPathAsync(string commandPath) => await (await GetAsync($"Command/{commandPath}")).Content.ReadAsStringAsync();
+    public async Task<TType> ExecuteCommandPathAsync<TType>(string commandPath) => await GetFromJsonAsync<TType>($"Command/{commandPath}");
 
     public Task<List<PamelloEntityDto>> GetEntitiesAsync(string fullQuery)
         => GetEntitiesAsync<PamelloEntityDto>(fullQuery);

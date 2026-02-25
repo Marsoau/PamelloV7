@@ -5,7 +5,7 @@ using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
 using PamelloV7.Wrapper.Exceptions;
 
-namespace PamelloV7.Wrapper;
+namespace PamelloV7.Wrapper.Signal;
 
 public class PamelloSignal : IPamelloCommandInvoker
 {
@@ -55,13 +55,13 @@ public class PamelloSignal : IPamelloCommandInvoker
         await Connection.InvokeAsync("Message", message);
     }
 
-    public async Task<string> ExecuteCommandAsync(string commandPath) {
-        var result = await ExecuteCommandAsync<JsonElement?>(commandPath);
+    public async Task<string> ExecuteCommandPathAsync(string commandPath) {
+        var result = await ExecuteCommandPathAsync<JsonElement?>(commandPath);
         if (result.HasValue) return result.Value.ToString();
         
         return string.Empty;
     }
-    public Task<TType> ExecuteCommandAsync<TType>(string commandPath) {
+    public Task<TType> ExecuteCommandPathAsync<TType>(string commandPath) {
         return Connection.InvokeAsync<TType>("Command", commandPath);
     }
 }
