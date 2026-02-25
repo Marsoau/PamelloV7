@@ -11,4 +11,8 @@
         <Description>PamelloV7 Core</Description>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Dto\Events\" />
+    </ItemGroup>
+
 </Project>

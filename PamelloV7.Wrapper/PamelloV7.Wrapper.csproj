@@ -18,6 +18,7 @@
       <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="Events\Dto\" />
       <Folder Include="Extensions\" />
     </ItemGroup>
 </Project>

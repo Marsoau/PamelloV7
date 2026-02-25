@@ -2,7 +2,7 @@ using PamelloV7.Wrapper.Events.Base;
 
 namespace PamelloV7.Wrapper.Events.Other;
 
-public class EventSubscription<TEventType> //: IEventSubscription
+public class EventSubscription<TEventType> : IEventSubscription
     where TEventType : IRemoteEvent
 {
     public Type EventType => typeof(TEventType);
