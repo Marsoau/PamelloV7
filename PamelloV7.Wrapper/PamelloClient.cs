@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper;
 
 public class PamelloClient
 {
-    private readonly PamelloClientConfig _config;
+    public readonly PamelloClientConfig Config;
     
     public PamelloRequests Requests { get; }
     public PamelloSignal Signal { get; }
@@ -18,10 +18,10 @@ public class PamelloClient
     public RemoteEventsService Events { get; }
 
     public PamelloClient() {
-        _config = new PamelloClientConfig();
+        Config = new PamelloClientConfig();
         
-        Requests = new PamelloRequests(_config);
-        Signal = new PamelloSignal(_config, this);
+        Requests = new PamelloRequests(Config);
+        Signal = new PamelloSignal(this);
         Commands = new PamelloCommands(Requests, Signal);
         Events = new RemoteEventsService();
     }
@@ -29,7 +29,7 @@ public class PamelloClient
     public async Task ConnectAsync(string url) {
         if (Signal.IsConnected) throw new PamelloException("Already connected");
         
-        _config.BaseUrl = url;
+        Config.BaseUrl = url;
         
         await Signal.ConnectAsync();
     }
@@ -37,14 +37,14 @@ public class PamelloClient
     public async Task<bool> AuthorizeAsync(Guid userToken) {
         if (!Signal.IsConnected) throw new PamelloException("Not connected");
         
-        _config.Token = userToken;
+        Config.Token = userToken;
 
         try {
             await Signal.AuthorizeAsync();
             return true;
         }
         catch {
-            _config.Token = null;
+            Config.Token = null;
             return false;
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -28,15 +29,17 @@ public class PamelloRequests : IPamelloCommandInvoker
         _http = services.GetRequiredService<IHttpClientFactory>().CreateClient();
     }
 
-    public async Task<TType> GetFromJsonAsync<TType>([StringSyntax("Uri")] string url, bool requireUser = false) {
+    public async Task<TType> GetFromJsonAsync<TType>([StringSyntax("Uri")] string url, bool requireUser = false)
+        => ((TType?)await GetFromJsonAsync(typeof(TType), url, requireUser))!;
+    public async Task<object?> GetFromJsonAsync(Type type, [StringSyntax("Uri")] string url, bool requireUser = false) {
         var response = await GetAsync(url, requireUser);
         
         var content = await response.Content.ReadAsStringAsync();
         Debug.WriteLine($"Content to read as json: {content}");
         
-        var o = content.Length > 0 ? JsonSerializer.Deserialize<TType>(content) : default;
+        var o = content.Length > 0 ? JsonSerializer.Deserialize(content, type) : null;
         
-        return o ?? throw new PamelloException($"Cannot read response as {typeof(TType).Name}");
+        return o ?? throw new PamelloException($"Cannot read response as {type.Name}");
     }
     public async Task<HttpResponseMessage> GetAsync([StringSyntax("Uri")] string url, bool requireUser = false) {
         if (_config.BaseUrl is null) throw new PamelloException("BaseUrl of PamelloClientConfig wasnt set");
@@ -74,7 +77,10 @@ public class PamelloRequests : IPamelloCommandInvoker
         => GetEntitiesAsync<PamelloEntityDto>(fullQuery);
     public async Task<List<TPamelloDto>> GetEntitiesAsync<TPamelloDto>(string fullQuery)
         where TPamelloDto : PamelloEntityDto
+        => (await GetEntitiesAsync(typeof(TPamelloDto), fullQuery)).OfType<TPamelloDto>().ToList();
+    
+    public async Task<List<object>> GetEntitiesAsync(Type type, string fullQuery)
     {
-        return await GetFromJsonAsync<List<TPamelloDto>>($"Data/{fullQuery}");
+        return (await GetFromJsonAsync(typeof(List<>).MakeGenericType(type), $"Data/{fullQuery}") as IList)?.OfType<object>().ToList() ?? [];
     }
 }

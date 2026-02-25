@@ -14,7 +14,6 @@ namespace PamelloV7.Wrapper.Signal;
 
 public class PamelloSignal : IPamelloCommandInvoker
 {
-    private readonly PamelloClientConfig _config;
     private readonly PamelloClient _client;
     
     private HubConnection? _connection;
@@ -23,18 +22,17 @@ public class PamelloSignal : IPamelloCommandInvoker
     
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
     
-    public PamelloSignal(PamelloClientConfig config, PamelloClient client) {
-        _config = config;
+    public PamelloSignal(PamelloClient client) {
         _client = client;
 
         _connection = null;
     }
 
     internal async Task<HubConnectionState> ConnectAsync() {
-        if (_config.BaseUrl is null) throw new PamelloException("Base URL is not set");
+        if (_client.Config.BaseUrl is null) throw new PamelloException("Base URL is not set");
         
         _connection = new HubConnectionBuilder()
-            .WithUrl($"{_config.BaseUrl}/Signal", options => {
+            .WithUrl($"{_client.Config.BaseUrl}/Signal", options => {
                 options.Transports = HttpTransportType.WebSockets;
                 options.SkipNegotiation = true;
             })
@@ -54,9 +52,9 @@ public class PamelloSignal : IPamelloCommandInvoker
     }
 
     internal async Task AuthorizeAsync() {
-        if (_config.Token is null) throw new PamelloException("Token is not set");
+        if (_client.Config.Token is null) throw new PamelloException("Token is not set");
         
-        await Connection.InvokeAsync("Authorize", _config.Token);
+        await Connection.InvokeAsync("Authorize", _client.Config.Token);
     }
 
     internal async Task DisconnectAsync() {

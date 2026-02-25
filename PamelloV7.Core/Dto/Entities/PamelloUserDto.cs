@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using PamelloV7.Core.Dto;
+﻿using System.Text.Json.Serialization;
 
-namespace PamelloV7.Framework.DTO
+namespace PamelloV7.Core.Dto.Entities
 {
-    public record PamelloUserDTO : PamelloEntityDto
+    public record PamelloUserDto : PamelloEntityDto
     {
         [JsonPropertyName("avatarUrl")]
 		public string? AvatarUrl { get; set; }
