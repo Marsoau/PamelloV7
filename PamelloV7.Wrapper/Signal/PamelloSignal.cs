@@ -1,8 +1,13 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
+using PamelloV7.Core.Dto.Signal;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
+using PamelloV7.Wrapper.Events;
+using PamelloV7.Wrapper.Events.Other;
 using PamelloV7.Wrapper.Exceptions;
 
 namespace PamelloV7.Wrapper.Signal;
@@ -10,6 +15,7 @@ namespace PamelloV7.Wrapper.Signal;
 public class PamelloSignal : IPamelloCommandInvoker
 {
     private readonly PamelloClientConfig _config;
+    private readonly PamelloClient _client;
     
     private HubConnection? _connection;
 
@@ -17,8 +23,9 @@ public class PamelloSignal : IPamelloCommandInvoker
     
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
     
-    public PamelloSignal(PamelloClientConfig config) {
+    public PamelloSignal(PamelloClientConfig config, PamelloClient client) {
         _config = config;
+        _client = client;
 
         _connection = null;
     }
@@ -27,13 +34,23 @@ public class PamelloSignal : IPamelloCommandInvoker
         if (_config.BaseUrl is null) throw new PamelloException("Base URL is not set");
         
         _connection = new HubConnectionBuilder()
-            .WithUrl($"{_config.BaseUrl}/Signal")
+            .WithUrl($"{_config.BaseUrl}/Signal", options => {
+                options.Transports = HttpTransportType.WebSockets;
+                options.SkipNegotiation = true;
+            })
             .WithAutomaticReconnect()
             .Build();
+
+        _connection.On<ReceivedEventJsonDto>("Event", OnEvent);
         
         await _connection.StartAsync();
 
         return _connection.State;
+    }
+
+    private void OnEvent(ReceivedEventJsonDto eventDto) {
+        Console.WriteLine($"Received event: {eventDto.Type.Name} {eventDto.Data}");
+        _client.Events.Invoke(eventDto);
     }
 
     internal async Task AuthorizeAsync() {

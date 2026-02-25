@@ -1,6 +1,7 @@
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
+using PamelloV7.Wrapper.Events.Services;
 using PamelloV7.Wrapper.Requests;
 using PamelloV7.Wrapper.Signal;
 
@@ -13,13 +14,16 @@ public class PamelloClient
     public PamelloRequests Requests { get; }
     public PamelloSignal Signal { get; }
     public PamelloCommands Commands { get; }
+    
+    public RemoteEventsService Events { get; }
 
     public PamelloClient() {
         _config = new PamelloClientConfig();
         
         Requests = new PamelloRequests(_config);
-        Signal = new PamelloSignal(_config);
+        Signal = new PamelloSignal(_config, this);
         Commands = new PamelloCommands(Requests, Signal);
+        Events = new RemoteEventsService();
     }
 
     public async Task ConnectAsync(string url) {
