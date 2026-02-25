@@ -60,7 +60,7 @@ class Program
             sb.AppendLine(
                 $$"""
                       public static {{(returnTypeInfo.IsVoid ? "Task" : $"Task<{returnTypeInfo}>")}} {{command.Name}}(this {{commandsType.FullName}} commands{{csArgString}}) {
-                          return commands.Requests.ExecuteCommandAsync{{(returnTypeInfo.IsVoid ? "" : $"<{returnTypeInfo}>")}}({{(pathArgString.Length > 0 ? "$" : "")}}"{{command.Name}}{{pathArgString}}");
+                          return commands.Invoker.ExecuteCommandAsync{{(returnTypeInfo.IsVoid ? "" : $"<{returnTypeInfo}>")}}({{(pathArgString.Length > 0 ? "$" : "")}}"{{command.Name}}{{pathArgString}}");
                       }
                   """
             );

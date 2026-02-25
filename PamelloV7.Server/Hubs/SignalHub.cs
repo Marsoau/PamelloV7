@@ -54,14 +54,15 @@ public class SignalHub : Hub
         _broadcast.AssignUser(Context.ConnectionId, user);
     }
     public async Task Unauthorize() {
+        if (_broadcast.GetUser(Context.ConnectionId) is null) return;
+        
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} unauthorized");
         
         _broadcast.AbandonUser(Context.ConnectionId);
     }
 
     public async Task Message(string message) {
-        var user = _broadcast.GetUser(Context.ConnectionId);
-        if (user is null) throw new HubException("You have to be authorized to send messages");
+        var user = _broadcast.GetRequiredUser(Context.ConnectionId);
         
         await _broadcast.BroadcastMessageAsync(user, null, message);
     }

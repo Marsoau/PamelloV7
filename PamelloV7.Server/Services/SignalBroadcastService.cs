@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Core.Dto.Signal;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
@@ -86,6 +87,8 @@ public class SignalBroadcastService : ISignalBroadcastService
         _listeners[connectionId] = null;
     }
 
+    public IPamelloUser GetRequiredUser(string connectionId)
+        => GetUser(connectionId) ?? throw new HubException("You have to be authorized to send messages");
     public IPamelloUser? GetUser(string connectionId) {
         return _listeners.GetValueOrDefault(connectionId);
     }

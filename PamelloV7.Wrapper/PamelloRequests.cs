@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
@@ -5,24 +6,26 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Wrapper.Commands;
+using PamelloV7.Wrapper.Config;
+using PamelloV7.Wrapper.Exceptions;
 
 namespace PamelloV7.Wrapper;
 
-public class PamelloRequests
+public class PamelloRequests : IPamelloCommandInvoker
 {
+    private readonly PamelloClientConfig _config;
+    
     private readonly HttpClient _http;
     
-    public string BaseUrl {
-        get => _http.BaseAddress?.ToString() ?? throw new Exception("Base URL not set in PamelloRequests");
-        set => _http.BaseAddress = new Uri(value);
-    }
-    
-    public Guid? Token { get; set; }
-    
-    public PamelloRequests() {
+    public PamelloRequests(PamelloClientConfig config) {
+        _config = config;
+        
         _http = new HttpClient();
     }
-    public PamelloRequests(IServiceProvider services) {
+    public PamelloRequests(PamelloClientConfig config, IServiceProvider services) {
+        _config = config;
+        
         _http = services.GetRequiredService<IHttpClientFactory>().CreateClient();
     }
 
@@ -30,28 +33,40 @@ public class PamelloRequests
         var response = await GetAsync(url, requireUser);
         
         var content = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Content to read as json: {content}");
+        Debug.WriteLine($"Content to read as json: {content}");
         
-        var o = JsonSerializer.Deserialize<TType>(content);
+        var o = content.Length > 0 ? JsonSerializer.Deserialize<TType>(content) : default;
         
         return o ?? throw new PamelloException($"Cannot read response as {typeof(TType).Name}");
     }
     public async Task<HttpResponseMessage> GetAsync([StringSyntax("Uri")] string url, bool requireUser = false) {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        if (_config.BaseUrl is null) throw new PamelloException("BaseUrl of PamelloClientConfig wasnt set");
         
-        if (Token is not null) request.Headers.Add("user", Token.ToString());
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_config.BaseUrl}/{url}");
+        
+        if (_config.Token is not null) request.Headers.Add("user", _config.Token.ToString());
         else if (requireUser) throw new PamelloException("User token is not provided");
         
         var response = await _http.SendAsync(request);
 
+        if (response.StatusCode == HttpStatusCode.BadGateway) {
+            throw new NotConnectedPamelloException($"\"BadGateway\" trying to request: {request.RequestUri}");
+        }
         if (!response.IsSuccessStatusCode) {
-            throw new PamelloException(await response.Content.ReadAsStringAsync());
+            throw new RemotePamelloException(await response.Content.ReadAsStringAsync());
         }
         
         return response;
     }
     
-    public async Task<bool> PingAsync() => (await GetAsync("Ping")).IsSuccessStatusCode;
+    public async Task<bool> PingAsync() {
+        try {
+            return (await GetAsync("Ping")).IsSuccessStatusCode;
+        }
+        catch (NotConnectedPamelloException) {
+            return false;
+        }
+    }
     
     public async Task<string> ExecuteCommandAsync(string commandPath) => await (await GetAsync($"Command/{commandPath}")).Content.ReadAsStringAsync();
     public async Task<TType> ExecuteCommandAsync<TType>(string commandPath) => await GetFromJsonAsync<TType>($"Command/{commandPath}");
@@ -61,10 +76,6 @@ public class PamelloRequests
     public async Task<List<TPamelloDto>> GetEntitiesAsync<TPamelloDto>(string fullQuery)
         where TPamelloDto : PamelloEntityDto
     {
-        var type = typeof(TPamelloDto);
-        
-        //TODO check the type default provider and use it
-        
         return await GetFromJsonAsync<List<TPamelloDto>>($"Data/{fullQuery}");
     }
 }
