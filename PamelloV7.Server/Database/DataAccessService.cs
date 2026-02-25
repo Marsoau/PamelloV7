@@ -97,7 +97,8 @@ public class DatabaseAccessService : IDatabaseAccessService
                     var entitiesType = _typeResolver.GetByFullName(typeName);
                     if (entitiesType is null) return null;
                     
-                    var entitiesIds = entityString[(idsPosition + 1)..].Split(',').Select(int.Parse);
+                    var entitiesIds = entityString.Length == idsPosition + 1 ? [] :
+                        entityString[(idsPosition + 1)..].Split(',').Select(int.Parse);
                     
                     var safeType = typeof(SafeStoredEntities<>).MakeGenericType(entitiesType);
                     var safeEntities = Activator.CreateInstance(safeType, entitiesIds);
