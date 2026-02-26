@@ -6,7 +6,7 @@ using PamelloV7.Wrapper.Entities.Base;
 namespace PamelloV7.Wrapper.Repositories;
 
 public class RemoteRepository<TEntityType>
-    where TEntityType : class, IRemoteEntity
+    where TEntityType : class, IPamelloEntity
 {
     private readonly PamelloClient _client;
     
@@ -21,7 +21,7 @@ public class RemoteRepository<TEntityType>
 
         _loaded = [];
         
-        var attribute = typeof(TEntityType).GetCustomAttribute<RemoteEntityAttribute>();
+        var attribute = typeof(TEntityType).GetCustomAttribute<RemoteEntityInfoAttribute>();
         if (attribute is null) throw new Exception($"no required attribute RemoteEntityAttribute on remote entity {typeof(TEntityType).Name}");
         
         ProviderName = attribute.ProviderName;

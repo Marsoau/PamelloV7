@@ -18,7 +18,8 @@ public class PamelloSignal : IPamelloCommandInvoker
     
     private HubConnection? _connection;
 
-    protected HubConnection Connection => _connection is not null && IsConnected ? _connection : throw new NotConnectedPamelloException("SignalR connection is not initiated");
+    protected HubConnection Connection =>
+        _connection is not null && IsConnected ? _connection : throw new NotConnectedPamelloException("SignalR connection is not initiated");
     
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
     

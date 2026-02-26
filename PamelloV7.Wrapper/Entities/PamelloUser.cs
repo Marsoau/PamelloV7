@@ -5,9 +5,7 @@ using PamelloV7.Wrapper.Entities.Base;
 
 namespace PamelloV7.Wrapper.Entities;
 
-[RemoteEntity("users", "IPamelloUser", typeof(PamelloUserDto))]
-public class RemoteUser : RemoteEntity<PamelloUserDto>
+[RemoteEntity<PamelloUserDto>("users", "IPamelloUser")]
+public partial class PamelloUser
 {
-    public RemoteUser(PamelloUserDto dto) : base(dto) {
-    }
 }

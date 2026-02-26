@@ -35,7 +35,7 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
             while (!_cts.IsCancellationRequested) {
                 try {
                     while (!Condition()) {
-                        Console.WriteLine("PUMP CONDITION");
+                        //Console.WriteLine("PUMP CONDITION");
                         Task.Delay(1000).Wait();
                     }
                     
@@ -52,11 +52,11 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
 
     public void Pump() {
         while (!Input.Pass(_buffer, true, _cts.Token)) {
-            Console.WriteLine("No input, waiting");
+            //Console.WriteLine("No input, waiting");
             Task.Delay(500).Wait();
         }
         while (!Output.Pass(_buffer, true, _cts.Token)) {
-            Console.WriteLine("No output, waiting");
+            //Console.WriteLine("No output, waiting");
             Task.Delay(500).Wait();
         }
     }

@@ -1,6 +1,6 @@
 namespace PamelloV7.Wrapper.Entities.Base;
 
-public interface IRemoteEntity
+public interface IPamelloEntity
 {
     public int Id { get; }
     public string Name { get; }

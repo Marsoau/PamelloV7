@@ -30,8 +30,8 @@ namespace PamelloV7.Core.Dto.Entities
         public IEnumerable<int> FavoritePlaylistsIds { get; set; }
         
         
-        [JsonPropertyName("authorizationsPlatfromKeys")]
-        public IEnumerable<string> AuthorizationsPlatfromKeys { get; set; }
+        [JsonPropertyName("authorizationsPlatformKeys")]
+        public IEnumerable<string> AuthorizationsPlatformKeys { get; set; }
 
         
         [JsonPropertyName("isAdministrator")]

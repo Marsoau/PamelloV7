@@ -372,7 +372,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
             FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs),
             FavoritePlaylistsIds = IPamelloEntity.GetIds(FavoritePlaylists),
 
-            AuthorizationsPlatfromKeys = Authorizations.Select(authorization => authorization.PK.ToString()),
+            AuthorizationsPlatformKeys = Authorizations.Select(authorization => authorization.PK.ToString()),
 
             IsAdministrator = false
         };
