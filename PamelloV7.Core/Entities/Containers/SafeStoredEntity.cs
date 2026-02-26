@@ -1,22 +1,19 @@
-using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Framework.Entities.Base;
-using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Containers;
 
 public static class SafeStoredEntityStaticContainer
 {
-    public static IEntityQueryService PEQL;
+    public static Func<Type, int, IDeletableEntity?> GetById;
 }
 
 public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
-    where TEntityType : class, IPamelloEntity
+    where TEntityType : class, IDeletableEntity
 {
-
     private int _id;
     private TEntityType? _entity;
-    
+
     public int Id {
         get => _id;
         set {
@@ -25,8 +22,8 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
                 _entity = null;
                 return;
             }
-            
-            _entity = SafeStoredEntityStaticContainer.PEQL.GetById<TEntityType>(_id);
+
+            _entity = GetById();
         }
     }
 
@@ -34,8 +31,8 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
         get {
             if (_id == 0) return null;
             if (_entity?.IsDeleted ?? false) _entity = null;
-            
-            return _entity ??= SafeStoredEntityStaticContainer.PEQL.GetById<TEntityType>(_id);
+
+            return _entity ??= GetById();
         }
         set {
             if (ReferenceEquals(_entity, value)) return;
@@ -50,8 +47,8 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
             : throw new PamelloException($"Required entity of type {typeof(TEntityType).Name} with id {_id} not found, most likely deleted")
         );
     
-    IPamelloEntity? ISafeStoredEntity.Entity => Entity;
-    IPamelloEntity ISafeStoredEntity.RequiredEntity => RequiredEntity;
+    IDeletableEntity? ISafeStoredEntity.Entity => Entity;
+    IDeletableEntity ISafeStoredEntity.RequiredEntity => RequiredEntity;
     
     Type ISafeStoredEntity.EntityType => typeof(TEntityType);
     
@@ -62,6 +59,8 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
     public SafeStoredEntity(TEntityType? entity) {
         Entity = entity;
     }
+    
+    private TEntityType? GetById() => SafeStoredEntityStaticContainer.GetById(typeof(TEntityType), _id) as TEntityType;
     
     public override string ToString() {
         return $"<{typeof(TEntityType).Name}>({Id}:{!(Entity?.IsDeleted ?? true)})";

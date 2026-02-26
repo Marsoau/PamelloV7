@@ -1,11 +1,11 @@
-using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Core.Entities.Base;
 
 namespace PamelloV7.Framework.Containers;
 
 public interface ISafeStoredEntity
 {
     int Id { get; }
-    public IPamelloEntity? Entity { get; }
+    public IDeletableEntity? Entity { get; }
     public Type EntityType { get; }
-    public IPamelloEntity RequiredEntity { get; }
+    public IDeletableEntity RequiredEntity { get; }
 }

@@ -1,12 +1,10 @@
 using System.Collections;
-using Microsoft.Extensions.DependencyInjection;
-using PamelloV7.Framework.Entities.Base;
-using PamelloV7.Framework.Services.PEQL;
+using PamelloV7.Core.Entities.Base;
 
 namespace PamelloV7.Framework.Containers;
 
 public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<TEntityType>
-    where TEntityType : class, IPamelloEntity
+    where TEntityType : class, IDeletableEntity
 {
     private List<SafeStoredEntity<TEntityType>> _safeEntities;
 
@@ -21,12 +19,12 @@ public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<
         set => _safeEntities = value.Select(entity => new SafeStoredEntity<TEntityType>(entity)).ToList();
     }
     
-    IEnumerable<IPamelloEntity?> ISafeStoredEntities.InternalEntities {
+    IEnumerable<IDeletableEntity?> ISafeStoredEntities.InternalEntities {
         get => InternalEntities;
         set => InternalEntities = value.OfType<TEntityType>();
     }
-    IEnumerable<IPamelloEntity> ISafeStoredEntities.Entities =>
-        _safeEntities.Select(x => x.Entity).OfType<IPamelloEntity>();
+    IEnumerable<IDeletableEntity> ISafeStoredEntities.Entities =>
+        _safeEntities.Select(x => x.Entity).OfType<IDeletableEntity>();
 
     Type ISafeStoredEntities.EntitiesType => typeof(TEntityType);
 

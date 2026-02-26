@@ -2,6 +2,7 @@
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Server.Loaders;
 
@@ -15,7 +16,8 @@ public class Database : IPamelloModule
     public ELoadingStage Stage => ELoadingStage.Earliest;
 
     public async Task StartupAsync(IServiceProvider services) {
-        SafeStoredEntityStaticContainer.PEQL = services.GetRequiredService<IEntityQueryService>();
+        var peql = services.GetRequiredService<IEntityQueryService>();
+        SafeStoredEntityStaticContainer.GetById = (type, id) => peql.GetById(type, id);
         
         var collection = services.GetRequiredService<IServiceCollection>();
         

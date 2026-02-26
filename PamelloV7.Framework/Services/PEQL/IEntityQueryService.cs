@@ -72,5 +72,8 @@ public interface IEntityQueryService : IPamelloService
     
     //id
     public TPamelloEntity? GetById<TPamelloEntity>(int id)
-        where TPamelloEntity : class, IPamelloEntity;
+        where TPamelloEntity : class, IPamelloEntity
+    => GetById(typeof(TPamelloEntity), id) as TPamelloEntity;
+
+    public IPamelloEntity? GetById(Type entityType, int id);
 }

@@ -75,9 +75,8 @@ public class PamelloWrapperEntitiesGenerator : IIncrementalGenerator
               
               namespace {{descriptor.Namespace}}
               {
-                  partial class {{descriptor.ClassName}} : PamelloEntity<{{descriptor.DtoType.GetFullName()}}>
+                  public partial class {{descriptor.ClassName}} : PamelloEntity<{{descriptor.DtoType.GetFullName()}}>
                   {
-              {{propertiesSb}}
                       public {{descriptor.ClassName}}({{descriptor.DtoType.GetFullName()}} dto) : base(dto) { }
                   }
               }

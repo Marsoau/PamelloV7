@@ -76,13 +76,11 @@ public class EntityQueryService : IEntityQueryService
             .Where(e => e is not null)
             .ToList();
 
-    public TPamelloEntity? GetById<TPamelloEntity>(int id)
-        where TPamelloEntity : class, IPamelloEntity
-    {
-        var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
+    public IPamelloEntity? GetById(Type entityType, int id) {
+        var attribute = entityType.GetCustomAttribute<ValueEntityAttribute>();
         if (attribute is null) return null;
         
-        var entity = (TPamelloEntity)Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
+        var entity = Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
         
         if (entity?.IsDeleted ?? false) return null;
         
