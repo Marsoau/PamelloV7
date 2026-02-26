@@ -2,13 +2,14 @@ using System.Reflection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Entities.Attributes;
 using PamelloV7.Wrapper.Entities.Base;
+using PamelloV7.Wrapper.Requests;
 
 namespace PamelloV7.Wrapper.Repositories;
 
 public class RemoteRepository<TEntityType>
-    where TEntityType : class, IPamelloEntity
+    where TEntityType : class, IRemoteEntity
 {
-    private readonly PamelloClient _client;
+    private readonly PamelloRequests _requests;
     
     private readonly List<TEntityType> _loaded;
     
@@ -16,8 +17,8 @@ public class RemoteRepository<TEntityType>
     public string RemoteInterfaceName { get; }
     public Type DtoType { get; }
     
-    public RemoteRepository(PamelloClient client) {
-        _client = client;
+    public RemoteRepository(PamelloRequests requests) {
+        _requests = requests;
 
         _loaded = [];
         
@@ -38,13 +39,31 @@ public class RemoteRepository<TEntityType>
         return null;
     }
     
-    public async Task<TEntityType?> GetAsync(int id) {
+    public async Task<TEntityType> GetSingleRequiredAsync(int id)
+        => await GetSingleAsync(id) ?? throw new PamelloException($"{typeof(TEntityType).Name} with id {id} not found");
+
+    public async Task<TEntityType?> GetSingleAsync(int id) {
         var entity = Get(id);
         if (entity is not null) return entity;
+        
+        return await GetSingleAsync($"{ProviderName}${id}");
+    }
 
-        var dto = await _client.Requests.GetEntitiesAsync(DtoType, $"{ProviderName}${id}?type={RemoteInterfaceName}");
+    public async Task<TEntityType?> GetSingleAsync(string query) {
+        return (await GetAsync(query)).FirstOrDefault();
+    }
+    
+    public async Task<List<TEntityType?>> GetAsync(string query) {
+        var dto = (await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}")).FirstOrDefault();
+        if (dto is null) return null;
+        
+        var entity = Get(dto.Id);
+        if (entity is not null) return [entity];
+        
+        entity = Activator.CreateInstance(typeof(TEntityType), dto) as TEntityType;
+        
         if (entity is not null) _loaded.Add(entity);
         
-        return entity;
+        return [];
     }
 }

@@ -75,12 +75,12 @@ public class PamelloRequests : IPamelloCommandInvoker
 
     public Task<List<PamelloEntityDto>> GetEntitiesAsync(string fullQuery)
         => GetEntitiesAsync<PamelloEntityDto>(fullQuery);
-    public async Task<List<TPamelloDto>> GetEntitiesAsync<TPamelloDto>(string fullQuery)
+    public async Task<List<TPamelloDto>> GetEntitiesAsync<TPamelloDto>(string query)
         where TPamelloDto : PamelloEntityDto
-        => (await GetEntitiesAsync(typeof(TPamelloDto), fullQuery)).OfType<TPamelloDto>().ToList();
+        => (await GetEntitiesAsync(typeof(TPamelloDto), query)).OfType<TPamelloDto>().ToList();
     
-    public async Task<List<object>> GetEntitiesAsync(Type type, string fullQuery)
-    {
-        return (await GetFromJsonAsync(typeof(List<>).MakeGenericType(type), $"Data/{fullQuery}") as IList)?.OfType<object>().ToList() ?? [];
+    public async Task<List<PamelloEntityDto>> GetEntitiesAsync(Type type, string query) {
+        if (!type.IsAssignableTo(typeof(PamelloEntityDto))) throw new ArgumentException("Type must be assignable to PamelloEntityDto");
+        return (await GetFromJsonAsync(typeof(List<>).MakeGenericType(type), $"Data/{query}") as IList)?.OfType<PamelloEntityDto>().ToList() ?? [];
     }
 }

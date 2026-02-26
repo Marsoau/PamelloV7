@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Entities.Base;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
@@ -63,25 +64,25 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
 
-        var songs = new SafeStoredEntities<IPamelloSong>([30, 31, 80, 81, 82]);
+        ISafeStoredEntities songs = new SafeStoredEntities<IPamelloSong>([30, 31, 80, 81, 82]);
         var kokosoko = _songs.GetRequired(81);
 
-        WriteSongs(songs);
+        WriteSongs(songs.Entities);
 
         Console.WriteLine("Deleting kokosoko");
         
         kokosoko.IsDeleted = true;
         
-        WriteSongs(songs);
+        WriteSongs(songs.Entities);
         
         Console.WriteLine("Restoring kokosoko");
         
         kokosoko.IsDeleted = false;
         
-        WriteSongs(songs);
+        WriteSongs(songs.Entities);
     }
 
-    public void WriteSongs(IEnumerable<IPamelloSong> songs) {
+    public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
         var counter = 0;
         foreach (var song in songs) {
             Console.WriteLine($"{counter++}: {song}");

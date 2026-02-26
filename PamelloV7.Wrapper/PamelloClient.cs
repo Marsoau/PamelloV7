@@ -1,7 +1,9 @@
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
+using PamelloV7.Wrapper.Entities;
 using PamelloV7.Wrapper.Events.Services;
+using PamelloV7.Wrapper.Repositories;
 using PamelloV7.Wrapper.Requests;
 using PamelloV7.Wrapper.Signal;
 
@@ -16,6 +18,8 @@ public class PamelloClient
     public PamelloCommands Commands { get; }
     
     public RemoteEventsService Events { get; }
+    
+    public RemoteRepository<RemoteUser> Users { get; }
 
     public PamelloClient() {
         Config = new PamelloClientConfig();
@@ -23,7 +27,10 @@ public class PamelloClient
         Requests = new PamelloRequests(Config);
         Signal = new PamelloSignal(this);
         Commands = new PamelloCommands(Requests, Signal);
+        
         Events = new RemoteEventsService();
+        
+        Users = new RemoteRepository<RemoteUser>(Requests);
     }
 
     public async Task ConnectAsync(string url) {

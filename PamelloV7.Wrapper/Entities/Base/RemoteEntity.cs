@@ -2,15 +2,17 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Wrapper.Entities.Base;
 
-public class PamelloEntity<TDtoType> : IPamelloEntity
+public class RemoteEntity<TDtoType> : IRemoteEntity
     where TDtoType : PamelloEntityDto
 {
     public int Id => Dto.Id;
     public string Name => Dto.Name;
     
+    public bool IsDeleted { get; set; }
+    
     internal TDtoType Dto { get; set; }
     
-    public PamelloEntity(TDtoType dto) {
+    public RemoteEntity(TDtoType dto) {
         Dto = dto;
     }
     

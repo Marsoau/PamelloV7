@@ -69,18 +69,19 @@ public class PamelloWrapperEntitiesGenerator : IIncrementalGenerator
               
               //{{descriptor.ProviderName}}
               //{{descriptor.RemoteInterfaceName}}
-              //{{descriptor.DtoType.Name}}
+              //{{descriptor.DtoType.Name}} {{descriptor.DtoType.GetMembers().Length}}
               
               using PamelloV7.Wrapper.Entities.Base;
               
               namespace {{descriptor.Namespace}}
               {
-                  public partial class {{descriptor.ClassName}} : PamelloEntity<{{descriptor.DtoType.GetFullName()}}>
+                  public partial class {{descriptor.ClassName}} : RemoteEntity<{{descriptor.DtoType.GetFullName()}}>
                   {
+              {{propertiesSb}}
                       public {{descriptor.ClassName}}({{descriptor.DtoType.GetFullName()}} dto) : base(dto) { }
                   }
               }
               """;
-        context.AddSource($"{descriptor.ClassName}.Entities.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{descriptor.ClassName}.RemoteEntity.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

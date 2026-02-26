@@ -1,8 +1,9 @@
+using PamelloV7.Core.Entities.Base;
+
 namespace PamelloV7.Wrapper.Entities.Base;
 
-public interface IPamelloEntity
+public interface IRemoteEntity : IDeletableEntity
 {
-    public int Id { get; }
     public string Name { get; }
 
     internal Type GetDtoType();
