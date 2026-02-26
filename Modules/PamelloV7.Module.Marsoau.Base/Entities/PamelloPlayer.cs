@@ -103,7 +103,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     }
 
     public bool IsAvailableFor(IPamelloUser user) {
-        return true; //Owner == user;
+        return user == Owner || _connectedSpeakers.Any(speaker => speaker.IsAvailableFor(user));
     }
     
     public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker) {
