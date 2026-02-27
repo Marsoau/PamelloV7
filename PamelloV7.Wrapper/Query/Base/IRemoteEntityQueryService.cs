@@ -2,7 +2,7 @@ using System.Reflection;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Wrapper.Entities.Base;
 
-namespace PamelloV7.Wrapper.Query;
+namespace PamelloV7.Wrapper.Query.Base;
 
 public interface IRemoteEntityQueryService
 {

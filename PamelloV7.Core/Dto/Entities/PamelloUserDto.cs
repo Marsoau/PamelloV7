@@ -2,7 +2,7 @@
 
 namespace PamelloV7.Core.Dto.Entities
 {
-    public record PamelloUserDto : PamelloEntityDto
+    public class PamelloUserDto : PamelloEntityDto
     {
         [JsonPropertyName("avatarUrl")]
 		public string? AvatarUrl { get; set; }

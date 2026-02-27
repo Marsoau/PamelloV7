@@ -1,6 +1,6 @@
 namespace PamelloV7.Framework.DTO.Speakers;
 
-public record PamelloInternetSpeakerDTO : PamelloSpeakerDTO
+public class PamelloInternetSpeakerDTO : PamelloSpeakerDTO
 {
     public int ListenersCount { get; set; }
 }

@@ -8,7 +8,7 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Framework.DTO
 {
-    public record PamelloEpisodeDTO : PamelloEntityDto
+    public class PamelloEpisodeDTO : PamelloEntityDto
     {
         [JsonPropertyName("start")]
         public int Start { get; set; }

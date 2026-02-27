@@ -4,20 +4,21 @@ using PamelloV7.Wrapper.Entities.Attributes;
 using PamelloV7.Wrapper.Entities.Base;
 using PamelloV7.Wrapper.Requests;
 
-namespace PamelloV7.Wrapper.Repositories;
+namespace PamelloV7.Wrapper.Repositories.Base;
 
-public class RemoteRepository<TEntityType>
+public class RemoteRepository<TEntityType> : IRemoteRepository
     where TEntityType : class, IRemoteEntity
 {
-    private readonly PamelloRequests _requests;
+    private readonly PamelloRequestsService _requests;
     
     private readonly List<TEntityType> _loaded;
     
     public string ProviderName { get; }
     public string RemoteInterfaceName { get; }
     public Type DtoType { get; }
+    Type IRemoteRepository.EntityType => typeof(TEntityType);
     
-    public RemoteRepository(PamelloRequests requests) {
+    public RemoteRepository(PamelloRequestsService requests) {
         _requests = requests;
 
         _loaded = [];
@@ -29,7 +30,8 @@ public class RemoteRepository<TEntityType>
         RemoteInterfaceName = attribute.RemoteInterfaceName;
         DtoType = attribute.DtoType;
     }
-    
+
+    IRemoteEntity? IRemoteRepository.Get(int id) => Get(id);
     public TEntityType GetRequired(int id)
         => Get(id) ?? throw new PamelloException($"{typeof(TEntityType).Name} with id {id} not found");
     public TEntityType? Get(int id) {
@@ -46,7 +48,7 @@ public class RemoteRepository<TEntityType>
         var entity = Get(id);
         if (entity is not null) return entity;
         
-        return await GetSingleAsync($"{ProviderName}${id}");
+        return await GetSingleAsync($"{id}");
     }
 
     public async Task<TEntityType?> GetSingleAsync(string query) {
@@ -64,6 +66,6 @@ public class RemoteRepository<TEntityType>
         
         if (entity is not null) _loaded.Add(entity);
         
-        return [];
+        return [entity];
     }
 }

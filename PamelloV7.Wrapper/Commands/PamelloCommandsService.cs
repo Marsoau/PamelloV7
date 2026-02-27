@@ -3,16 +3,21 @@ using PamelloV7.Wrapper.Signal;
 
 namespace PamelloV7.Wrapper.Commands;
 
-public class PamelloCommands : IPamelloCommandInvoker
+public class PamelloCommandsService : IPamelloCommandInvoker
 {
-    public readonly PamelloRequests Requests;
-    public readonly PamelloSignal? Signal;
+    public readonly PamelloRequestsService Requests;
+    public readonly PamelloSignalService? Signal;
     
     public IPamelloCommandInvoker Invoker
         => Signal is { IsConnected: true } ? Signal : Requests;
     
-    public PamelloCommands(PamelloRequests requests, PamelloSignal? signal = null)
+    public PamelloCommandsService(PamelloRequestsService requests)
     {
+        Requests = requests;
+        Signal = null;
+    }
+
+    public PamelloCommandsService(PamelloRequestsService requests, PamelloSignalService signal) {
         Requests = requests;
         Signal = signal;
     }

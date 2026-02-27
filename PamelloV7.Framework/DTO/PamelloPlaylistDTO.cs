@@ -8,7 +8,7 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Framework.DTO
 {
-    public record PamelloPlaylistDTO : PamelloEntityDto
+    public class PamelloPlaylistDTO : PamelloEntityDto
     {
         [JsonPropertyName("ownerId")]
         public int OwnerId { get; set; }

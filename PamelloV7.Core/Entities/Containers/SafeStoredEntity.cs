@@ -46,8 +46,11 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
             ? throw new PamelloException($"Required entity of type {typeof(TEntityType).Name} is null")
             : throw new PamelloException($"Required entity of type {typeof(TEntityType).Name} with id {_id} not found, most likely deleted")
         );
-    
-    IDeletableEntity? ISafeStoredEntity.Entity => Entity;
+
+    IDeletableEntity? ISafeStoredEntity.Entity {
+        get => Entity;
+        set => Entity = value as TEntityType;
+    }
     IDeletableEntity ISafeStoredEntity.RequiredEntity => RequiredEntity;
     
     Type ISafeStoredEntity.EntityType => typeof(TEntityType);
@@ -63,6 +66,6 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
     private TEntityType? GetById() => SafeStoredEntityStaticContainer.GetById(typeof(TEntityType), _id) as TEntityType;
     
     public override string ToString() {
-        return $"<{typeof(TEntityType).Name}>({Id}:{!(Entity?.IsDeleted ?? true)})";
+        return $"<{typeof(TEntityType).Name}>({Id}:{Entity?.IsDeleted.ToString() ?? "null"})";
     }
 }

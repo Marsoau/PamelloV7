@@ -12,21 +12,21 @@ using PamelloV7.Wrapper.Exceptions;
 
 namespace PamelloV7.Wrapper.Requests;
 
-public class PamelloRequests : IPamelloCommandInvoker
+public class PamelloRequestsService : IPamelloCommandInvoker
 {
     private readonly PamelloClientConfig _config;
     
     private readonly HttpClient _http;
     
-    public PamelloRequests(PamelloClientConfig config) {
+    public PamelloRequestsService(PamelloClientConfig config) {
         _config = config;
         
         _http = new HttpClient();
     }
-    public PamelloRequests(PamelloClientConfig config, IServiceProvider services) {
+    public PamelloRequestsService(PamelloClientConfig config, IHttpClientFactory clientFactory) {
         _config = config;
         
-        _http = services.GetRequiredService<IHttpClientFactory>().CreateClient();
+        _http = clientFactory.CreateClient();
     }
 
     public async Task<TType> GetFromJsonAsync<TType>([StringSyntax("Uri")] string url, bool requireUser = false)

@@ -11,7 +11,7 @@ public static class CommandExtensionsGenerator
     public static void Generate(DirectoryInfo targetDirectory) {
         var assembly = typeof(PamelloCommand).Assembly;
         
-        var commandsType = typeof(PamelloCommands);
+        var commandsType = typeof(PamelloCommandsService);
 
         var path = Path.Combine(targetDirectory.FullName, $"{commandsType.Name}Extensions.g.cs");
         Console.WriteLine(path);

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PamelloV7.Core.Dto.Signal;
 using PamelloV7.Core.Exceptions;
@@ -8,13 +9,15 @@ using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
 using PamelloV7.Wrapper.Events;
 using PamelloV7.Wrapper.Events.Other;
+using PamelloV7.Wrapper.Events.Services;
 using PamelloV7.Wrapper.Exceptions;
 
 namespace PamelloV7.Wrapper.Signal;
 
-public class PamelloSignal : IPamelloCommandInvoker
+public class PamelloSignalService : IPamelloCommandInvoker
 {
-    private readonly PamelloClient _client;
+    private readonly PamelloClientConfig _config;
+    private readonly RemoteEventsService _events;
     
     private HubConnection? _connection;
 
@@ -23,17 +26,18 @@ public class PamelloSignal : IPamelloCommandInvoker
     
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
     
-    public PamelloSignal(PamelloClient client) {
-        _client = client;
+    public PamelloSignalService(PamelloClientConfig config, RemoteEventsService events) {
+        _config = config;
+        _events = events;
 
         _connection = null;
     }
 
     internal async Task<HubConnectionState> ConnectAsync() {
-        if (_client.Config.BaseUrl is null) throw new PamelloException("Base URL is not set");
+        if (_config.BaseUrl is null) throw new PamelloException("Base URL is not set");
         
         _connection = new HubConnectionBuilder()
-            .WithUrl($"{_client.Config.BaseUrl}/Signal", options => {
+            .WithUrl($"{_config.BaseUrl}/Signal", options => {
                 options.Transports = HttpTransportType.WebSockets;
                 options.SkipNegotiation = true;
             })
@@ -49,13 +53,13 @@ public class PamelloSignal : IPamelloCommandInvoker
 
     private void OnEvent(ReceivedEventJsonDto eventDto) {
         Console.WriteLine($"Received event: {eventDto.Type.Name} {eventDto.Data}");
-        _client.Events.Invoke(eventDto);
+        _events.Invoke(eventDto);
     }
 
     internal async Task AuthorizeAsync() {
-        if (_client.Config.Token is null) throw new PamelloException("Token is not set");
+        if (_config.Token is null) throw new PamelloException("Token is not set");
         
-        await Connection.InvokeAsync("Authorize", _client.Config.Token);
+        await Connection.InvokeAsync("Authorize", _config.Token);
     }
 
     internal async Task DisconnectAsync() {

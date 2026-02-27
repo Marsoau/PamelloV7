@@ -2,7 +2,7 @@
 
 namespace PamelloV7.Core.Dto
 {
-    public record PamelloEntityDto
+    public class PamelloEntityDto
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
