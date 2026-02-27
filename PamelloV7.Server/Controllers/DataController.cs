@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Repositories;
@@ -44,7 +46,7 @@ namespace PamelloV7.Server.Controllers
             if (Request.Query.TryGetValue("type", out var typeStrValues)) {
                 type = _typeResolver.GetTypeByName(typeStrValues.FirstOrDefault() ?? "");
                 
-                if (!type?.IsAssignableTo(typeof(IPamelloEntity)) ?? false)
+                if (!(type?.IsAssignableTo(typeof(IPamelloEntity)) ?? false))
                     throw new PamelloControllerException(BadRequest("type must be assignable to IPamelloEntity"));
             }
             if (Request.Query.TryGetValue("single", out var singleStrValues)) {
@@ -70,8 +72,9 @@ namespace PamelloV7.Server.Controllers
                     .FirstOrDefault(m => m is { Name: "GetAsync", IsGenericMethod: true })
                     ?.MakeGenericMethod(type);
                 Debug.Assert(method is not null);
-                
-                results = method.Invoke(_peql, [query, User]) as IEnumerable<IPamelloEntity> ?? [];
+
+                var list = (IList)await (dynamic)method.Invoke(_peql, [query, User])!;
+                results = list?.Cast<IPamelloEntity>() ?? [];
             }
             else {
                 results = await _peql.GetAsync(query, User);

@@ -35,7 +35,7 @@ public interface IRemoteEntityQueryService
     public IRemoteEntity? GetSingle(Type type, int id);
     
     //many from loaded, no server query
-    public SafeStoredEntities<TRemoteEntity> Get<TRemoteEntity>(IEnumerable<int> ids)
+    public IEnumerable<TRemoteEntity> Get<TRemoteEntity>(IEnumerable<int> ids)
         where TRemoteEntity : class, IRemoteEntity;
 
     public ISafeStoredEntities Get(Type type, IEnumerable<int> ids) {
@@ -62,17 +62,9 @@ public interface IRemoteEntityQueryService
         => (await GetAsync(type, query)).Entities.FirstOrDefault() as IRemoteEntity;
 
     //many query
-    public Task<SafeStoredEntities<TRemoteEntity>> GetAsync<TRemoteEntity>(string query)
+    public Task<IEnumerable<TRemoteEntity>> GetAsync<TRemoteEntity>(string query)
         where TRemoteEntity : class, IRemoteEntity;
 
-    /// <summary>
-    /// <b>Queries the server</b> to get entities
-    /// </summary>
-    /// <param name="type">Type of the entity</param>
-    /// <param name="query">PEQL Query</param>
-    /// <returns>
-    ///     Entities in <see cref="SafeStoredEntities{TEntityType}"/> container
-    /// </returns>
     public async Task<ISafeStoredEntities> GetAsync(Type type, string query) {
         var method = typeof(IRemoteEntityQueryService).GetMethod(nameof(GetAsync), BindingFlags.Instance | BindingFlags.Public)!;
         return (ISafeStoredEntities)await (dynamic)method.MakeGenericMethod(type).Invoke(this, [query])!;
