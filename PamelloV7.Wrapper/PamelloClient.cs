@@ -49,7 +49,8 @@ public class PamelloClient
         PEQL = new RemoteEntityQueryService(this);
         
         SafeStoredEntityStaticContainer.GetById = (type, id) => PEQL.GetSingle(type, id);
-        SafeStoredExtensions.GetSingleAsync = (type, id) => PEQL.GetSingleAsync(type, id);
+        SafeStoredExtensions.GetSingleAsyncFunc = (type, id) => PEQL.GetSingleAsync(type, id);
+        SafeStoredExtensions.GetAsyncFunc = (type, query) => PEQL.GetAsync(type, query);
     }
 
     public async Task ConnectAsync(string url) {

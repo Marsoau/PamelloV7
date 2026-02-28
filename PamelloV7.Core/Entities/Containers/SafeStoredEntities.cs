@@ -18,13 +18,17 @@ public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<
         get => _safeEntities.Select(safeEntity => safeEntity.Entity);
         set => _safeEntities = value.Select(entity => new SafeStoredEntity<TEntityType>(entity)).ToList();
     }
-    
+
+    public IEnumerable<SafeStoredEntity<TEntityType>> InternalSafeEntities => _safeEntities;
+
     IEnumerable<IDeletableEntity?> ISafeStoredEntities.InternalEntities {
         get => InternalEntities;
         set => InternalEntities = value.OfType<TEntityType>();
     }
     IEnumerable<IDeletableEntity> ISafeStoredEntities.Entities =>
         _safeEntities.Select(x => x.Entity).OfType<IDeletableEntity>();
+    IEnumerable<ISafeStoredEntity> ISafeStoredEntities.InternalSafeEntities
+        => _safeEntities;
 
     Type ISafeStoredEntities.EntitiesType => typeof(TEntityType);
 

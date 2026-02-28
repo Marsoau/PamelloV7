@@ -7,6 +7,7 @@ public interface ISafeStoredEntities
 {
     public IEnumerable<int> InternalIds { get; set; }
     public IEnumerable<IDeletableEntity?> InternalEntities { get; set; }
+    public IEnumerable<ISafeStoredEntity> InternalSafeEntities { get; }
     public IEnumerable<IDeletableEntity> Entities { get; }
     public Type EntitiesType { get; }
 }

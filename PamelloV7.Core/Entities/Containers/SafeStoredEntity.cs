@@ -32,10 +32,10 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
             if (_id == value) return;
             if ((_id = value) == 0) {
                 _entity = null;
-                return;
+                //return;
             }
 
-            _entity = GetById();
+            //_entity = GetById();
         }
     }
 
@@ -78,6 +78,6 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
     private TEntityType? GetById() => SafeStoredEntityStaticContainer.GetById(typeof(TEntityType), _id) as TEntityType;
     
     public override string ToString() {
-        return $"<{typeof(TEntityType).Name}>({Id}:{Entity?.IsDeleted.ToString() ?? "null"})";
+        return $"<{typeof(TEntityType).Name}>({Id}:{_entity?.IsDeleted.ToString() ?? "null"})";
     }
 }

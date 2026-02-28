@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Wrapper.Entities.Base;
@@ -6,14 +7,44 @@ namespace PamelloV7.Wrapper.Extensions;
 
 public static class SafeStoredExtensions
 {
-    public static Func<Type, int, object>? GetSingleAsync;
-    private static Func<Type, int, object> _getSingleAsync
-        => GetSingleAsync ?? throw new Exception("GetSingleAsync function is not set");
-    
-    public static async Task RequestAsync(this ISafeStoredEntity entity) {
-        object? newEntity = await (dynamic)_getSingleAsync(entity.EntityType, entity.Id);
-        if (newEntity is not IRemoteEntity remoteEntity) return;
+    public static Func<Type, int, object>? GetSingleAsyncFunc;
+    public static Func<Type, string, object>? GetAsyncFunc;
+
+    private static async Task<IRemoteEntity?> GetSingleAsync(Type type, int id) {
+        if (GetSingleAsyncFunc is null) throw new Exception("GetSingleAsync function is not set");
         
-        entity.Entity = remoteEntity;
+        object? newEntity = await (dynamic)GetSingleAsyncFunc(type, id);
+        if (newEntity is IRemoteEntity remoteEntity) return remoteEntity;
+        
+        return null;
+    }
+    
+    private static async Task<IEnumerable<IRemoteEntity>> GetAsync(Type type, string query) {
+        if (GetAsyncFunc is null) throw new Exception("GetSingleAsync function is not set");
+        
+        object? newEntity = await (dynamic)GetAsyncFunc(type, query);
+        if (newEntity is IEnumerable<IRemoteEntity> remoteEntities) return remoteEntities;
+        
+        return [];
+    }
+    
+    public static async Task LoadAsync(this ISafeStoredEntity entity) {
+        entity.Entity = await GetSingleAsync(entity.EntityType, entity.Id);
+    }
+
+    public static async Task<SafeStoredEntities<TEntityType>> LoadAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities)
+        where TEntityType : class, IDeletableEntity
+    {
+        await ((ISafeStoredEntities)entities).LoadAsync();
+        
+        return entities;
+    }
+    public static async Task LoadAsync(this ISafeStoredEntities entities) {
+        var nonloadedIds = entities.InternalSafeEntities
+            .Where(entity => entity.Entity is null)
+            .Select(entity => entity.Id)
+            .Distinct();
+        
+        await GetAsync(entities.EntitiesType, string.Join(",", nonloadedIds));
     }
 }

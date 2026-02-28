@@ -66,7 +66,7 @@ public class RemoteRepository<TEntityType> : IRemoteRepository
 
     public async Task<IEnumerable<TEntityType>> GetAsync(string query) {
         var results = await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}");
-        return results.Select(Load);
+        return results.Select(Load).ToList();
     }
     public async Task<IEnumerable<int>> GetIdsAsync(string query) {
         return await _requests.GetEntitiesIdsAsync($"{ProviderName}${query}");
