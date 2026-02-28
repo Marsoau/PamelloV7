@@ -40,10 +40,16 @@ public static class SafeStoredExtensions
         return entities;
     }
     public static async Task LoadAsync(this ISafeStoredEntities entities) {
+        await entities.LoadPageAsync(0, entities.InternalSafeEntities.Count());
+    }
+    public static async Task LoadPageAsync(this ISafeStoredEntities entities, int offset, int count) {
         var nonloadedIds = entities.InternalSafeEntities
+            .Skip(offset).Take(count)
             .Where(entity => entity.Entity is null)
             .Select(entity => entity.Id)
-            .Distinct();
+            .Distinct()
+            .ToList();
+        if (nonloadedIds.Count == 0) return;
         
         await GetAsync(entities.EntitiesType, string.Join(",", nonloadedIds));
     }
