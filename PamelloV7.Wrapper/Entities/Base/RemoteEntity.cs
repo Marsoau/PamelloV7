@@ -17,4 +17,8 @@ public class RemoteEntity<TDtoType> : IRemoteEntity
     }
     
     public Type GetDtoType() => typeof(TDtoType);
+
+    public override string ToString() {
+        return $"[{Id}] {Name}";
+    }
 }

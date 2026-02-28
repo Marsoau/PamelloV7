@@ -53,9 +53,12 @@ public interface IRemoteEntityQueryService
     
     //many query
     public async Task<IEnumerable<TRemoteEntity>> GetAsync<TRemoteEntity>(string query) //of T
-        where TRemoteEntity : class, IRemoteEntity {
-        return (await GetAsync(typeof(TRemoteEntity), query)).OfType<TRemoteEntity>();
-    } 
+        where TRemoteEntity : class, IRemoteEntity
+        => (await GetAsync(typeof(TRemoteEntity), query)).OfType<TRemoteEntity>();
+    public async Task<IEnumerable<int>> GetIdsAsync<TRemoteEntity>(string query) //of T
+        where TRemoteEntity : class, IRemoteEntity
+        => await GetIdsAsync(typeof(TRemoteEntity), query);
+    
     public Task<IEnumerable<IRemoteEntity>> GetAsync(Type type, string query); //many, R.GetAsync, I, [type]
     public Task<IEnumerable<int>> GetIdsAsync(Type type, string query); //many, R.GetIdsAsync, I, [type, view=Ids]
     public Task<IEnumerable<IRemoteEntity>> GetAsync(string query); //many, server, I, [view=Detailed]

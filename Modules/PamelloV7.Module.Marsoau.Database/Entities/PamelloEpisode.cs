@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Dto;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
@@ -84,7 +85,7 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
     }
 
     public override PamelloEntityDto GetDto() {
-        return new PamelloEpisodeDTO {
+        return new PamelloEpisodeDto {
             Id = Id,
             Name = Name,
             Start = Start.TotalSeconds,

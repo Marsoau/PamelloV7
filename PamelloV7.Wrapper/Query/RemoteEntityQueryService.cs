@@ -13,13 +13,35 @@ public class RemoteEntityQueryService : IRemoteEntityQueryService
     
     public RemoteEntityQueryService(PamelloClient client) {
         _repositories = [
-            client.Users
+            client.Users,
+            client.Songs,
+            client.Episodes,
+            client.Playlists,
         ];
     }
 
     private IRemoteRepository GetRepositoryRequired(Type type)
-        => GetRepository(type) ?? throw new Exception($"no repository for type {type.Name}");
+        => GetRepository(type) ?? throw new Exception($"No repository for type {type.Name}");
     private IRemoteRepository? GetRepository(Type type) {
         return _repositories.FirstOrDefault(x => x.EntityType == type);
+    }
+
+    public IRemoteEntity? GetSingle(Type type, int id)
+        => GetRepositoryRequired(type).GetSingle(id);
+
+    public Task<IRemoteEntity?> GetSingleAsync(Type type, int id)
+        => GetRepositoryRequired(type).GetSingleAsync(id);
+
+    public Task<IRemoteEntity?> GetSingleAsync(Type type, string query)
+        => GetRepositoryRequired(type).GetSingleAsync(query);
+
+    public Task<IEnumerable<IRemoteEntity>> GetAsync(Type type, string query)
+        => GetRepositoryRequired(type).GetAsync(query);
+
+    public Task<IEnumerable<int>> GetIdsAsync(Type type, string query)
+        => GetRepositoryRequired(type).GetIdsAsync(query);
+
+    public Task<IEnumerable<IRemoteEntity>> GetAsync(string query) {
+        throw new NotImplementedException();
     }
 }

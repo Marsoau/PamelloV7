@@ -26,6 +26,9 @@ public class PamelloClient
     public readonly PamelloCommandsService Commands;
 
     public readonly RemoteUserRepository Users;
+    public readonly RemoteSongRepository Songs;
+    public readonly RemoteEpisodeRepository Episodes;
+    public readonly RemotePlaylistRepository Playlists;
 
     public readonly IRemoteEntityQueryService PEQL;
     
@@ -39,13 +42,14 @@ public class PamelloClient
         Commands = new PamelloCommandsService(Requests, Signal);
         
         Users = new RemoteUserRepository(Requests);
+        Songs = new RemoteSongRepository(Requests);
+        Episodes = new RemoteEpisodeRepository(Requests);
+        Playlists = new RemotePlaylistRepository(Requests);
         
         PEQL = new RemoteEntityQueryService(this);
         
-        SafeStoredEntityStaticContainer.GetById = (type, id) => Users.GetSingle(id);
-        SafeStoredExtensions.GetSingleAsync = (type, id) => Users.GetSingleAsync(id);
-        //SafeStoredEntityStaticContainer.GetById = (type, id) => PEQL.GetSingle(type, id);
-        //SafeStoredExtensions.GetSingleAsync = (type, id) => PEQL.GetSingleAsync(type, id);
+        SafeStoredEntityStaticContainer.GetById = (type, id) => PEQL.GetSingle(type, id);
+        SafeStoredExtensions.GetSingleAsync = (type, id) => PEQL.GetSingleAsync(type, id);
     }
 
     public async Task ConnectAsync(string url) {

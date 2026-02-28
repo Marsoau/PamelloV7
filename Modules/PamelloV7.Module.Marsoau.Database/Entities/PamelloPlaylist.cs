@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using PamelloV7.Core.Dto;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
@@ -179,7 +180,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
     }
 
     public override PamelloEntityDto GetDto() {
-        return new PamelloPlaylistDTO {
+        return new PamelloPlaylistDto {
             Id = Id,
             Name = Name,
             OwnerId = Owner.Id,

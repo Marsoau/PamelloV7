@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using PamelloV7.Core.Dto;
+﻿using System.Text.Json.Serialization;
 
-namespace PamelloV7.Framework.DTO
+namespace PamelloV7.Core.Dto.Entities
 {
-    public class PamelloSongDTO : PamelloEntityDto
+    public class PamelloSongDto : PamelloEntityDto
     {
         [JsonPropertyName("coverUrl")]
         public string CoverUrl { get; set; }

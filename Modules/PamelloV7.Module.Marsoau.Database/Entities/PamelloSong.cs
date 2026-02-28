@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using PamelloV7.Core.Audio;
 using PamelloV7.Core.Dto;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
@@ -272,7 +273,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     }
 
     public override PamelloEntityDto GetDto() {
-        return new PamelloSongDTO {
+        return new PamelloSongDto {
             Id = Id,
             Name = Name,
             CoverUrl = CoverUrl,
