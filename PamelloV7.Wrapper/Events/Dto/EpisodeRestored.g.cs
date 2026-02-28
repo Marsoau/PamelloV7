@@ -8,7 +8,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 [EventFullName("PamelloV7.Framework.Events.Creative.EpisodeRestored")]
 public class EpisodeRestored : IRemoteEvent
 {
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Episode { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Episode { get; set; }
 
 }

@@ -8,7 +8,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 [EventFullName("PamelloV7.Framework.Events.Creative.SongCreated")]
 public class SongCreated : IRemoteEvent
 {
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Song { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Song { get; set; }
 
 }

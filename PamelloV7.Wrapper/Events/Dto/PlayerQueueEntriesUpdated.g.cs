@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class PlayerQueueEntriesUpdated : IRemoteEvent
 {
     public IEnumerable<PamelloV7.Core.Dto.Entities.Other.PamelloQueueEntryDto> Entries { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Player { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Player { get; set; }
 
 }

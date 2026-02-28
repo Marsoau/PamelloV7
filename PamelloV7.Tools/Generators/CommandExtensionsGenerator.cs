@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Reflection;
 using System.Text;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities.Base;
@@ -36,13 +37,13 @@ public static class CommandExtensionsGenerator
             var executeMethod = command.GetMethod("Execute");
             if (executeMethod is null) continue;
 
-            var returnTypeInfo = GetReturnTypeInfo(executeMethod.ReturnType, false);
+            var returnTypeInfo = GetReturnTypeInfo(executeMethod.ReturnType, false, false);
 
             Console.WriteLine($"Command: {command.Name}");
             var csArgString = "";
             var pathArgString = "";
             foreach (var parameter in executeMethod.GetParameters()) {
-                var parameterTypeInfo = GetReturnTypeInfo(parameter.ParameterType, true);
+                var parameterTypeInfo = GetReturnTypeInfo(parameter.ParameterType, true, false);
                 Console.WriteLine($"    {parameter.Name}: {parameterTypeInfo}");
                 
                 if (parameterTypeInfo.IsVoid) continue;
@@ -97,7 +98,7 @@ public static class CommandExtensionsGenerator
         }
     }
 
-    public static TranslatedTypeInfo GetReturnTypeInfo(Type initialType, bool isParameter) {
+    public static TranslatedTypeInfo GetReturnTypeInfo(Type initialType, bool isParameter, bool isNullable) {
         TranslatedTypeInfo final = new(initialType, isParameter);
         
         if (final.Type.IsAssignableTo(typeof(Task))) {
@@ -108,7 +109,8 @@ public static class CommandExtensionsGenerator
             final.IsEnumerable = true;
             final.Type = final.Type.GenericTypeArguments.FirstOrDefault() ?? typeof(void);
         }
-        
+
+        final.IsNullable = isNullable;
         if (Nullable.GetUnderlyingType(final.Type) is { } type) {
             final.IsNullable = true;
             final.Type = type;

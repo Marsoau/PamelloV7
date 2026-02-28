@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events.Base;
@@ -22,7 +23,9 @@ public static class EventsDtoGenerator
 
         foreach (var property in eventType.GetProperties()) {
             if (property.PropertyType.IsAssignableTo(typeof(IRevertPack))) continue;
-            sb.AppendLine($"    public {CommandExtensionsGenerator.GetReturnTypeInfo(property.PropertyType, false)} {property.Name} {{ get; set; }}");
+            var context = new NullabilityInfoContext();
+            var isNullable = context.Create(property).ReadState == NullabilityState.Nullable;
+            sb.AppendLine($"    public {CommandExtensionsGenerator.GetReturnTypeInfo(property.PropertyType, false, isNullable)} {property.Name} {{ get; set; }}");
         }
         
         var content = 

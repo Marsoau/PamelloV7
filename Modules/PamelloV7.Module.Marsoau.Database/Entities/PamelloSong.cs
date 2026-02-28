@@ -285,7 +285,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
             PlaylistsIds = IPamelloEntity.GetIds(Playlists),
             EpisodesIds = IPamelloEntity.GetIds(Episodes),
             
-            SourcesPlatfromKeys = Sources.Select(source => source.PK.ToString())
+            SourcesPlatformKeys = Sources.Select(source => source.PK.ToString())
         };
     }
 }

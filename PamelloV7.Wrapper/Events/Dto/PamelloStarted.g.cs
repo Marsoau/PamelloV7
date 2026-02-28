@@ -9,6 +9,6 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class PamelloStarted : IRemoteEvent
 {
     public System.IServiceProvider Services { get; set; }
-    public System.Int32 Invoker { get; set; }
+    public System.Int32? Invoker { get; set; }
 
 }

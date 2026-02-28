@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -52,7 +53,7 @@ public class PamelloSignalService : IPamelloCommandInvoker
     }
 
     private void OnEvent(ReceivedEventJsonDto eventDto) {
-        Console.WriteLine($"Received event: {eventDto.Type.Name} {eventDto.Data}");
+        Debug.WriteLine($"Received event: {eventDto.Type.Name} {eventDto.Data}");
         _events.Invoke(eventDto);
     }
 

@@ -10,7 +10,7 @@ public class SongSourceDownloadProgressUpdated : IRemoteEvent
 {
     public System.Int32 SourceIndex { get; set; }
     public System.Double Progress { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Song { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Song { get; set; }
 
 }

@@ -9,6 +9,6 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class EventsConnected : IRemoteEvent
 {
     public System.Guid EventsToken { get; set; }
-    public System.Int32 Invoker { get; set; }
+    public System.Int32? Invoker { get; set; }
 
 }

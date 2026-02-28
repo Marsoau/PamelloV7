@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class SongSelectedSourceIndexUpdated : IRemoteEvent
 {
     public System.Int32 SelectedSourceIndex { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Song { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Song { get; set; }
 
 }

@@ -1,5 +1,4 @@
 using PamelloV7.Wrapper.Events.Base;
-using PamelloV7.Wrapper.Events.Dto;
 
 namespace PamelloV7.Wrapper.Events.Other;
 

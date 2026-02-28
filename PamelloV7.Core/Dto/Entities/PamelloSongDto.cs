@@ -28,6 +28,6 @@ namespace PamelloV7.Core.Dto.Entities
 
         
         [JsonPropertyName("sourcesPlatformKeys")]
-        public IEnumerable<string> SourcesPlatfromKeys { get; set; }
+        public IEnumerable<string> SourcesPlatformKeys { get; set; }
     }
 }

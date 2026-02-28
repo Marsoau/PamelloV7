@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class PlayerQueueIsFeedRandomUpdated : IRemoteEvent
 {
     public System.Boolean IsFeedRandom { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Player { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Player { get; set; }
 
 }

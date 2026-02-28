@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class PlayerNameUpdated : IRemoteEvent
 {
     public System.String NewName { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Player { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Player { get; set; }
 
 }

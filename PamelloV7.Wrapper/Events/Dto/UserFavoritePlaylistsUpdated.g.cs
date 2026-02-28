@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class UserFavoritePlaylistsUpdated : IRemoteEvent
 {
     public IEnumerable<System.Int32> FavoritePlaylists { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 User { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? User { get; set; }
 
 }

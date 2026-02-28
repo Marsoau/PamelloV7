@@ -9,7 +9,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 public class PlaylistSongsUpdated : IRemoteEvent
 {
     public IEnumerable<System.Int32> Songs { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Playlist { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Playlist { get; set; }
 
 }

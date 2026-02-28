@@ -11,7 +11,7 @@ public class SongAddedToQueue : IRemoteEvent
     public System.Int32 InsertPosition { get; set; }
     public IEnumerable<System.Int32> AddedSongs { get; set; }
     public IEnumerable<PamelloV7.Core.Dto.Entities.Other.PamelloQueueEntryDto> Entries { get; set; }
-    public System.Int32 Invoker { get; set; }
-    public System.Int32 Player { get; set; }
+    public System.Int32? Invoker { get; set; }
+    public System.Int32? Player { get; set; }
 
 }
