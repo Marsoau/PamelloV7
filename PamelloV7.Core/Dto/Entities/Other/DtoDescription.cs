@@ -4,6 +4,7 @@ namespace PamelloV7.Core.Dto.Entities.Other;
 
 public class DtoDescription
 {
-    public string Type { get; set; }
+    public int EntityId { get; set; }
+    public string EntityType { get; set; }
     public JsonNode Data { get; set; }
 }

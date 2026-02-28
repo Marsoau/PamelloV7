@@ -22,22 +22,4 @@ public class RemoteEntityQueryService : IRemoteEntityQueryService
     private IRemoteRepository? GetRepository(Type type) {
         return _repositories.FirstOrDefault(x => x.EntityType == type);
     }
-    
-    public IRemoteEntity? GetSingle(Type type, int id) {
-        var repository = GetRepositoryRequired(type);
-        
-        return repository.Get(id);
-    }
-
-    public IEnumerable<TRemoteEntity> Get<TRemoteEntity>(IEnumerable<int> ids) where TRemoteEntity : class, IRemoteEntity {
-        var repository = GetRepositoryRequired(typeof(TRemoteEntity));
-        
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<TRemoteEntity>> GetAsync<TRemoteEntity>(string query) where TRemoteEntity : class, IRemoteEntity {
-        var repository = GetRepositoryRequired(typeof(TRemoteEntity));
-        
-        throw new NotImplementedException();
-    }
 }

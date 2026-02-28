@@ -1,5 +1,7 @@
 using System.Reflection;
+using PamelloV7.Core.Dto;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Wrapper.Entities.Attributes;
 using PamelloV7.Wrapper.Entities.Base;
 using PamelloV7.Wrapper.Requests;
@@ -16,8 +18,8 @@ public class RemoteRepository<TEntityType> : IRemoteRepository
     public string ProviderName { get; }
     public string RemoteInterfaceName { get; }
     public Type DtoType { get; }
-    Type IRemoteRepository.EntityType => typeof(TEntityType);
-    
+    public Type EntityType => typeof(TEntityType);
+
     public RemoteRepository(PamelloRequestsService requests) {
         _requests = requests;
 
@@ -30,42 +32,58 @@ public class RemoteRepository<TEntityType> : IRemoteRepository
         RemoteInterfaceName = attribute.RemoteInterfaceName;
         DtoType = attribute.DtoType;
     }
-
-    IRemoteEntity? IRemoteRepository.Get(int id) => Get(id);
-    public TEntityType GetRequired(int id)
-        => Get(id) ?? throw new PamelloException($"{typeof(TEntityType).Name} with id {id} not found");
-    public TEntityType? Get(int id) {
-        var entity = _loaded.FirstOrDefault(entity => entity.Id == id);
+    
+    IRemoteEntity IRemoteRepository.Load(PamelloEntityDto dto) => Load(dto);
+    public TEntityType Load(PamelloEntityDto dto) {
+        var entity = GetSingle(dto.Id);
         if (entity is not null) return entity;
+
+        entity = Activator.CreateInstance(typeof(TEntityType), dto) as TEntityType;
+        if (entity is null) throw new Exception($"could not create instance of {typeof(TEntityType).Name}");
         
-        return null;
+        _loaded.Add(entity);
+        
+        return entity;
     }
     
-    public async Task<TEntityType> GetSingleRequiredAsync(int id)
-        => await GetSingleAsync(id) ?? throw new PamelloException($"{typeof(TEntityType).Name} with id {id} not found");
+    public TEntityType? GetSingle(int id) {
+        return _loaded.FirstOrDefault(x => x.Id == id);
+    }
 
     public async Task<TEntityType?> GetSingleAsync(int id) {
-        var entity = Get(id);
+        var entity = GetSingle(id);
         if (entity is not null) return entity;
-        
-        return await GetSingleAsync($"{id}");
+
+        return await GetSingleAsync(id.ToString());
     }
 
     public async Task<TEntityType?> GetSingleAsync(string query) {
-        return (await GetAsync(query)).FirstOrDefault();
+        var result = await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}");
+        if (result.FirstOrDefault() is not { } firstDto) return null;
+        
+        return Load(firstDto);
+    }
+
+    public async Task<IEnumerable<TEntityType>> GetAsync(string query) {
+        var results = await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}");
+        return results.Select(Load);
+    }
+    public async Task<IEnumerable<int>> GetIdsAsync(string query) {
+        return await _requests.GetEntitiesIdsAsync($"{ProviderName}${query}");
     }
     
-    public async Task<List<TEntityType?>> GetAsync(string query) {
-        var dto = (await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}")).FirstOrDefault();
-        if (dto is null) return null;
-        
-        var entity = Get(dto.Id);
-        if (entity is not null) return [entity];
-        
-        entity = Activator.CreateInstance(typeof(TEntityType), dto) as TEntityType;
-        
-        if (entity is not null) _loaded.Add(entity);
-        
-        return [entity];
-    }
+    //interface
+    
+    public IRemoteEntity GetSingleRequired(int id)
+        => GetSingle(id) ?? throw new PamelloException($"{EntityType.Name} with id {id} not found");
+    public async Task<IRemoteEntity> GetSingleRequiredAsync(int id)
+        => await GetSingleAsync(id) ?? throw new PamelloException($"{EntityType.Name} with id {id} not found");
+
+    IRemoteEntity? IRemoteRepository.GetSingle(int id) => GetSingle(id);
+    async Task<IRemoteEntity?> IRemoteRepository.GetSingleAsync(int id) => await GetSingleAsync(id);
+    async Task<IRemoteEntity?> IRemoteRepository.GetSingleAsync(string query) => await GetSingleAsync(query);
+
+    async Task<IEnumerable<IRemoteEntity>> IRemoteRepository.GetAsync(string query) => await GetAsync(query);
+
+    Task<IEnumerable<int>> IRemoteRepository.GetIdsAsync(string query) => GetIdsAsync(query);
 }

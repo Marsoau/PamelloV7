@@ -6,14 +6,16 @@ namespace PamelloV7.Framework.DTO;
 
 public class DtoDescription
 {
-    public string Type { get; set; }
+    public int EntityId { get; set; }
+    public string EntityType { get; set; }
     public object Data { get; set; }
     
     public DtoDescription(IPamelloEntity entity)
     {
         var interfaces = entity.GetType().GetInterfaces();
         
-        Type = entity.GetType()
+        EntityId = entity.Id;
+        EntityType = entity.GetType()
             .GetInterfaces()
             .FirstOrDefault(i =>
                 i.CustomAttributes.Any(a => a.AttributeType == typeof(ValueEntityAttribute)) &&

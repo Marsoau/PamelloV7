@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Dto;
+using PamelloV7.Core.Dto.Entities.Other;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
@@ -82,5 +83,11 @@ public class PamelloRequestsService : IPamelloCommandInvoker
     public async Task<List<PamelloEntityDto>> GetEntitiesAsync(Type type, string query) {
         if (!type.IsAssignableTo(typeof(PamelloEntityDto))) throw new ArgumentException("Type must be assignable to PamelloEntityDto");
         return (await GetFromJsonAsync(typeof(List<>).MakeGenericType(type), $"Data/{query}") as IList)?.OfType<PamelloEntityDto>().ToList() ?? [];
+    }
+    public async Task<List<int>> GetEntitiesIdsAsync(string query, string? typeName = null) {
+        return (List<int>)(await GetFromJsonAsync(typeof(List<>).MakeGenericType(typeof(int)), $"Data/{query}?view=Ids{(typeName is not null ? $"type={typeName}" : "")}"))!;
+    }
+    public async Task<List<DtoDescription>> GetEntitiesDetailedAsync(string query, string? typeName = null) {
+        return (List<DtoDescription>)(await GetFromJsonAsync(typeof(List<>).MakeGenericType(typeof(DtoDescription)), $"Data/{query}?view=Detailed{(typeName is not null ? $"type={typeName}" : "")}"))!;
     }
 }

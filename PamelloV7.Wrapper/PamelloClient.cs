@@ -3,6 +3,7 @@ using PamelloV7.Framework.Containers;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
 using PamelloV7.Wrapper.Entities;
+using PamelloV7.Wrapper.Entities.Base;
 using PamelloV7.Wrapper.Events.Services;
 using PamelloV7.Wrapper.Extensions;
 using PamelloV7.Wrapper.Query;
@@ -28,8 +29,6 @@ public class PamelloClient
 
     public readonly IRemoteEntityQueryService PEQL;
     
-    private bool _isSetup;
-
     public PamelloClient() {
         Config = new PamelloClientConfig();
         
@@ -42,17 +41,15 @@ public class PamelloClient
         Users = new RemoteUserRepository(Requests);
         
         PEQL = new RemoteEntityQueryService(this);
-    }
-
-    private void Setup() {
-        if (_isSetup) return;
-        SafeStoredEntityStaticContainer.GetById = (type, id) => Users.Get(id);
+        
+        SafeStoredEntityStaticContainer.GetById = (type, id) => Users.GetSingle(id);
         SafeStoredExtensions.GetSingleAsync = (type, id) => Users.GetSingleAsync(id);
+        //SafeStoredEntityStaticContainer.GetById = (type, id) => PEQL.GetSingle(type, id);
+        //SafeStoredExtensions.GetSingleAsync = (type, id) => PEQL.GetSingleAsync(type, id);
     }
 
     public async Task ConnectAsync(string url) {
         if (Signal.IsConnected) throw new PamelloException("Already connected");
-        if (!_isSetup) Setup();
         
         Config.BaseUrl = url;
         

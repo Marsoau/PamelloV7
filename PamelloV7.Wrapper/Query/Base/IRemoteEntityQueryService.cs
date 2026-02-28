@@ -6,6 +6,9 @@ namespace PamelloV7.Wrapper.Query.Base;
 
 public interface IRemoteEntityQueryService
 {
+    //no ids[] > entities[] because SafeStoredEntities will be used for that
+    //use GetIdsAsync to get ids and make SafeStoredEntities out of them
+    
     //required
     
     public TRemoteEntity GetSingleRequired<TRemoteEntity>(int id)
@@ -28,45 +31,32 @@ public interface IRemoteEntityQueryService
     
     //
     
-    //single from loaded, no server query
+    //single by id
     public TRemoteEntity? GetSingle<TRemoteEntity>(int id)
         where TRemoteEntity : class, IRemoteEntity
         => GetSingle(typeof(TRemoteEntity), id) as TRemoteEntity;
     public IRemoteEntity? GetSingle(Type type, int id);
     
-    //many from loaded, no server query
-    public IEnumerable<TRemoteEntity> Get<TRemoteEntity>(IEnumerable<int> ids)
-        where TRemoteEntity : class, IRemoteEntity;
-
-    public ISafeStoredEntities Get(Type type, IEnumerable<int> ids) {
-        var method = typeof(IRemoteEntityQueryService).GetMethod(nameof(Get), BindingFlags.Instance | BindingFlags.Public)!;
-        return (ISafeStoredEntities)method.MakeGenericMethod(type).Invoke(this, [ids])!;
-    }
-    
-    //single from loaded, if not found, a server query is executed
+    //single async by id
     public async Task<TRemoteEntity?> GetSingleAsync<TRemoteEntity>(int id)
         where TRemoteEntity : class, IRemoteEntity
         => await GetSingleAsync(typeof(TRemoteEntity), id) as TRemoteEntity;
 
-    public async Task<IRemoteEntity?> GetSingleAsync(Type type, int id) {
-        var entity = GetSingle(type, id);
-        return entity ?? await GetSingleAsync(type, id.ToString());
-    }
+    public Task<IRemoteEntity?> GetSingleAsync(Type type, int id);
     
-    //single from many query
+    //single async by query
     public async Task<TRemoteEntity?> GetSingleAsync<TRemoteEntity>(string query)
         where TRemoteEntity : class, IRemoteEntity
         => (await GetAsync<TRemoteEntity>(query)).FirstOrDefault();
 
-    public async Task<IRemoteEntity?> GetSingleAsync(Type type, string query)
-        => (await GetAsync(type, query)).Entities.FirstOrDefault() as IRemoteEntity;
-
+    public Task<IRemoteEntity?> GetSingleAsync(Type type, string query);
+    
     //many query
-    public Task<IEnumerable<TRemoteEntity>> GetAsync<TRemoteEntity>(string query)
-        where TRemoteEntity : class, IRemoteEntity;
-
-    public async Task<ISafeStoredEntities> GetAsync(Type type, string query) {
-        var method = typeof(IRemoteEntityQueryService).GetMethod(nameof(GetAsync), BindingFlags.Instance | BindingFlags.Public)!;
-        return (ISafeStoredEntities)await (dynamic)method.MakeGenericMethod(type).Invoke(this, [query])!;
-    }
+    public async Task<IEnumerable<TRemoteEntity>> GetAsync<TRemoteEntity>(string query) //of T
+        where TRemoteEntity : class, IRemoteEntity {
+        return (await GetAsync(typeof(TRemoteEntity), query)).OfType<TRemoteEntity>();
+    } 
+    public Task<IEnumerable<IRemoteEntity>> GetAsync(Type type, string query); //many, R.GetAsync, I, [type]
+    public Task<IEnumerable<int>> GetIdsAsync(Type type, string query); //many, R.GetIdsAsync, I, [type, view=Ids]
+    public Task<IEnumerable<IRemoteEntity>> GetAsync(string query); //many, server, I, [view=Detailed]
 }
