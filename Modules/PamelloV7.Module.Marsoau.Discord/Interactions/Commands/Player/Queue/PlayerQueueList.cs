@@ -7,8 +7,8 @@ public partial class PlayerQueue
 {
     [SlashCommand("list", "List the queue")]
     public async Task List() {
-        await RespondUpdatablePageAsync(page => 
+        await RespondUpdatablePageAsync(page =>
             Builder<QueueListBuilder>().Get(page, 10).Build()
-        , () => [ScopeUser]);
+        , () => [ScopeUser.SelectedPlayer, ScopeUser]);
     }
 }

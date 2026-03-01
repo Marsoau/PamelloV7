@@ -36,9 +36,15 @@ public static class SafeStoredExtensions
         where TEntityType : class, IDeletableEntity
     {
         await ((ISafeStoredEntities)entities).LoadAsync();
-        
         return entities;
     }
+    public static async Task<SafeStoredEntities<TEntityType>> LoadPageAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities, int offset, int count)
+        where TEntityType : class, IDeletableEntity
+    {
+        await ((ISafeStoredEntities)entities).LoadPageAsync(offset, count);
+        return entities;
+    }
+    
     public static async Task LoadAsync(this ISafeStoredEntities entities) {
         await entities.LoadPageAsync(0, entities.InternalSafeEntities.Count());
     }
