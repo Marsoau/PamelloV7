@@ -23,9 +23,17 @@ public static class EventsDtoGenerator
 
         foreach (var property in eventType.GetProperties()) {
             if (property.PropertyType.IsAssignableTo(typeof(IRevertPack))) continue;
+            if (property.DeclaringType != eventType) continue;
+            
             var context = new NullabilityInfoContext();
             var isNullable = context.Create(property).ReadState == NullabilityState.Nullable;
+            
             sb.AppendLine($"    public {CommandExtensionsGenerator.GetReturnTypeInfo(property.PropertyType, false, isNullable)} {property.Name} {{ get; set; }}");
+        }
+        
+        var baseTypeName = "IRemoteEvent";
+        if (eventType.BaseType is not null && eventType.BaseType.IsAssignableTo(typeof(IPamelloEvent))) {
+            baseTypeName = eventType.BaseType.Name;
         }
         
         var content = 
@@ -38,7 +46,7 @@ public static class EventsDtoGenerator
               namespace PamelloV7.Wrapper.Events.Dto;
               
               [EventFullName("{{eventType.FullName}}")]
-              public class {{eventType.Name}} : IRemoteEvent
+              public class {{eventType.Name}} : {{baseTypeName}}
               {
               {{sb}}
               }

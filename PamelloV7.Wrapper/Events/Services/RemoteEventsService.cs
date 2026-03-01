@@ -24,13 +24,19 @@ public class RemoteEventsService
     }
     
     internal void Invoke(ReceivedEventJsonDto eventDto) {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
         var type = types.FirstOrDefault(type => type.Name == eventDto.Type.Name);
+        var nestedTypes = eventDto.NestedTypes.Select(x => types.FirstOrDefault(t => t.Name == x.Name)).OfType<Type>().ToList();
+        
         if (type is null) return;
 
         if (eventDto.Data.Deserialize(type) is not IRemoteEvent ev) return;
         
-        foreach (var subscription in _subscriptions.Where(subscription => subscription.EventType == type)) {
+        foreach (var subscription in _subscriptions.Where(subscription =>
+            subscription.EventType == typeof(IRemoteEvent) ||
+            subscription.EventType == type ||
+            nestedTypes.Contains(subscription.EventType))
+        ) {
             subscription.Invoke(ev);
         }
     }

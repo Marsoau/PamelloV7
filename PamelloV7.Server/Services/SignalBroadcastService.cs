@@ -55,7 +55,7 @@ public class SignalBroadcastService : ISignalBroadcastService
         var currentBaseType = e.GetType().BaseType;
         while (currentBaseType is not null && currentBaseType != typeof(object)) {
             category = currentBaseType.GetCustomAttribute<PamelloEventCategory>();
-            nestedTypes.Add(new EventTypeInfo(e.GetType().Name, category?.CustomCategory ?? "none"));
+            nestedTypes.Add(new EventTypeInfo(currentBaseType.Name, category?.CustomCategory ?? "none"));
             currentBaseType = currentBaseType.BaseType;
         }
         
