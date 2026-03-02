@@ -34,18 +34,13 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
                 .WithStyle(ButtonStyle.Primary)
             )
             .WithButton(new ButtonBuilder()
-                .WithCustomId("a0")
+                .WithCustomId("player-queue-edit")
+                .WithLabel("Edit")
+                .WithStyle(ButtonStyle.Secondary)
+            )
+            .WithButton(new ButtonBuilder()
+                .WithCustomId("player-queue-goto")
                 .WithLabel("Go-To")
-                .WithStyle(ButtonStyle.Secondary)
-            )
-            .WithButton(new ButtonBuilder()
-                .WithCustomId("a1")
-                .WithLabel("Move")
-                .WithStyle(ButtonStyle.Secondary)
-            )
-            .WithButton(new ButtonBuilder()
-                .WithCustomId("a2")
-                .WithLabel("Remove")
                 .WithStyle(ButtonStyle.Secondary)
             )
         );
@@ -57,16 +52,22 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             container.WithSeparator();
         }
 
-        container.WithSection(new SectionBuilder()
-            .WithAccessory(new ThumbnailBuilder()
-                .WithMedia(new UnfurledMediaItemProperties(current?.Song?.CoverUrl))
-            )
-            .WithTextDisplay($"### {DiscordString.Code(page * pageSize + queueBefore.Count + 1)} : {current?.Song?.ToDiscordString()}\n{(current?.Adder is not null ? $"Added by {DiscordString.User(current.Adder)}" : DiscordString.Italic("Added automatically"))}")
-        );
+        if (current is not null) {
+            container.WithSection(new SectionBuilder()
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia(new UnfurledMediaItemProperties(current.Song?.CoverUrl))
+                )
+                .WithTextDisplay($"### {DiscordString.Code(page * pageSize + queueBefore.Count + 1)} : {current?.Song?.ToDiscordString()}\n{(current?.Adder is not null ? $"Added by {DiscordString.User(current.Adder)}" : DiscordString.Italic("Added automatically"))}")
+            );
+        }
         
         if (GetEntriesText(queueAfter, page * pageSize + queueBefore.Count + 1) is { Length: > 0 } afterText) {
             container.WithSeparator();
             container.WithTextDisplay(afterText);
+        }
+
+        if (queue.Count == 0) {
+            container.WithTextDisplay($"-# {DiscordString.Italic("Queue is empty")}");
         }
 
         container.WithSeparator();
