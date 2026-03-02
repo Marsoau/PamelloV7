@@ -32,6 +32,7 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             .WithButton(new ButtonBuilder()
                 .WithCustomId("player-queue-add")
                 .WithLabel("Add Songs")
+                .WithDisabled(true)
                 .WithStyle(ButtonStyle.Primary)
             )
             .WithButton(new ButtonBuilder()
@@ -54,14 +55,14 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             )
         );
         
-        container.WithSeparator();
 
         if (GetEntriesText(queueBefore, SelectedPlayer.Queue.NextPositionRequest ?? -1, page * pageSize) is { Length: > 0 } beforeText) {
-            container.WithTextDisplay(beforeText);
             container.WithSeparator();
+            container.WithTextDisplay(beforeText);
         }
 
         if (current is not null) {
+            container.WithSeparator();
             container.WithSection(new SectionBuilder()
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia(new UnfurledMediaItemProperties(current.Song?.CoverUrl))
@@ -90,9 +91,7 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
         );
 
         return Builder<ButtonsBuilder>().PageButtons(
-            Builder<ButtonsBuilder>().RefreshButton(
-                new ComponentBuilderV2().WithContainer(container)
-            )
+            new ComponentBuilderV2().WithContainer(container)
         , page != 0, page < totalPages - 1);
     }
 

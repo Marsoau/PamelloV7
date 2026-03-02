@@ -63,23 +63,6 @@ public class Test : IPamelloModule
         _files = services.GetRequiredService<IFileAccessService>();
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
-
-        ISafeStoredEntities songs = new SafeStoredEntities<IPamelloSong>([30, 31, 80, 81, 82]);
-        var kokosoko = _songs.GetRequired(81);
-
-        WriteSongs(songs.Entities);
-
-        Console.WriteLine("Deleting kokosoko");
-        
-        kokosoko.IsDeleted = true;
-        
-        WriteSongs(songs.Entities);
-        
-        Console.WriteLine("Restoring kokosoko");
-        
-        kokosoko.IsDeleted = false;
-        
-        WriteSongs(songs.Entities);
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
