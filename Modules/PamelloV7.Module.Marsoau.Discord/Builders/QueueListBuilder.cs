@@ -36,6 +36,7 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             .WithButton(new ButtonBuilder()
                 .WithCustomId("player-queue-edit")
                 .WithLabel("Edit")
+                .WithDisabled(true)
                 .WithStyle(ButtonStyle.Secondary)
             )
             .WithButton(new ButtonBuilder()

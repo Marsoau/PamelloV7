@@ -39,8 +39,10 @@ public class ModalSubmissionHandler : IPamelloService
     private async Task OnModalSubmitted(SocketModal socketModal) {
         var fullName = socketModal.Data.CustomId;
         var splitAt = fullName.IndexOf(':');
+        if (splitAt == -1) splitAt = fullName.Length;
         var submittedName = fullName[..splitAt];
-        var submittedArgs = fullName[(splitAt + 1)..];
+        var submittedArgs = "";
+        if (splitAt != fullName.Length) submittedArgs = fullName[(splitAt + 1)..];
 
         Console.WriteLine($"Modal \"{socketModal.Data.CustomId}\" submitted: {submittedName} | {submittedArgs}");
 
@@ -75,7 +77,7 @@ public class ModalSubmissionHandler : IPamelloService
         servicesField.SetValue(modal, _services);
 
         try {
-            await (Task)submissionMethod.Invoke(modal, [submittedArgs])!;
+            await (Task)submissionMethod.Invoke(modal, submittedArgs.Length > 0 ? [submittedArgs] : [])!;
         }
         catch (Exception e) {
             Console.WriteLine(e);

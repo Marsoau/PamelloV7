@@ -170,7 +170,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return _updatableMessage;
     }
 
-    public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Func<int, MessageComponent> getPageComponent, Func<IPamelloEntity[]> entities) {
+    public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Func<int, MessageComponent> getPageComponent, Func<IPamelloEntity?[]> entities) {
         var needsRefresh = Context.Interaction.HasResponded;
         if (!needsRefresh) {
             await RespondComponentAsync(getPageComponent(0));

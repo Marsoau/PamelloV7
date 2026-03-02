@@ -1,3 +1,4 @@
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
@@ -72,17 +73,37 @@ public abstract class DiscordModal
     }
 
     public string GetInputValue(string inputId) {
-        var components = Modal.Data.Components.ToArray();
-        var input = components.FirstOrDefault(component => component.CustomId == inputId);
+        var input = Modal.Data.Components.FirstOrDefault(component => component.CustomId == inputId);
         if (input is null) throw new PamelloException("No input found");
         
         return input.Value;
     }
     public string GetSelectValue(string selectId) {
-        var components = Modal.Data.Components.ToArray();
-        var select = components.FirstOrDefault(component => component.CustomId == selectId);
+        var select = Modal.Data.Components.FirstOrDefault(component => component.CustomId == selectId);
         if (select is null) throw new PamelloException("No select found");
         
         return select.Values.First();
+    }
+
+    public bool GetYesNoValue(string yesnoId) {
+        var select = Modal.Data.Components.FirstOrDefault(component => component.CustomId == yesnoId);
+        if (select is null) throw new PamelloException("No select found");
+        
+        return select.Values.First() == "yes";
+    }
+    
+    protected static SelectMenuBuilder GetYesNoSelect(string selectId, bool yesDefault = true) {
+        return new SelectMenuBuilder()
+            .WithCustomId(selectId)
+            .AddOption(new SelectMenuOptionBuilder()
+                .WithLabel("Yes")
+                .WithValue("yes")
+                .WithDefault(yesDefault)
+            )
+            .AddOption(new SelectMenuOptionBuilder()
+                .WithLabel("No")
+                .WithValue("no")
+                .WithDefault(!yesDefault)
+            );
     }
 }
