@@ -1,3 +1,4 @@
+using System.Text;
 using Discord;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Module.Marsoau.Discord.Builders.Base;
@@ -42,13 +43,20 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             .WithButton(new ButtonBuilder()
                 .WithCustomId("player-queue-goto")
                 .WithLabel("Go-To")
+                .WithDisabled(queue.Count == 0)
+                .WithStyle(ButtonStyle.Secondary)
+            )
+            .WithButton(new ButtonBuilder()
+                .WithCustomId("player-queue-set-next")
+                .WithLabel("Set Next")
+                .WithDisabled(queue.Count <= 1)
                 .WithStyle(ButtonStyle.Secondary)
             )
         );
         
         container.WithSeparator();
 
-        if (GetEntriesText(queueBefore, page * pageSize) is { Length: > 0 } beforeText) {
+        if (GetEntriesText(queueBefore, SelectedPlayer.Queue.NextPositionRequest ?? -1, page * pageSize) is { Length: > 0 } beforeText) {
             container.WithTextDisplay(beforeText);
             container.WithSeparator();
         }
@@ -62,7 +70,7 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
             );
         }
         
-        if (GetEntriesText(queueAfter, page * pageSize + queueBefore.Count + 1) is { Length: > 0 } afterText) {
+        if (GetEntriesText(queueAfter, SelectedPlayer.Queue.NextPositionRequest ?? -1, page * pageSize + queueBefore.Count + 1) is { Length: > 0 } afterText) {
             container.WithSeparator();
             container.WithTextDisplay(afterText);
         }
@@ -88,7 +96,17 @@ public class QueueListBuilder : PamelloDiscordComponentBuilder
         , page != 0, page < totalPages - 1);
     }
 
-    public string GetEntriesText(IEnumerable<PamelloQueueEntry> list, int startCount) {
-        return string.Join("\n", list.Select(e => $"{DiscordString.Code(++startCount)} : {e.Song?.ToDiscordString()}"));
+    public string GetEntriesText(IEnumerable<PamelloQueueEntry> list, int nextPosition, int countStart) {
+        var sb = new StringBuilder();
+        
+        foreach (var entry in list) {
+            if (entry.Song is null) continue;
+            
+            sb.AppendLine($"{DiscordString.Code(countStart + 1)} {(countStart == nextPosition ? DiscordString.Italic("next >") : ":")} {entry.Song.ToDiscordString()}");
+            
+            countStart++;
+        }
+        
+        return sb.ToString();
     }
 }

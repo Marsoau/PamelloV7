@@ -17,8 +17,11 @@ public partial class PlayerQueue
 public partial class PlayerQueueInteractions
 {
     [ComponentInteraction("player-queue-goto")]
-    public async Task EditNameButton() {
-        Console.WriteLine("asdasdasd");
+    public async Task GoToButton() {
         await RespondWithModalAsync(PlayerQueueGoToModal.Build());
+    }
+    [ComponentInteraction("player-queue-set-next")]
+    public async Task SetNextButton() {
+        await RespondWithModalAsync(PlayerQueueSetNextModal.Build());
     }
 }
