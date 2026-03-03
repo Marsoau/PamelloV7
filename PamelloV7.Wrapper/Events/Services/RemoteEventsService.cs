@@ -24,14 +24,14 @@ public class RemoteEventsService
     }
     
     internal void Invoke(ReceivedEventJsonDto eventDto) {
-        var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(type => type.Name == eventDto.Type.Name);
+        var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(type => eventDto.Types.FirstOrDefault()?.Name is { } name && type.Name == name);
         if (type is null) return;
 
         if (eventDto.Data.Deserialize(type) is not IRemoteEvent ev) return;
         
         foreach (var subscription in _subscriptions.Where(subscription =>
             subscription.EventType == typeof(IRemoteEvent) ||
-            subscription.EventType.IsAssignableTo(subscription.EventType)
+            type.IsAssignableTo(subscription.EventType)
         )) {
             subscription.Invoke(ev);
         }

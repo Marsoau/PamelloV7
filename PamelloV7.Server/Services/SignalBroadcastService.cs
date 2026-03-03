@@ -47,22 +47,36 @@ public class SignalBroadcastService : ISignalBroadcastService
     }
 
     public void BroadcastToPlayer(IPamelloEvent e, IPamelloPlayer? player) {
-        List<EventTypeInfo> nestedTypes = [];
+        List<EventTypeInfo> types = [];
 
-        var category = e.GetType().GetCustomAttribute<PamelloEventCategory>();
-        var typeInfo = new EventTypeInfo(e.GetType().Name, category?.CustomCategory ?? "none");
         
-        var currentBaseType = e.GetType().BaseType;
-        while (currentBaseType is not null && currentBaseType != typeof(object)) {
-            category = currentBaseType.GetCustomAttribute<PamelloEventCategory>();
-            nestedTypes.Add(new EventTypeInfo(currentBaseType.Name, category?.CustomCategory ?? "none"));
-            currentBaseType = currentBaseType.BaseType;
+        var currentType = e.GetType();
+        while (currentType is not null && currentType != typeof(object)) {
+            IEntityInfoUpdateAttribute? infoUpdateAttribute = null;
+            var category = currentType.GetCustomAttribute<PamelloEventCategory>();
+            var infoUpdateAttributeData = currentType.GetCustomAttributesData()
+                .FirstOrDefault(attr => attr.AttributeType.IsGenericType 
+                                        && attr.AttributeType.GetGenericTypeDefinition() == typeof(EntityInfoUpdateAttribute<>)
+                );
+            if (infoUpdateAttributeData is not null && currentType.GetCustomAttribute(infoUpdateAttributeData.AttributeType) is IEntityInfoUpdateAttribute attribute) infoUpdateAttribute = attribute;
+            
+            var entityTypeName = infoUpdateAttribute?.EntityType.Name;
+            var entityPropertyName = infoUpdateAttribute?.EntityPropertyName;
+            var updatePropertyName = infoUpdateAttribute?.PropertyPath.Last();
+            
+            types.Add(new EventTypeInfo(
+                currentType.Name,
+                category?.CustomCategory ?? "none",
+                entityTypeName ?? "",
+                entityPropertyName ?? "",
+                updatePropertyName ?? ""
+            ));
+            currentType = currentType.BaseType;
         }
         
         foreach (var listener in _listeners.Where(x => x.Value is not null && (player is null || x.Value.SelectedPlayer == player))) {
             _hub.Clients.Client(listener.Key).SendAsync("Event", new EventSignalDto(
-                typeInfo,
-                nestedTypes,
+                types,
                 e
             )).Wait();
         }

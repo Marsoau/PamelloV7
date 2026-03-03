@@ -53,7 +53,7 @@ public class PamelloSignalService : IPamelloCommandInvoker
     }
 
     private void OnEvent(ReceivedEventJsonDto eventDto) {
-        Debug.WriteLine($"Received event: {eventDto.Type.Name} {eventDto.Data}");
+        Debug.WriteLine($"Received event: {string.Join("; ", eventDto.Types.Select(type => type.Name))}\n{eventDto.Data}");
         _events.Invoke(eventDto);
     }
 
