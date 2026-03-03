@@ -1,5 +1,6 @@
 using PamelloV7.Core.Entities.Attributes;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
@@ -11,11 +12,10 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
 [SafeEntity<IPamelloPlayer>("Player", typeof(InfoUpdatePropertyAttribute))]
-public partial class PlayerQueueIsRandomUpdated : IPamelloEvent
-{
-    void test() {
-        Console.WriteLine(nameof(IPamelloPlayer.Queue.IsRandom));
-    }
-    public bool IsRandom { get; set; }
-}
+
+[EntityInfoUpdate<IPamelloPlayer>(nameof(Player),
+    nameof(PamelloPlayerDto.Queue),
+    nameof(PamelloPlayerDto.Queue.IsRandom)
+)]
+public partial class PlayerQueueIsRandomUpdated : IPamelloEvent;
 

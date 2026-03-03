@@ -143,17 +143,24 @@ public class PamelloEventGenerator : IIncrementalGenerator
         foreach (var infoUpdateEntry in eventClass.UpdateEntries) {
             IPropertySymbol? property = null;
             var list = new List<IPropertySymbol>();
-            list.AddRange(infoUpdateEntry.DtoType.BaseType?.GetMembers().OfType<IPropertySymbol>() ?? []);
-            list.AddRange(infoUpdateEntry.DtoType.GetMembers().OfType<IPropertySymbol>());
-            var members = list.ToArray();
             
-            foreach (var member in members) {
-                eventClass.DebugOutput.AppendLine($"member: {member.Name}");
+            var targetType = infoUpdateEntry.DtoType;
+
+            var currentPart = 0;
+            while (targetType is not null && infoUpdateEntry.UpdatePropertyPath.Length > currentPart) {
+                list.Clear();
+                list.AddRange(targetType.BaseType?.GetMembers().OfType<IPropertySymbol>() ?? []);
+                list.AddRange(targetType.GetMembers().OfType<IPropertySymbol>());
+                var members = list.ToArray();
+            
+                property = members.FirstOrDefault(p => p.Name == infoUpdateEntry.UpdatePropertyPath.ElementAt(currentPart));
+                targetType = property?.Type;
+                
+                currentPart++;
             }
-            property = members.FirstOrDefault(p => p.Name == infoUpdateEntry.UpdatePropertyPath.First());
             
             eventClass.DebugOutput.AppendLine(
-                $"info update for {infoUpdateEntry.UpdatePropertyPath.First()}: {property?.Name ?? "nema"}"
+                $"info update for {string.Join(".", infoUpdateEntry.UpdatePropertyPath)}: {property?.Name ?? "nema"}"
             );
             
             if (property is null) continue;
