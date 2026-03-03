@@ -40,7 +40,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         _name = value;
         _sink.Invoke(scopeUser, new SongNameUpdated {
             Song = this,
-            NewName = _name
+            Name = _name
         });
 
         Save();
@@ -55,10 +55,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 
         CoverUrl = value;
         
-        _sink.Invoke(scopeUser, new SongNameUpdated {
-            Song = this,
-            NewName = Name
-        });
+        //todo cover update event
 
         Save();
         
