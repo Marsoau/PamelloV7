@@ -22,4 +22,6 @@ public interface IRemoteRepository
     
     public Task<IEnumerable<IRemoteEntity>> GetAsync(string query);
     public Task<IEnumerable<int>> GetIdsAsync(string query);
+    
+    public void ClearCache();
 }

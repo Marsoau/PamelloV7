@@ -32,6 +32,12 @@ public class PamelloClient
     public readonly RemotePlayerRepository Players;
 
     public readonly IRemoteEntityQueryService PEQL;
+
+    public event Action? OnConnected;
+    public event Action? OnDisconnected;
+    
+    public event Action? OnAuthorized;
+    public event Action? OnUnauthorized;
     
     public PamelloClient() {
         Config = new PamelloClientConfig();
@@ -61,26 +67,49 @@ public class PamelloClient
         Config.BaseUrl = url;
         
         await Signal.ConnectAsync();
+        
+        if (Signal.IsConnected) OnConnected?.Invoke();
     }
     
     public async Task<bool> AuthorizeAsync(Guid userToken) {
         if (!Signal.IsConnected) throw new PamelloException("Not connected");
+        if (Signal.IsAuthorized) throw new PamelloException("Already authorized");
         
         Config.Token = userToken;
 
         try {
             await Signal.AuthorizeAsync();
-            return true;
         }
         catch {
             Config.Token = null;
-            return false;
         }
+        
+        if (Signal.IsAuthorized) OnAuthorized?.Invoke();
+        return Signal.IsAuthorized;
+    }
+    
+    public async Task UnauthorizeAsync() {
+        if (!Signal.IsConnected) throw new PamelloException("Not connected");
+
+        try {
+            await Signal.AuthorizeAsync();
+        }
+        finally {
+            Config.Token = null;
+        }
+        
+        if (!Signal.IsAuthorized) OnUnauthorized?.Invoke();
     }
 
     public async Task DisconnectAsync() {
         if (!Signal.IsConnected) throw new PamelloException("Not connected");
         
+        await Signal.UnauthorizeAsync();
         await Signal.DisconnectAsync();
+        
+        PEQL.ClearCache();
+        
+        if (!Signal.IsAuthorized) OnUnauthorized?.Invoke();
+        if (!Signal.IsConnected) OnDisconnected?.Invoke();
     }
 }

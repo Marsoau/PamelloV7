@@ -62,4 +62,6 @@ public interface IRemoteEntityQueryService
     public Task<IEnumerable<IRemoteEntity>> GetAsync(Type type, string query); //many, R.GetAsync, I, [type]
     public Task<IEnumerable<int>> GetIdsAsync(Type type, string query); //many, R.GetIdsAsync, I, [type, view=Ids]
     public Task<IEnumerable<IRemoteEntity>> GetAsync(string query); //many, server, I, [view=Detailed]
+    
+    internal void ClearCache();
 }

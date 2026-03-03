@@ -45,4 +45,10 @@ public class RemoteEntityQueryService : IRemoteEntityQueryService
     public Task<IEnumerable<IRemoteEntity>> GetAsync(string query) {
         throw new NotImplementedException();
     }
+
+    public void ClearCache() {
+        foreach (var repository in _repositories) {
+            repository.ClearCache();
+        }
+    }
 }

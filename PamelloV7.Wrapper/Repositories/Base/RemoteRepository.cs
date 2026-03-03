@@ -71,7 +71,7 @@ public class RemoteRepository<TEntityType> : IRemoteRepository
     public async Task<IEnumerable<int>> GetIdsAsync(string query) {
         return await _requests.GetEntitiesIdsAsync($"{ProviderName}${query}");
     }
-    
+
     //interface
     
     public IRemoteEntity GetSingleRequired(int id)
@@ -86,4 +86,8 @@ public class RemoteRepository<TEntityType> : IRemoteRepository
     async Task<IEnumerable<IRemoteEntity>> IRemoteRepository.GetAsync(string query) => await GetAsync(query);
 
     Task<IEnumerable<int>> IRemoteRepository.GetIdsAsync(string query) => GetIdsAsync(query);
+
+    public void ClearCache() {
+        _loaded.Clear();
+    }
 }

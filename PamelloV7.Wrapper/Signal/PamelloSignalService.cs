@@ -26,6 +26,7 @@ public class PamelloSignalService : IPamelloCommandInvoker
         _connection is not null && IsConnected ? _connection : throw new NotConnectedPamelloException("SignalR connection is not initiated");
     
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
+    public bool IsAuthorized { get; private set; }
     
     public PamelloSignalService(PamelloClientConfig config, RemoteEventsService events) {
         _config = config;
@@ -59,8 +60,22 @@ public class PamelloSignalService : IPamelloCommandInvoker
 
     internal async Task AuthorizeAsync() {
         if (_config.Token is null) throw new PamelloException("Token is not set");
-        
-        await Connection.InvokeAsync("Authorize", _config.Token);
+
+        try {
+            await Connection.InvokeAsync("Authorize", _config.Token);
+            IsAuthorized = true;
+        }
+        catch (Exception e) {
+            IsAuthorized = false;
+            throw;
+        }
+    }
+    
+    internal async Task UnauthorizeAsync() {
+        if (!IsAuthorized) return;
+
+        IsAuthorized = false;
+        await Connection.InvokeAsync("Unauthorize");
     }
 
     internal async Task DisconnectAsync() {
