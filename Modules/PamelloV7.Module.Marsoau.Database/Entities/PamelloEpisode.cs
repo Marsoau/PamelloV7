@@ -35,7 +35,7 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
         _name = name;
         _sink.Invoke(scopeUser, new EpisodeNameUpdated() {
             Episode = this,
-            NewName = _name
+            Name = _name
         });
 
         Save();

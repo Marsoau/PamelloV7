@@ -1,3 +1,4 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Attributes;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
@@ -10,9 +11,10 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloEpisode>("Episode", typeof(InfoUpdatePropertyAttribute))] 
-public partial class EpisodeNameUpdated : IPamelloEvent
-{
-    public string NewName { get; set; }
-}
+[SafeEntity<IPamelloEpisode>("Episode")]
+
+[EntityInfoUpdate<IPamelloEpisode>(nameof(Episode),
+    nameof(PamelloEpisodeDto.Name)
+)]
+public partial class EpisodeNameUpdated : IPamelloEvent;
 

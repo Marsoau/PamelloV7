@@ -1,5 +1,5 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Attributes;
-using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Attributes;
 using PamelloV7.Framework.Events.Base;
@@ -10,8 +10,9 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloPlaylist>("Playlist", typeof(InfoUpdatePropertyAttribute))]
-public partial class PlaylistFavoriteByUpdated : IPamelloEvent
-{
-    public IEnumerable<IPamelloUser> FavoriteBy { get; set; }
-}
+[SafeEntity<IPamelloPlaylist>("Playlist")]
+
+[EntityInfoUpdate<IPamelloPlaylist>(nameof(Playlist),
+    nameof(PamelloPlaylistDto.FavoriteByIds)
+)]
+public partial class PlaylistFavoriteByUpdated : IPamelloEvent;

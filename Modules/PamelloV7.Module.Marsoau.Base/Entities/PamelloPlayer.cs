@@ -39,7 +39,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         _name = value;
         _sink.Invoke(scopeUser, new PlayerNameUpdated() {
             Player = this,
-            NewName = _name
+            Name = _name
         });
         
         return _name;

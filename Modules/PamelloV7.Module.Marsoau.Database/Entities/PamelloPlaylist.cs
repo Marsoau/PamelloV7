@@ -35,7 +35,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         _name = name;
         _sink.Invoke(scopeUser, new PlaylistNameUpdated() {
             Playlist = this,
-            NewName = _name
+            Name = _name
         });
 
         Save();
@@ -116,7 +116,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
             Playlist = this,
-            Songs = Songs
+            SongsIds = IPamelloEntity.GetIds(songs)
         });
 
         Save();
@@ -139,7 +139,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
             Playlist = this,
-            Songs = Songs
+            SongsIds = IPamelloEntity.GetIds(_playlistSongs)
         });
         
         Save();
@@ -160,7 +160,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
             Playlist = this,
-            FavoriteBy = FavoriteBy
+            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();
@@ -173,7 +173,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
             Playlist = this,
-            FavoriteBy = FavoriteBy
+            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();

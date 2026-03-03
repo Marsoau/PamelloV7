@@ -200,7 +200,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongs = FavoriteSongs
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -215,7 +215,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongs = FavoriteSongs
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -232,7 +232,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongs = FavoriteSongs
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -255,7 +255,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongs = FavoriteSongs
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -273,7 +273,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongs = FavoriteSongs
+            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -369,7 +369,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
             Name = Name,
             AvatarUrl = AvatarUrl,
             SelectedPlayerId = SelectedPlayer?.Id,
-            SelectedAuthorizationPos = SelectedAuthorizationIndex,
+            SelectedAuthorizationIndex = SelectedAuthorizationIndex,
 
             AddedSongsIds = IPamelloEntity.GetIds(AddedSongs),
             AddedPlaylistsIds = IPamelloEntity.GetIds(AddedPlaylists),

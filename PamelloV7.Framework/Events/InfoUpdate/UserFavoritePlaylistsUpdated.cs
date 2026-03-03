@@ -10,7 +10,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloUser>("User", typeof(InfoUpdatePropertyAttribute))]
+[SafeEntity<IPamelloUser>("User")]
 public partial class UserFavoritePlaylistsUpdated : IPamelloEvent
 {
     public IEnumerable<IPamelloPlaylist> FavoritePlaylists { get; set; }

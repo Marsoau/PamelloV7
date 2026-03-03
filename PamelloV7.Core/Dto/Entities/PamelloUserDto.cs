@@ -11,7 +11,7 @@ namespace PamelloV7.Core.Dto.Entities
 		public int? SelectedPlayerId { get; set; }
 		
 		[JsonPropertyName("selectedAuthorizationPos")]
-		public int? SelectedAuthorizationPos { get; set; }
+		public int? SelectedAuthorizationIndex { get; set; }
 
         [JsonPropertyName("joinedAt")]
         public DateTime JoinedAt { get; set; }

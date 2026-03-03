@@ -117,7 +117,7 @@ public class EventsService : IEventsService
 
         if (eventType.GetCustomAttribute<PamelloEventCategory>() is not { Category: EEventCategory.InfoUpdate }) return record;
         
-        var property = eventType.GetProperties().FirstOrDefault(prop => prop.GetCustomAttribute<InfoUpdatePropertyAttribute>() is not null);
+        var property = eventType.GetProperties().FirstOrDefault(prop => prop.GetCustomAttribute<EntityInfoUpdateAttribute<IPamelloSong>>() is not null);
         if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return record;
 
         if (property.GetValue(e) is not IPamelloEntity entity) return record;

@@ -12,9 +12,11 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [BroadcastToPlayer]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloPlayer>("Player", typeof(InfoUpdatePropertyAttribute))]
-public partial class PlayerQueueEntriesUpdated : IPamelloEvent
-{
-    public IEnumerable<PamelloQueueEntry> Entries { get; set; }
-}
+[SafeEntity<IPamelloPlayer>("Player")]
+
+[EntityInfoUpdate<IPamelloPlayer>(nameof(Player),
+    nameof(PamelloPlayerDto.Queue),
+    nameof(PamelloPlayerDto.Queue.Entries)
+)]
+public partial class PlayerQueueEntriesUpdated : IPamelloEvent;
 

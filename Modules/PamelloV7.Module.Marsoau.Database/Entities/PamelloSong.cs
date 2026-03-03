@@ -211,7 +211,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 
         _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
-            FavoriteBy = FavoriteBy
+            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();
@@ -224,7 +224,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
 
         _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
-            FavoriteBy = FavoriteBy
+            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();

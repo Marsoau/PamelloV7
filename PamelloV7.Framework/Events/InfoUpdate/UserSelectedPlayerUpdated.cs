@@ -1,3 +1,4 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Attributes;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
@@ -10,9 +11,10 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloUser>("User", typeof(InfoUpdatePropertyAttribute))]
-public partial class UserSelectedPlayerUpdated : IPamelloEvent
-{
-    public int? SelectedPlayerId { get; set; }
-}
+[SafeEntity<IPamelloUser>("User")]
+
+[EntityInfoUpdate<IPamelloUser>(nameof(User),
+    nameof(PamelloUserDto.SelectedPlayerId)
+)]
+public partial class UserSelectedPlayerUpdated : IPamelloEvent;
 

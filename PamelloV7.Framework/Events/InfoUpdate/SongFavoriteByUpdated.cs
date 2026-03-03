@@ -1,3 +1,4 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Attributes;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
@@ -10,8 +11,9 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloSong>("Song", typeof(InfoUpdatePropertyAttribute))]
-public partial class SongFavoriteByUpdated : IPamelloEvent
-{
-    public IEnumerable<IPamelloUser> FavoriteBy { get; set; }
-}
+[SafeEntity<IPamelloSong>("Song")]
+
+[EntityInfoUpdate<IPamelloSong>(nameof(Song),
+    nameof(PamelloSongDto.FavoriteByIds)
+)]
+public partial class SongFavoriteByUpdated : IPamelloEvent;
