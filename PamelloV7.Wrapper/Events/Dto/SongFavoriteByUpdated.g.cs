@@ -8,7 +8,7 @@ namespace PamelloV7.Wrapper.Events.Dto;
 [EventFullName("PamelloV7.Framework.Events.InfoUpdate.SongFavoriteByUpdated")]
 public class SongFavoriteByUpdated : IRemoteEvent
 {
-    public IEnumerable<System.Int32> FavoriteBy { get; set; }
+    public IEnumerable<System.Int32> FavoriteByIds { get; set; }
     public System.Int32? Invoker { get; set; }
     public System.Int32? Song { get; set; }
 

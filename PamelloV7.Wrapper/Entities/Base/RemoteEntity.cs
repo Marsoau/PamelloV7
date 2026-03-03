@@ -11,6 +11,7 @@ public class RemoteEntity<TDtoType> : IRemoteEntity
     public bool IsDeleted { get; set; }
     
     internal TDtoType Dto { get; set; }
+    PamelloEntityDto IRemoteEntity.Dto => Dto;
     
     public RemoteEntity(TDtoType dto) {
         Dto = dto;

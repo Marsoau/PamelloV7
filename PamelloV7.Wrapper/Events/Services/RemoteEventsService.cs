@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
@@ -13,12 +14,40 @@ public class RemoteEventsService
 {
     private readonly PamelloClient _client;
     
-    private readonly List<IEventSubscription> _subscriptions;
+    private readonly List<IEventSubscription> _eventSubscriptions;
+    private readonly List<UpdateSubscription> _updateSubscriptions;
+
+    private readonly ConcurrentQueue<Task> _updateTasks;
     
     public RemoteEventsService(PamelloClient client) {
         _client = client;
         
-        _subscriptions = [];
+        _eventSubscriptions = [];
+        _updateSubscriptions = [];
+        
+        _updateTasks = [];
+    }
+
+    private async Task WaitForUpdates() {
+        while (true) {
+            if (_updateTasks.TryDequeue(out var task)) {
+                await task;
+            }
+            else await Task.Delay(500);
+        }
+    }
+
+    public UpdateSubscription Watch(Action handler, Func<IRemoteEntity?[]> watchedEntities)
+        => Watch(() => {
+            handler();
+            return Task.CompletedTask;
+        }, watchedEntities);
+    public UpdateSubscription Watch(Func<Task> handler, Func<IRemoteEntity?[]> watchedEntities) {
+        var subscription = new UpdateSubscription(handler, watchedEntities);
+        
+        _updateSubscriptions.Add(subscription);
+        
+        return subscription;
     }
     
     public EventSubscription<TEventType> Subscribe<TEventType>(Action<TEventType> handler)
@@ -26,7 +55,7 @@ public class RemoteEventsService
     {
         var subscription = new EventSubscription<TEventType>(handler);
         
-        _subscriptions.Add(subscription);
+        _eventSubscriptions.Add(subscription);
         
         return subscription;
     }
@@ -40,8 +69,8 @@ public class RemoteEventsService
             if (ev.GetType().GetProperty(typeInfo.EntityPropertyName)?.GetValue(ev) is not int id) continue;
             
             var parts = typeInfo.UpdatePropertyName.Split('.');
-            
-            if (ev.GetType().GetProperty(parts.Last())?.GetValue(ev) is not { } value) continue;
+
+            var value = ev.GetType().GetProperty(parts.Last())?.GetValue(ev);
             
             Debug.WriteLine($"Id: {id}");
             Debug.WriteLine($"Value: {value}");
@@ -57,7 +86,7 @@ public class RemoteEventsService
 
             Debug.WriteLine($"Entity: {entity}");
             
-            object propertyOwner = entity;
+            object propertyOwner = entity.Dto;
             var property = propertyOwner.GetType().GetProperty(parts.First());
             
             foreach (var part in parts.Skip(1)) {
@@ -77,6 +106,10 @@ public class RemoteEventsService
             Debug.WriteLine($"Before: {property.GetValue(propertyOwner)}");
             property.SetValue(propertyOwner, value);
             Debug.WriteLine($"After: {property.GetValue(propertyOwner)}");
+
+            foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities().Contains(entity))) {
+                _ = _updateTasks.Append(subscription.InvokeAsync());
+            }
         }
     }
     
@@ -88,7 +121,7 @@ public class RemoteEventsService
         
         UpdateFromEvent(eventDto, ev);
         
-        foreach (var subscription in _subscriptions.Where(subscription =>
+        foreach (var subscription in _eventSubscriptions.Where(subscription =>
             subscription.EventType == typeof(IRemoteEvent) ||
             type.IsAssignableTo(subscription.EventType)
         )) {

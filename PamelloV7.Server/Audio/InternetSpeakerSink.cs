@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 
@@ -37,9 +38,9 @@ public class InternetSpeakerSink : IAudioModuleWithInput
     }
     
     private bool ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
-        Console.WriteLine($"IsInitialized: {IsInitialized}");
-        Console.WriteLine($"token.IsCancellationRequested: {token.IsCancellationRequested}");
-        Console.WriteLine($"RequestAbortedToken.IsCancellationRequested: {RequestAbortedToken.IsCancellationRequested}");
+        Debug.WriteLine($"IsInitialized: {IsInitialized}");
+        Debug.WriteLine($"token.IsCancellationRequested: {token.IsCancellationRequested}");
+        Debug.WriteLine($"RequestAbortedToken.IsCancellationRequested: {RequestAbortedToken.IsCancellationRequested}");
         
         if (
             !IsInitialized ||
