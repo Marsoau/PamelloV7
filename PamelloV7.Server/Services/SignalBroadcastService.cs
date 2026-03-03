@@ -60,16 +60,16 @@ public class SignalBroadcastService : ISignalBroadcastService
                 );
             if (infoUpdateAttributeData is not null && currentType.GetCustomAttribute(infoUpdateAttributeData.AttributeType) is IEntityInfoUpdateAttribute attribute) infoUpdateAttribute = attribute;
             
-            var entityTypeName = infoUpdateAttribute?.EntityType.Name;
-            var entityPropertyName = infoUpdateAttribute?.EntityPropertyName;
-            var updatePropertyName = infoUpdateAttribute?.PropertyPath.Last();
+            var entityTypeName = infoUpdateAttribute?.EntityType.Name ?? "";
+            var entityPropertyName = infoUpdateAttribute?.EntityPropertyName ?? "";
+            var updatePropertyName = string.Join(".", infoUpdateAttribute?.PropertyPath ?? []);
             
             types.Add(new EventTypeInfo(
                 currentType.Name,
                 category?.CustomCategory ?? "none",
-                entityTypeName ?? "",
-                entityPropertyName ?? "",
-                updatePropertyName ?? ""
+                entityTypeName,
+                entityPropertyName,
+                updatePropertyName
             ));
             currentType = currentType.BaseType;
         }
