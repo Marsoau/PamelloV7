@@ -6,6 +6,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Downloads;
+using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
@@ -63,6 +64,8 @@ public class Test : IPamelloModule
         _files = services.GetRequiredService<IFileAccessService>();
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
+
+        Console.WriteLine(nameof(PamelloPlayerDto.Queue.CurrentSongId));
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {

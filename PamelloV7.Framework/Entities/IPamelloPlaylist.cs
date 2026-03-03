@@ -1,9 +1,11 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities.Base;
 
 namespace PamelloV7.Framework.Entities;
 
-[ValueEntity("playlists")]
+[PamelloEntity("playlists", typeof(PamelloPlaylistDto))]
 public interface IPamelloPlaylist : IPamelloDatabaseEntity
 {
     public bool IsProtected { get; }

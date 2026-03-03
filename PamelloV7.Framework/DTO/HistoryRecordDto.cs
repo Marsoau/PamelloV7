@@ -11,7 +11,7 @@ using PamelloV7.Framework.DTO.Other;
 
 namespace PamelloV7.Framework.DTO
 {
-    public class HistoryRecordDTO : PamelloEntityDto
+    public class HistoryRecordDto : PamelloEntityDto
     {
         [JsonPropertyName("performerId")]
         public int? PerformerId { get; set; }

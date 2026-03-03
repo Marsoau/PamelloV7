@@ -35,7 +35,7 @@ public partial class HistoryRecord : IHistoryRecord
     }
     
     public PamelloEntityDto GetDto() {
-        return new HistoryRecordDTO() {
+        return new HistoryRecordDto() {
             Id = Id,
             Name = Name,
             PerformerId = Performer?.Id,

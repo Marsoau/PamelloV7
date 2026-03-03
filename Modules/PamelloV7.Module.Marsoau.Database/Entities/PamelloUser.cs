@@ -13,6 +13,7 @@ using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -90,6 +91,9 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         _authorizations = databaseEntity.Authorizations.Select(pk =>
             new UserAuthorization(services, this, pk)
         ).ToList();
+        if (Id == 2) {
+            //_authorizations.Add(new UserAuthorization(services, this, new PlatformKey("discord", "930156959544516618")));
+        }
         _authorizations.Sort((a, b) => string.Compare(a.PK.Platform, b.PK.Platform, StringComparison.Ordinal));
     }
     

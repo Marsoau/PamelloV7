@@ -13,6 +13,9 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [SafeEntity<IPamelloPlayer>("Player", typeof(InfoUpdatePropertyAttribute))]
 public partial class PlayerQueueIsRandomUpdated : IPamelloEvent
 {
+    void test() {
+        Console.WriteLine(nameof(IPamelloPlayer.Queue.IsRandom));
+    }
     public bool IsRandom { get; set; }
 }
 

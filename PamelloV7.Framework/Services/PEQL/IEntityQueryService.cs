@@ -22,7 +22,7 @@ public interface IEntityQueryService : IPamelloService
         
         if (query.Contains('$')) throw new PamelloException($"Entity by query \"{query}\" not found");
         
-        var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
+        var attribute = typeof(TPamelloEntity).GetCustomAttribute<PamelloEntityAttribute>();
         
         throw new PamelloException($"Entity by query \"{query}\" not found in provider \"{attribute?.ProviderName}\"");
     }
@@ -39,7 +39,7 @@ public interface IEntityQueryService : IPamelloService
     public async Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query, IPamelloUser scopeUser) {
         if (query.Contains("$")) return (await GetAsync(query, scopeUser)).OfType<TPamelloEntity>().ToList();
         
-        var attribute = typeof(TPamelloEntity).GetCustomAttribute<ValueEntityAttribute>();
+        var attribute = typeof(TPamelloEntity).GetCustomAttribute<PamelloEntityAttribute>();
         if (attribute is null) return [];
         
         return (await GetAsync($"{attribute.ProviderName}${query}", scopeUser)).OfType<TPamelloEntity>().ToList();
@@ -59,7 +59,7 @@ public interface IEntityQueryService : IPamelloService
         var method = methods.FirstOrDefault(m => m is { Name: nameof(GetAsync), IsGenericMethod: true });
         var generic = method!.MakeGenericMethod(entityType);
         
-        var attribute = entityType.GetCustomAttribute<ValueEntityAttribute>();
+        var attribute = entityType.GetCustomAttribute<PamelloEntityAttribute>();
         if (attribute is null) throw new PamelloException("Entity doesnt have ValueEntityAttribute");
 
         var result = generic.Invoke(this, [query.Contains('$') ? query : $"{attribute.ProviderName}${query}", scopeUser]);

@@ -1,14 +1,13 @@
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 
 namespace PamelloV7.Framework.History.Records;
 
-[ValueEntity("history")]
+[PamelloEntity("history", typeof(HistoryRecordDto))]
 public interface IHistoryRecord : IPamelloEntity
 {
-    public int Id { get; set; }
-    
     public IPamelloUser? Performer { get; set; }
     public NestedPamelloEvent Nested { get; set; }
     

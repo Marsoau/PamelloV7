@@ -77,7 +77,7 @@ public class EntityQueryService : IEntityQueryService
             .ToList();
 
     public IPamelloEntity? GetById(Type entityType, int id) {
-        var attribute = entityType.GetCustomAttribute<ValueEntityAttribute>();
+        var attribute = entityType.GetCustomAttribute<PamelloEntityAttribute>();
         if (attribute is null) return null;
         
         var entity = Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);

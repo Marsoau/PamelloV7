@@ -119,7 +119,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     }
 
     public override PamelloEntityDto GetDto() {
-        return new PamelloPlayerDTO {
+        return new PamelloPlayerDto {
             Id = Id,
             Name = Name,
             OwnerId = Owner.Id,

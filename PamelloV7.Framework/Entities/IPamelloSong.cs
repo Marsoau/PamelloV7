@@ -1,4 +1,5 @@
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Audio;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Attributes;
@@ -8,7 +9,7 @@ using PamelloV7.Framework.Platforms.Infos;
 
 namespace PamelloV7.Framework.Entities;
 
-[ValueEntity("songs")]
+[PamelloEntity("songs", typeof(PamelloSongDto))]
 public interface IPamelloSong : IPamelloDatabaseEntity
 {
     public string CoverUrl { get; }

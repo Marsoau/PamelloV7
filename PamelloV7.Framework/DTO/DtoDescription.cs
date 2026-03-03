@@ -18,7 +18,7 @@ public class DtoDescription
         EntityType = entity.GetType()
             .GetInterfaces()
             .FirstOrDefault(i =>
-                i.CustomAttributes.Any(a => a.AttributeType == typeof(ValueEntityAttribute)) &&
+                i.CustomAttributes.Any(a => a.AttributeType == typeof(PamelloEntityAttribute)) &&
                 i.IsAssignableTo(typeof(IPamelloEntity))
             )?.Name ?? "";
         Data = entity.GetDto();

@@ -1,10 +1,11 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 
 namespace PamelloV7.Framework.Entities;
 
-[ValueEntity("users")]
+[PamelloEntity("users", typeof(PamelloUserDto))]
 public interface IPamelloUser : IPamelloDatabaseEntity
 {
     public string? AvatarUrl { get; }
