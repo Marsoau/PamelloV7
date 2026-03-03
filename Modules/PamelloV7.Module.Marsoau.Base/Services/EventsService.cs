@@ -116,8 +116,14 @@ public class EventsService : IEventsService
         }
 
         if (eventType.GetCustomAttribute<PamelloEventCategory>() is not { Category: EEventCategory.InfoUpdate }) return record;
+
+        var infoUpdateAttributeData = eventType.GetCustomAttributesData()
+            .FirstOrDefault(attr => attr.AttributeType.IsGenericType 
+                 && attr.AttributeType.GetGenericTypeDefinition() == typeof(EntityInfoUpdateAttribute<>)
+            );
+        if (infoUpdateAttributeData is null || eventType.GetCustomAttribute(infoUpdateAttributeData.AttributeType) is not IEntityInfoUpdateAttribute infoUpdateAttribute) return record;
         
-        var property = eventType.GetProperties().FirstOrDefault(prop => prop.GetCustomAttribute<EntityInfoUpdateAttribute<IPamelloSong>>() is not null);
+        var property = eventType.GetProperties().FirstOrDefault(p => p.Name == infoUpdateAttribute.EntityPropertyName);
         if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return record;
 
         if (property.GetValue(e) is not IPamelloEntity entity) return record;
