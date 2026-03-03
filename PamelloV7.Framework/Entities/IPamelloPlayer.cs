@@ -1,3 +1,4 @@
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;

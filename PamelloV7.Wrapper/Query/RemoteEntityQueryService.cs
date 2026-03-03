@@ -17,6 +17,7 @@ public class RemoteEntityQueryService : IRemoteEntityQueryService
             client.Songs,
             client.Episodes,
             client.Playlists,
+            client.Players
         ];
     }
 

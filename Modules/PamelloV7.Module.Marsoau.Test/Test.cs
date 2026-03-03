@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Base;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Containers;

@@ -1,18 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>PamelloV7.Core</PackageId>
-        <Version>2.1.1</Version>
+        <Version>2.1.2</Version>
         <Authors>Marsoau</Authors>
         <Description>PamelloV7 Core</Description>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Folder Include="Dto\Events\" />
-    </ItemGroup>
-
 </Project>

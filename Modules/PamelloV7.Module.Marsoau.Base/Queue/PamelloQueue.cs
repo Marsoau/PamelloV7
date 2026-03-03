@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Dto.Entities.Other;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
@@ -137,6 +138,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
         private readonly List<PamelloQueueEntry> _entries;
         public IReadOnlyList<PamelloQueueEntry> Entries => _entries;
+        public IEnumerable<PamelloQueueEntryDto> EntriesDto => _entries.Select(entry => new PamelloQueueEntryDto() {
+            Song = entry._safeSong.Id,
+            Adder = entry._safeAdder.Id
+        });
         public int Count => _entries.Count;
 
         public IReadOnlyList<IPamelloSong> Songs => _entries.Select(entry => entry.Song).ToList();
@@ -257,7 +262,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
-                Entries = new List<PamelloQueueEntry>(Entries),
+                Entries = EntriesDto,
                 AddedSongs = new SafeStoredEntities<IPamelloSong>(songs),
                 InsertPosition = insertPosition
             });
@@ -286,7 +291,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(adder, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                Entries = Entries
+                Entries = EntriesDto
             });
 
 			if (queueWasEmpty) {
@@ -322,7 +327,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
                 _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                     Player = Player,
-                    Entries = Entries
+                    Entries = EntriesDto
                 });
             }
 
@@ -350,7 +355,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                Entries = Entries
+                Entries = EntriesDto
             });
 
             return removedCount;
@@ -379,7 +384,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                Entries = Entries
+                Entries = EntriesDto
             });
 
             return true;
@@ -397,7 +402,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                Entries = Entries
+                Entries = EntriesDto
             });
 
 			if (inPosition == Position) Position = withPosition;
@@ -452,7 +457,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 //not sure about this invoking
                 _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                     Player = Player,
-                    Entries = Entries
+                    Entries = EntriesDto
                 });
             }
 
@@ -497,16 +502,16 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
                 Player = Player,
-                Entries = Entries
+                Entries = EntriesDto
             });
         }
 
-        public PamelloQueueDTO GetDto() {
-            return new PamelloQueueDTO {
+        public PamelloQueueDto GetDto() {
+            return new PamelloQueueDto {
                 CurrentSongId = CurrentSong?.Id,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0,
-                Entries = Entries,
+                Entries = EntriesDto,
                 Position = Position,
                 NextPositionRequest = NextPositionRequest,
                 CurrentEpisodePosition = _songAudio?.GetCurrentEpisodePosition(),

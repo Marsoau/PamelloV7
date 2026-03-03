@@ -29,13 +29,14 @@ public class PamelloClient
     public readonly RemoteSongRepository Songs;
     public readonly RemoteEpisodeRepository Episodes;
     public readonly RemotePlaylistRepository Playlists;
+    public readonly RemotePlayerRepository Players;
 
     public readonly IRemoteEntityQueryService PEQL;
     
     public PamelloClient() {
         Config = new PamelloClientConfig();
         
-        Events = new RemoteEventsService();
+        Events = new RemoteEventsService(this);
         
         Requests = new PamelloRequestsService(Config);
         Signal = new PamelloSignalService(Config, Events);
@@ -45,6 +46,7 @@ public class PamelloClient
         Songs = new RemoteSongRepository(Requests);
         Episodes = new RemoteEpisodeRepository(Requests);
         Playlists = new RemotePlaylistRepository(Requests);
+        Players = new RemotePlayerRepository(Requests);
         
         PEQL = new RemoteEntityQueryService(this);
         

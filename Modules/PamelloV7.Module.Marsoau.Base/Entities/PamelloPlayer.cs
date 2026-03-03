@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Audio.Points;
 using PamelloV7.Core.Dto;
+using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
@@ -124,7 +125,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
             Name = Name,
             OwnerId = Owner.Id,
             IsProtected = IsProtected,
-            State = State,
+            //State = State,
             IsPaused = IsPaused,
             Queue = Queue?.GetDto(),
         };

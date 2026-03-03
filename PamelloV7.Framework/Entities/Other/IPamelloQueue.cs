@@ -1,4 +1,5 @@
 using PamelloV7.Core.Audio;
+using PamelloV7.Core.Dto.Entities.Other;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.DTO.Other;
 
@@ -57,5 +58,5 @@ public interface IPamelloQueue
     public Task<IPamelloEpisode?> GoToEpisode(string episodePositionValue, IPamelloUser? scopeUser);
     public void Clear(IPamelloUser? scopeUser);
 
-    public PamelloQueueDTO GetDto();
+    public PamelloQueueDto GetDto();
 }

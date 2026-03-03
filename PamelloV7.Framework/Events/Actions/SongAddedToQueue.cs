@@ -25,7 +25,7 @@ public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePa
 
         protected override bool DidNotExpireInternal(IPamelloUser scopeUser) {
             if (Event.Player != scopeUser.SelectedPlayer || Event.Player is null) return false;
-            return scopeUser.SelectedPlayer?.Queue?.Entries.SequenceEqual(Event.Entries) ?? false;
+            return false; //scopeUser.SelectedPlayer?.Queue?.Entries.SequenceEqual(Event.Entries) ?? false;
         }
     }
     

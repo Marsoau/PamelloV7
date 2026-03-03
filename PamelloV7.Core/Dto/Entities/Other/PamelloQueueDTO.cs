@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using PamelloV7.Framework.Entities.Other;
 
-namespace PamelloV7.Framework.DTO.Other;
+namespace PamelloV7.Core.Dto.Entities.Other;
 
-public class PamelloQueueDTO
+public class PamelloQueueDto
 {
     [JsonPropertyName("currentSongId")]
     public int? CurrentSongId { get; set; }
@@ -15,7 +14,7 @@ public class PamelloQueueDTO
     public int CurrentSongTimeTotal { get; set; }
     
     [JsonPropertyName("entries")]
-    public IEnumerable<PamelloQueueEntry> Entries { get; set; }
+    public IEnumerable<PamelloQueueEntryDto> Entries { get; set; }
     
     [JsonPropertyName("position")]
     public int Position { get; set; }
