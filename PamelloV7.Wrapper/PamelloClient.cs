@@ -92,7 +92,7 @@ public class PamelloClient
         if (!Signal.IsConnected) throw new PamelloException("Not connected");
 
         try {
-            await Signal.AuthorizeAsync();
+            await Signal.UnauthorizeAsync();
         }
         finally {
             Config.Token = null;
