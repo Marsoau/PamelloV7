@@ -334,7 +334,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return song;
 		}
 
-        public int RemoveSongsRange(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {
+        public IEnumerable<IPamelloSong> RemoveSongsRange(string fromPositionValue, string toPositionValue,
+            IPamelloUser? scopeUser) {
             var fromPosition = TranslateQueuePosition(fromPositionValue);
             var toPosition = TranslateQueuePosition(toPositionValue);
             
@@ -343,6 +344,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             var removedCount = toPosition - fromPosition + 1;
             if (removedCount > _entries.Count) removedCount = _entries.Count;
 
+            var removedEntries = _entries.GetRange(fromPosition, removedCount).Select(entry => entry.Song).OfType<IPamelloSong>().ToList();
             _entries.RemoveRange(fromPosition, removedCount);
 
             if (Position >= fromPosition && Position <= toPosition) {
@@ -358,7 +360,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Entries = EntriesDto
             });
 
-            return removedCount;
+            return removedEntries;
         }
 
         public bool MoveSong(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser) {

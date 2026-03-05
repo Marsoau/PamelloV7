@@ -50,7 +50,7 @@ public interface IPamelloQueue
     public IEnumerable<IPamelloSong> InsertSongs(string positionValue, IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloPlaylist> InsertPlaylist(string positionValue, IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? scopeUser);
     public IPamelloSong RemoveSong(string songPositionValue, IPamelloUser? scopeUser);
-    public int RemoveSongsRange(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser);
+    public IEnumerable<IPamelloSong> RemoveSongsRange(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser);
     public bool MoveSong(string fromPositionValue, string toPositionValue, IPamelloUser? scopeUser);
     public bool SwapSongs(string inPositionValue, string withPositionValue, IPamelloUser? scopeUser);
     public IPamelloSong? GoToSong(string songPositionValue, IPamelloUser scopeUser, bool returnBack = false);

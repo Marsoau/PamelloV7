@@ -75,8 +75,8 @@ public static class PamelloCommandsExtensions {
     public static Task<System.Int32> PlayerQueueSongRemove(this PamelloV7.Wrapper.Commands.PamelloCommandsService commands, System.String position) {
         return commands.Invoker.ExecuteCommandPathAsync<System.Int32>($"PlayerQueueSongRemove?position={position}");
     }
-    public static Task<System.Int32> PlayerQueueSongsRemoveRange(this PamelloV7.Wrapper.Commands.PamelloCommandsService commands, System.String fromPosition, System.String toPosition) {
-        return commands.Invoker.ExecuteCommandPathAsync<System.Int32>($"PlayerQueueSongsRemoveRange?fromPosition={fromPosition}&toPosition={toPosition}");
+    public static Task<IEnumerable<System.Int32>> PlayerQueueSongsRemoveRange(this PamelloV7.Wrapper.Commands.PamelloCommandsService commands, System.String fromPosition, System.String toPosition) {
+        return commands.Invoker.ExecuteCommandPathAsync<IEnumerable<System.Int32>>($"PlayerQueueSongsRemoveRange?fromPosition={fromPosition}&toPosition={toPosition}");
     }
     public static Task PlayerQueueSongSwap(this PamelloV7.Wrapper.Commands.PamelloCommandsService commands, System.String inPosition, System.String withPosition) {
         return commands.Invoker.ExecuteCommandPathAsync($"PlayerQueueSongSwap?inPosition={inPosition}&withPosition={withPosition}");
