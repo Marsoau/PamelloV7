@@ -2,7 +2,7 @@ using PamelloV7.Core.Dto;
 
 namespace PamelloV7.Wrapper.Entities.Base;
 
-public class RemoteEntity<TDtoType> : IRemoteEntity
+public abstract class RemoteEntity<TDtoType> : IRemoteEntity
     where TDtoType : PamelloEntityDto
 {
     public int Id => Dto.Id;

@@ -68,7 +68,7 @@ public class RemoteEventsService
             
             if (ev.GetType().GetProperty(typeInfo.EntityPropertyName)?.GetValue(ev) is not int id) continue;
             
-            var parts = typeInfo.UpdatePropertyName.Split('.');
+            var parts = typeInfo.UpdatePropertyName.Split('.'); //Queue.Position
 
             var value = ev.GetType().GetProperty(parts.Last())?.GetValue(ev);
             

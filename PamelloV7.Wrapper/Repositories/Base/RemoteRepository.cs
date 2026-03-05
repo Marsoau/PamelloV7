@@ -8,7 +8,7 @@ using PamelloV7.Wrapper.Requests;
 
 namespace PamelloV7.Wrapper.Repositories.Base;
 
-public class RemoteRepository<TEntityType> : IRemoteRepository
+public abstract class RemoteRepository<TEntityType> : IRemoteRepository
     where TEntityType : class, IRemoteEntity
 {
     private readonly PamelloRequestsService _requests;

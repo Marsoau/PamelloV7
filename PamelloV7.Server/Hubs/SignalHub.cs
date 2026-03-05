@@ -49,6 +49,7 @@ public class SignalHub : Hub
         
         if (user is null) throw new PamelloException("User not found");
         
+        Console.WriteLine($"Authorized: {Context.ConnectionId} as {user}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} authorized as {user}");
         
         _broadcast.AssignUser(Context.ConnectionId, user);
@@ -56,6 +57,7 @@ public class SignalHub : Hub
     public async Task Unauthorize() {
         if (_broadcast.GetUser(Context.ConnectionId) is null) return;
         
+        Console.WriteLine($"Unauthorized: {Context.ConnectionId}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} unauthorized");
         
         _broadcast.AbandonUser(Context.ConnectionId);

@@ -6,9 +6,6 @@ namespace PamelloV7.Wrapper.Query.Base;
 
 public interface IRemoteEntityQueryService
 {
-    //no ids[] > entities[] because SafeStoredEntities will be used for that
-    //use GetIdsAsync to get ids and make SafeStoredEntities out of them
-    
     //required
     
     public TRemoteEntity GetSingleRequired<TRemoteEntity>(int id)
