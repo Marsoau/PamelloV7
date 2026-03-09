@@ -20,7 +20,8 @@ public class Discord : IPamelloModule
     public void Configure(IServiceCollection services) {
         var discordConfig = new DiscordSocketConfig() {
             GatewayIntents = GatewayIntents.All,
-            AlwaysDownloadUsers = true
+            AlwaysDownloadUsers = true,
+            EnableVoiceDaveEncryption = true,
         };
 
         services.AddSingleton(new DiscordSocketClient(discordConfig));
