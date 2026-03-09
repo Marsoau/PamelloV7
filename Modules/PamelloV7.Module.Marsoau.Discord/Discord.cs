@@ -61,7 +61,7 @@ public class Discord : IPamelloModule
 
     public async Task DiscordLog(LogMessage message) {
         if ((int)message.Severity >= 2) return;
-            
+        
         Console.WriteLine($"[Discord {message.Severity} | message] {message.Message}");
         if (message.Exception is not null) Console.WriteLine($"[Discord {message.Severity} | exception] {message.Exception}");
     }

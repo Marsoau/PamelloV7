@@ -33,11 +33,15 @@ public class PamelloClient
 
     public readonly IRemoteEntityQueryService PEQL;
 
+    public RemoteUser? User => Signal.AuthorizedUser;
+
     public event Action? OnConnected;
     public event Action? OnDisconnected;
     
     public event Action? OnAuthorized;
     public event Action? OnUnauthorized;
+    
+    public event Action<Exception, int>? OnFailedAttempt;
     
     public PamelloClient() {
         Config = new PamelloClientConfig();
@@ -45,7 +49,7 @@ public class PamelloClient
         Events = new RemoteEventsService(this);
         
         Requests = new PamelloRequestsService(Config);
-        Signal = new PamelloSignalService(Config, Events);
+        Signal = new PamelloSignalService(this);
         Commands = new PamelloCommandsService(Requests, Signal);
         
         Users = new RemoteUserRepository(Requests);
@@ -55,20 +59,37 @@ public class PamelloClient
         Players = new RemotePlayerRepository(Requests);
         
         PEQL = new RemoteEntityQueryService(this);
+
+        Signal.OnConnected += () => OnConnected?.Invoke();
+        Signal.OnDisconnected += () => OnDisconnected?.Invoke();
+        
+        Signal.OnAuthorized += () => OnAuthorized?.Invoke();
+        Signal.OnUnauthorized += () => OnUnauthorized?.Invoke();
         
         SafeStoredEntityStaticContainer.GetById = (type, id) => PEQL.GetSingle(type, id);
         SafeStoredExtensions.GetSingleAsyncFunc = (type, id) => PEQL.GetSingleAsync(type, id);
         SafeStoredExtensions.GetAsyncFunc = (type, query) => PEQL.GetAsync(type, query);
     }
 
+    public async Task StartConnectionAttemptsAsync(string url, int maxAttempts = -1, int delay = 1000) {
+        for (var attempt = 0; maxAttempts < 0 || attempt < maxAttempts; attempt++) {
+            try {
+                await ConnectAsync(url);
+                return;
+            }
+            catch (Exception x) {
+                OnFailedAttempt?.Invoke(x, attempt);
+                await Task.Delay(delay);
+            }
+        }
+    }
+    
     public async Task ConnectAsync(string url) {
         if (Signal.IsConnected) throw new PamelloException("Already connected");
         
         Config.BaseUrl = url;
         
         await Signal.ConnectAsync();
-        
-        if (Signal.IsConnected) OnConnected?.Invoke();
     }
     
     public async Task<bool> AuthorizeAsync(Guid userToken) {
@@ -84,32 +105,19 @@ public class PamelloClient
             Config.Token = null;
         }
         
-        if (Signal.IsAuthorized) OnAuthorized?.Invoke();
         return Signal.IsAuthorized;
     }
     
     public async Task UnauthorizeAsync() {
-        if (!Signal.IsConnected) throw new PamelloException("Not connected");
-
-        try {
-            await Signal.UnauthorizeAsync();
-        }
-        finally {
-            Config.Token = null;
-        }
+        await Signal.UnauthorizeAsync();
         
-        if (!Signal.IsAuthorized) OnUnauthorized?.Invoke();
+        PEQL.ClearCache();
     }
 
     public async Task DisconnectAsync() {
-        if (!Signal.IsConnected) throw new PamelloException("Not connected");
-        
-        await Signal.UnauthorizeAsync();
+        await UnauthorizeAsync();
         await Signal.DisconnectAsync();
         
-        PEQL.ClearCache();
-        
-        if (!Signal.IsAuthorized) OnUnauthorized?.Invoke();
-        if (!Signal.IsConnected) OnDisconnected?.Invoke();
+        Config.BaseUrl = null;
     }
 }
