@@ -36,4 +36,5 @@ jobs:
         run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build /p:Version=${{ inputs.version }} --output nupkgs
 
       - name: Push to NuGet.org
-        run: dotnet nuget push "nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        shell: bash
+        run: dotnet nuget push nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
