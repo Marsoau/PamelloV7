@@ -8,13 +8,17 @@
         <Version>0.0.0</Version>
         <Authors>Marsoau</Authors>
         <Description>PamelloV7 API Wrapper</Description>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="11.0.0-preview.1.26104.118" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.1.26104.118" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0-preview.1.26104.118" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="11.0.0-preview.1.26104.118" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.1.26104.118" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0-preview.1.26104.118" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+        <ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+        <ProjectReference Include="..\PamelloV7.Framework.Generators\PamelloV7.Framework.Generators.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
     </ItemGroup>
 </Project>
