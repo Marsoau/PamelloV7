@@ -60,6 +60,8 @@ public abstract class RemoteRepository<TEntityType> : IRemoteRepository
     }
 
     public async Task<TEntityType?> GetSingleAsync(string query) {
+        if (string.IsNullOrWhiteSpace(query)) return null;
+        
         var result = await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}");
         if (result.FirstOrDefault() is not { } firstDto) return null;
         
@@ -67,6 +69,8 @@ public abstract class RemoteRepository<TEntityType> : IRemoteRepository
     }
 
     public async Task<IEnumerable<TEntityType>> GetAsync(string query) {
+        if (string.IsNullOrWhiteSpace(query)) return [];
+        
         var results = await _requests.GetEntitiesAsync(DtoType, $"{ProviderName}${query}");
         return results.Select(Load).ToList();
     }

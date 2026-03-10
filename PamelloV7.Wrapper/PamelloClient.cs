@@ -35,6 +35,9 @@ public class PamelloClient
 
     public RemoteUser? User => Signal.AuthorizedUser;
     public RemoteUser RequiredUser => User ?? throw new PamelloException("Not authorized");
+    
+    public bool IsConnected => Signal.IsConnected;
+    public bool IsAuthorized => Signal.IsAuthorized;
 
     public event Action? OnConnected;
     public event Action? OnDisconnected;
