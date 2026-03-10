@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Server", "Pamello
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Framework", "PamelloV7.Framework\PamelloV7.Framework.csproj", "{C4EC5CD6-3E7D-4655-8CBE-F75D3282C029}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.WrapperOld", "PamelloV7.WrapperOld\PamelloV7.WrapperOld.csproj", "{D33051D1-A474-4DFF-935C-2DA231CD618B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tests", "PamelloV7.Tests\PamelloV7.Tests.csproj", "{20801E3F-8C21-45FE-91BE-E411A100E62F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E34EDB6A-6149-4309-B65C-3C518BA143B3}"
@@ -51,10 +49,6 @@ Global
 		{C4EC5CD6-3E7D-4655-8CBE-F75D3282C029}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4EC5CD6-3E7D-4655-8CBE-F75D3282C029}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4EC5CD6-3E7D-4655-8CBE-F75D3282C029}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D33051D1-A474-4DFF-935C-2DA231CD618B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D33051D1-A474-4DFF-935C-2DA231CD618B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D33051D1-A474-4DFF-935C-2DA231CD618B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D33051D1-A474-4DFF-935C-2DA231CD618B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20801E3F-8C21-45FE-91BE-E411A100E62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
