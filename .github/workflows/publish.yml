@@ -1,4 +1,4 @@
-name: Publish Wrapper & Core
+name: Build and publish NuGet packages
 on:
   workflow_dispatch:
     inputs:
@@ -26,11 +26,14 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore PamelloV7.sln
 
+      - name: Build Solution
+        run: dotnet build PamelloV7.sln --configuration Release /p:Version=${{ inputs.version }}
+
       - name: Pack PamelloV7.Core
-        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release /p:Version=${{ inputs.version }} --output nupkgs
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build /p:Version=${{ inputs.version }} --output nupkgs
 
       - name: Pack PamelloV7.Wrapper
-        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release /p:Version=${{ inputs.version }} --output nupkgs
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build /p:Version=${{ inputs.version }} --output nupkgs
 
       - name: Push to NuGet.org
         env:
