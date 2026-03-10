@@ -53,6 +53,8 @@ public abstract class RemoteRepository<TEntityType> : IRemoteRepository
     public async Task<TEntityType?> GetSingleAsync(int id) {
         var entity = GetSingle(id);
         if (entity is not null) return entity;
+        
+        if (id == 0) return null;
 
         return await GetSingleAsync(id.ToString());
     }

@@ -34,6 +34,7 @@ public class PamelloClient
     public readonly IRemoteEntityQueryService PEQL;
 
     public RemoteUser? User => Signal.AuthorizedUser;
+    public RemoteUser RequiredUser => User ?? throw new PamelloException("Not authorized");
 
     public event Action? OnConnected;
     public event Action? OnDisconnected;

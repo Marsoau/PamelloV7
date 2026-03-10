@@ -1,56 +1,37 @@
-name: Build and publish NuGet packages
+name: Publish Wrapper & Core
 on:
   workflow_dispatch:
     inputs:
-      doCore:
-        description: 'Build & Publish PamelloV7.Core'
-        type: boolean
-      doWrapper:
-        description: 'Build & Publish PamelloV7.Wrapper'
-        type: boolean
+      version:
+        description: 'Version string (e.g., 2026.310.0-dev)'
+        required: true
+        type: string
 
 jobs:
   build-and-publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Setup .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            9.0.x
             8.0.x
+            9.0.x
+            10.0.x
           cache: false
 
-      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore PamelloV7.sln
 
-      # Build PamelloV7.Core
-      - name: Build PamelloV7.Core
-        if: ${{ inputs.doCore }}
-        run: dotnet build PamelloV7.Core/PamelloV7.Core.csproj --configuration Release
-
-      # Build PamelloV7.Wrapper
-      - name: Build PamelloV7.Wrapper
-        if: ${{ inputs.doWrapper }}
-        run: dotnet build PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release
-
-      # Pack PamelloV7.Core
       - name: Pack PamelloV7.Core
-        if: ${{ inputs.doCore }}
-        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --output nupkgs
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release /p:Version=${{ inputs.version }} --output nupkgs
 
-      # Pack PamelloV7.Wrapper
       - name: Pack PamelloV7.Wrapper
-        if: ${{ inputs.doWrapper }}
-        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --output nupkgs
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release /p:Version=${{ inputs.version }} --output nupkgs
 
-      # Push to NuGet.org
       - name: Push to NuGet.org
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
@@ -58,4 +39,3 @@ jobs:
           for pkg in nupkgs/*.nupkg; do
             dotnet nuget push "$pkg" --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
           done
-        shell: bash
