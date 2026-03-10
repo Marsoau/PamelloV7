@@ -35,8 +35,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Wrapper", "Pamell
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Core", "PamelloV7.Core\PamelloV7.Core.csproj", "{EC52AA86-1864-415C-9562-F743D4D9D3B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.TestClient", "PamelloV7.TestClient\PamelloV7.TestClient.csproj", "{4B143A21-BBA0-44EE-816B-036A94CA4BDA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tools", "PamelloV7.Tools\PamelloV7.Tools.csproj", "{5D1FF2A5-F2EB-41AA-B1E5-9A7414DC5989}"
 EndProject
 Global
@@ -105,10 +103,6 @@ Global
 		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC52AA86-1864-415C-9562-F743D4D9D3B4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4B143A21-BBA0-44EE-816B-036A94CA4BDA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5D1FF2A5-F2EB-41AA-B1E5-9A7414DC5989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5D1FF2A5-F2EB-41AA-B1E5-9A7414DC5989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D1FF2A5-F2EB-41AA-B1E5-9A7414DC5989}.Release|Any CPU.ActiveCfg = Release|Any CPU
