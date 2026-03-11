@@ -6,6 +6,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
+using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
@@ -46,6 +47,7 @@ public class Test : IPamelloModule
     private IFileAccessService _files;
     private IDownloadService _downloaders;
     private IHistoryService _history;
+    private IDependenciesService _dependencies;
     
     private IPamelloUser _me => _users.GetRequired(1);
     private IPamelloUser _ferrout => _users.GetRequired(3);
@@ -66,8 +68,16 @@ public class Test : IPamelloModule
         _files = services.GetRequiredService<IFileAccessService>();
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
+        _dependencies = services.GetRequiredService<IDependenciesService>();
+        
+        var dependency = _dependencies.ResolveRequired("yt-dlp");
 
-        Console.WriteLine(nameof(PamelloPlayerDto.Queue.CurrentSongId));
+        Console.WriteLine($"Is Installed: {dependency.IsInstalled}");
+        Console.WriteLine($"Latest Version: {await dependency.GetLatestVersionAsync()}");
+
+        await dependency.DownloadOrUpdateAsync();
+        
+        Console.WriteLine($"Is Installed: {dependency.IsInstalled}");
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {

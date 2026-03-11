@@ -33,16 +33,26 @@ public class FileAccessService : IFileAccessService
         return GetFileRequired($"/Audio/{source.Song.Id}-{source.PK}.opus");
     }
 
-    public FileInfo GetDependencyFile(Dependency source) {
-        var directory = new DirectoryInfo(
-            Path.Combine(AppContext.BaseDirectory, "Dependencies")
-        );
-        
-        if (!directory.Exists) directory.Create();
+    public FileInfo GetDependencyFile(Dependency dependency) {
+        var dependencyDirectory = GetDependencyDirectory(dependency);
         
         return new FileInfo(
-            Path.Combine(directory.FullName, source.FileName)
+            Path.Combine(dependencyDirectory.FullName, dependency.InternalFilePath)
         );
+    }
+
+    public DirectoryInfo GetDependencyDirectory(Dependency dependency) {
+        var dependenciesDirectory = new DirectoryInfo(
+            Path.Combine(AppContext.BaseDirectory, "Dependencies")
+        );
+        if (!dependenciesDirectory.Exists) dependenciesDirectory.Create();
+        
+        var dependencyDirectory = new DirectoryInfo(
+            Path.Combine(dependenciesDirectory.FullName, dependency.Name)
+        );
+        if (!dependencyDirectory.Exists) dependencyDirectory.Create();
+        
+        return dependencyDirectory;
     }
 
     public string GetPublicUrl(string path) {

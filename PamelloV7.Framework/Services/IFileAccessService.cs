@@ -8,6 +8,7 @@ public interface IFileAccessService : IPamelloService
 {
     public FileInfo? GetFile(string path);
     public FileInfo GetSourceFile(SongSource source);
-    public FileInfo GetDependencyFile(Dependency source);
+    public FileInfo GetDependencyFile(Dependency dependency);
+    public DirectoryInfo GetDependencyDirectory(Dependency dependency);
     public string GetPublicUrl(string path);
 }

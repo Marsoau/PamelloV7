@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Dependencies;
@@ -5,30 +6,45 @@ namespace PamelloV7.Framework.Dependencies;
 public abstract class Dependency
 {
     private readonly IServiceProvider _services;
-    
+
     private readonly IFileAccessService _files;
-    
+
     public abstract string Name { get; }
-    public abstract string FileName { get; }
-    public abstract string Version { get; }
-    public abstract string LatestVersion { get; }
-    
+    public abstract string InternalFilePath { get; }
+
     public bool IsInstalled => GetFile().Exists;
+    
+    private Task? _downloadTask;
 
     protected Dependency(IServiceProvider services) {
         _services = services;
+
+        _files = services.GetRequiredService<IFileAccessService>();
     }
 
-    protected abstract Task<MemoryStream> DownloadInternalAsync();
-
+    public DirectoryInfo GetDirectory() => _files.GetDependencyDirectory(this);
     public FileInfo GetFile() => _files.GetDependencyFile(this);
+    
+    public abstract Task<string> GetInstalledVersionAsync();
+    public abstract Task<string> GetLatestVersionAsync();
 
-    public async Task DownloadAsync() {
-        var file = GetFile();
+    protected abstract Task DownloadOrUpdateInternalAsync(DirectoryInfo directory);
+
+    public async Task DownloadOrUpdateAsync() {
+        if (_downloadTask is not null) {
+            await _downloadTask;
+            return;
+        }
         
-        var fs = file.OpenWrite();
-        var ds = await DownloadInternalAsync();
+        var directory = GetDirectory();
         
-        await ds.CopyToAsync(fs);
+        _downloadTask = DownloadOrUpdateInternalAsync(directory); 
+        
+        try {
+            await _downloadTask;
+        }
+        finally {
+            _downloadTask = null;
+        }
     }
 }
