@@ -8,6 +8,10 @@ public class DependenciesService : IDependenciesService
 {
     public List<Dependency> Dependencies { get; } = [];
 
+    public IEnumerable<Dependency> GetAll() {
+        return Dependencies;
+    }
+
     public void Startup(IServiceProvider services) {
         var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         var types = typeResolver.GetInheritorsOf<Dependency>().ToList();

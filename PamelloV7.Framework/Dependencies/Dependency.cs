@@ -22,11 +22,30 @@ public abstract class Dependency
         _files = services.GetRequiredService<IFileAccessService>();
     }
 
+    public async Task<bool> IsLatestAsync() {
+        var installedVersion = GetInstalledVersionAsync();
+        var latestVersion = GetLatestVersionAsync();
+        
+        return await installedVersion == await latestVersion;
+    }
+
     public DirectoryInfo GetDirectory() => _files.GetDependencyDirectory(this);
     public FileInfo GetFile() => _files.GetDependencyFile(this);
-    
-    public abstract Task<string> GetInstalledVersionAsync();
-    public abstract Task<string> GetLatestVersionAsync();
+
+    public FileInfo GetVersionFile() => new (
+        Path.Combine(GetDirectory().FullName, "version.txt")
+    );
+
+    public async Task<string?> GetInstalledVersionAsync() {
+        var file = GetVersionFile();
+        if (!file.Exists) return null;
+        
+        var version = await File.ReadAllTextAsync(file.FullName);
+        if (string.IsNullOrWhiteSpace(version)) return null;
+        
+        return version.Trim();
+    }
+    public abstract Task<string?> GetLatestVersionAsync();
 
     protected abstract Task DownloadOrUpdateInternalAsync(DirectoryInfo directory);
 
@@ -38,13 +57,16 @@ public abstract class Dependency
         
         var directory = GetDirectory();
         
-        _downloadTask = DownloadOrUpdateInternalAsync(directory); 
+        _downloadTask = DownloadOrUpdateInternalAsync(directory);
+
+        var version = await GetLatestVersionAsync();
         
         try {
             await _downloadTask;
         }
         finally {
             _downloadTask = null;
+            await File.WriteAllTextAsync(GetVersionFile().FullName, version ?? "");
         }
     }
 }

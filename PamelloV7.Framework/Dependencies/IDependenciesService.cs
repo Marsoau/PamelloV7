@@ -5,6 +5,8 @@ namespace PamelloV7.Framework.Dependencies;
 
 public interface IDependenciesService : IPamelloService
 {
+    public IEnumerable<Dependency> GetAll();
+    
     public Dependency ResolveRequired(string name)
         => Resolve(name) ?? throw new PamelloException($"Dependency \"{name}\" not found");
     public Dependency? Resolve(string name);

@@ -69,15 +69,17 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         _dependencies = services.GetRequiredService<IDependenciesService>();
-        
-        var dependency = _dependencies.ResolveRequired("yt-dlp");
 
-        Console.WriteLine($"Is Installed: {dependency.IsInstalled}");
-        Console.WriteLine($"Latest Version: {await dependency.GetLatestVersionAsync()}");
-
-        await dependency.DownloadOrUpdateAsync();
-        
-        Console.WriteLine($"Is Installed: {dependency.IsInstalled}");
+        var dependencies = _dependencies.GetAll();
+        foreach (var dependency in dependencies) {
+            var currentVersion = await dependency.GetInstalledVersionAsync() ?? "none";
+            var latestVersion = await dependency.GetLatestVersionAsync() ?? "none";
+            
+            Console.WriteLine($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
+                ? $"-> {latestVersion}"
+                : "Latest!"
+            )}");
+        }
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
