@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Services.Base;
 
@@ -7,5 +8,6 @@ public interface IFileAccessService : IPamelloService
 {
     public FileInfo? GetFile(string path);
     public FileInfo GetSourceFile(SongSource source);
+    public FileInfo GetDependencyFile(Dependency source);
     public string GetPublicUrl(string path);
 }

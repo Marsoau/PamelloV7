@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Dependencies\Service\" />
       <Folder Include="Entities\Base\" />
       <Folder Include="History\Records\" />
     </ItemGroup>

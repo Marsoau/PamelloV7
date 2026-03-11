@@ -1,4 +1,5 @@
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
@@ -30,6 +31,18 @@ public class FileAccessService : IFileAccessService
 
     public FileInfo GetSourceFile(SongSource source) {
         return GetFileRequired($"/Audio/{source.Song.Id}-{source.PK}.opus");
+    }
+
+    public FileInfo GetDependencyFile(Dependency source) {
+        var directory = new DirectoryInfo(
+            Path.Combine(AppContext.BaseDirectory, "Dependencies")
+        );
+        
+        if (!directory.Exists) directory.Create();
+        
+        return new FileInfo(
+            Path.Combine(directory.FullName, source.FileName)
+        );
     }
 
     public string GetPublicUrl(string path) {
