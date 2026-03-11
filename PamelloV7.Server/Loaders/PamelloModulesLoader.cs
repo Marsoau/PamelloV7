@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Config;

@@ -13,6 +13,7 @@ using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
@@ -67,6 +68,8 @@ public class Test : IPamelloModule
         _history = services.GetRequiredService<IHistoryService>();
 
         Console.WriteLine(nameof(PamelloPlayerDto.Queue.CurrentSongId));
+        
+        throw new ModuleStartupException(this, "Test exception");
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {

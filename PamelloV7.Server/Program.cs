@@ -12,6 +12,7 @@ using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Events.InfoUpdate;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Hubs;
@@ -68,7 +69,13 @@ namespace PamelloV7.Server
             _serverLoader.StartupAssemblyServices(App.Services);
             
             foreach (var stage in Enum.GetValues<ELoadingStage>()) {
-                await _modulesLoader.StartupStage(App.Services, stage);
+                try {
+                    await _modulesLoader.StartupStage(App.Services, stage);
+                }
+                catch (ModuleStartupException x) {
+                    Console.WriteLine($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
+                    return;
+                }
             }
             
             await StartupApp();
