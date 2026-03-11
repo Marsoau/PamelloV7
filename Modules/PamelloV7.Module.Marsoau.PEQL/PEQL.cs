@@ -13,12 +13,4 @@ public class PEQL : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "PEQL language implementation";
     public ELoadingStage Stage => ELoadingStage.Early;
-    
-    public async Task StartupAsync(IServiceProvider services) {
-        var collection = services.GetRequiredService<IServiceCollection>();
-        var query = (EntityQueryService)services.GetRequiredService<IEntityQueryService>();
-        
-        query.LoadProviders(collection, services);
-        query.LoadOperators(services);
-    }
 }

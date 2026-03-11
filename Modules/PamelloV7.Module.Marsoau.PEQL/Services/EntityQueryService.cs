@@ -30,7 +30,14 @@ public class EntityQueryService : IEntityQueryService
         Providers = [];
         Operators = [];
     }
-    
+
+    public void Startup(IServiceProvider services) {
+        var collection = services.GetRequiredService<IServiceCollection>();
+        
+        LoadProviders(collection, services);
+        LoadOperators(services);
+    }
+
     public void LoadProviders(IServiceCollection collection, IServiceProvider services) {
         _logger.Log("Loading entity providers");
         

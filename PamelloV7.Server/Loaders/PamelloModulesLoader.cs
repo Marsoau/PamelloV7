@@ -210,6 +210,14 @@ public class PamelloModulesLoader
         foreach (var container in stagedContainers) {
             Console.WriteLine($"{container}");
             await container.Module.StartupAsync(services);
+
+            foreach (var (classType, interfaceType) in container.Services) {
+                if (classType.GetMethod(nameof(IPamelloService.Startup)) is not null) {
+                    var service = (IPamelloService)services.GetRequiredService(interfaceType ?? classType);
+                    Console.WriteLine($"| starting {classType.Name}");
+                    service.Startup(services);
+                }
+            }
         }
         StaticLogger.Log($"Started {stagedContainers.Count} modules in {stage} stage");
     }

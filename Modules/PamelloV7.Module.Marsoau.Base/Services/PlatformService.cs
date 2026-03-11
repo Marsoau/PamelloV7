@@ -20,7 +20,7 @@ public class PlatformService : IPlatformService
         _userPlatforms = [];
     }
 
-    public void Load() {
+    public void Startup(IServiceProvider services) {
         var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
         
         var platformsTypes = typeResolver.GetInheritorsOf(typeof(ISongPlatform), typeof(IUserPlatform));

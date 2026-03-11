@@ -32,7 +32,7 @@ public class PamelloCommandsService : IPamelloCommandsService
         _peql = _services.GetRequiredService<IEntityQueryService>();
     }
     
-    public void Load() {
+    public void Startup(IServiceProvider services) {
         CommandTypes = _typeResolver.GetInheritorsOf<PamelloCommand>().ToList();
         
         foreach (var commandType in CommandTypes) {

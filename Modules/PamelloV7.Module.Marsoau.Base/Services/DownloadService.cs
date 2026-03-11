@@ -28,7 +28,7 @@ public class DownloadService : IDownloadService
         _downloaderTypes = [];
     }
 
-    public void Load() {
+    public void Startup(IServiceProvider services) {
         var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
         
         _downloaderTypes = typeResolver.GetWithAttribute<SongDownloaderAttribute>().ToDictionary(type => type.GetCustomAttribute<SongDownloaderAttribute>()!.Name);
