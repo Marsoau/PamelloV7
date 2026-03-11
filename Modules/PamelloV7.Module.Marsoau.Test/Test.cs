@@ -69,7 +69,7 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         _dependencies = services.GetRequiredService<IDependenciesService>();
-
+        
         var dependencies = _dependencies.GetAll();
         foreach (var dependency in dependencies) {
             var currentVersion = await dependency.GetInstalledVersionAsync() ?? "none";

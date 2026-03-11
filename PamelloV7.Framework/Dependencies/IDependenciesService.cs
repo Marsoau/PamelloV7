@@ -8,6 +8,6 @@ public interface IDependenciesService : IPamelloService
     public IEnumerable<Dependency> GetAll();
     
     public Dependency ResolveRequired(string name)
-        => Resolve(name) ?? throw new PamelloException($"Dependency \"{name}\" not found");
+        => Resolve(name) ?? throw new PamelloException($"Required dependency \"{name}\" not found");
     public Dependency? Resolve(string name);
 }

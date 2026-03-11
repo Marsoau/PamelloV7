@@ -14,6 +14,7 @@ public class YtDlpDependency : SimpleDependency
     protected override string VersionProperty => "tag_name";
     protected override string VersionUrl => "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
     protected override string DownloadUrl => "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
+    protected override bool IsExecutable => true;
 
     public YtDlpDependency(IServiceProvider services) : base(services) { }
 }

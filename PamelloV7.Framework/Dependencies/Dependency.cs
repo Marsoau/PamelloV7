@@ -23,6 +23,8 @@ public abstract class Dependency
     }
 
     public async Task<bool> IsLatestAsync() {
+        if (!IsInstalled) return false;
+        
         var installedVersion = GetInstalledVersionAsync();
         var latestVersion = GetLatestVersionAsync();
         

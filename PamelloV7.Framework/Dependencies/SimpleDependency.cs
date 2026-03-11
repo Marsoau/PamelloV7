@@ -12,27 +12,42 @@ public abstract class SimpleDependency : Dependency
     protected abstract string VersionProperty { get; }
     protected abstract string VersionUrl { get; }
     protected abstract string DownloadUrl { get; }
+    
+    protected abstract bool IsExecutable { get; }
 
     protected SimpleDependency(IServiceProvider services) : base(services) {
         _clientFactory = services.GetRequiredService<IHttpClientFactory>();
     }
 
     public override async Task<string?> GetLatestVersionAsync() {
+        if (string.IsNullOrWhiteSpace(VersionUrl)) return null;
+        
         using var client = _clientFactory.CreateClient();
         
         var json = await client.GetStringAsync(VersionUrl);
-        using var doc = JsonDocument.Parse(json);
         
-        return doc.RootElement.GetProperty(VersionProperty).GetString() ?? "";
+        try {
+            using var doc = JsonDocument.Parse(json);
+            
+            var version = doc.RootElement.GetProperty(VersionProperty).GetString();
+            return string.IsNullOrWhiteSpace(version) ? null : version;
+        }
+        catch {
+            return null;
+        }
     }
 
     protected override async Task DownloadOrUpdateInternalAsync(DirectoryInfo directory) {
+        if (string.IsNullOrWhiteSpace(DownloadUrl)) return;
+        
         var client = _clientFactory.CreateClient();
         var file = GetFile();
 
         var fileBytes = await client.GetByteArrayAsync(DownloadUrl);
         await File.WriteAllBytesAsync(file.FullName, fileBytes);
 
-        File.SetUnixFileMode(file.FullName, File.GetUnixFileMode(file.FullName) | UnixFileMode.UserExecute);
+        if (IsExecutable) {
+            File.SetUnixFileMode(file.FullName, File.GetUnixFileMode(file.FullName) | UnixFileMode.UserExecute);
+        }
     }
 }
