@@ -25,9 +25,6 @@ public class PamelloServerLoader
         var executingAssembly = Assembly.GetExecutingAssembly();
         var referencedAssemblies = executingAssembly.GetReferencedAssemblies().Where(name => {
             if (!name.Name?.StartsWith("PamelloV7") ?? false) return false;
-            
-            Console.WriteLine(name.FullName);
-            
             return true;
         }).Select(Assembly.Load);
 
@@ -39,7 +36,7 @@ public class PamelloServerLoader
             var serviceInterface = service.GetInterfaces()
                 .FirstOrDefault(i => i != typeof(IPamelloService) && typeof(IPamelloService).IsAssignableFrom(i));
 
-            Console.WriteLine($"Adding: {service.FullName} | {serviceInterface?.Name} ({service.Assembly.GetName().FullName})");
+            //Console.WriteLine($"| {service.FullName} : {serviceInterface?.Name}"); // ({service.Assembly.GetName().FullName})");
             _assemblyServices.Add(service, serviceInterface);
         }
         

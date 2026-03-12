@@ -7,6 +7,7 @@ using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Config;
+using PamelloV7.Server.Loaders.Context;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Loaders;
@@ -65,21 +66,37 @@ public class PamelloModulesLoader
             return;
         }
         
-        var moduleFiles = Directory.GetFiles(path, "*.dll");
+        var moduleFiles = Directory.GetFiles(path, "*.pv7m");
         StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
         
-        foreach (var moduleFile in moduleFiles) {
-            if (IsModuleDisabled(moduleFile)) continue;
-            
-            var assembly = Assembly.LoadFrom(moduleFile);
-            
+        var moduleContext = new PamelloModuleLoadContext();
+        var loadedModuleAssemblies = new List<Assembly>();
+
+        foreach (var file in moduleFiles) {
+            moduleContext.PreloadFileToMemory(file);
+        }
+        
+        foreach (var file in moduleFiles) {
+            var moduleName = Path.GetFileNameWithoutExtension(file);
+        
+            try {
+                var assembly = moduleContext.LoadMainModule(moduleName);
+                loadedModuleAssemblies.Add(assembly);
+                Console.WriteLine($"[Loader] Loaded assembly: {moduleName}");
+            }
+            catch (Exception ex) {
+                Console.WriteLine($"[Loader] Failed to load {moduleName}: {ex.Message}");
+            }
+        }
+
+        foreach (var assembly in loadedModuleAssemblies) {
             var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
             if (moduleType is null) continue;
             
             if (Activator.CreateInstance(moduleType) is not IPamelloModule module) continue;
             
             var container = new PamelloModuleContainer(assembly, module);
-
+            
             if (container.ConfigType is not null) {
                 _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");
             }
