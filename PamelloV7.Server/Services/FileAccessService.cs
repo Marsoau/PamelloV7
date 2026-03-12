@@ -11,12 +11,23 @@ public class FileAccessService : IFileAccessService
 {
     private readonly IServiceProvider _services;
     
-    private readonly string _root;
+    private readonly DirectoryInfo RootDirectory;
+    
+    private readonly DirectoryInfo FilesDirectory;
+    private readonly DirectoryInfo AudioDirectory;
 
     public FileAccessService(IServiceProvider services) {
         _services = services;
         
-        _root = Path.Combine(ServerConfig.Root.DataPath, "Files");
+        RootDirectory = new DirectoryInfo(ServerConfig.Root.DataPath);
+        FilesDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Files"));
+        AudioDirectory = new DirectoryInfo(Path.Combine(FilesDirectory.FullName, "Audio"));
+    }
+
+    public void Startup(IServiceProvider services) {
+        Directory.CreateDirectory(RootDirectory.FullName);
+        FilesDirectory.Create();
+        AudioDirectory.Create();
     }
 
     public FileInfo GetFileRequired(string requestedPath)
@@ -26,11 +37,15 @@ public class FileAccessService : IFileAccessService
             return null;
         }
         
-        return new FileInfo($"{_root}{requestedPath}");
+        return new FileInfo(
+            Path.Combine(FilesDirectory.FullName, requestedPath)
+        );
     }
 
     public FileInfo GetSourceFile(SongSource source) {
-        return GetFileRequired($"/Audio/{source.Song.Id}-{source.PK}.opus");
+        return new FileInfo(
+            Path.Combine(AudioDirectory.FullName, $"{source._safeSong.Id}-{source.PK}.opus")
+        );
     }
 
     public FileInfo GetDependencyFile(Dependency dependency) {
@@ -38,6 +53,12 @@ public class FileAccessService : IFileAccessService
         
         return new FileInfo(
             Path.Combine(dependencyDirectory.FullName, dependency.InternalFilePath)
+        );
+    }
+
+    public FileInfo GetDatabaseFile() {
+        return new FileInfo(
+            Path.Combine(RootDirectory.FullName, "lite-old70.db")
         );
     }
 

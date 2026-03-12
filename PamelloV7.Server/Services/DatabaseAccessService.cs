@@ -16,14 +16,14 @@ public class DatabaseAccessService : IDatabaseAccessService
 {
     private readonly LiteDatabase _db;
     
-    private IAssemblyTypeResolver _typeResolver;
+    private readonly IAssemblyTypeResolver _typeResolver;
+    private readonly IFileAccessService _files;
 
-    public DatabaseAccessService() {
-        _db = new LiteDatabase($"{ServerConfig.Root.DataPath}/lite-old70.db", GetMapper());
-    }
-
-    public void Startup(IServiceProvider services) {
+    public DatabaseAccessService(IServiceProvider services) {
         _typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
+        _files = services.GetRequiredService<IFileAccessService>();
+        
+        _db = new LiteDatabase(_files.GetDatabaseFile().FullName, GetMapper());
     }
 
     private BsonMapper GetMapper() {
