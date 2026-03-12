@@ -7,10 +7,14 @@ namespace PamelloV7.Audio.Services;
 
 public class PamelloAudioSystem : IPamelloAudioSystem
 {
+    private readonly IServiceProvider _services;
+    
     private readonly List<IAudioModule> _modules;
     private readonly List<IAudioDependant> _dependants;
     
-    public PamelloAudioSystem() {
+    public PamelloAudioSystem(IServiceProvider services) {
+        _services = services;
+        
         _modules = [];
         _dependants = [];
     }
@@ -33,7 +37,7 @@ public class PamelloAudioSystem : IPamelloAudioSystem
             }
         }
         
-        module.InitAudio();
+        module.InitAudio(_services);
         
         return module;
     }

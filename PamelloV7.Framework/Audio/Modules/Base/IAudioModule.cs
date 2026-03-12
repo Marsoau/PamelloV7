@@ -7,5 +7,5 @@ public interface IAudioModule
     public bool HasOutputs => false;
     public bool HasInputs => false;
     
-    public void InitAudio() { }
+    public void InitAudio(IServiceProvider serviceProvider) { }
 }

@@ -14,7 +14,7 @@ public class SpeakerAudioSink : IAudioModuleWithInput
         Inputs = new List<IAudioPoint>(1);
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
         Input.ProcessAudio = ProcessAudio;
     }
 

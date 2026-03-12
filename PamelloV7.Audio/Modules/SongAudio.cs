@@ -4,6 +4,7 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
+using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
@@ -14,6 +15,8 @@ namespace PamelloV7.Audio.Modules;
 
 public class SongAudio : IAudioModuleWithOutput
 {
+    private readonly IDependenciesService _dependencies;
+    
     public List<IAudioPoint> Outputs { get; }
     public IAudioPoint Output => Outputs.First();
 
@@ -54,6 +57,8 @@ public class SongAudio : IAudioModuleWithOutput
         IPamelloSong song,
         IServiceProvider services
     ) {
+        _dependencies = services.GetRequiredService<IDependenciesService>();
+        
         Song = song;
 
         Outputs = new List<IAudioPoint>(1);
@@ -109,7 +114,7 @@ public class SongAudio : IAudioModuleWithOutput
             }
         }
 
-        Duration.TotalSeconds = GetSongDuration(Song)?.TotalSeconds ?? 0;
+        Duration.TotalSeconds = GetSongDuration(Song, _dependencies)?.TotalSeconds ?? 0;
 
         await LoadChunksAtAsync(0, token);
         if (_currentChunk is null) {
@@ -298,9 +303,11 @@ public class SongAudio : IAudioModuleWithOutput
         }
         
         if (Song.SelectedSource is null) throw new PamelloException("Song source is null, cannot create FFMpeg");
+        
+        var ffmpeg = _dependencies.ResolveRequired("ffmpeg");
 
         _ffmpeg = Process.Start(new ProcessStartInfo {
-            FileName = "ffmpeg",
+            FileName = ffmpeg.GetFile().FullName,
             //Arguments = $@"-speed ultrafast -hide_banner -loglevel panic -i ""{GetSongAudioPath(Song)}"" -ac 2 -f s16le -ar 48000 pipe:1",
             Arguments = $@"-hide_banner -loglevel panic -ss {start} -i ""{Song.SelectedSource.GetFile().FullName}"" -ac 2 -f s16le -ar 48000 pipe:1",
             UseShellExecute = false,
@@ -372,13 +379,15 @@ public class SongAudio : IAudioModuleWithOutput
         return chunkStream;
     }
 
-    public static AudioTime? GetSongDuration(IPamelloSong song) {
+    public static AudioTime? GetSongDuration(IPamelloSong song, IDependenciesService dependencies) {
         if (!(song.SelectedSource?.IsDownloaded() ?? false)) {
             return null;
         }
+        
+        var ffprobe = dependencies.ResolveRequired("ffprobe");
 
         using var ffprobeProcess = Process.Start(new ProcessStartInfo {
-            FileName = "ffprobe",
+            FileName = ffprobe.GetFile().FullName,
             Arguments = $@"-i ""{song.SelectedSource.GetFile().FullName}"" -show_entries format=duration -v quiet -of csv=""p=0""",
             UseShellExecute = false,
             RedirectStandardOutput = true
@@ -396,7 +405,7 @@ public class SongAudio : IAudioModuleWithOutput
         return null;
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
         Output.ProcessAudio = NextBytes;
     }
 

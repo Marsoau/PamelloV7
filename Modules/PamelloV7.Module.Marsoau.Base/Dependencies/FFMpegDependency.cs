@@ -15,7 +15,7 @@ public class FFMpegDependency : SingleFileDependency
     protected override string VersionUrl => "https://api.github.com/repos/shaka-project/static-ffmpeg-binaries/releases/latest";
     protected override string DownloadUrlLinux => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffmpeg-linux-x64";
     protected override string DownloadUrlWindows => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffmpeg-win-x64.exe";
-    protected override bool IsExecutable => true;
+    public override bool IsExecutable => true;
 
     public FFMpegDependency(IServiceProvider services) : base(services) { }
 }

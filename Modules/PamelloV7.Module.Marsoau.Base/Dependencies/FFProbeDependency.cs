@@ -1,0 +1,21 @@
+using System.Diagnostics;
+using PamelloV7.Framework.Dependencies;
+using System.Net.Http;
+using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace PamelloV7.Module.Marsoau.Base.Dependencies;
+
+public class FFProbeDependency : SingleFileDependency
+{
+    public override string Name => "ffprobe";
+    public override string InternalFilePath => "ffprobe";
+
+    protected override string VersionProperty => "name";
+    protected override string VersionUrl => "https://api.github.com/repos/shaka-project/static-ffmpeg-binaries/releases/latest";
+    protected override string DownloadUrlLinux => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffprobe-linux-x64";
+    protected override string DownloadUrlWindows => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffprobe-win-x64.exe";
+    public override bool IsExecutable => true;
+
+    public FFProbeDependency(IServiceProvider services) : base(services) { }
+}

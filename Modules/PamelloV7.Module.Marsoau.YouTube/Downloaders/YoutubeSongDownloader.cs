@@ -17,9 +17,11 @@ public class YoutubeSongDownloader : SongDownloader
     
     protected override async Task<EDownloadResult> InternalDownloadAsync(FileInfo file) {
         var ytDlp = _dependencies.ResolveRequired("yt-dlp");
+        var ffmpeg = _dependencies.ResolveRequired("ffmpeg");
+        var ffprobe = _dependencies.ResolveRequired("ffprobe");
         
         using var process = new Process();
-        process.StartInfo = new ProcessStartInfo() {
+        var startInfo = new ProcessStartInfo {
             FileName = ytDlp.GetFile().FullName,
             Arguments = string.Join(' ',
                 //$@"--plugin-dirs ""/home/marsoau/.config/yt-dlp/plugins""",
@@ -40,8 +42,17 @@ public class YoutubeSongDownloader : SongDownloader
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
             RedirectStandardOutput = true,
-            EnvironmentVariables = { ["PYTHONPATH"] = "/home/marsoau/.config/yt-dlp/plugins" }
+            EnvironmentVariables = {
+                ["PYTHONPATH"] = "/home/marsoau/.config/yt-dlp/plugins",
+            }
         };
+        
+        var currentPath = startInfo.Environment["PATH"] ?? string.Empty;
+        var sep = Path.PathSeparator;
+    
+        startInfo.Environment["PATH"] = $"{ffmpeg.GetDirectory().FullName}{sep}{ffprobe.GetDirectory().FullName}{sep}{currentPath}";
+        
+        process.StartInfo = startInfo;
 
         if (!process.Start()) {
             return EDownloadResult.CantStart;

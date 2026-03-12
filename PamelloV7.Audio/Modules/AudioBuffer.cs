@@ -25,7 +25,7 @@ public class AudioBuffer : IAudioModuleWithInput, IAudioModuleWithOutput
         _ring = new RingBuffer<byte>(size);
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
         Input.ProcessAudio = ProcessInput;
         Output.ProcessAudio = ProcessOutput;
     }

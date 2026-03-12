@@ -8,7 +8,7 @@ public abstract class LibDependency : SingleFileDependency
     protected virtual string[] DllNames => [Name];
     public abstract Assembly DllAssembly { get; }
     
-    protected override bool IsExecutable => false;
+    public override bool IsExecutable => false;
     
     protected LibDependency(IServiceProvider services) : base(services) { }
 

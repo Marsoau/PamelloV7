@@ -12,6 +12,8 @@ public abstract class Dependency
     public abstract string Name { get; }
     
     public abstract string InternalFilePath { get; }
+    
+    public abstract bool IsExecutable { get; }
 
     public bool IsInstalled => GetFile().Exists;
     

@@ -17,7 +17,7 @@ public class AudioCopy : IAudioModuleWithInput, IAudioModuleWithOutputs
         Outputs = new List<IAudioPoint>(10);
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
         Input.ProcessAudio = ProcessAudio;
     }
 

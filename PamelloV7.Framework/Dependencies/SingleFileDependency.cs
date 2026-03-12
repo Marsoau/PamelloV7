@@ -14,8 +14,6 @@ public abstract class SingleFileDependency : Dependency
     
     protected abstract string DownloadUrlLinux { get; }
     protected abstract string DownloadUrlWindows { get; }
-    
-    protected abstract bool IsExecutable { get; }
 
     protected SingleFileDependency(IServiceProvider services) : base(services) {
         _clientFactory = services.GetRequiredService<IHttpClientFactory>();

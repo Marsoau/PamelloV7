@@ -17,7 +17,7 @@ public class AudioChoice : IAudioModuleWithInputs, IAudioModuleWithOutput
         Outputs = new List<IAudioPoint>(1);
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
         Output.ProcessAudio = ProcessAudio;
     }
 

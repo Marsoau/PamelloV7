@@ -15,7 +15,7 @@ public class YtDlpDependency : SingleFileDependency
     protected override string VersionUrl => "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
     protected override string DownloadUrlLinux => "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
     protected override string DownloadUrlWindows => "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
-    protected override bool IsExecutable => true;
+    public override bool IsExecutable => true;
 
     public YtDlpDependency(IServiceProvider services) : base(services) { }
 }

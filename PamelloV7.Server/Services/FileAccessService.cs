@@ -50,9 +50,33 @@ public class FileAccessService : IFileAccessService
 
     public FileInfo GetDependencyFile(Dependency dependency) {
         var dependencyDirectory = GetDependencyDirectory(dependency);
+
+        string extension;
+        if (dependency.IsExecutable) {
+            if (OperatingSystem.IsWindows()) {
+                extension = ".exe";
+            }
+            else if (OperatingSystem.IsLinux()) {
+                extension = "";
+            }
+            else {
+                throw new PamelloException("Unsupported operating system");
+            }
+        }
+        else {
+            if (OperatingSystem.IsWindows()) {
+                extension = ".dll";
+            }
+            else if (OperatingSystem.IsLinux()) {
+                extension = ".so";
+            }
+            else {
+                throw new PamelloException("Unsupported operating system");
+            }
+        }
         
         return new FileInfo(
-            Path.Combine(dependencyDirectory.FullName, dependency.InternalFilePath)
+            Path.Combine(dependencyDirectory.FullName, $"{dependency.InternalFilePath}{extension}")
         );
     }
 

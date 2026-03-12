@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
+using PamelloV7.Framework.Dependencies.Service;
 
-namespace PamelloV7.Server.Model.AudioOld.Modules.Pipes;
+namespace PamelloV7.Audio.Modules;
 
 public class FFmpegMp3Converter : IAudioModuleWithInput, IAudioModuleWithOutput
 {
@@ -21,12 +23,16 @@ public class FFmpegMp3Converter : IAudioModuleWithInput, IAudioModuleWithOutput
         Outputs = new List<IAudioPoint>(1);
     }
 
-    public void InitAudio() {
+    public void InitAudio(IServiceProvider services) {
+        var dependecies = services.GetRequiredService<IDependenciesService>();
+        
+        var ffmpeg = dependecies.ResolveRequired("ffmpeg");
+        
         Input.ProcessAudio = Process;
         
         _ffmpeg = new Process {
             StartInfo = new ProcessStartInfo {
-                FileName = "ffmpeg",
+                FileName = ffmpeg.GetFile().FullName,
                 Arguments = "-f s16le -ac 2 -ar 48000 -re -i pipe:0 " +
                             "-acodec libmp3lame -b:a 320k -compression_level 0 -f mp3 pipe:1",
                 RedirectStandardInput = true,
