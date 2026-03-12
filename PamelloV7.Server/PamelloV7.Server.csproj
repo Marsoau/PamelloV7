@@ -46,13 +46,30 @@
     <ItemGroup>
       <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
     </ItemGroup>
-    
-    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath">
+
+    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath" RemoveProperties="RuntimeIdentifier">
       <Output TaskParameter="TargetOutputs" ItemName="ModuleBinaries" />
     </MSBuild>
 
     <RemoveDir Directories="$(OutputPath)Modules\" />
-
     <Copy SourceFiles="@(ModuleBinaries)" DestinationFolder="$(OutputPath)Modules\" />
   </Target>
+
+  <Target Name="IncludeModulesInPublish" AfterTargets="ComputeFilesToPublish">
+    <ItemGroup>
+      <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath" RemoveProperties="RuntimeIdentifier">
+      <Output TaskParameter="TargetOutputs" ItemName="ModulePublishBinaries" />
+    </MSBuild>
+
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(ModulePublishBinaries)">
+        <RelativePath>Modules\%(Filename)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
 </Project>
