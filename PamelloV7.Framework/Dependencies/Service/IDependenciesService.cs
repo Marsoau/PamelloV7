@@ -1,7 +1,7 @@
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Services.Base;
 
-namespace PamelloV7.Framework.Dependencies;
+namespace PamelloV7.Framework.Dependencies.Service;
 
 public interface IDependenciesService : IPamelloService
 {

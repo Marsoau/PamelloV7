@@ -7,6 +7,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Dependencies;
+using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;

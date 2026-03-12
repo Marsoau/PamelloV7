@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace PamelloV7.Module.Marsoau.Base.Dependencies;
 
-public class FFMpegDependency : SimpleDependency
+public class FFMpegDependency : SingleFileDependency
 {
     public override string Name => "ffmpeg";
     public override string InternalFilePath => "ffmpeg";

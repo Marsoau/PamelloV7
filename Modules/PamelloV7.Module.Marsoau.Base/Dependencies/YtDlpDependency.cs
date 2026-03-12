@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace PamelloV7.Module.Marsoau.Base.Dependencies;
 
-public class YtDlpDependency : SimpleDependency
+public class YtDlpDependency : SingleFileDependency
 {
     public override string Name => "yt-dlp";
     public override string InternalFilePath => "yt-dlp";

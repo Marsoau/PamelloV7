@@ -5,7 +5,7 @@ using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Dependencies;
 
-public abstract class SimpleDependency : Dependency
+public abstract class SingleFileDependency : Dependency
 {
     private readonly IHttpClientFactory _clientFactory;
     
@@ -15,7 +15,7 @@ public abstract class SimpleDependency : Dependency
     
     protected abstract bool IsExecutable { get; }
 
-    protected SimpleDependency(IServiceProvider services) : base(services) {
+    protected SingleFileDependency(IServiceProvider services) : base(services) {
         _clientFactory = services.GetRequiredService<IHttpClientFactory>();
     }
 

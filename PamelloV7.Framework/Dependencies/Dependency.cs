@@ -21,6 +21,8 @@ public abstract class Dependency
 
         _files = services.GetRequiredService<IFileAccessService>();
     }
+    
+    public virtual void Startup() { }
 
     public async Task<bool> IsLatestAsync() {
         if (!IsInstalled) return false;
