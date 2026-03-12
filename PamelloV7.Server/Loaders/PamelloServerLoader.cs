@@ -25,6 +25,7 @@ public class PamelloServerLoader
         var executingAssembly = Assembly.GetExecutingAssembly();
         var referencedAssemblies = executingAssembly.GetReferencedAssemblies().Where(name => {
             if (!name.Name?.StartsWith("PamelloV7") ?? false) return false;
+            if (name.Name?.StartsWith("PamelloV7.Module") ?? true) return false;
             return true;
         }).Select(Assembly.Load);
 

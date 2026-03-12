@@ -49,8 +49,7 @@ public class PamelloModuleLoadContext : AssemblyLoadContext
     protected override Assembly? Load(AssemblyName assemblyName)
     {
         var name = assemblyName.Name!;
-        Console.WriteLine("asdasd REQUESRT");
-
+        
         if (_loadedAssemblies.TryGetValue(name, out var cachedAssembly)) {
             return cachedAssembly;
         }

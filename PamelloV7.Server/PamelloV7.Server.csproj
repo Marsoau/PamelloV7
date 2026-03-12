@@ -22,31 +22,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj">
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+        <ProjectReference Update="..\Modules\PamelloV7.Module.Marsoau.*\*.csproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
             <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
         </ProjectReference>

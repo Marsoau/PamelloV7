@@ -58,6 +58,15 @@ public class PamelloModulesLoader
         
         Containers = [];
     }
+    
+    private void LoadAssembly(Assembly assembly) {
+        var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
+                
+        if (moduleType is null) return;
+        if (Activator.CreateInstance(moduleType) is not IPamelloModule module) return;
+                
+        Containers.Add(new PamelloModuleContainer(assembly, module));
+    }
 
     public void Load() {
         var path = Path.Combine(AppContext.BaseDirectory, "Modules");
@@ -66,43 +75,48 @@ public class PamelloModulesLoader
             return;
         }
         
-        var moduleFiles = Directory.GetFiles(path, "*.pv7m");
-        StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
+        #if DEBUG
+            LoadAssembly(typeof(Module.Marsoau.Base.Base).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.Database.Database).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.Discord.Discord).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.Osu.Osu).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.PEQL.PEQL).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.Test.Test).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.YouTube.YouTube).Assembly);
+        #else
+            var moduleContext = new PamelloModuleLoadContext();
+            var loadedModuleAssemblies = new List<Assembly>();
         
-        var moduleContext = new PamelloModuleLoadContext();
-        var loadedModuleAssemblies = new List<Assembly>();
-
-        foreach (var file in moduleFiles) {
-            moduleContext.PreloadFileToMemory(file);
-        }
+            var moduleFiles = Directory.GetFiles(path, "*.pv7m");
+            StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
         
-        foreach (var file in moduleFiles) {
-            var moduleName = Path.GetFileNameWithoutExtension(file);
-        
-            try {
-                var assembly = moduleContext.LoadMainModule(moduleName);
-                loadedModuleAssemblies.Add(assembly);
-                Console.WriteLine($"[Loader] Loaded assembly: {moduleName}");
+            foreach (var file in moduleFiles) {
+                moduleContext.PreloadFileToMemory(file);
             }
-            catch (Exception ex) {
-                Console.WriteLine($"[Loader] Failed to load {moduleName}: {ex.Message}");
+        
+            foreach (var file in moduleFiles) {
+                var moduleName = Path.GetFileNameWithoutExtension(file);
+        
+                try {
+                    var assembly = moduleContext.LoadMainModule(moduleName);
+                    loadedModuleAssemblies.Add(assembly);
+                    Console.WriteLine($"[Loader] Loaded assembly: {moduleName}");
+                }
+                catch (Exception ex) {
+                    Console.WriteLine($"[Loader] Failed to load {moduleName}: {ex.Message}");
+                }
             }
-        }
 
-        foreach (var assembly in loadedModuleAssemblies) {
-            var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
-            if (moduleType is null) continue;
-            
-            if (Activator.CreateInstance(moduleType) is not IPamelloModule module) continue;
-            
-            var container = new PamelloModuleContainer(assembly, module);
-            
+            foreach (var assembly in loadedModuleAssemblies) {
+                LoadAssembly(assembly);
+            }
+        #endif
+
+        foreach (var container in Containers) {
             if (container.ConfigType is not null) {
                 _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");
             }
-            Console.WriteLine($"{container}\n| {module.Description}");
-            
-            Containers.Add(container);
+            Console.WriteLine($"{container}\n| {container.Module.Description}");
         }
         
         StaticLogger.Log($"Loaded {Containers.Count} modules");

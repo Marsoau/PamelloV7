@@ -19,7 +19,7 @@ public class DependenciesService : IDependenciesService
         var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         var types = typeResolver.GetInheritorsOf<Dependency>().ToList();
 
-        var dllResolvers = new Dictionary<Assembly, List<DllDependency>>();
+        var dllResolvers = new Dictionary<Assembly, List<LibDependency>>();
 
         Console.WriteLine($"Loading Dependencies: ({types.Count})");
         foreach (var type in types) {
@@ -28,7 +28,7 @@ public class DependenciesService : IDependenciesService
             var dependency = (Dependency)Activator.CreateInstance(type, services)!;
             dependency.Startup();
 
-            if (dependency is DllDependency dllDependency) {
+            if (dependency is LibDependency dllDependency) {
                 if (dllResolvers.TryGetValue(dllDependency.DllAssembly, out var resolvers))
                     resolvers.Add(dllDependency);
                 else dllResolvers.Add(dllDependency.DllAssembly, [dllDependency]);

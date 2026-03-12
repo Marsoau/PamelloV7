@@ -25,17 +25,17 @@ public class Base : IPamelloModule
     public ELoadingStage Stage => ELoadingStage.Early;
 
     public async Task StartupAsync(IServiceProvider services) {
-        var dependencies = services.GetRequiredService<IDependenciesService>();
-        
-        var ffmpeg = dependencies.ResolveRequired("ffmpeg");
-        var ytDlp = dependencies.ResolveRequired("yt-dlp");
+        var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();
 
-        var d1 = ffmpeg.DownloadOrUpdateAsync();
-        var d2 = ytDlp.DownloadOrUpdateAsync();
-        
-        await Task.WhenAll(d1, d2);
-
-        Console.WriteLine($"FFMpeg: {ffmpeg.IsInstalled}");
-        Console.WriteLine($"YtDlp: {ytDlp.IsInstalled}");
+        foreach (var dependency in dependencies) {
+            Console.WriteLine($"--- {dependency} ---");
+            Console.WriteLine($"Is installed: {dependency.IsInstalled}");
+            
+            if (dependency.IsInstalled) continue;
+            
+            Console.WriteLine("Downloading...");
+            await dependency.DownloadOrUpdateAsync();
+            Console.WriteLine($"Done, Now installed: {dependency.IsInstalled}");
+        }
     }
 }
