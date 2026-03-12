@@ -14,7 +14,8 @@ public class DaveDependency : DllDependency
 
     protected override string VersionProperty => "";
     protected override string VersionUrl => "";
-    protected override string DownloadUrl => "";
+    protected override string DownloadUrlLinux => "";
+    protected override string DownloadUrlWindows => "";
 
     public DaveDependency(IServiceProvider services) : base(services) { }
 }

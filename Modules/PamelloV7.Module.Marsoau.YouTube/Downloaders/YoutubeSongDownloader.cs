@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Enumerators;
@@ -14,9 +16,11 @@ public class YoutubeSongDownloader : SongDownloader
     public YoutubeSongDownloader(IServiceProvider services, SongSource source) : base(services, source) { }
     
     protected override async Task<EDownloadResult> InternalDownloadAsync(FileInfo file) {
+        var ytDlp = _dependencies.ResolveRequired("yt-dlp");
+        
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo() {
-            FileName = "yt-dlp",
+            FileName = ytDlp.GetFile().FullName,
             Arguments = string.Join(' ',
                 //$@"--plugin-dirs ""/home/marsoau/.config/yt-dlp/plugins""",
                 $@"--extractor-args ""youtube:player_client=android""",

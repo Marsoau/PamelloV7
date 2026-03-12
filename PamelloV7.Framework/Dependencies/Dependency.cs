@@ -10,6 +10,7 @@ public abstract class Dependency
     private readonly IFileAccessService _files;
 
     public abstract string Name { get; }
+    
     public abstract string InternalFilePath { get; }
 
     public bool IsInstalled => GetFile().Exists;

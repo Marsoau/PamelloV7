@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Enumerators;
@@ -9,11 +10,13 @@ namespace PamelloV7.Framework.Downloads;
 
 public abstract class SongDownloader
 {
-    private readonly IServiceProvider _services;
+    protected readonly IServiceProvider _services;
     
     private readonly IEventsService _events;
     private readonly IDownloadService _downloads;
     private readonly IFileAccessService _files;
+
+    protected readonly IDependenciesService _dependencies;
     
     private Task<EDownloadResult>? _downloadTask;
 
@@ -44,6 +47,8 @@ public abstract class SongDownloader
         _events = services.GetRequiredService<IEventsService>();
         _downloads = services.GetRequiredService<IDownloadService>();
         _files = services.GetRequiredService<IFileAccessService>();
+        
+        _dependencies = services.GetRequiredService<IDependenciesService>();
         
         Source = source;
     }

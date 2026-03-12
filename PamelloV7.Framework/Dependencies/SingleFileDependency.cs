@@ -11,7 +11,9 @@ public abstract class SingleFileDependency : Dependency
     
     protected abstract string VersionProperty { get; }
     protected abstract string VersionUrl { get; }
-    protected abstract string DownloadUrl { get; }
+    
+    protected abstract string DownloadUrlLinux { get; }
+    protected abstract string DownloadUrlWindows { get; }
     
     protected abstract bool IsExecutable { get; }
 
@@ -38,15 +40,24 @@ public abstract class SingleFileDependency : Dependency
     }
 
     protected override async Task DownloadOrUpdateInternalAsync(DirectoryInfo directory) {
-        if (string.IsNullOrWhiteSpace(DownloadUrl)) return;
+        if (string.IsNullOrWhiteSpace(DownloadUrlLinux)) return;
         
         var client = _clientFactory.CreateClient();
         var file = GetFile();
 
-        var fileBytes = await client.GetByteArrayAsync(DownloadUrl);
+        string url;
+        if (OperatingSystem.IsWindows()) {
+            url = DownloadUrlWindows;
+        }
+        else if (OperatingSystem.IsLinux()) {
+            url = DownloadUrlLinux;
+        }
+        else return;
+
+        var fileBytes = await client.GetByteArrayAsync(url);
         await File.WriteAllBytesAsync(file.FullName, fileBytes);
 
-        if (IsExecutable) {
+        if (IsExecutable && OperatingSystem.IsLinux()) {
             File.SetUnixFileMode(file.FullName, File.GetUnixFileMode(file.FullName) | UnixFileMode.UserExecute);
         }
     }

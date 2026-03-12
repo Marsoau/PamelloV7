@@ -14,7 +14,8 @@ public class OpusDependency : DllDependency
     
     protected override string VersionProperty => "";
     protected override string VersionUrl => "";
-    protected override string DownloadUrl => "";
+    protected override string DownloadUrlLinux => "";
+    protected override string DownloadUrlWindows => "";
     protected override bool IsExecutable => false;
 
     public OpusDependency(IServiceProvider services) : base(services) { }
