@@ -1,0 +1,34 @@
+<Project>
+    <PropertyGroup>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <Target Name="PackagePv7m" AfterTargets="Build">
+        <PropertyGroup>
+            <ServerModulesDir>$(MSBuildThisFileDirectory)..\PamelloV7.Server\bin\$(Configuration)\$(TargetFramework)\Modules\</ServerModulesDir>
+            <StagingDir>$(OutDir)Pv7mStaging\</StagingDir>
+            <Pv7mFilePath>$(ServerModulesDir)$(TargetName).pv7m</Pv7mFilePath>
+        </PropertyGroup>
+
+        <RemoveDir Directories="$(StagingDir)" />
+        <MakeDir Directories="$(StagingDir)" />
+        <MakeDir Directories="$(ServerModulesDir)" />
+
+        <ItemGroup>
+            <FilesToPackage Include="$(TargetPath)" />
+            <FilesToPackage Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+            <FilesToPackage Include="@(ReferenceCopyLocalPaths)" Condition="'%(Extension)' == '.dll' or '%(Extension)' == '.pdb'" />
+        </ItemGroup>
+
+        <ItemGroup>
+            <FilesToPackage Remove="@(FilesToPackage)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('PamelloV7.')) and '%(Filename)' != '$(TargetName)'" />
+            <FilesToPackage Remove="@(FilesToPackage)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Extensions.'))" />
+        </ItemGroup>
+        
+        <Copy SourceFiles="@(FilesToPackage)" DestinationFolder="$(StagingDir)" />
+        <ZipDirectory SourceDirectory="$(StagingDir)" DestinationFile="$(Pv7mFilePath)" Overwrite="true" />
+        <RemoveDir Directories="$(StagingDir)" />
+
+        <Message Importance="High" Text="Packaged module into: $(Pv7mFilePath)" />
+    </Target>
+</Project>

@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <Import Project="..\PamelloModule.targets" />
+
     <ItemGroup>
       <ProjectReference Include="..\..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
       <ProjectReference Include="..\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj" />

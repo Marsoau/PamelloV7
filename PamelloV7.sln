@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Tests", "PamelloV7.Tests\PamelloV7.Tests.csproj", "{20801E3F-8C21-45FE-91BE-E411A100E62F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E34EDB6A-6149-4309-B65C-3C518BA143B3}"
+	ProjectSection(SolutionItems) = preProject
+		Modules\PamelloModule.targets = Modules\PamelloModule.targets
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Base", "Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj", "{C5427969-A884-452F-A56E-D6C447BCCC00}"
 EndProject

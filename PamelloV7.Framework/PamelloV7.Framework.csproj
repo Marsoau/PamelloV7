@@ -14,7 +14,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.4" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj" />
+		<ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj"/>
 		<ProjectReference Include="..\PamelloV7.Framework.Generators\PamelloV7.Framework.Generators.csproj"
 						  OutputItemType="Analyzer"
 						  ReferenceOutputAssembly="false" />

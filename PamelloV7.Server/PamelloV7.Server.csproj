@@ -1,75 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <Version>2.0.0</Version>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
-  </PropertyGroup>
-  <ItemGroup>
-    <Content Remove="Config\config.json" />
-    <Content Remove="Config\configEXAMPLE.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="LiteDB" Version="5.0.21" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
-    <ProjectReference Include="..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj">
-      <IsModule>true</IsModule>
-    </ProjectReference>
-    <!--
-    -->
-  </ItemGroup>
-  <Target Name="CopyModulesAfterBuild" AfterTargets="Build">
-    <ItemGroup>
-      <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
-    </ItemGroup>
-
-    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath" RemoveProperties="RuntimeIdentifier">
-      <Output TaskParameter="TargetOutputs" ItemName="ModuleBinaries" />
-    </MSBuild>
-
-    <RemoveDir Directories="$(OutputPath)Modules\" />
-    <Copy SourceFiles="@(ModuleBinaries)" DestinationFolder="$(OutputPath)Modules\" />
-  </Target>
-
-  <Target Name="IncludeModulesInPublish" AfterTargets="ComputeFilesToPublish">
-    <ItemGroup>
-      <ModulesToCopy Include="@(ProjectReference->WithMetadataValue('IsModule', 'true'))" />
-    </ItemGroup>
-
-    <MSBuild Projects="@(ModulesToCopy)" Targets="GetTargetPath" RemoveProperties="RuntimeIdentifier">
-      <Output TaskParameter="TargetOutputs" ItemName="ModulePublishBinaries" />
-    </MSBuild>
+    <PropertyGroup>
+        <Version>2.0.0</Version>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
+    </PropertyGroup>
 
     <ItemGroup>
-      <ResolvedFileToPublish Include="@(ModulePublishBinaries)">
-        <RelativePath>Modules\%(Filename)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
+        <Content Remove="Config\config.json" />
+        <Content Remove="Config\configEXAMPLE.json" />
     </ItemGroup>
-  </Target>
 
+    <ItemGroup>
+        <PackageReference Include="LiteDB" Version="5.0.21" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
+        <ProjectReference Include="..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Test\PamelloV7.Module.Marsoau.Test.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+        </ProjectReference>
+    </ItemGroup>
 </Project>

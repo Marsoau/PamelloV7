@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <Import Project="..\PamelloModule.targets" />
+
     <ItemGroup>
       <ProjectReference Include="..\..\PamelloV7.Audio\PamelloV7.Audio.csproj" />
       <ProjectReference Include="..\..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
