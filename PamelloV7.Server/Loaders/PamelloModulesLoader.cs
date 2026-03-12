@@ -52,9 +52,13 @@ public class PamelloModulesLoader
     private readonly PamelloConfigLoader _configLoader;
 
     public readonly List<PamelloModuleContainer> Containers;
+
+    private readonly PamelloModuleLoadContext _moduleContext;
     
     public PamelloModulesLoader(PamelloConfigLoader configLoader) {
         _configLoader = configLoader;
+        
+        _moduleContext = new PamelloModuleLoadContext();
         
         Containers = [];
     }
@@ -84,21 +88,20 @@ public class PamelloModulesLoader
             LoadAssembly(typeof(Module.Marsoau.Test.Test).Assembly);
             LoadAssembly(typeof(Module.Marsoau.YouTube.YouTube).Assembly);
         #else
-            var moduleContext = new PamelloModuleLoadContext();
             var loadedModuleAssemblies = new List<Assembly>();
         
             var moduleFiles = Directory.GetFiles(path, "*.pv7m");
             StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
         
             foreach (var file in moduleFiles) {
-                moduleContext.PreloadFileToMemory(file);
+                _moduleContext.PreloadFileToMemory(file);
             }
         
             foreach (var file in moduleFiles) {
                 var moduleName = Path.GetFileNameWithoutExtension(file);
         
                 try {
-                    var assembly = moduleContext.LoadMainModule(moduleName);
+                    var assembly = _moduleContext.LoadMainModule(moduleName);
                     loadedModuleAssemblies.Add(assembly);
                     Console.WriteLine($"[Loader] Loaded assembly: {moduleName}");
                 }

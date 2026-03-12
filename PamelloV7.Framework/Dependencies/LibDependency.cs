@@ -13,7 +13,11 @@ public abstract class LibDependency : SingleFileDependency
     protected LibDependency(IServiceProvider services) : base(services) { }
 
     public virtual IntPtr GetResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
-        if (DllNames.Contains(libraryName) && IsInstalled) return NativeLibrary.Load(GetFile().FullName);
+        if (!DllNames.Contains(libraryName)) return IntPtr.Zero;
+        
+        if (IsInstalled) return NativeLibrary.Load(GetFile().FullName);
+            
+        Console.WriteLine($"Custom dependency is requested but not installed! name: \"{Name}\" path: {GetFile().FullName}");
         
         return IntPtr.Zero;
     }
