@@ -9,7 +9,7 @@ public class AudioSystemTests
     private readonly IPamelloAudioSystem _audio;
     
     public AudioSystemTests() {
-        _audio = new PamelloAudioSystem();
+        //_audio = new PamelloAudioSystem();
     }
     
     [Fact]
