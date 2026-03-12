@@ -4,18 +4,13 @@ using PamelloV7.Framework.Dependencies;
 
 namespace PamelloV7.Module.Marsoau.Discord.Dependencies;
 
-public class DaveDependency : DllDependency
+public class DaveDependency : MarsoauLibDependency
 {
     public override string Name => "dave";
-    public override string InternalFilePath => "libdave.so";
+    public override string InternalFilePath => "libdave";
     protected override string[] DllNames => ["dave", "libdave"];
     
     public override Assembly DllAssembly => typeof(Dave).Assembly;
-
-    protected override string VersionProperty => "";
-    protected override string VersionUrl => "";
-    protected override string DownloadUrlLinux => "";
-    protected override string DownloadUrlWindows => "";
 
     public DaveDependency(IServiceProvider services) : base(services) { }
 }
