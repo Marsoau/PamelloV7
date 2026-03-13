@@ -7,8 +7,6 @@ namespace PamelloV7.Module.Marsoau.Discord.Config;
 [ConfigRoot]
 public partial class DiscordNode
 {
-    public string TestProperty { get; set; } = "test";
-    
     public partial class TokensNode {
         public string Main { get; set; } = "";
         public string[] SpeakerTokens { get; set; } = [];

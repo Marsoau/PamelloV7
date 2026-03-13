@@ -58,7 +58,7 @@ namespace PamelloV7.Server
             _serverLoader.ConfigureApiServices(builder.Services);
             
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"{FrameworkConfig.Test}");
+            builder.WebHost.UseUrls($"{ServerConfig.Root.Host}");
             
             builder.Services.AddSingleton(builder.Services);
             

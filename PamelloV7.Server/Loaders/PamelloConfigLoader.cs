@@ -53,15 +53,17 @@ public class PamelloConfigLoader
     }
 
     public void InitType(Type type, string partName) {
-        var rootProperty = type.GetProperty("Root");
+        var rootProperty = type.GetField("Root");
         if (rootProperty is null) throw new PamelloLoadingException($"Root property not found in config type {type.FullName}");
-            
-        if (!rootProperty.PropertyType.IsAssignableTo(typeof(IConfigNode))) throw new PamelloLoadingException($"Root property should implement IConfigNode");
             
         var container = Containers.FirstOrDefault(x => x.PartName == partName);
         if (container is null) throw new PamelloLoadingException($"Config part \"{partName}\" not found in config file");
         if (container.Part.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.PartName}\" not found in config file");
+
+        foreach (var property in rootProperty.FieldType.GetProperties()) {
+            Console.WriteLine($"| {property.Name}: {property.PropertyType}");
+        }
             
-        rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.PropertyType, _jsoncProperties));
+        rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.FieldType, _jsoncProperties));
     }
 }
