@@ -4,13 +4,14 @@ using Discord.Interactions;
 using Discord.LibDave;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
-using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Handlers;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord;
 
@@ -59,7 +60,7 @@ public class Discord : IPamelloModule
             whenReady.SetResult();
         };
 
-        await clients.Main.LoginAsync(TokenType.Bot, DiscordConfigOld.Root.Tokens.Main);
+        await clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Tokens.Main);
         await clients.Main.StartAsync();
 
         whenReady.Task.Wait();

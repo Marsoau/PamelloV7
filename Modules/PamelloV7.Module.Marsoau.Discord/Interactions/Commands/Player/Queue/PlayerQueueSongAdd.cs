@@ -1,6 +1,7 @@
 using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Repositories;
@@ -18,7 +19,7 @@ public partial class PlayerQueue
     public async Task SongAdd(
         [Summary("songs", "Songs query")] string songsQuery
     ) {
-        if (DiscordConfigOld.Root.Commands.AutoConnectOnAddition) {
+        if (DiscordConfig.Commands.AutoConnectOnAddition) {
             var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
 
             if (!speakers.GetCurrent(Context.User).Any()) {

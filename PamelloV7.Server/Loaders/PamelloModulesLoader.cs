@@ -2,11 +2,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
-using PamelloV7.Server.Config;
 using PamelloV7.Server.Loaders.Context;
 using PamelloV7.Server.Services;
 
@@ -137,7 +137,7 @@ public class PamelloModulesLoader
 
             if (Activator.CreateInstance(moduleType) is not IPamelloModule module) return true;
 
-            var isDisabled = ServerConfig.Root.DisabledModules.Contains($"{module.Author}/{module.Name}");
+            var isDisabled = ServerConfig.DisabledModules.Contains($"{module.Author}/{module.Name}");
 
             if (isDisabled) Console.WriteLine($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
             

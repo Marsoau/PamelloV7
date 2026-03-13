@@ -4,14 +4,10 @@ using PamelloV7.Framework.Config.Attributes;
 
 namespace PamelloV7.Module.Marsoau.Discord.Config;
 
-//usage example
-//Config.Discord.Tokens.Main
-//Config.Discord.Commands.AutoConnectOnAddition
-
 [ConfigRoot]
-public partial class DiscordNode
+public static partial class DiscordConfig
 {
-    public string TestProperty { get; set; } = "test";
+    public static string TestProperty { get; set; } = "test";
     
     public partial class TokensNode {
         public string Main { get; set; } = "";
@@ -24,10 +20,4 @@ public partial class DiscordNode
         public int UpdatableCommandsLifetime { get; set; } = 100;
         public ulong[] GuildsIds { get; set; } = [];
     }
-}
-
-[StaticConfigPart]
-public static class DiscordConfigOld
-{
-    public static Root.Root Root { get; set; }
 }

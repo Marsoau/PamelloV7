@@ -14,6 +14,7 @@ using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord.Handlers;
 
@@ -73,10 +74,10 @@ public class InteractionHandler : IPamelloService
     }
 
     public async Task RegisterAsync() {
-        if (DiscordConfigOld.Root.Commands.GlobalRegistration) {
+        if (DiscordConfig.Commands.GlobalRegistration) {
             await _interactions.RegisterCommandsGloballyAsync();
         }
-        else foreach (var guildId in DiscordConfigOld.Root.Commands.GuildsIds) {
+        else foreach (var guildId in DiscordConfig.Commands.GuildsIds) {
             await _interactions.RegisterCommandsToGuildAsync(guildId);
         }
     }

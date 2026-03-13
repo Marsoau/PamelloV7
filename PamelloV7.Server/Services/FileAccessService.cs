@@ -1,9 +1,9 @@
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
-using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Services;
 
@@ -19,7 +19,7 @@ public class FileAccessService : IFileAccessService
     public FileAccessService(IServiceProvider services) {
         _services = services;
         
-        RootDirectory = new DirectoryInfo(ServerConfig.Root.DataPath);
+        RootDirectory = new DirectoryInfo(ServerConfig.DataPath);
         FilesDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Files"));
         AudioDirectory = new DirectoryInfo(Path.Combine(FilesDirectory.FullName, "Audio"));
     }
@@ -101,6 +101,6 @@ public class FileAccessService : IFileAccessService
     }
 
     public string GetPublicUrl(string path) {
-        return $"https://{ServerConfig.Root.HostName}/Files{path}";
+        return $"https://{ServerConfig.HostName}/Files{path}";
     }
 }

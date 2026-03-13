@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using PamelloV7.Server.Config;
 using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 using System.Reflection;
@@ -7,6 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
@@ -58,7 +58,7 @@ namespace PamelloV7.Server
             _serverLoader.ConfigureApiServices(builder.Services);
             
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"{ServerConfig.Root.Host}");
+            builder.WebHost.UseUrls($"{FrameworkConfig.Test}");
             
             builder.Services.AddSingleton(builder.Services);
             

@@ -2,10 +2,10 @@ using PamelloV7.Audio.Modules;
 using PamelloV7.Audio.Points;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
-using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Speakers;
 
@@ -36,7 +36,7 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     public bool IsAvailableFor(IPamelloUser user) => true;
     
     public string GetUrl() {
-        return $"https://{ServerConfig.Root.HostName}/Audio/Out/{Name}";
+        return $"https://{ServerConfig.HostName}/Audio/Out/{Name}";
     }
 
     public PamelloInternetSpeaker(int id, string name, IPamelloPlayer player, IServiceProvider services) : base(id, services) {

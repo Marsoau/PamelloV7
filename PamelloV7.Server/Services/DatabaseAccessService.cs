@@ -8,7 +8,6 @@ using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
-using PamelloV7.Server.Config;
 
 namespace PamelloV7.Server.Database;
 

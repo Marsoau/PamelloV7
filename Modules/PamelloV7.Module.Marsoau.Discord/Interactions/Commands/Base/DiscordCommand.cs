@@ -3,6 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Commands.Base;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Services;
@@ -14,6 +15,7 @@ using PamelloV7.Module.Marsoau.Discord.Context;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Base;
 using PamelloV7.Module.Marsoau.Discord.Messages;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 
@@ -153,7 +155,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
 
         var message = await GetOriginalResponseAsync();
-        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, DiscordConfigOld.Root.Commands.UpdatableCommandsLifetime,
+        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, DiscordConfig.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 await ModifyOriginalResponseAsync(properties => properties.Components = getComponent());
             }, async () => {
@@ -179,7 +181,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         
         var message = await GetOriginalResponseAsync();
-        _updatableMessage = updatableMessageService.Watch(new UpdatablePageMessage(message, DiscordConfigOld.Root.Commands.UpdatableCommandsLifetime,
+        _updatableMessage = updatableMessageService.Watch(new UpdatablePageMessage(message, DiscordConfig.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
                 

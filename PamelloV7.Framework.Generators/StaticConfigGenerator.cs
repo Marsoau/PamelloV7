@@ -44,20 +44,20 @@ public class StaticConfigGenerator : IIncrementalGenerator
     }
 
     private static string Tab(int count) => string.Join("", Enumerable.Repeat("    ", count));
-    private static string AdjustedName(string name) => name.EndsWith("Node") ? name.Substring(0, name.Length - 4) : name;
+    private static string AdjustedName(string name, string end) => name.EndsWith(end) ? name.Substring(0, name.Length - end.Length) : name;
     
-    private static string GenerateNode(ITypeSymbol nodeType, int depth) {
+    private static string GenerateNode(ITypeSymbol nodeType, int depth, bool isRoot = true) {
         
         var innerTypes = nodeType.GetTypeMembers().Where(t => !t.IsAbstract && t.Arity == 0).ToList();
         if (!innerTypes.Any()) return $"{Tab(depth)}//no inner types";
         
         var sb = new StringBuilder();
         
-        sb.AppendLine($"{Tab(depth)}public partial class {nodeType.Name} {{");
+        sb.AppendLine($"{Tab(depth)}public{(isRoot ? " static " : " ")}partial class {nodeType.Name} {{");
         
         foreach (var innerType in innerTypes) {
-            sb.AppendLine(Tab(depth + 1) + $"public readonly {innerType.Name} {AdjustedName(innerType.Name)} = new();");
-            sb.AppendLine(GenerateNode(innerType, depth + 1));
+            sb.AppendLine(Tab(depth + 1) + $"public{(isRoot ? " static " : " readonly ")}{innerType.Name} {AdjustedName(innerType.Name, "Node")} = new();");
+            sb.AppendLine(GenerateNode(innerType, depth + 1, false));
         }
         
         sb.AppendLine($"{Tab(depth)}}}");
@@ -66,14 +66,9 @@ public class StaticConfigGenerator : IIncrementalGenerator
     }
         
     private static void Generate(SourceProductionContext context, ConfigRootPartDescriptor descriptor) {
-        const string staticClassNamespace = "PamelloV7.Framework.Config";
-        const string staticClassName = "FrameworkConfig";
-        
         var classNamespace = descriptor.ClassType.ContainingNamespace.IsGlobalNamespace 
             ? string.Empty 
             : descriptor.ClassType.ContainingNamespace.ToDisplayString();
-        
-        var fieldName = AdjustedName(descriptor.ClassType.Name);
 
         var source =
             $$"""
@@ -81,20 +76,13 @@ public class StaticConfigGenerator : IIncrementalGenerator
             {{descriptor.DebugOutput}}
             */
             
-            //static config part
-            namespace {{staticClassNamespace}} {
-                public static partial class {{staticClassName}} {
-                    public static {{descriptor.ClassType.GetFullName()}} {{fieldName}} = new {{descriptor.ClassType.GetFullName()}}();
-                }
-            }
+            namespace {{classNamespace}};
             
             //root node
-            namespace {{classNamespace}} {
-            {{GenerateNode(descriptor.ClassType, 1)}}
-            }
+            {{GenerateNode(descriptor.ClassType, 0)}}
             
             """;
         
-        context.AddSource($"{staticClassNamespace}.{descriptor.ClassType.Name}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{descriptor.ClassType.Name}.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

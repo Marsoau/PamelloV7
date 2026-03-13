@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Services.Base;
-using PamelloV7.Server.Config;
 using PamelloV7.Server.Filters;
 using PamelloV7.Server.Services;
 
