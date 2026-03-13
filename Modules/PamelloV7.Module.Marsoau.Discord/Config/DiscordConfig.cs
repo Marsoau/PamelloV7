@@ -5,9 +5,9 @@ using PamelloV7.Framework.Config.Attributes;
 namespace PamelloV7.Module.Marsoau.Discord.Config;
 
 [ConfigRoot]
-public static partial class DiscordConfig
+public partial class DiscordNode
 {
-    public static string TestProperty { get; set; } = "test";
+    public string TestProperty { get; set; } = "test";
     
     public partial class TokensNode {
         public string Main { get; set; } = "";

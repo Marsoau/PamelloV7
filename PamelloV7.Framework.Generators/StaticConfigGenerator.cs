@@ -47,17 +47,16 @@ public class StaticConfigGenerator : IIncrementalGenerator
     private static string AdjustedName(string name, string end) => name.EndsWith(end) ? name.Substring(0, name.Length - end.Length) : name;
     
     private static string GenerateNode(ITypeSymbol nodeType, int depth, bool isRoot = true) {
-        
         var innerTypes = nodeType.GetTypeMembers().Where(t => !t.IsAbstract && t.Arity == 0).ToList();
         if (!innerTypes.Any()) return $"{Tab(depth)}//no inner types";
         
         var sb = new StringBuilder();
         
-        sb.AppendLine($"{Tab(depth)}public{(isRoot ? " static " : " ")}partial class {nodeType.Name} {{");
+        sb.AppendLine($"{Tab(depth)}public partial class {nodeType.Name} {{");
         
         foreach (var innerType in innerTypes) {
-            sb.AppendLine(Tab(depth + 1) + $"public{(isRoot ? " static " : " readonly ")}{innerType.Name} {AdjustedName(innerType.Name, "Node")} = new();");
-            sb.AppendLine(GenerateNode(innerType, depth + 1, false));
+            sb.AppendLine(Tab(depth + 1) + $"public readonly {innerType.Name} {AdjustedName(innerType.Name, "Node")} = new();");
+            sb.AppendLine(GenerateNode(innerType, depth + 1));
         }
         
         sb.AppendLine($"{Tab(depth)}}}");
@@ -78,11 +77,16 @@ public class StaticConfigGenerator : IIncrementalGenerator
             
             namespace {{classNamespace}};
             
+            //static config part
+            public static partial class {{AdjustedName(descriptor.ClassType.Name, "Node")}}Config {
+                public static {{descriptor.ClassType.GetFullName()}} Root = new {{descriptor.ClassType.GetFullName()}}();
+            }
+            
             //root node
             {{GenerateNode(descriptor.ClassType, 0)}}
             
             """;
         
-        context.AddSource($"{descriptor.ClassType.Name}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{AdjustedName(descriptor.ClassType.Name, "Node")}Config.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

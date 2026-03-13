@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Config.Attributes;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Modules;
@@ -39,7 +40,8 @@ public class PamelloModuleContainer
             .Where(name => name.StartsWith("PamelloV7.Module"))
             .ToList();
         
-        ConfigType = assembly.GetTypes().FirstOrDefault(x => x.GetCustomAttribute<StaticConfigPartAttribute>() is not null);
+        var rootNode = assembly.GetTypes().FirstOrDefault(t => t.GetCustomAttribute<ConfigRootAttribute>() is not null);
+        ConfigType = assembly.GetTypes().FirstOrDefault(t => t.Name == $"{rootNode?.Name.Replace("Node", "")}Config");
     }
 
     public override string ToString() {
@@ -137,7 +139,7 @@ public class PamelloModulesLoader
 
             if (Activator.CreateInstance(moduleType) is not IPamelloModule module) return true;
 
-            var isDisabled = ServerConfig.DisabledModules.Contains($"{module.Author}/{module.Name}");
+            var isDisabled = ServerConfig.Root.DisabledModules.Contains($"{module.Author}/{module.Name}");
 
             if (isDisabled) Console.WriteLine($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
             

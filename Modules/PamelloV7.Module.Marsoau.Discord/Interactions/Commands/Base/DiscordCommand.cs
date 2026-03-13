@@ -155,7 +155,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
 
         var message = await GetOriginalResponseAsync();
-        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, DiscordConfig.Commands.UpdatableCommandsLifetime,
+        _updatableMessage = updatableMessageService.Watch(new UpdatableMessage(message, DiscordConfig.Root.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 await ModifyOriginalResponseAsync(properties => properties.Components = getComponent());
             }, async () => {
@@ -181,7 +181,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         var updatableMessageService = Services.GetRequiredService<UpdatableMessageKiller>();
         
         var message = await GetOriginalResponseAsync();
-        _updatableMessage = updatableMessageService.Watch(new UpdatablePageMessage(message, DiscordConfig.Commands.UpdatableCommandsLifetime,
+        _updatableMessage = updatableMessageService.Watch(new UpdatablePageMessage(message, DiscordConfig.Root.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
                 

@@ -1,9 +1,14 @@
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config.Attributes;
 
 namespace PamelloV7.Module.Marsoau.Osu.Config;
 
-[StaticConfigPart("Osu")]
-public static class OsuConfig
+[ConfigRoot]
+public partial class OsuNode
 {
-    public static Root.Root Root { get; set; }
+    public partial class AuthorizationNode
+    {
+        public string ApplicationId { get; set; } = null!;
+        public string Token { get; set; } = null!;
+    }
 }

@@ -9,6 +9,7 @@ using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
+using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Handlers;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
@@ -60,7 +61,7 @@ public class Discord : IPamelloModule
             whenReady.SetResult();
         };
 
-        await clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Tokens.Main);
+        await clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main);
         await clients.Main.StartAsync();
 
         whenReady.Task.Wait();

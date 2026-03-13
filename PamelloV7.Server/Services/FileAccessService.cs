@@ -19,7 +19,7 @@ public class FileAccessService : IFileAccessService
     public FileAccessService(IServiceProvider services) {
         _services = services;
         
-        RootDirectory = new DirectoryInfo(ServerConfig.DataPath);
+        RootDirectory = new DirectoryInfo(ServerConfig.Root.DataPath);
         FilesDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Files"));
         AudioDirectory = new DirectoryInfo(Path.Combine(FilesDirectory.FullName, "Audio"));
     }
@@ -101,6 +101,6 @@ public class FileAccessService : IFileAccessService
     }
 
     public string GetPublicUrl(string path) {
-        return $"https://{ServerConfig.HostName}/Files{path}";
+        return $"https://{ServerConfig.Root.HostName}/Files{path}";
     }
 }

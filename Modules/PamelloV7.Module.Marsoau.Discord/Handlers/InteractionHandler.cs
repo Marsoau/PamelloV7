@@ -74,10 +74,10 @@ public class InteractionHandler : IPamelloService
     }
 
     public async Task RegisterAsync() {
-        if (DiscordConfig.Commands.GlobalRegistration) {
+        if (DiscordConfig.Root.Commands.GlobalRegistration) {
             await _interactions.RegisterCommandsGloballyAsync();
         }
-        else foreach (var guildId in DiscordConfig.Commands.GuildsIds) {
+        else foreach (var guildId in DiscordConfig.Root.Commands.GuildsIds) {
             await _interactions.RegisterCommandsToGuildAsync(guildId);
         }
     }
