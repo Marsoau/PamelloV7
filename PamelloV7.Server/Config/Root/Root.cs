@@ -9,8 +9,6 @@ public class Root : IConfigNode
     public string HostName { get; set; } = "";
     public string DataPath { get; set; } = $"{AppContext.BaseDirectory}Data";
     public string[] DisabledModules { get; set; } = [];
-    public Discord.Discord Discord { get; set; } = null;
-    public Modules.Modules Modules { get; set; } = new();
     
     public void EnsureRight()
     {

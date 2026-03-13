@@ -18,7 +18,7 @@ public partial class PlayerQueue
     public async Task SongAdd(
         [Summary("songs", "Songs query")] string songsQuery
     ) {
-        if (DiscordConfig.Root.Commands.AutoConnectOnAddition) {
+        if (DiscordConfigOld.Root.Commands.AutoConnectOnAddition) {
             var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
 
             if (!speakers.GetCurrent(Context.User).Any()) {
