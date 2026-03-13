@@ -9,15 +9,16 @@ namespace PamelloV7.Module.Marsoau.Discord.Config;
 //Config.Discord.Commands.AutoConnectOnAddition
 
 [ConfigRoot]
-public partial class DiscordConfig
+public partial class DiscordNode
 {
-    //a readonly Tokens field is generated
-    protected partial class TokensNode {
+    public string TestProperty { get; set; } = "test";
+    
+    public partial class TokensNode {
         public string Main { get; set; } = "";
         public string[] SpeakerTokens { get; set; } = [];
     }
-    //a readonly Commands field is generated
-    protected partial class CommandsNode {
+    
+    public partial class CommandsNode {
         public bool AutoConnectOnAddition { get; set; } = true;
         public bool GlobalRegistration { get; set; } = true;
         public int UpdatableCommandsLifetime { get; set; } = 100;
