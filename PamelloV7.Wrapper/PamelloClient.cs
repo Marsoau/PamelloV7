@@ -47,6 +47,9 @@ public class PamelloClient
     
     public event Action<Exception, int>? OnFailedAttempt;
     
+    private Task? _attemptsTask;
+    private CancellationTokenSource? _attemptsCts;
+    
     public PamelloClient() {
         Config = new PamelloClientConfig();
         
@@ -75,17 +78,44 @@ public class PamelloClient
         SafeStoredExtensions.GetAsyncFunc = (type, query) => PEQL.GetAsync(type, query);
     }
 
+    public async Task StopConnectionAttemptsAsync() {
+        var task = _attemptsCts?.CancelAsync();
+        if (task is not null) await task;
+    }
     public async Task StartConnectionAttemptsAsync(string url, int maxAttempts = -1, int delay = 1000) {
-        for (var attempt = 0; maxAttempts < 0 || attempt < maxAttempts; attempt++) {
+        if (_attemptsTask is not null) {
+            await _attemptsTask;
+            return;
+        }
+        
+        _attemptsTask = StartConnectionAttemptsInternalAsync(url, maxAttempts, delay);
+
+        try {
+            await _attemptsTask;
+        }
+        finally {
+            _attemptsTask = null;
+            
+            _attemptsCts?.Dispose();
+            _attemptsCts = null;
+        }
+    }
+    public async Task StartConnectionAttemptsInternalAsync(string url, int maxAttempts = -1, int delay = 1000, CancellationToken cancellationToken = default) {
+        _attemptsCts = new CancellationTokenSource();
+        
+        for (var attempt = 0; maxAttempts < 0 || attempt < maxAttempts && !_attemptsCts.Token.IsCancellationRequested; attempt++) {
             try {
                 await ConnectAsync(url);
-                return;
+                break;
             }
             catch (Exception x) {
                 OnFailedAttempt?.Invoke(x, attempt);
-                await Task.Delay(delay);
+                await Task.Delay(delay, cancellationToken);
             }
         }
+        
+        _attemptsCts.Dispose();
+        _attemptsCts = null;
     }
     
     public async Task ConnectAsync(string url) {
