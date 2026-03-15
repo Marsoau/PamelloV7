@@ -28,7 +28,7 @@ public class Discord : IPamelloModule
         var discordConfig = new DiscordSocketConfig() {
             GatewayIntents = GatewayIntents.All,
             AlwaysDownloadUsers = true,
-            EnableVoiceDaveEncryption = true,
+            EnableVoiceDaveEncryption = false,
             LogLevel = LogSeverity.Error
         };
 

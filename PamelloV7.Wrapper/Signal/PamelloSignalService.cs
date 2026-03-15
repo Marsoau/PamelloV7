@@ -30,11 +30,11 @@ public class PamelloSignalService : IPamelloCommandInvoker
     public bool IsConnected => _connection?.State == HubConnectionState.Connected;
     public bool IsAuthorized => AuthorizedUser is not null;
     
-    public event Action? OnConnected;
-    public event Action? OnDisconnected;
+    public event Action<bool>? OnConnected;
+    public event Action<bool>? OnDisconnected;
     
-    public event Action? OnAuthorized;
-    public event Action? OnUnauthorized;
+    public event Action<bool>? OnAuthorized;
+    public event Action<bool>? OnUnauthorized;
     
     public PamelloSignalService(PamelloClient client) {
         _client = client;
@@ -42,7 +42,7 @@ public class PamelloSignalService : IPamelloCommandInvoker
         _connection = null;
     }
 
-    internal async Task<HubConnectionState> ConnectAsync() {
+    internal async Task<HubConnectionState> ConnectAsync(bool isAutomatic) {
         if (_client.Config.BaseUrl is null) throw new PamelloException("Base URL is not set");
         
         _connection = new HubConnectionBuilder()
@@ -56,10 +56,18 @@ public class PamelloSignalService : IPamelloCommandInvoker
         _connection.Closed += async error => {
             await _client.DisconnectAsync();
         };
+
+        try {
+            await _connection.StartAsync();
+        }
+        catch {
+            await _connection.DisposeAsync();
+            _connection = null;
+            
+            throw;
+        }
         
-        await _connection.StartAsync();
-        
-        if (IsConnected) OnConnected?.Invoke();
+        if (IsConnected) OnConnected?.Invoke(isAutomatic);
 
         return _connection.State;
     }
@@ -69,14 +77,14 @@ public class PamelloSignalService : IPamelloCommandInvoker
         _client.Events.Invoke(eventDto);
     }
 
-    internal async Task AuthorizeAsync() {
+    internal async Task AuthorizeAsync(bool isAutomatic) {
         if (_client.Config.Token is null) throw new PamelloException("Token is not set");
 
         try {
             await Connection.InvokeAsync("Authorize", _client.Config.Token);
             AuthorizedUser = await _client.PEQL.GetSingleAsync<RemoteUser>("me");
             
-            OnAuthorized?.Invoke();
+            if (AuthorizedUser is not null) OnAuthorized?.Invoke(isAutomatic);
         }
         catch (Exception e) {
             AuthorizedUser = null;
@@ -84,10 +92,10 @@ public class PamelloSignalService : IPamelloCommandInvoker
         }
     }
     
-    internal async Task UnauthorizeAsync() {
+    internal async Task UnauthorizeAsync(bool isAutomatic) {
+        if (!IsAuthorized) return;
+        
         try {
-            if (!IsAuthorized) return;
-
             AuthorizedUser = null;
             
             if (IsConnected) await Connection.InvokeAsync("Unauthorize");
@@ -96,18 +104,21 @@ public class PamelloSignalService : IPamelloCommandInvoker
             _client.Config.Token = null;
         }
         
-        OnUnauthorized?.Invoke();
+        OnUnauthorized?.Invoke(isAutomatic);
     }
 
-    internal async Task DisconnectAsync() {
+    internal async Task DisconnectAsync(bool isAutomatic) {
         if (_connection is null) return;
+
+        try {
+            await _connection.StopAsync();
+        }
+        finally {
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
         
-        await _connection.StopAsync();
-        await _connection.DisposeAsync();
-        
-        _connection = null;
-        
-        OnDisconnected?.Invoke();
+        OnDisconnected?.Invoke(isAutomatic);
     }
     
     public async Task SendMessage(string message) {

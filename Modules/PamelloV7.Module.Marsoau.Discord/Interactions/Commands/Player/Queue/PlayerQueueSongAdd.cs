@@ -20,12 +20,14 @@ public partial class PlayerQueue
         [Summary("songs", "Songs query")] string songsQuery
     ) {
         if (DiscordConfig.Root.Commands.AutoConnectOnAddition) {
-            var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
+            if (ScopeUser.SelectedPlayer is null || !ScopeUser.SelectedPlayer.ConnectedSpeakers.Any()) {
+                var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
 
-            if (!speakers.GetCurrent(Context.User).Any()) {
-                await WithLoadingAsync(
-                    Command<SpeakerDiscordConnect>().Execute()
-                );
+                if (!speakers.GetCurrent(Context.User).Any()) {
+                    await WithLoadingAsync(
+                        Command<SpeakerDiscordConnect>().Execute()
+                    );
+                }
             }
         }
         
