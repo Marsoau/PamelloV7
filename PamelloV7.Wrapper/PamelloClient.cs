@@ -149,7 +149,7 @@ public class PamelloClient
         _attemptsCts = null;
     }
     
-    internal async Task ConnectAsync(string url, bool isAutomatic = false) {
+    public async Task ConnectAsync(string url, bool isAutomatic = false) {
         if (Signal.IsConnected) throw new PamelloException("Already connected");
         
         Config.BaseUrl = url;
