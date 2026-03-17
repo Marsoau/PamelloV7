@@ -28,14 +28,16 @@ public static class SafeStoredExtensions
         return [];
     }
     
-    public static async Task<SafeStoredEntity<TEntityType>> LoadAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
+    public static async Task<TEntityType?> LoadAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
         where TEntityType : class, IDeletableEntity
     {
-        await ((ISafeStoredEntity)entity).LoadAsync();
-        return entity;
+        return await ((ISafeStoredEntity)entity).LoadAsync() as TEntityType;
     }
-    public static async Task LoadAsync(this ISafeStoredEntity entity) {
-        entity.Entity = await GetSingleAsync(entity.EntityType, entity.Id);
+    public static async Task<IRemoteEntity?> LoadAsync(this ISafeStoredEntity entity) {
+        var result = await GetSingleAsync(entity.EntityType, entity.Id);
+        entity.Entity = result;
+        
+        return result;
     }
 
     public static async Task<SafeStoredEntities<TEntityType>> LoadAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities)
