@@ -24,11 +24,10 @@ public class Discord : IPamelloModule
     public ELoadingStage Stage => ELoadingStage.Default;
 
     public void Configure(IServiceCollection services) {
-        Console.WriteLine("Configure start");
         var discordConfig = new DiscordSocketConfig() {
             GatewayIntents = GatewayIntents.All,
             AlwaysDownloadUsers = true,
-            EnableVoiceDaveEncryption = false,
+            EnableVoiceDaveEncryption = true,
             LogLevel = LogSeverity.Error
         };
 
@@ -37,7 +36,6 @@ public class Discord : IPamelloModule
             s.GetRequiredService<DiscordSocketClient>(),
             new InteractionServiceConfig()
         ));
-        Console.WriteLine("Configure end");
     }
     
     public async Task StartupAsync(IServiceProvider services) {
