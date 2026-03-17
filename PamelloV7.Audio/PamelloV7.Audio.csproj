@@ -11,4 +11,8 @@
       <ProjectReference Include="..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Points\" />
+    </ItemGroup>
+
 </Project>

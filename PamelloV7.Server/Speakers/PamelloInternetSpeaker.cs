@@ -1,6 +1,6 @@
 using PamelloV7.Audio.Modules;
-using PamelloV7.Audio.Points;
 using PamelloV7.Framework.Audio.Modules.Base;
+using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
@@ -31,7 +31,7 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
 
     private readonly List<PamelloInternetSpeakerListener> _listeners;
     public IEnumerable<IPamelloListener> Listeners => _listeners;
-    IAudioModule IPamelloSpeaker.InputModule => Buffer;
+    IAudioModuleWithInput IPamelloSpeaker.InputModule => Buffer;
     
     public bool IsAvailableFor(IPamelloUser user) => true;
     
@@ -57,13 +57,8 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     }
 
     public void InitDependant() {
-        if (Choice is not IAudioModuleWithInputs choice) throw new Exception("Choice is not IAudioModuleWithOutputs");
-            
-        var bufferChoiceInput = choice.AddInput(() => new AudioPoint(choice));
-        var silenceChoiceInput = choice.AddInput(() => new AudioPoint(choice));
-        
-        Buffer.Output.ConnectedPoint = bufferChoiceInput;
-        Silence.Output.ConnectedPoint = silenceChoiceInput;
+        Buffer.Output.ConnectedPoint = Choice.AddInput();
+        Silence.Output.ConnectedPoint = Choice.AddInput();
         
         Pump.Input.ConnectedPoint = Choice.Output;
         Pump.Output.ConnectedPoint = Converter.Input;
@@ -76,16 +71,12 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     }
 
     public async Task<IPamelloListener> CreateListener(HttpResponse response, CancellationToken requestAbortedToken, IPamelloUser? user) {
-        if (Copy is not IAudioModuleWithOutputs copy) throw new Exception("Copy is not IAudioModuleWithOutputs");
-        
         var listener = _audio.RegisterDependant(
             new PamelloInternetSpeakerListener(response, requestAbortedToken, this, user, _services)
         );
         
         await listener.Sink.InitializeConnection();
-
-        var point = copy.AddOutput(() => new AudioPoint(copy));
-        point.ConnectedPoint = listener.Sink.Input;
+        listener.Sink.Input.ConnectedPoint = Copy.AddOutput();
         
         _listeners.Add(listener);
         

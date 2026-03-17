@@ -5,13 +5,8 @@ using PamelloV7.Server.Structures;
 
 namespace PamelloV7.Audio.Modules;
 
-public class AudioBuffer : IAudioModuleWithInput, IAudioModuleWithOutput
+public partial class AudioBuffer : AudioModule, IAudioModuleWithInput, IAudioModuleWithOutput
 {
-    public List<IAudioPoint> Inputs { get; }
-    public List<IAudioPoint> Outputs { get; }
-    public IAudioPoint Input => Inputs.First();
-    public IAudioPoint Output => Outputs.First();
-    
     private readonly RingBuffer<byte> _ring;
     
     public int Size => _ring.Buffer.Length;
@@ -19,13 +14,10 @@ public class AudioBuffer : IAudioModuleWithInput, IAudioModuleWithOutput
     public int Tail => _ring.Tail;
 
     public AudioBuffer(int size = 1024) {
-        Inputs = new List<IAudioPoint>(1);
-        Outputs = new List<IAudioPoint>(1);
-        
         _ring = new RingBuffer<byte>(size);
     }
 
-    public void InitAudio(IServiceProvider services) {
+    protected override void InitAudioInternal(IServiceProvider services) {
         Input.ProcessAudio = ProcessInput;
         Output.ProcessAudio = ProcessOutput;
     }

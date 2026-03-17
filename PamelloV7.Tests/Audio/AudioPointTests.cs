@@ -1,4 +1,4 @@
-using PamelloV7.Audio.Points;
+using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Tests.Audio;
 

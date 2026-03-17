@@ -4,7 +4,7 @@ using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Server.Audio;
 
-public class InternetSpeakerSink : IAudioModuleWithInput
+public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
 {
     private readonly HttpResponse _response;
     
@@ -12,19 +12,14 @@ public class InternetSpeakerSink : IAudioModuleWithInput
     
     public CancellationToken RequestAbortedToken { get; set; }
     
-    public List<IAudioPoint> Inputs { get; }
-    public IAudioPoint Input => Inputs.First();
-
     public InternetSpeakerSink(HttpResponse response, CancellationToken requestAbortedToken) {
         _response = response;
         
         IsInitialized = false;
         RequestAbortedToken = requestAbortedToken;
-        
-        Inputs = new List<IAudioPoint>(1);
     }
 
-    public void InitAudio(IServiceProvider services) {
+    protected override void InitAudioInternal(IServiceProvider services) {
         Input.ProcessAudio = ProcessAudio;
     }
 

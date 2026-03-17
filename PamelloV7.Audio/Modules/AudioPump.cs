@@ -3,14 +3,8 @@ using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Audio.Modules;
 
-public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
+public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModuleWithOutput
 {
-    public List<IAudioPoint> Inputs { get; }
-    public List<IAudioPoint> Outputs { get; }
-    
-    public IAudioPoint Input => Inputs.First();
-    public IAudioPoint Output => Outputs.First();
-    
     public Func<bool> Condition { get; set; }
     
     private Task? _pumpTask;
@@ -20,9 +14,6 @@ public class AudioPump : IAudioModuleWithInput, IAudioModuleWithOutput
     private byte[] _buffer;
 
     public AudioPump(int bufferSize) {
-        Inputs = new List<IAudioPoint>(1);
-        Outputs = new List<IAudioPoint>(1);
-        
         Condition = () => true;
         
         _cts = new CancellationTokenSource();

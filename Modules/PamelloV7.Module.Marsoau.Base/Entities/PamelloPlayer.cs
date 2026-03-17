@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Audio.Modules;
-using PamelloV7.Audio.Points;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
+using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
@@ -108,11 +108,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     }
     
     public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker) {
-        if (Copy is not IAudioModuleWithOutputs copy) throw new Exception("Copy is not IAudioModuleWithOutputs");
-        if (speaker.InputModule is not IAudioModuleWithInput speakerInputModule) throw new Exception("Speaker output is not IAudioModuleWithInput");
-        
-        var point = copy.AddOutput(() => new AudioPoint(copy));
-        point.ConnectedPoint = speakerInputModule.Input;
+        Copy.AddOutput().ConnectedPoint = speaker.InputModule.Input;
         
         _connectedSpeakers.Add(speaker);
 

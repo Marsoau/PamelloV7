@@ -1,4 +1,3 @@
-using PamelloV7.Audio.Points;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Audio.Services;
@@ -25,16 +24,21 @@ public class PamelloAudioSystem : IPamelloAudioSystem
         Console.WriteLine($"Registering module: {module.GetType().FullName}");
         _modules.Add(module);
 
-        if (module is IAudioModuleWithInputs moduleWithInputs) {
-            for (var i = moduleWithInputs.Inputs.Count; i < moduleWithInputs.MinInputs; i++) {
-                moduleWithInputs.AddInput(() => new AudioPoint(module));
-            }
+        if (module is AudioModule aModule) {
+            var inputsProperty = aModule.GetType().GetProperty(nameof(AudioModule.Inputs))!;
+            var outputsProperty = aModule.GetType().GetProperty(nameof(AudioModule.Outputs))!;
+            
+            if (inputsProperty.GetValue(aModule) is null)
+                inputsProperty.SetValue(aModule, new List<AudioPoint>());
+            if (outputsProperty.GetValue(aModule) is null)
+                outputsProperty.SetValue(aModule, new List<AudioPoint>());
         }
 
-        if (module is IAudioModuleWithOutputs moduleWithOutputs) {
-            for (var i = moduleWithOutputs.Outputs.Count; i < moduleWithOutputs.MinOutputs; i++) {
-                moduleWithOutputs.AddOutput(() => new AudioPoint(module));
-            }
+        for (var i = module.Inputs.Count; i < module.MinInputs; i++) {
+            module.AddInput();
+        }
+        for (var i = module.Outputs.Count; i < module.MinOutputs; i++) {
+            module.AddOutput();
         }
         
         module.InitAudio(_services);
@@ -47,19 +51,8 @@ public class PamelloAudioSystem : IPamelloAudioSystem
         
         _modules.Remove(module);
         
-        if (module is IAudioModuleWithInputs moduleWithInputs) {
-            foreach (var input in moduleWithInputs.Inputs) {
-                input.ProcessAudio = null;
-                input.ConnectedPoint = null;
-            }
-        }
-
-        if (module is IAudioModuleWithOutputs moduleWithOutputs) {
-            foreach (var output in moduleWithOutputs.Outputs) {
-                output.ProcessAudio = null;
-                output.ConnectedPoint = null;
-            }
-        }
+        
+        module.Dispose();
     }
 
     public TAudioDependant RegisterDependant<TAudioDependant>(TAudioDependant dependant) where TAudioDependant : class, IAudioDependant {
@@ -73,6 +66,6 @@ public class PamelloAudioSystem : IPamelloAudioSystem
     }
 
     public void Shutdown() {
-        foreach (var module in _modules) DeleteModule(module);
+        foreach (var module in _modules.ToList()) DeleteModule(module);
     }
 }

@@ -2,9 +2,7 @@ using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Framework.Audio.Modules.Base;
 
-public interface IAudioModuleWithOutput : IAudioModuleWithOutputs
+public interface IAudioModuleWithOutput : IAudioModule
 {
-    int IAudioModuleWithOutputs.MinOutputs => 1;
-    
-    public IAudioPoint Output { get; }
+    public AudioPoint Output { get; }
 }

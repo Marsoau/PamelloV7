@@ -1,14 +1,15 @@
 using PamelloV7.Framework.Audio.Modules.Base;
-using PamelloV7.Framework.Audio.Points;
 
-namespace PamelloV7.Audio.Points;
+namespace PamelloV7.Framework.Audio.Points;
 
-public class AudioPoint : IAudioPoint
+public class AudioPoint
 {
     public int Id { get; }
 
-    public IAudioPoint? ConnectedPoint {
-        get; set {
+    private AudioPoint? field;
+    public AudioPoint? ConnectedPoint {
+        get => field;
+        set {
             if (value is not null) {
                 if (value.ProcessAudio is null == ProcessAudio is null) throw new Exception("Cannot connect two points with same ProcessAudio is null result");
                 
@@ -24,7 +25,8 @@ public class AudioPoint : IAudioPoint
                 var oldPoint = field;
                 field = null;
         
-                oldPoint?.ConnectedPoint = null;
+                if (oldPoint is not null)
+                    oldPoint.ConnectedPoint = null;
             }
         }
     }

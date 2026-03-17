@@ -13,12 +13,9 @@ using PamelloV7.Server.Extensions;
 
 namespace PamelloV7.Audio.Modules;
 
-public class SongAudio : IAudioModuleWithOutput
+public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 {
     private readonly IDependenciesService _dependencies;
-    
-    public List<IAudioPoint> Outputs { get; }
-    public IAudioPoint Output => Outputs.First();
 
     public IPamelloSong Song { get; }
 
@@ -45,9 +42,6 @@ public class SongAudio : IAudioModuleWithOutput
 
     private Task<MemoryStream?>? _nextChunkTask;
 
-    public int MinOutputs => 1;
-    public int MaxOutputs => 1;
-
     public bool IsEnded { get; private set; }
     public Action OnEnded;
 
@@ -60,8 +54,6 @@ public class SongAudio : IAudioModuleWithOutput
         _dependencies = services.GetRequiredService<IDependenciesService>();
         
         Song = song;
-
-        Outputs = new List<IAudioPoint>(1);
 
         Position = new AudioTime(0);
         Duration = new AudioTime(0);
@@ -405,7 +397,7 @@ public class SongAudio : IAudioModuleWithOutput
         return null;
     }
 
-    public void InitAudio(IServiceProvider services) {
+    protected override void InitAudioInternal(IServiceProvider services) {
         Output.ProcessAudio = NextBytes;
     }
 

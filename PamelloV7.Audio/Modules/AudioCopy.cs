@@ -1,23 +1,14 @@
-using PamelloV7.Audio.Points;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Audio.Modules;
 
-public class AudioCopy : IAudioModuleWithInput, IAudioModuleWithOutputs
+public partial class AudioCopy : AudioModule, IAudioModuleWithInput
 {
-    public List<IAudioPoint> Inputs { get; }
-    public List<IAudioPoint> Outputs { get; }
-    
-    public IAudioPoint Input => Inputs.First();
-    public int MinOutputs => 0;
-    
-    public AudioCopy() {
-        Inputs = new List<IAudioPoint>(1);
-        Outputs = new List<IAudioPoint>(10);
-    }
+    public override int MinOutputs => 0;
+    public override int MaxOutputs => 10;
 
-    public void InitAudio(IServiceProvider services) {
+    protected override void InitAudioInternal(IServiceProvider services) {
         Input.ProcessAudio = ProcessAudio;
     }
 

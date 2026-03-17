@@ -1,19 +1,11 @@
-using PamelloV7.Audio.Points;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 
 namespace PamelloV7.Audio.Modules;
 
-public class AudioSilence : IAudioModuleWithOutput
+public partial class AudioSilence : AudioModule, IAudioModuleWithOutput
 {
-    public List<IAudioPoint> Outputs { get; }
-    public IAudioPoint Output => Outputs.First();
-    
-    public AudioSilence() {
-        Outputs = new List<IAudioPoint>(1);
-    }
-
-    public void InitAudio(IServiceProvider services) {
+    protected override void InitAudioInternal(IServiceProvider services) {
         Output.ProcessAudio = ProcessAudio;
     }
 

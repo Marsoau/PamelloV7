@@ -6,27 +6,14 @@ using PamelloV7.Framework.Dependencies.Service;
 
 namespace PamelloV7.Audio.Modules;
 
-public class FFmpegMp3Converter : IAudioModuleWithInput, IAudioModuleWithOutput
+public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IAudioModuleWithOutput
 {
-    public List<IAudioPoint> Inputs { get; }
-    public IAudioPoint Input => Inputs.First();
-    public List<IAudioPoint> Outputs { get; }
-    public IAudioPoint Output => Outputs.First();
-    
     private Process? _ffmpeg;
-    
     private Task _convertTask;
-    
-    public FFmpegMp3Converter()
-    {
-        Inputs = new List<IAudioPoint>(1);
-        Outputs = new List<IAudioPoint>(1);
-    }
 
-    public void InitAudio(IServiceProvider services) {
-        var dependecies = services.GetRequiredService<IDependenciesService>();
-        
-        var ffmpeg = dependecies.ResolveRequired("ffmpeg");
+    protected override void InitAudioInternal(IServiceProvider services) {
+        var dependencies = services.GetRequiredService<IDependenciesService>();
+        var ffmpeg = dependencies.ResolveRequired("ffmpeg");
         
         Input.ProcessAudio = Process;
         

@@ -13,7 +13,7 @@ public interface IPamelloSpeaker : IPamelloEntity
     
     IEnumerable<IPamelloListener> Listeners { get; }
     
-    IAudioModule InputModule { get; }
+    IAudioModuleWithInput InputModule { get; }
     
     public bool IsAvailableFor(IPamelloUser user);
 }
