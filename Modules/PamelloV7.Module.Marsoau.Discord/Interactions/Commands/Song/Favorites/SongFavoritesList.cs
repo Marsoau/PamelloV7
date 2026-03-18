@@ -19,7 +19,7 @@ public partial class SongFavorites
             Builder<FavoriteListBuilder>().Component(
                 user, ESongOrPlaylist.Song, page, 10
             ).Build()
-        , () => [.. Context.User.FavoriteSongs, Context.User]);
+        , () => [.. ScopeUser.FavoriteSongs, ScopeUser]);
     }
 }
 

@@ -9,8 +9,8 @@ public class UpdatableMessage : IDisposable
     private readonly Func<UpdatableMessage, Task> _refresh;
     private readonly Func<Task> _delete;
 
-    private readonly long _refreshInterval;
-    private long _lastRefresh;
+    private readonly TimeSpan _refreshIntervalNew;
+    private DateTime _lastRefreshNew;
     
     private readonly CancellationTokenSource _cancellation;
     
@@ -28,8 +28,8 @@ public class UpdatableMessage : IDisposable
         _refresh = refresh;
         _delete = delete;
         
-        _refreshInterval = TimeSpan.FromSeconds(2).Ticks;
-        _lastRefresh = 0;
+        _refreshIntervalNew = TimeSpan.FromSeconds(1);
+        _lastRefreshNew = DateTime.Now;
         
         _cancellation = new CancellationTokenSource();
         
@@ -72,30 +72,31 @@ public class UpdatableMessage : IDisposable
     public async Task Refresh() {
         if (_scheduledRefresh is not null) return;
         
-        var currentTick = Stopwatch.GetTimestamp();
+        var currentTime = DateTime.Now;
+        var timePassed = currentTime - _lastRefreshNew;
 
-        if (currentTick - _lastRefresh >= _refreshInterval) {
-            Console.WriteLine($"Refresh at {DateTime.Now.TimeOfDay}");
+        if (timePassed >= _refreshIntervalNew) {
+            Console.WriteLine($"Refresh at {currentTime}");
             
-            _lastRefresh = currentTick;
+            _lastRefreshNew = currentTime;
             
             await _refresh(this);
             return;
         }
-        Console.WriteLine($"About to shedule refresh at {DateTime.Now.TimeOfDay}");
         
         Task.Run(async () => {
-            var ticksLeft = _refreshInterval - (currentTick - _lastRefresh);
-            if (ticksLeft <= 0) return;
-
-            Console.WriteLine($"Scheduling refresh in {ticksLeft} at {DateTime.Now.TimeOfDay}");
-            _scheduledRefresh = Task.Delay(TimeSpan.FromTicks(ticksLeft), _cancellation.Token);
+            var delaySpan = _refreshIntervalNew - timePassed;
+            Console.WriteLine($"Scheduling refresh in {delaySpan} at {currentTime}");
+            _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);
             
             await _scheduledRefresh;
-            Console.WriteLine($"Scheduled at {DateTime.Now.TimeOfDay}");
-            _scheduledRefresh = null;
             
-            _lastRefresh = Stopwatch.GetTimestamp();
+            currentTime = DateTime.Now;
+            
+            Console.WriteLine($"Awaited refresh at {currentTime}");
+            _scheduledRefresh = null;
+
+            _lastRefreshNew = currentTime;
             
             await _refresh(this);
         });
