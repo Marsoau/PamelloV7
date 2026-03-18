@@ -6,24 +6,24 @@ public class AudioPoint
 {
     public int Id { get; }
 
-    private AudioPoint? field;
+    private AudioPoint? _connectedPoint;
     public AudioPoint? ConnectedPoint {
-        get => field;
+        get => _connectedPoint;
         set {
             if (value is not null) {
                 if (value.ProcessAudio is null == ProcessAudio is null) throw new Exception("Cannot connect two points with same ProcessAudio is null result");
                 
-                if (field is not null) ConnectedPoint = null;
+                if (_connectedPoint is not null) ConnectedPoint = null;
         
-                field = value;
+                _connectedPoint = value;
         
-                if (field.ConnectedPoint != this) field.ConnectedPoint = this;
+                if (_connectedPoint.ConnectedPoint != this) _connectedPoint.ConnectedPoint = this;
             }
             else {
-                if (field is null) return;
+                if (_connectedPoint is null) return;
         
-                var oldPoint = field;
-                field = null;
+                var oldPoint = _connectedPoint;
+                _connectedPoint = null;
         
                 if (oldPoint is not null)
                     oldPoint.ConnectedPoint = null;

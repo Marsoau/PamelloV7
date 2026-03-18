@@ -10,12 +10,12 @@ using PamelloV7.Framework.Entities.Other;
 
 namespace PamelloV7.Server.Speakers;
 
-[DependsOnModule<AudioBuffer>("Buffer", "A small buffer")]
-[DependsOnModule<AudioSilence>("Silence", "Silence to send when there is audio in buffer")]
-[DependsOnModule<AudioChoice>("Choice", "Choice module to choice between buffer and silence")]
-[DependsOnModule<AudioPump>("Pump", "Pump to pump audio from choice to converter")]
-[DependsOnModule<FFmpegMp3Converter>("Converter", "Converter to convert PCM audio to mp3")]
-[DependsOnModule<AudioCopy>("Copy", "Copy to copy audio to all connected listeners")]
+[DependsOnModule<AudioBuffer>("Buffer", "A local buffer")]
+[DependsOnModule<AudioSilence>("Silence", "To use when there is no audio in the buffer")]
+[DependsOnModule<AudioChoice>("Choice", "To choose between buffer and silence")]
+[DependsOnModule<AudioPump>("Pump", "To pump audio from choice to converter")]
+[DependsOnModule<FFmpegMp3Converter>("Converter", "To convert PCM audio to mp3")]
+[DependsOnModule<AudioCopy>("Copy", "To copy audio to all connected listeners")]
 public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpeaker, IAudioDependant
 {
     private readonly IPamelloAudioSystem _audio;

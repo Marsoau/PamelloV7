@@ -19,7 +19,4 @@
 						  OutputItemType="Analyzer"
 						  ReferenceOutputAssembly="false" />
 	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Audio\Time\" />
-	</ItemGroup>
 </Project>
