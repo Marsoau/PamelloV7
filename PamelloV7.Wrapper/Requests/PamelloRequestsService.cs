@@ -9,6 +9,7 @@ using PamelloV7.Core.Dto.Entities.Other;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Wrapper.Commands;
 using PamelloV7.Wrapper.Config;
+using PamelloV7.Wrapper.Converters;
 using PamelloV7.Wrapper.Exceptions;
 
 namespace PamelloV7.Wrapper.Requests;
@@ -38,7 +39,7 @@ public class PamelloRequestsService : IPamelloCommandInvoker
         var content = await response.Content.ReadAsStringAsync();
         Debug.WriteLine($"Content to read as json: {content}");
         
-        var o = content.Length > 0 ? JsonSerializer.Deserialize(content, type) : null;
+        var o = content.Length > 0 ? JsonSerializer.Deserialize(content, type, SafeStoredEntitiesConverterFactory.Options) : null;
         
         return o ?? throw new PamelloException($"Cannot read response as {type.Name}");
     }
