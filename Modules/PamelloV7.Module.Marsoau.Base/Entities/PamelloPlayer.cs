@@ -119,7 +119,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         return new PamelloPlayerDto {
             Id = Id,
             Name = Name,
-            OwnerId = Owner.Id,
+            Owner = Owner.Id,
             IsProtected = IsProtected,
             //State = State,
             IsPaused = IsPaused,

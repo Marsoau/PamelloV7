@@ -13,12 +13,30 @@ public class SafeStoredEntitiesConverterFactory : JsonConverterFactory
         UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement
     };
     
-    public override bool CanConvert(Type typeToConvert)
-        => typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(SafeStoredEntities<>);
+    public override bool CanConvert(Type typeToConvert) {
+        if (!typeToConvert.IsGenericType) return false;
+
+        var genericType = typeToConvert.GetGenericTypeDefinition();
+        
+        // Return true if it's EITHER the collection OR the single entity container
+        return genericType == typeof(SafeStoredEntities<>) || 
+               genericType == typeof(SafeStoredEntity<>);
+    }
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
+        var genericType = typeToConvert.GetGenericTypeDefinition();
         var entityType = typeToConvert.GetGenericArguments().First();
-        var converterType = typeof(SafeStoredEntitiesConverter<>).MakeGenericType(entityType);
+        
+        Type converterType;
+
+        // Route to the appropriate converter
+        if (genericType == typeof(SafeStoredEntities<>)) {
+            converterType = typeof(SafeStoredEntitiesConverter<>).MakeGenericType(entityType);
+        }
+        else {
+            converterType = typeof(SafeStoredEntityConverter<>).MakeGenericType(entityType);
+        }
+        
         return (JsonConverter)Activator.CreateInstance(converterType)!;
     }
 }

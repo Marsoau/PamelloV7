@@ -111,7 +111,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(scopeUser, new PlayerQueueNextPositionRequestUpdated() {
                 Player = Player,
-                NextPositionRequest = NextPositionRequest
+                NextPositionRequest = NextPositionRequest ?? -1
             });
         }
 
@@ -188,7 +188,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _events.Invoke(null, new PlayerQueueCurrentSongIdUpdated() {
                 Player = Player,
-                CurrentSongId = entry?.Song?.Id
+                CurrentSong = entry?.Song?.Id ?? 0
             });
 
             Current_Position_OnSecondTick();
@@ -510,13 +510,13 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
         public PamelloQueueDto GetDto() {
             return new PamelloQueueDto {
-                CurrentSongId = CurrentSong?.Id,
+                CurrentSong = CurrentSong?.Id ?? 0,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0,
                 CurrentSongTimeTotal = _songAudio?.Duration.TotalSeconds ?? 0,
                 Entries = EntriesDto,
                 Position = Position,
-                NextPositionRequest = NextPositionRequest,
-                CurrentEpisodePosition = _songAudio?.GetCurrentEpisodePosition(),
+                NextPositionRequest = NextPositionRequest ?? -1,
+                CurrentEpisodePosition = _songAudio?.GetCurrentEpisodePosition() ?? -1,
                 
                 IsRandom = IsRandom,
                 IsReversed = IsReversed,

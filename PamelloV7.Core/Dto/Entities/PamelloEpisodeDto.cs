@@ -6,6 +6,6 @@ namespace PamelloV7.Core.Dto.Entities
     {
         public int Start { get; set; }
         public bool AutoSkip { get; set; }
-        public int SongId { get; set; }
+        public int Song { get; set; }
     }
 }

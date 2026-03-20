@@ -161,7 +161,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
         _sink.Invoke(autoSelected ? null : this, new UserSelectedPlayerUpdated() {
             User = this,
-            SelectedPlayerId = SelectedPlayer?.Id
+            SelectedPlayer = SelectedPlayer?.Id ?? 0
         });
         
         return SelectedPlayer;
@@ -200,7 +200,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -215,7 +215,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -232,7 +232,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -255,7 +255,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -273,7 +273,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
             User = this,
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
         });
         
         Save();
@@ -367,14 +367,15 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         return new PamelloUserDto() {
             Id = Id,
             Name = Name,
-            AvatarUrl = AvatarUrl,
-            SelectedPlayerId = SelectedPlayer?.Id,
+            AvatarUrl = AvatarUrl ?? "",
+            SelectedPlayer = SelectedPlayer?.Id ?? 0,
             SelectedAuthorizationIndex = SelectedAuthorizationIndex,
+            JoinedAt = JoinedAt,
 
-            AddedSongsIds = IPamelloEntity.GetIds(AddedSongs),
-            AddedPlaylistsIds = IPamelloEntity.GetIds(AddedPlaylists),
-            FavoriteSongsIds = IPamelloEntity.GetIds(FavoriteSongs),
-            FavoritePlaylistsIds = IPamelloEntity.GetIds(FavoritePlaylists),
+            AddedSongs = IPamelloEntity.GetIds(AddedSongs),
+            AddedPlaylists = IPamelloEntity.GetIds(AddedPlaylists),
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
+            FavoritePlaylists = IPamelloEntity.GetIds(FavoritePlaylists),
 
             AuthorizationsPlatformKeys = Authorizations.Select(authorization => authorization.PK.ToString()),
 

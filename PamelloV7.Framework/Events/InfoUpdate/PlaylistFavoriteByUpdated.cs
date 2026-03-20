@@ -13,6 +13,6 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [SafeEntity<IPamelloPlaylist>("Playlist")]
 
 [EntityInfoUpdate<IPamelloPlaylist>(nameof(Playlist),
-    nameof(PamelloPlaylistDto.FavoriteByIds)
+    nameof(PamelloPlaylistDto.FavoriteBy)
 )]
 public partial class PlaylistFavoriteByUpdated : IPamelloEvent;

@@ -16,6 +16,6 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 [EntityInfoUpdate<IPamelloPlayer>(nameof(Player),
     nameof(PamelloPlayerDto.Queue),
-    nameof(PamelloPlayerDto.Queue.CurrentSongId)
+    nameof(PamelloPlayerDto.Queue.CurrentSong)
 )]
 public partial class PlayerQueueCurrentSongIdUpdated : IPamelloEvent;

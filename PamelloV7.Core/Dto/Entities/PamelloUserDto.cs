@@ -4,20 +4,20 @@ namespace PamelloV7.Core.Dto.Entities
 {
     public class PamelloUserDto : PamelloEntityDto
     {
-		public string? AvatarUrl { get; set; }
-		public int? SelectedPlayerId { get; set; }
-		public int? SelectedAuthorizationIndex { get; set; }
+		public required string AvatarUrl { get; set; }
+		public required int SelectedPlayer { get; set; }
+		public required int SelectedAuthorizationIndex { get; set; }
 
-        public DateTime JoinedAt { get; set; }
+        public required DateTime JoinedAt { get; set; }
 
-        public IEnumerable<int> AddedSongsIds { get; set; }
+        public required IEnumerable<int> AddedSongs { get; set; }
 
-        public IEnumerable<int> AddedPlaylistsIds { get; set; }
-        public IEnumerable<int> FavoriteSongsIds { get; set; }
-        public IEnumerable<int> FavoritePlaylistsIds { get; set; }
+        public required IEnumerable<int> AddedPlaylists { get; set; }
+        public required IEnumerable<int> FavoriteSongs { get; set; }
+        public required IEnumerable<int> FavoritePlaylists { get; set; }
         
-        public IEnumerable<string> AuthorizationsPlatformKeys { get; set; }
+        public required IEnumerable<string> AuthorizationsPlatformKeys { get; set; }
         
-		public bool IsAdministrator { get; set; }
+		public required bool IsAdministrator { get; set; }
     }
 }

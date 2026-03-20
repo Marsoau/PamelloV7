@@ -64,7 +64,7 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
     
     Type ISafeStoredEntity.EntityType => typeof(TEntityType);
     
-    public SafeStoredEntity(int id) {
+    public SafeStoredEntity(int id = 0) {
         Id = id;
     }
 

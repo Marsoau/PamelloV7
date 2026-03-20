@@ -91,7 +91,7 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
             Start = Start.TotalSeconds,
             AutoSkip = AutoSkip,
             
-            SongId = Song.Id,
+            Song = Song.Id,
         };
     }
 }

@@ -116,7 +116,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
             Playlist = this,
-            SongsIds = IPamelloEntity.GetIds(songs)
+            Songs = IPamelloEntity.GetIds(songs)
         });
 
         Save();
@@ -139,7 +139,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
             Playlist = this,
-            SongsIds = IPamelloEntity.GetIds(_playlistSongs)
+            Songs = IPamelloEntity.GetIds(_playlistSongs)
         });
         
         Save();
@@ -160,7 +160,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
             Playlist = this,
-            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();
@@ -173,7 +173,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
         _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
             Playlist = this,
-            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
         });
         
         Save();
@@ -183,11 +183,11 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         return new PamelloPlaylistDto {
             Id = Id,
             Name = Name,
-            OwnerId = Owner.Id,
+            Owner = Owner.Id,
             IsProtected = IsProtected,
             
-            SongsIds = IPamelloEntity.GetIds(_playlistSongs),
-            FavoriteByIds = IPamelloEntity.GetIds(_favoriteBy),
+            Songs = IPamelloEntity.GetIds(_playlistSongs),
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy),
         };
     }
 }

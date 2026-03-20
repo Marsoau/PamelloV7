@@ -14,6 +14,6 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [SafeEntity<IPamelloPlaylist>("Playlist")]
 
 [EntityInfoUpdate<IPamelloPlaylist>(nameof(Playlist),
-    nameof(PamelloPlaylistDto.SongsIds)
+    nameof(PamelloPlaylistDto.Songs)
 )]
 public partial class PlaylistSongsUpdated : IPamelloEvent;

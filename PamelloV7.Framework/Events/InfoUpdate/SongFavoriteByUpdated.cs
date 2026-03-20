@@ -14,6 +14,6 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [SafeEntity<IPamelloSong>("Song")]
 
 [EntityInfoUpdate<IPamelloSong>(nameof(Song),
-    nameof(PamelloSongDto.FavoriteByIds)
+    nameof(PamelloSongDto.FavoriteBy)
 )]
 public partial class SongFavoriteByUpdated : IPamelloEvent;
