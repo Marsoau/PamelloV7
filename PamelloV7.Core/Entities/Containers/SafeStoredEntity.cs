@@ -30,12 +30,9 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
         get => _id;
         set {
             if (_id == value) return;
-            if ((_id = value) == 0) {
-                _entity = null;
-                //return;
-            }
-
-            //_entity = GetById();
+            
+            _id = value;
+            _entity = null;
         }
     }
 
