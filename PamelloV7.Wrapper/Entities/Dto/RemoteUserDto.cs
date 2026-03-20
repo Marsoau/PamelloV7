@@ -8,8 +8,8 @@ namespace PamelloV7.Wrapper.Entities.Dto;
 
 public class RemoteUserDto : PamelloEntityDto
 {
-    public required string? AvatarUrl { get; set; }
-    public required int? SelectedAuthorizationIndex { get; set; }
+    public required string AvatarUrl { get; set; }
+    public required int SelectedAuthorizationIndex { get; set; }
     public required SafeStoredEntity<RemotePlayer> SelectedPlayer { get; set; }
 
     public required DateTime JoinedAt { get; set; }

@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
+using PamelloV7.Framework.Containers;
+using PamelloV7.Wrapper.Converters;
 using PamelloV7.Wrapper.Entities.Attributes;
 using PamelloV7.Wrapper.Entities.Base;
 using PamelloV7.Wrapper.Events.Base;
@@ -69,11 +71,8 @@ public class RemoteEventsService
             if (ev.GetType().GetProperty(typeInfo.EntityPropertyName)?.GetValue(ev) is not int id) continue;
             
             var parts = typeInfo.UpdatePropertyName.Split('.'); //Queue.Position
-
-            var value = ev.GetType().GetProperty(parts.Last())?.GetValue(ev);
             
             Debug.WriteLine($"Id: {id}");
-            Debug.WriteLine($"Value: {value}");
             
             var types = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsAssignableTo(typeof(IRemoteEntity)));
 
@@ -86,26 +85,32 @@ public class RemoteEventsService
 
             Debug.WriteLine($"Entity: {entity}");
             
-            object propertyOwner = entity.Dto;
-            var property = propertyOwner.GetType().GetProperty(parts.First());
+            object dtoPropertyOwner = entity.Dto;
+            
+            var dtoProperty = dtoPropertyOwner.GetType().GetProperty(parts.First());
+            var jsonProperty = eventDto.Data.GetProperty(parts.Last());
             
             foreach (var part in parts.Skip(1)) {
-                var nextOwner = property?.GetValue(propertyOwner);
+                var nextOwner = dtoProperty?.GetValue(dtoPropertyOwner);
                 if (nextOwner is null) break;
                 
-                propertyOwner = nextOwner;
+                dtoPropertyOwner = nextOwner;
                 
-                property = propertyOwner.GetType().GetProperty(part);
-                if (property is null) break;
+                dtoProperty = dtoPropertyOwner.GetType().GetProperty(part);
+                if (dtoProperty is null) break;
             }
             
-            if (property is null) continue;
+            if (dtoProperty is null) continue;
 
-            Debug.WriteLine($"Property: {property.Name}");
+            Debug.WriteLine($"Dto Property: {dtoProperty.Name}");
+            
+            var value = jsonProperty.Deserialize(dtoProperty.PropertyType, SafeStoredEntitiesConverterFactory.Options);
 
-            Debug.WriteLine($"Before: {property.GetValue(propertyOwner)}");
-            property.SetValue(propertyOwner, value);
-            Debug.WriteLine($"After: {property.GetValue(propertyOwner)}");
+            Debug.WriteLine($"Value: {value}");
+
+            Debug.WriteLine($"Before: {dtoProperty.GetValue(dtoPropertyOwner)}");
+            dtoProperty.SetValue(dtoPropertyOwner, value);
+            Debug.WriteLine($"After: {dtoProperty.GetValue(dtoPropertyOwner)}");
 
             foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities().Contains(entity))) {
                 _ = _updateTasks.Append(subscription.InvokeAsync());
