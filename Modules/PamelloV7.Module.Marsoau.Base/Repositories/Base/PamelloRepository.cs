@@ -31,7 +31,7 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
         _loaded = [];
     }
 
-    public void StartupRepository() {
+    public virtual void StartupRepository() {
         _users = _services.GetRequiredService<IPamelloUserRepository>();
         _songs = _services.GetRequiredService<IPamelloSongRepository>();
         _episodes = _services.GetRequiredService<IPamelloEpisodeRepository>();

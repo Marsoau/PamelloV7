@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Reflection.Emit;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -13,7 +14,10 @@ using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Context;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
+using PamelloV7.Module.Marsoau.Discord.Strings;
 using DiscordConfig = PamelloV7.Module.Marsoau.Discord.Config.DiscordConfig;
 
 namespace PamelloV7.Module.Marsoau.Discord.Handlers;
@@ -40,15 +44,18 @@ public class InteractionHandler : IPamelloService
         
         _users = services.GetRequiredService<IPamelloUserRepository>();
     }
-
-    public async Task LoadAsync() {
+    
+    public void Startup(IServiceProvider services) {
         var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
-
         var maps = typeResolver.GetWithAttribute<MapAttribute>().ToArray();
-
+    
         foreach (var map in maps) {
-            await _interactions.AddModuleAsync(map, _services);
+            //await _interactions.AddModuleAsync(map, _services);
         }
+        
+        //_interactions.AddModuleAsync<TMap1>(_services);
+        //_interactions.AddModuleAsync<TMap2>(_services);
+
         
         _clients.Main.InteractionCreated += OnInteractionCreated;
         _interactions.SlashCommandExecuted += InteractionsOnSlashCommandExecuted;

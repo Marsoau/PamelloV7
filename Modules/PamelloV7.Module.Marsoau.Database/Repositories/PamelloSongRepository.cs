@@ -30,7 +30,9 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         _platforms = services.GetRequiredService<IPlatformService>();
     }
 
-    public void Startup(IServiceProvider services) {
+    public override void StartupRepository() {
+        base.StartupRepository();
+        
         _events.Subscribe<SongDeleted>(e => {
             var playlists = e.Song.Playlists.ToList();
             var episodes = e.Song.Episodes.ToList();

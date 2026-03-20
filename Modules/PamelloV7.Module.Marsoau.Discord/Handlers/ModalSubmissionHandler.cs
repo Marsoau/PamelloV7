@@ -28,7 +28,7 @@ public class ModalSubmissionHandler : IPamelloService
         _modalsTypes = [];
     }
 
-    public void Load() {
+    public void Startup(IServiceProvider services) {
         var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
 
         _modalsTypes = typeResolver.GetInheritorsOf<DiscordModal>().ToList();

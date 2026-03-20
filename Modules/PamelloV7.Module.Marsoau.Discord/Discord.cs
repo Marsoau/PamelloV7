@@ -28,7 +28,7 @@ public class Discord : IPamelloModule
             GatewayIntents = GatewayIntents.All,
             AlwaysDownloadUsers = true,
             EnableVoiceDaveEncryption = true,
-            LogLevel = LogSeverity.Error
+            LogLevel = LogSeverity.Verbose
         };
 
         services.AddSingleton(new DiscordSocketClient(discordConfig));
@@ -43,18 +43,12 @@ public class Discord : IPamelloModule
         
         var clients = services.GetRequiredService<DiscordClientService>();
         var interactionHandler = services.GetRequiredService<InteractionHandler>();
-        var modalHandler = services.GetRequiredService<ModalSubmissionHandler>();
 
         var whenReady = new TaskCompletionSource();
-        
-        await interactionHandler.LoadAsync();
-        modalHandler.Load();
 
         clients.Main.Log += DiscordLog;
         clients.Main.Ready += async () => {
             Console.WriteLine("Discord client ready");
-            
-            await interactionHandler.RegisterAsync();
             
             whenReady.SetResult();
         };
@@ -63,6 +57,11 @@ public class Discord : IPamelloModule
         await clients.Main.StartAsync();
 
         whenReady.Task.Wait();
+        
+        //var commands = await clients.Main.GetGlobalApplicationCommandsAsync();
+        //Task.WaitAll(commands.Select(command => command.DeleteAsync()));
+            
+        await interactionHandler.RegisterAsync();
         
         clients.LateStartup();
     }
