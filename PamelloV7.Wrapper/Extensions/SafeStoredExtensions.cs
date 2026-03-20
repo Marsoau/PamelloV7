@@ -28,11 +28,15 @@ public static class SafeStoredExtensions
         return [];
     }
     
+    public static async Task<TEntityType> LoadRequiredAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
+        where TEntityType : class, IDeletableEntity
+        => await entity.LoadAsync() ?? throw new Exception($"Failed to load entity of type {typeof(TEntityType)} with id {entity.Id}");
+    public static async Task<IRemoteEntity?> LoadRequiredAsync(this ISafeStoredEntity entity)
+        => await entity.LoadAsync() ?? throw new Exception($"Failed to load entity of type {entity.EntityType} with id {entity.Id}");
+    
     public static async Task<TEntityType?> LoadAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
         where TEntityType : class, IDeletableEntity
-    {
-        return await ((ISafeStoredEntity)entity).LoadAsync() as TEntityType;
-    }
+        => await ((ISafeStoredEntity)entity).LoadAsync() as TEntityType;
     public static async Task<IRemoteEntity?> LoadAsync(this ISafeStoredEntity entity) {
         var result = await GetSingleAsync(entity.EntityType, entity.Id);
         entity.Entity = result;
@@ -46,21 +50,22 @@ public static class SafeStoredExtensions
         await ((ISafeStoredEntities)entities).LoadAsync();
         return entities;
     }
-    public static async Task<SafeStoredEntities<TEntityType>> LoadPageAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities, int offset, int count)
+    public static async Task<IEnumerable<TEntityType>> LoadPageAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities, int page, int count)
         where TEntityType : class, IDeletableEntity
     {
-        await ((ISafeStoredEntities)entities).LoadPageAsync(offset, count);
-        return entities;
+        await ((ISafeStoredEntities)entities).LoadPageAsync(page, count);
+        return entities.Skip(page * count).Take(count);
     }
     
     public static async Task LoadAsync(this ISafeStoredEntities entities) {
         await entities.LoadPageAsync(0, entities.InternalSafeEntities.Count());
     }
-    public static async Task LoadPageAsync(this ISafeStoredEntities entities, int offset, int count) {
+    public static async Task LoadPageAsync(this ISafeStoredEntities entities, int page, int count) {
         var nonloadedIds = entities.InternalSafeEntities
-            .Skip(offset).Take(count)
+            .Skip(page * count).Take(count)
             .Where(entity => entity.Entity is null)
             .Select(entity => entity.Id)
+            .Where(id => id != 0)
             .Distinct()
             .ToList();
         if (nonloadedIds.Count == 0) return;
