@@ -2,11 +2,13 @@ using Discord.Interactions;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Debug;
 
-public partial class Debug : DiscordCommand
+[DebugGroup]
+public class DebugQueryCommand : DiscordCommand
 {
     [SlashCommand("query", "Display queried entities", runMode: RunMode.Async)]
     public async Task Query(
