@@ -2,10 +2,13 @@ using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Song.Favorites;
 
-public partial class SongFavorites
+[SongFavoriteGroup]
+public class SongFavoritesCommand : DiscordCommand
 {
     [SlashCommand("remove", "Remove songs from your favorites")]
     public async Task Remove(

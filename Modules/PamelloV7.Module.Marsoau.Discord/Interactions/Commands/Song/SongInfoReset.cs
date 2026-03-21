@@ -2,11 +2,14 @@ using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Song;
 
-public partial class Song
+[SongGroup]
+public class SongInfoResetCommand : DiscordCommand
 {
     [SlashCommand("info-reset", "Reset song info from a source")]
     public async Task InfoReset(

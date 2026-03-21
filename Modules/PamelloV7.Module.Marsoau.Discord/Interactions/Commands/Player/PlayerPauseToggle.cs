@@ -9,11 +9,13 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player;
 
-public partial class Player
+[PlayerGroup]
+public partial class PlayerPauseToggleCommand : DiscordCommand
 {
     [SlashCommand("pause-toggle", "Toggle the current pause state of the player (resume | pause)")]
     public async Task PauseToggle() {

@@ -1,11 +1,15 @@
 using Discord.Interactions;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.User;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.User;
 
-public partial class User
+[UserGroup]
+public class UserCommand : DiscordCommand
 {
     [SlashCommand("info", "Get user info")]
     public async Task Info(
@@ -19,7 +23,7 @@ public partial class User
     }
 }
 
-public partial class UserInteractions
+public class UserInteractions : DiscordCommand
 {
     [ComponentInteraction("user-authorization-select:*")]
     public async Task SelectButton(string userQuery) {

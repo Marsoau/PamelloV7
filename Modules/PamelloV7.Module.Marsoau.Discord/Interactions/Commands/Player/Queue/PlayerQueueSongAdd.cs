@@ -8,12 +8,15 @@ using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Commands;
 using PamelloV7.Module.Marsoau.Discord.Config;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player.Queue;
 
-public partial class PlayerQueue
+[PlayerQueueGroup]
+public class PlayerQueueSongAddCommand : DiscordCommand
 {
     [SlashCommand("song-add", "Add songs to the queue")]
     public async Task SongAdd(

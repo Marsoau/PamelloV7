@@ -1,10 +1,14 @@
 using Discord.Interactions;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Player;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player.Queue;
 
-public partial class PlayerQueue
+[PlayerQueueGroup]
+public class PlayerQueueListCommand : DiscordCommand
 {
     [SlashCommand("list", "List the queue")]
     public async Task List() {
@@ -14,7 +18,7 @@ public partial class PlayerQueue
     }
 }
 
-public partial class PlayerQueueInteractions
+public class PlayerQueueInteractions : DiscordCommand
 {
     [ComponentInteraction("player-queue-goto")]
     public async Task GoToButton() {

@@ -14,7 +14,6 @@ using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Context;
-using PamelloV7.Module.Marsoau.Discord.Interactions.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Strings;

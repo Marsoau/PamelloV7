@@ -4,9 +4,9 @@ namespace PamelloV7.Module.Marsoau.Discord.Attributes;
 public class DiscordGroupAttribute : Attribute
 {
     public string GroupString { get; set; }
-    public string? Description { get; set; }
+    public string Description { get; set; }
     
-    public DiscordGroupAttribute(string group, string? description = null) {
+    public DiscordGroupAttribute(string group, string description) {
         GroupString = group;
         Description = description;
     }

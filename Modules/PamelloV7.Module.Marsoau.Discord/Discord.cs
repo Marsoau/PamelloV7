@@ -28,7 +28,7 @@ public class Discord : IPamelloModule
             GatewayIntents = GatewayIntents.All,
             AlwaysDownloadUsers = true,
             EnableVoiceDaveEncryption = true,
-            LogLevel = LogSeverity.Verbose
+            LogLevel = LogSeverity.Error
         };
 
         services.AddSingleton(new DiscordSocketClient(discordConfig));

@@ -4,15 +4,17 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Commands;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Speakers;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Speaker;
 
-public partial class Speaker
+public class Speaker : DiscordCommand
 {
     [SlashCommand("connect-internet", "Connect internet speaker to the internet")]
     public async Task ConnectInternet(

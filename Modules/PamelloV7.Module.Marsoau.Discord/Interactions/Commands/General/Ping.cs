@@ -9,11 +9,11 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.General;
 
-[DiscordGroup("")]
 public class Ping : DiscordCommand
 {
     [SlashCommand("ping", "Ping the bot")]

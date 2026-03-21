@@ -1,13 +1,17 @@
 using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Song;
 
-public partial class Song
+[SongGroup]
+public class SongInfoCommand : DiscordCommand
 {
     [SlashCommand("info", "Get info about a song", runMode: RunMode.Async)]
     public async Task Info(
@@ -34,9 +38,10 @@ public partial class Song
             break;
         }
     }
+    
 }
 
-public partial class PlayerInteractions
+public class SongInfoInteractions : DiscordCommand
 {
     [ComponentInteraction("song-info-edit-name:*")]
     public async Task EditNameButton(string songQuery) {

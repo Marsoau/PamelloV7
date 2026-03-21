@@ -10,7 +10,6 @@ using PamelloV7.Module.Marsoau.Discord.Services;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands;
 
-[Map]
 public class GeneralButtons : DiscordCommand
 {
     [ComponentInteraction("page-next")]

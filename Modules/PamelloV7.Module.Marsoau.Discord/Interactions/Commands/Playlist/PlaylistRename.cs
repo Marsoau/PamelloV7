@@ -2,11 +2,14 @@ using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Playlist;
 
-public partial class Playlist
+[PlaylistGroup]
+public class PlaylistRenameCommand : DiscordCommand
 {
     [SlashCommand("rename", "Rename a playlist")]
     public async Task Rename(

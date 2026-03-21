@@ -1,13 +1,17 @@
 using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Enumerators;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Favorite;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Playlist.Favorites;
 
-public partial class PlaylistFavorite
+[PlaylistFavoriteGroup]
+public class PlaylistFavoriteCommand : DiscordCommand
 {
     [SlashCommand("list", "List your favorite playlists")]
     public async Task List(
@@ -23,7 +27,7 @@ public partial class PlaylistFavorite
     }
 }
 
-public partial class PlaylistFavoriteInteractions
+public class PlaylistFavoriteInteractions : DiscordCommand
 {
     [ComponentInteraction("favorite-playlists-clear:*")]
     public async Task ClearButton(string userQuery) {

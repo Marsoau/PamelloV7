@@ -4,13 +4,16 @@ using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Commands;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Services;
 using PamelloV7.Module.Marsoau.Discord.Speakers;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Speaker;
 
-public partial class Speaker
+[SpeakerGroup]
+public class SpeakerConnectDiscord : DiscordCommand
 {
     [SlashCommand("connect-discord", "Connect discord speaker to a voice channel")]
     public async Task ConnectDiscord() {

@@ -9,11 +9,13 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Strings;
 
 namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player;
 
-public partial class Player
+[PlayerGroup]
+public class PlayerInfoCommand : DiscordCommand
 {
     [SlashCommand("info", "Info about selected player")]
     public async Task Info() {

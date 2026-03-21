@@ -8,7 +8,7 @@ using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 
-namespace PamelloV7.Module.Marsoau.Discord.Interactions.Builders;
+namespace PamelloV7.Module.Marsoau.Discord.Services;
 
 public class GroupDescriptor
 {
@@ -48,13 +48,12 @@ public class DynamicGroupBuilder : IPamelloService
                 .OfType<DiscordGroupAttribute>()
                 .FirstOrDefault();
             if (attribute is null) {
-                //ModulesTypes.Add(type);
+                ModulesTypes.Add(type);
                 continue;
             }
 
-            if (attribute.GroupString.Length == 0) {
-                ModulesTypes.Add(type);
-                continue;
+            if (string.IsNullOrWhiteSpace(attribute.GroupString) || string.IsNullOrWhiteSpace(attribute.Description)) {
+                throw new Exception($"Invalid group attribute {attribute} in {type}");
             }
             
             var subGroups = attribute.GroupString.Split(' ');
