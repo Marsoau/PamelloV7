@@ -89,6 +89,7 @@ public class PamelloModulesLoader
             LoadAssembly(typeof(Module.Marsoau.PEQL.PEQL).Assembly);
             LoadAssembly(typeof(Module.Marsoau.Test.Test).Assembly);
             LoadAssembly(typeof(Module.Marsoau.YouTube.YouTube).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.Setup.Setup).Assembly);
         #else
             var loadedModuleAssemblies = new List<Assembly>();
         
