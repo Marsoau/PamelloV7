@@ -17,7 +17,7 @@ namespace PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Player;
 [PlayerGroup]
 public class PlayerCreateCommand : DiscordCommand
 {
-    [SlashCommand("create", "Get info about a song", runMode: RunMode.Async)]
+    [SlashCommand("create", "Create a new player", runMode: RunMode.Async)]
     public async Task Create(
         [Summary("name", "Name of the player")] string name
     ) {

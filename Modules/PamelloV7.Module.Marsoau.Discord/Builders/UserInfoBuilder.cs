@@ -50,8 +50,8 @@ public class UserInfoBuilder : PamelloDiscordComponentBuilder
             .WithSeparator()
             .WithTextDisplay($"""
                               - Joined at {DiscordString.Time(user.JoinedAt)}
-                              - Activity points: {DiscordString.Code(Random.Shared.Next(0, 100).ToString())}
                               """)
+                              //- Activity points: {DiscordString.Code(Random.Shared.Next(0, 100).ToString())}
             .WithSeparator()
             .WithSection(new SectionBuilder()
                 .WithAccessory(new ButtonBuilder()

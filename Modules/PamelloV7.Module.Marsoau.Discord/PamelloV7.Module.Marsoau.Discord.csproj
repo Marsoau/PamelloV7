@@ -18,8 +18,4 @@
       <PackageReference Include="Discord.Net.Dave" Version="3.19.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Interactions\Builders\" />
-    </ItemGroup>
-
 </Project>
