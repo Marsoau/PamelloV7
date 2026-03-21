@@ -32,6 +32,8 @@ public class InteractionHandler : IPamelloService
     private readonly DiscordComponentBuildersService _components;
     
     private readonly IPamelloUserRepository _users;
+
+    private readonly DynamicGroupBuilder _builder;
     
     public InteractionHandler(IServiceProvider services, DiscordClientService clients, InteractionService interactions)
     {
@@ -43,20 +45,11 @@ public class InteractionHandler : IPamelloService
         _components = services.GetRequiredService<DiscordComponentBuildersService>();
         
         _users = services.GetRequiredService<IPamelloUserRepository>();
+        
+        _builder = services.GetRequiredService<DynamicGroupBuilder>();
     }
     
     public void Startup(IServiceProvider services) {
-        var typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
-        var maps = typeResolver.GetWithAttribute<MapAttribute>().ToArray();
-    
-        foreach (var map in maps) {
-            //await _interactions.AddModuleAsync(map, _services);
-        }
-        
-        //_interactions.AddModuleAsync<TMap1>(_services);
-        //_interactions.AddModuleAsync<TMap2>(_services);
-
-        
         _clients.Main.InteractionCreated += OnInteractionCreated;
         _interactions.SlashCommandExecuted += InteractionsOnSlashCommandExecuted;
     }
@@ -81,6 +74,10 @@ public class InteractionHandler : IPamelloService
     }
 
     public async Task RegisterAsync() {
+        await Task.WhenAll(
+            _builder.ModulesTypes.Select(type => _interactions.AddModuleAsync(type, _services))
+        );
+        
         if (DiscordConfig.Root.Commands.GlobalRegistration) {
             await _interactions.RegisterCommandsGloballyAsync();
         }
