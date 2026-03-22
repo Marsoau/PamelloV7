@@ -16,9 +16,5 @@ public class Setup : IPamelloModule
         if (false) return; //check if setup is needed
         
         var setup = services.GetRequiredService<SetupService>();
-        
-        Console.Clear();
-        Console.WriteLine("Setup module started");
-        Console.ReadLine();
     }
 }
