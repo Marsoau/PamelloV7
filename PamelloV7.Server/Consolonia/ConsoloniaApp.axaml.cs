@@ -14,6 +14,10 @@ public partial class ConsoloniaApp : Application
     
     public MainWindow MainWindow { get; private set; } = null!;
     
+    public LoadingScreen LoadingScreen { get; private set; } = null!;
+
+    public readonly TaskCompletionSource Started = new();
+    
     public override void Initialize() {
         AvaloniaXamlLoader.Load(this);
     }
@@ -22,9 +26,11 @@ public partial class ConsoloniaApp : Application
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktopLifetime) return;
         
         desktopLifetime.MainWindow = MainWindow = new MainWindow();
-        SetScreen(new LoadingScreen());
+        SetScreen(LoadingScreen = new LoadingScreen());
         
         base.OnFrameworkInitializationCompleted();
+        
+        Started.SetResult();
     }
 
     public void SetServices(IServiceProvider services) {

@@ -1,8 +1,21 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="PamelloV7.Server.Consolonia.Screens.LoadingScreen"
-        >
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PamelloV7.Server.Consolonia.Screens.LoadingScreen"
+>
     <Grid>
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Aquamarine"/>
+        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#080808"/>
+        
+        <!-- 1. Removed outer ScrollViewer -->
+        <!-- 2. Disabled horizontal scrolling on ListBox -->
+        <ListBox BorderThickness="0" 
+                 ItemsSource="{Binding Messages}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 >
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListBox.Styles>
+        </ListBox>
     </Grid>
 </UserControl>

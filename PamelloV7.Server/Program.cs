@@ -18,6 +18,7 @@ using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Consolonia;
+using PamelloV7.Server.Consolonia.Screens.Base;
 using PamelloV7.Server.Consolonia.Windows;
 using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
@@ -36,6 +37,8 @@ namespace PamelloV7.Server
         private PamelloModulesLoader _modulesLoader;
         private PamelloServerLoader _serverLoader;
         
+        private readonly TaskCompletionSource _consoloniaCreated = new();
+        
         public ConsoloniaApp Consolonia { get; set; } = null!;
         public WebApplication Asp { get; set; } = null!;
         
@@ -47,14 +50,29 @@ namespace PamelloV7.Server
                 .UseAutoDetectedConsole()
                 .LogToException();
 
-            consoloniaBuilder.AfterSetup(builder => Consolonia = (ConsoloniaApp)builder.Instance!);
+            consoloniaBuilder.AfterSetup(builder => {
+                Consolonia = (ConsoloniaApp)builder.Instance!;
+                _consoloniaCreated.SetResult();
+            });
             
-            var asp = Task.Run(async () => await MainAsync(args));
+            var asp = Task.Run(async () => {
+                try {
+                    await MainAsync(args);
+                }
+                catch (Exception x) {
+                    Console.WriteLine($"FATAL ERROR: {x}");
+                }
+            });
 
             consoloniaBuilder.StartWithConsoleLifetime(args);
         }
         public async Task MainAsync(string[] args) {
-            await Task.Delay(5000);
+            await _consoloniaCreated.Task;
+            await Consolonia.Started.Task;
+            await Consolonia.LoadingScreen.Started.Task;
+            
+            StaticLogger.Screen = Consolonia.LoadingScreen;
+
             //StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
             
             //Console.OutputEncoding = Encoding.UTF8;
