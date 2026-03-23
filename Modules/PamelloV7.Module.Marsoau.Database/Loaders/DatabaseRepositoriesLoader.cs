@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Repositories.Base;
 using PamelloV7.Framework.Services.Base;
@@ -39,22 +40,22 @@ internal static class DatabaseRepositoriesLoader
     }
 
     private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository) {
-        Console.Write($"\rLoading {repository.CollectionName}                                 ");
+        StaticLogger.Log($"Loading {repository.CollectionName}                                 ");
     }
     private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Console.Write($"\rLoading {repository.CollectionName} [{loaded}/{from}]");
+        StaticLogger.Log($"Loading {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnLoadingEnd(IPamelloDatabaseRepository repository) {
-        Console.WriteLine($"\nDone");
+        StaticLogger.Log($"Done");
     }
 
     private static void RepositoryOnOnInitStart(IPamelloDatabaseRepository repository) {
-        Console.Write($"\rInitializing {repository.CollectionName}                            ");
+        StaticLogger.Log($"Initializing {repository.CollectionName}                            ");
     }
     private static void RepositoryOnOnInitProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Console.Write($"\rInitializing {repository.CollectionName} [{loaded}/{from}]");
+        StaticLogger.Log($"Initializing {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnInitEnd(IPamelloDatabaseRepository repository) {
-        Console.WriteLine($"\nDone");
+        StaticLogger.Log($"Done");
     }
 }

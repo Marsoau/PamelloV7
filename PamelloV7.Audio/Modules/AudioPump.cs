@@ -1,5 +1,6 @@
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
+using PamelloV7.Framework.Logging;
 
 namespace PamelloV7.Audio.Modules;
 
@@ -26,16 +27,16 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
             while (!_cts.IsCancellationRequested) {
                 try {
                     while (!Condition()) {
-                        //Console.WriteLine("PUMP CONDITION");
+                        //StaticLogger.Log("PUMP CONDITION");
                         Task.Delay(1000).Wait();
                     }
                     
                     Pump();
                 }
                 catch (Exception x) {
-                    Console.WriteLine($"PUMP EXCEPTION: {x}");
+                    StaticLogger.Log($"PUMP EXCEPTION: {x}");
                     Task.Delay(3000).Wait();
-                    Console.WriteLine("PUMP UNFROZEN");
+                    StaticLogger.Log("PUMP UNFROZEN");
                 }
             }
         });
@@ -43,11 +44,11 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
 
     public void Pump() {
         while (!Input.Pass(_buffer, true, _cts.Token)) {
-            //Console.WriteLine("No input, waiting");
+            //StaticLogger.Log("No input, waiting");
             Task.Delay(500).Wait();
         }
         while (!Output.Pass(_buffer, true, _cts.Token)) {
-            //Console.WriteLine("No output, waiting");
+            //StaticLogger.Log("No output, waiting");
             Task.Delay(500).Wait();
         }
     }

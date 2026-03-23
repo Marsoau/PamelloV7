@@ -1,12 +1,21 @@
 using System.Reflection;
+using PamelloV7.Framework.Config.Attributes;
+using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services;
+using PamelloV7.Server.Loaders;
 
 namespace PamelloV7.Server.Services;
 
 public class AssemblyTypeResolver : IAssemblyTypeResolver
 {
+    private PamelloModulesLoader _modulesLoader { get; set; } = null!;
+    
     public IEnumerable<Type> GetAll() {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+    }
+
+    public void LoadModules(PamelloModulesLoader loader, IServiceProvider services) {
+        _modulesLoader = loader;
     }
     
     public Type? GetByName(string name) {
@@ -29,5 +38,9 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     
     public Type? GetTypeByName(string name) {
         return GetAll().FirstOrDefault(x => x.Name == name);
+    }
+
+    public IPamelloModule? GetAssemblyModule(Assembly assembly) {
+        return _modulesLoader.Containers.FirstOrDefault(x => x.Assembly == assembly)?.Module;
     }
 }

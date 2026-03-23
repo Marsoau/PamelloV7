@@ -6,8 +6,10 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Events.InfoUpdate;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Database;
 
@@ -81,7 +83,7 @@ public class DatabaseAccessService : IDatabaseAccessService
             
             memberMapper.Serialize = (getterValue, bm) => {
                 if (getterValue is string stringData) {
-                    Console.WriteLine($"Mapping: {stringData}");
+                    StaticLogger.Log($"Mapping: {stringData}");
                     return new BsonValue(stringData); 
                 }
                 return BsonValue.Null;

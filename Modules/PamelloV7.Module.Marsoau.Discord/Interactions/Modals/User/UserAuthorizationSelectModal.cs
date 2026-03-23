@@ -4,6 +4,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
@@ -40,7 +41,7 @@ public class UserAuthorizationSelectModal : DiscordModal
     public async Task Submit(string userQuery) {
         var song = await GetSingleRequiredAsync<IPamelloSong>(userQuery);
         var authorizationString = GetSelectValue("modal-select");
-        Console.WriteLine($"authorizationString: {authorizationString}");
+        StaticLogger.Log($"authorizationString: {authorizationString}");
         if (!int.TryParse(authorizationString, out var authorizationIndex)) throw new PamelloException("Invalid authorization index key");
 
         Command<UserAuthorizationSelect>().Execute(authorizationIndex);

@@ -15,10 +15,10 @@ using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Consolonia;
-using PamelloV7.Server.Consolonia.Screens.Base;
 using PamelloV7.Server.Consolonia.Windows;
 using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
@@ -60,7 +60,7 @@ namespace PamelloV7.Server
                     await MainAsync(args);
                 }
                 catch (Exception x) {
-                    Console.WriteLine($"FATAL ERROR: {x}");
+                    StaticLogger.Log($"FATAL ERROR: {x}");
                 }
             });
 
@@ -71,7 +71,7 @@ namespace PamelloV7.Server
             await Consolonia.Started.Task;
             await Consolonia.LoadingScreen.Started.Task;
             
-            StaticLogger.Screen = Consolonia.LoadingScreen;
+            StaticLogger.LoadingScreen = Consolonia.LoadingScreen;
 
             //StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
             
@@ -109,6 +109,11 @@ namespace PamelloV7.Server
 
             _serverLoader.StartupAssemblyServices(Asp.Services);
             
+
+            var types = (AssemblyTypeResolver)_services.GetRequiredService<IAssemblyTypeResolver>();
+            types.LoadModules(_modulesLoader, _services);
+            StaticLogger.Types = types;
+            
             var consolonia = _services.GetRequiredService<ConsoloniaService>();
             consolonia.SetApp(Consolonia);
 
@@ -117,7 +122,7 @@ namespace PamelloV7.Server
                     await _modulesLoader.StartupStage(Asp.Services, stage);
                 }
                 catch (ModuleStartupException x) {
-                    Console.WriteLine($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
+                    StaticLogger.Log($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
                     return;
                 }
             }
@@ -139,7 +144,7 @@ namespace PamelloV7.Server
                 if (service is not null) continue;
                 
                 notConfiguredCount++;
-                Console.WriteLine($"{requiredServiceType.Name} is not implemented");
+                StaticLogger.Log($"{requiredServiceType.Name} is not implemented");
             }
 
             if (notConfiguredCount > 0) {
@@ -167,7 +172,7 @@ namespace PamelloV7.Server
         }
 
         private void OnStart() {
-            Console.WriteLine(Console.WindowWidth switch {
+            StaticLogger.Log(Console.WindowWidth switch {
                 >= 80 => """
                          
                          0000000 \                                  00\ 00\       \00\     \000000000 /
@@ -202,13 +207,13 @@ namespace PamelloV7.Server
         }
 
         private void OnStopping() {
-            Console.WriteLine("\n---\nSTOPPING\n---");
+            StaticLogger.Log("\n---\nSTOPPING\n---");
             
             _modulesLoader.Shutdown(_services);
             _serverLoader.ShutdownAssemblyServices(_services);
         }
         private void OnStop() {
-            Console.WriteLine("\n---\nSTOPPED\n---");
+            StaticLogger.Log("\n---\nSTOPPED\n---");
         }
     }
 }

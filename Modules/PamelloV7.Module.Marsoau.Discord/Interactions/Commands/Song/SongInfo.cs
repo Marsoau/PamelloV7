@@ -1,6 +1,7 @@
 using Discord.Interactions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
@@ -17,7 +18,7 @@ public class SongInfoCommand : DiscordCommand
     public async Task Info(
         [Summary("song", "Single song query")] string songQuery = "current"
     ) {
-        Console.WriteLine($"BSQ: {DateTime.Now.TimeOfDay}");
+        StaticLogger.Log($"BSQ: {DateTime.Now.TimeOfDay}");
         var songs = await GetAsync<IPamelloSong>(songQuery);
 
         switch (songs.Count) {

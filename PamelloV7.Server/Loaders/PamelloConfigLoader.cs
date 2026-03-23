@@ -3,6 +3,7 @@ using System.Text.Json;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Loaders;
@@ -48,7 +49,7 @@ public class PamelloConfigLoader
         StaticLogger.Log($"Loaded json file parts: ({jsonParts.Count} parts)");
         foreach (var (partName, partJson) in jsonParts) {
             Containers.Add(new PamelloConfigContainer(partName, partJson));
-            Console.WriteLine($"{partName}: {partJson}");
+            StaticLogger.Log($"{partName}: {partJson}");
         }
     }
 
@@ -61,7 +62,7 @@ public class PamelloConfigLoader
         if (container.Part.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.PartName}\" not found in config file");
 
         foreach (var property in rootProperty.FieldType.GetProperties()) {
-            Console.WriteLine($"| {property.Name}: {property.PropertyType}");
+            StaticLogger.Log($"| {property.Name}: {property.PropertyType}");
         }
             
         rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.FieldType, _jsoncProperties));

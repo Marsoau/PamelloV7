@@ -1,3 +1,5 @@
+using System.Reflection;
+using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
 
 namespace PamelloV7.Framework.Services;
@@ -11,4 +13,5 @@ public interface IAssemblyTypeResolver : IPamelloService
     public IEnumerable<Type> GetInheritorsOf<TType>();
     public IEnumerable<Type> GetInheritorsOf(params Type[] types);
     public Type? GetTypeByName(string name);
+    public IPamelloModule? GetAssemblyModule(Assembly assembly);
 }

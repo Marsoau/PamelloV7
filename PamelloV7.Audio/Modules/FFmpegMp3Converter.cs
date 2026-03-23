@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Dependencies.Service;
+using PamelloV7.Framework.Logging;
 
 namespace PamelloV7.Audio.Modules;
 
@@ -62,11 +63,11 @@ public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IA
             }
         }
         catch (OperationCanceledException) {
-            Console.WriteLine("FFMpeg writing task was canceled");
+            StaticLogger.Log("FFMpeg writing task was canceled");
             return;
         }
         catch (Exception ex) {
-            Console.WriteLine($"Stream error: {ex}");
+            StaticLogger.Log($"Stream error: {ex}");
         }
     }
 }

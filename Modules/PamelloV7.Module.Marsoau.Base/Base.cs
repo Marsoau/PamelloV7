@@ -8,6 +8,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.History.Services;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
@@ -28,14 +29,14 @@ public class Base : IPamelloModule
         var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();
 
         foreach (var dependency in dependencies) {
-            Console.WriteLine($"--- {dependency} ---");
-            Console.WriteLine($"Is installed: {dependency.IsInstalled}");
+            StaticLogger.Log($"--- {dependency} ---");
+            StaticLogger.Log($"Is installed: {dependency.IsInstalled}");
             
             if (dependency.IsInstalled) continue;
             
-            Console.WriteLine("Downloading...");
+            StaticLogger.Log("Downloading...");
             await dependency.DownloadOrUpdateAsync();
-            Console.WriteLine($"Done, Now installed: {dependency.IsInstalled}");
+            StaticLogger.Log($"Done, Now installed: {dependency.IsInstalled}");
         }
     }
 }

@@ -11,6 +11,7 @@ using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 
@@ -36,7 +37,7 @@ public class PamelloCommandsService : IPamelloCommandsService
         CommandTypes = _typeResolver.GetInheritorsOf<PamelloCommand>().ToList();
         
         foreach (var commandType in CommandTypes) {
-            Console.WriteLine($"Command: {commandType.FullName}");
+            StaticLogger.Log($"Command: {commandType.FullName}");
         }
     }
     
@@ -62,7 +63,7 @@ public class PamelloCommandsService : IPamelloCommandsService
     }
 
     public async Task<object?> ExecutePathAsync(string commandPath, IPamelloUser scopeUser) {
-        Console.WriteLine($"Executing command path: {commandPath}");
+        StaticLogger.Log($"Executing command path: {commandPath}");
         var splitPos = commandPath.IndexOf('?');
         var commandName = splitPos != -1 ? commandPath[..splitPos] : commandPath;
         var queryCollection = HttpUtility.ParseQueryString(splitPos != -1 ? commandPath[(splitPos + 1)..] : "");
@@ -100,7 +101,7 @@ public class PamelloCommandsService : IPamelloCommandsService
             
             if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
                 isEntityType = true;
-                Console.WriteLine($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                StaticLogger.Log($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
             }
             else if (argumentType.IsGenericType && argumentType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) {
                 argumentType = argumentType.GenericTypeArguments.FirstOrDefault();
@@ -109,11 +110,11 @@ public class PamelloCommandsService : IPamelloCommandsService
                 if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
                     isEntityType = true;
                     isManyEntity = true;
-                    Console.WriteLine($"Pamello Multi Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                    StaticLogger.Log($"Pamello Multi Type Argument \"{parameter.Name}\": {argumentType.Name}");
                 }
             }
             else {
-                Console.WriteLine($"Other Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                StaticLogger.Log($"Other Type Argument \"{parameter.Name}\": {argumentType.Name}");
             }
 
             if (!isEntityType) {

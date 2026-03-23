@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services.Base;
@@ -47,14 +48,14 @@ public class DiscordClientService : IPamelloService
 		var user = _users.GetByPlatformKey(new PlatformKey("discord", discordUser.Id.ToString()));
 		if (user is null) return;
 
-		Console.WriteLine($"User {user}, from {fromVc.VoiceChannel?.Name ?? "NONE"} to {toVc.VoiceChannel?.Name ?? "NONE"}");
+		StaticLogger.Log($"User {user}, from {fromVc.VoiceChannel?.Name ?? "NONE"} to {toVc.VoiceChannel?.Name ?? "NONE"}");
 		
 		var fromVcPlayers = GetVoicePlayers(user, fromVc.VoiceChannel);
 		var toVcPlayers = GetVoicePlayers(user, toVc.VoiceChannel);
 
 		switch (toVcPlayers.Count) {
 			case > 1:
-				Console.WriteLine("Too much speakers, cant decide on auto selection");
+				StaticLogger.Log("Too much speakers, cant decide on auto selection");
 				return;
 			case 1:
 				user.SelectPlayer(toVcPlayers.First(), true);
@@ -66,7 +67,7 @@ public class DiscordClientService : IPamelloService
 		
 		user.SelectPlayer(null, true);
 
-		Console.WriteLine($"Auto selected player {user.SelectedPlayer} for {user}");
+		StaticLogger.Log($"Auto selected player {user.SelectedPlayer} for {user}");
 	}
 
 	public bool IsClientUser(ulong userId) {

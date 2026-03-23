@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Controllers.Base;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Controllers;
 
@@ -11,7 +13,7 @@ public class PingController : PamelloControllerBase
 
     [HttpGet("{*ignored}")]
     public IActionResult Get() {
-        Console.WriteLine($"{DateTime.Now.TimeOfDay} /Ping");
+        StaticLogger.Log($"{DateTime.Now.TimeOfDay} /Ping");
         return Ok("Pong");
     }
 }

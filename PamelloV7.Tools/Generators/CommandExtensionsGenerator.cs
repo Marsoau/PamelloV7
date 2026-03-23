@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Wrapper.Commands;
 
 namespace PamelloV7.Tools.Generators;
@@ -15,7 +16,7 @@ public static class CommandExtensionsGenerator
         var commandsType = typeof(PamelloCommandsService);
 
         var path = Path.Combine(targetDirectory.FullName, $"{commandsType.Name}Extensions.g.cs");
-        Console.WriteLine(path);
+        StaticLogger.Log(path);
         
         var commands = assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(PamelloCommand))).ToList();
 
@@ -39,12 +40,12 @@ public static class CommandExtensionsGenerator
 
             var returnTypeInfo = GetReturnTypeInfo(executeMethod.ReturnType, false, false);
 
-            Console.WriteLine($"Command: {command.Name}");
+            StaticLogger.Log($"Command: {command.Name}");
             var csArgString = "";
             var pathArgString = "";
             foreach (var parameter in executeMethod.GetParameters()) {
                 var parameterTypeInfo = GetReturnTypeInfo(parameter.ParameterType, true, false);
-                Console.WriteLine($"    {parameter.Name}: {parameterTypeInfo}");
+                StaticLogger.Log($"    {parameter.Name}: {parameterTypeInfo}");
                 
                 if (parameterTypeInfo.IsVoid) continue;
                 

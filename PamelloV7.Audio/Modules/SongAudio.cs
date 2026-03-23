@@ -9,6 +9,7 @@ using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Extensions;
 
 namespace PamelloV7.Audio.Modules;
@@ -95,7 +96,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
                 result = await Song.SelectedSource.GetDownloader().DownloadAsync();
             }
             catch (Exception x) {
-                Console.WriteLine($"Exception downloading song {Song}: {x}");
+                StaticLogger.Log($"Exception downloading song {Song}: {x}");
                 Clean();
                 return false;
             }
@@ -110,7 +111,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 
         await LoadChunksAtAsync(0, token);
         if (_currentChunk is null) {
-            Console.WriteLine("interesting");
+            StaticLogger.Log("interesting");
             return false;
         }
 
@@ -139,7 +140,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         if (Position.TotalSeconds == _nextBreakPoint) {
             if (_nextJumpPoint is null) {
                 await RewindTo(Duration, true, token);
-                // Console.WriteLine("false 2");
+                // StaticLogger.Log("false 2");
                 return false;
             }
 
@@ -187,7 +188,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         _nextBreakPoint = closestBreakPoint;
         _nextJumpPoint = closestJumpPoint;
 
-        //Console.WriteLine($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
+        //StaticLogger.Log($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
     }
 
     public async Task RewindTo(AudioTime time, bool forceEpisodePlayback = true, CancellationToken token = default) {
@@ -313,12 +314,12 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     }
         
     private async Task<MemoryStream?> LoadChunk(int position, CancellationToken token) {
-        //Console.WriteLine($"->\n-> loading chunk at {position}\n->");
+        //StaticLogger.Log($"->\n-> loading chunk at {position}\n->");
 
         if (_ffmpeg is null) {
-            //Console.WriteLine("ffmpeg creating 1");
+            //StaticLogger.Log("ffmpeg creating 1");
             CreateFFMpeg();
-            //Console.WriteLine("ffmpeg created 1");
+            //StaticLogger.Log("ffmpeg created 1");
         }
         else {
             _ffmpeg.Resume();
@@ -326,16 +327,16 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         }
 
         if (_ffmpeg is null) return null;
-        //Console.WriteLine("ffmpeg is not null");
+        //StaticLogger.Log("ffmpeg is not null");
 
         long startPos = _chunkSize.TimeValue * position;
         long endPos = _chunkSize.TimeValue * (position + 1);
-        //Console.WriteLine($"Next length: {endPos - startPos}");
+        //StaticLogger.Log($"Next length: {endPos - startPos}");
 
         if (_ffmpegPosition != startPos) {
-            //Console.WriteLine("ffmpeg creating 2");
+            //StaticLogger.Log("ffmpeg creating 2");
             CreateFFMpeg(new AudioTime(startPos));
-            //Console.WriteLine("ffmpeg created 2");
+            //StaticLogger.Log("ffmpeg created 2");
         }
 
         while (
@@ -352,11 +353,11 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         while (_ffmpegPosition < endPos && !token.IsCancellationRequested) {
             if (_ffmpeg.StandardOutput.EndOfStream) {
                 if (chunkStream.Length > 0) {
-                    //Console.WriteLine($"<-\n<- loaded CUT chunk at {position}\n<-\n");
+                    //StaticLogger.Log($"<-\n<- loaded CUT chunk at {position}\n<-\n");
                     return chunkStream;
                 }
                 else {
-                    //Console.WriteLine($"failed to load chunk stream at {position}");
+                    //StaticLogger.Log($"failed to load chunk stream at {position}");
                     return null;
                 }
             }
@@ -367,7 +368,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
             
         _ffmpeg.Suspend();
 
-        //Console.WriteLine($"<-\n<- loaded chunk at {position}\n<-\n");
+        //StaticLogger.Log($"<-\n<- loaded chunk at {position}\n<-\n");
         return chunkStream;
     }
 

@@ -22,6 +22,7 @@ using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Framework.Extensions;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.History.Services;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Module.Marsoau.Test.Events;
@@ -41,7 +42,6 @@ public class Test : IPamelloModule
     private IPamelloPlaylistRepository _playlists;
     private IPamelloEpisodeRepository _episodes;
     private IPamelloPlayerRepository _players;
-    private IPamelloLogger _logger;
     private IPlatformService _platforms;
     private IPamelloCommandsService _commands;
     private IEventsService _events;
@@ -62,7 +62,6 @@ public class Test : IPamelloModule
         _playlists = services.GetRequiredService<IPamelloPlaylistRepository>();
         _episodes = services.GetRequiredService<IPamelloEpisodeRepository>();
         _players = services.GetRequiredService<IPamelloPlayerRepository>();
-        _logger = services.GetRequiredService<IPamelloLogger>();
         _platforms = services.GetRequiredService<IPlatformService>();
         _commands = services.GetRequiredService<IPamelloCommandsService>();
         _events = services.GetRequiredService<IEventsService>();
@@ -76,7 +75,7 @@ public class Test : IPamelloModule
             var currentVersion = await dependency.GetInstalledVersionAsync() ?? "none";
             var latestVersion = await dependency.GetLatestVersionAsync() ?? "none";
             
-            Console.WriteLine($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
+            StaticLogger.Log($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
                 ? $"-> {latestVersion}"
                 : "Latest!"
             )}");
@@ -86,7 +85,7 @@ public class Test : IPamelloModule
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
         var counter = 0;
         foreach (var song in songs) {
-            Console.WriteLine($"{counter++}: {song}");
+            StaticLogger.Log($"{counter++}: {song}");
         }
     }
 }

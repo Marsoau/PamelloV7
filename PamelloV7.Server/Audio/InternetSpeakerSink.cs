@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
+using PamelloV7.Framework.Logging;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Audio;
 
@@ -48,7 +50,7 @@ public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
             _response.Body.FlushAsync(token).Wait(token);
         }
         catch (Exception x) {
-            Console.WriteLine(x);
+            StaticLogger.Log(x);
             return false;
         }
         

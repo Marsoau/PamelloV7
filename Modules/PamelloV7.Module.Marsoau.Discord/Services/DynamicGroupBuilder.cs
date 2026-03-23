@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
@@ -42,7 +43,7 @@ public class DynamicGroupBuilder : IPamelloService
 
         var groups = new List<GroupDescriptor>();
 
-        Console.WriteLine("Found types:");
+        StaticLogger.Log("Found types:");
         foreach (var type in types) {
             var attribute = type.GetCustomAttributes()
                 .OfType<DiscordGroupAttribute>()

@@ -4,6 +4,7 @@ using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Osu.Services;
 
 namespace PamelloV7.Module.Marsoau.Osu.Downloaders;
@@ -40,7 +41,7 @@ public class OsuSongDownloader : SongDownloader
 
         using var zipArchive = new ZipArchive(oszStream, ZipArchiveMode.Read);
         
-        Console.WriteLine($"zip: {zipArchive.Entries.Count};");
+        StaticLogger.Log($"zip: {zipArchive.Entries.Count};");
         
         var audioEntry = zipArchive.Entries.FirstOrDefault(entry => entry.FullName == "audio.mp3")
             ?? zipArchive.Entries.FirstOrDefault(entry => entry.FullName.EndsWith(".mp3"));

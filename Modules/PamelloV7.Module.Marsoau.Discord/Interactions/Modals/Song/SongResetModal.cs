@@ -4,6 +4,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.Discord.Services;
@@ -40,7 +41,7 @@ public class SongResetModal : DiscordModal
     public async Task Submit(string songQuery) {
         var song = await GetSingleRequiredAsync<IPamelloSong>(songQuery);
         var platformString = GetSelectValue("modal-select");
-        Console.WriteLine(platformString);
+        StaticLogger.Log(platformString);
         if (!int.TryParse(platformString, out var platformIndex)) throw new PamelloException("Invalid source index key");
 
         var resetTask = Command<SongInfoReset>().Execute(song, platformIndex);

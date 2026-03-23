@@ -28,7 +28,7 @@ public class YoutubeSongPlatform : ISongPlatform
 
     public void Startup() {
         /*
-        Console.WriteLine("Starting youtube token server");
+        StaticLogger.Log("Starting youtube token server");
         Console.ReadLine();
         if (_tokenServerProcess is not null) return;
         

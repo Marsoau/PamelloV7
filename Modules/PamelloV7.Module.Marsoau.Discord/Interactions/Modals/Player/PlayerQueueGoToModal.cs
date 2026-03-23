@@ -1,6 +1,7 @@
 using Discord;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 
@@ -25,7 +26,7 @@ public class PlayerQueueGoToModal : DiscordModal
 
     [ModalSubmission("player-queue-goto-modal")]
     public async Task Submit() {
-        Console.WriteLine("exe");
+        StaticLogger.Log("exe");
         var position = GetInputValue("position-input");
         var returnBack = GetYesNoValue("return-back");
 

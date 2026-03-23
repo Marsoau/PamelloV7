@@ -5,6 +5,7 @@ using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Server.Model.Listeners;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 
@@ -44,7 +45,7 @@ namespace PamelloV7.Server.Services
             _listeners.Remove(listener);
             await listener.CloseConnection();
 
-            Console.WriteLine($"removed \"{listener.Token}\" events");
+            StaticLogger.Log($"removed \"{listener.Token}\" events");
         }
 
         public async Task<PamelloSSEListener> AddListener(HttpResponse response, CancellationToken cancellationToken) {
@@ -114,7 +115,7 @@ namespace PamelloV7.Server.Services
         }
 
         public void Shutdown() {
-            Console.WriteLine("STOPPING SSE");
+            StaticLogger.Log("STOPPING SSE");
             foreach (var listener in _listeners) {
                 listener.Dispose();
             }

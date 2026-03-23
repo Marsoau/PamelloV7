@@ -1,6 +1,6 @@
 using PamelloV7.Framework.Modules;
 
-namespace PamelloV7.Server.Consolonia.Screens.Base;
+namespace PamelloV7.Framework.Logging;
 
 public enum ELogLevel
 {

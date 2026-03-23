@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
@@ -44,7 +45,7 @@ public class ModalSubmissionHandler : IPamelloService
         var submittedArgs = "";
         if (splitAt != fullName.Length) submittedArgs = fullName[(splitAt + 1)..];
 
-        Console.WriteLine($"Modal \"{socketModal.Data.CustomId}\" submitted: {submittedName} | {submittedArgs}");
+        StaticLogger.Log($"Modal \"{socketModal.Data.CustomId}\" submitted: {submittedName} | {submittedArgs}");
 
         Type? modalType = null;
         MethodInfo? submissionMethod = null;
@@ -80,7 +81,7 @@ public class ModalSubmissionHandler : IPamelloService
             await (Task)submissionMethod.Invoke(modal, submittedArgs.Length > 0 ? [submittedArgs] : [])!;
         }
         catch (Exception e) {
-            Console.WriteLine(e);
+            StaticLogger.Log(e);
             await modal.Modal.DeferAsync();
         }
     }

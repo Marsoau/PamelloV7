@@ -9,6 +9,7 @@ using PamelloV7.Framework.Events.RestorePacks.Base;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.History.Services;
+using PamelloV7.Framework.Logging;
 
 namespace PamelloV7.Module.Marsoau.Base.History;
 
@@ -42,10 +43,10 @@ public class HistoryService : IHistoryService
     }
 
     public void WriteAll() {
-        Console.WriteLine($"All records: {_records.Count}");
+        StaticLogger.Log($"All records: {_records.Count}");
 
         foreach (var record in _records) {
-            Console.WriteLine($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
+            StaticLogger.Log($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
         }
     }
 
@@ -118,13 +119,13 @@ public class HistoryService : IHistoryService
     }
 
     private void Write(NestedPamelloEvent nested) {
-        Console.Write($"{nested.Event.GetType().Name} ({nested.NestedEvents.Count})");
+        StaticLogger.Log($"{nested.Event.GetType().Name} ({nested.NestedEvents.Count})");
         if (nested.NestedEvents.FirstOrDefault() is { } firstNested) {
-            Console.Write(" -> ");
+            StaticLogger.Log(" -> ");
             Write(firstNested);
         }
         else {
-            Console.WriteLine();
+            StaticLogger.Log();
         }
     }
 }

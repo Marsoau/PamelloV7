@@ -6,6 +6,8 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Model.Listeners
 {
@@ -50,7 +52,7 @@ namespace PamelloV7.Server.Model.Listeners
             while (_eventsQueue.Count > 0) {
                 pamelloEvent = _eventsQueue.Dequeue();
 
-                Console.WriteLine($"Sending: {pamelloEvent.GetType().Name}");
+                StaticLogger.Log($"Sending: {pamelloEvent.GetType().Name}");
 
                 await _response.WriteAsync($"event: {pamelloEvent.GetType().Name}\n");
                 await _response.WriteAsync($"data: {JsonSerializer.Serialize(pamelloEvent, pamelloEvent.GetType(), JsonEntitiesFactory.Options)}\n\n");

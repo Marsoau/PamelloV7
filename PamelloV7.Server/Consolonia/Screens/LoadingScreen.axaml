@@ -1,21 +1,29 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="PamelloV7.Server.Consolonia.Screens.LoadingScreen"
->
+             x:Class="PamelloV7.Server.Consolonia.Screens.LoadingScreen">
     <Grid>
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#080808"/>
-        
-        <!-- 1. Removed outer ScrollViewer -->
-        <!-- 2. Disabled horizontal scrolling on ListBox -->
-        <ListBox BorderThickness="0" 
-                 ItemsSource="{Binding Messages}"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 >
-            <ListBox.Styles>
-                <Style Selector="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                </Style>
-            </ListBox.Styles>
-        </ListBox>
+        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#080808" />
+
+        <ScrollViewer
+            Name="Box"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.IsScrollInertiaEnabled="False">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border MinHeight="1">
+                            <TextBlock Text="{Binding .}" TextWrapping="Wrap" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

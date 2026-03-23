@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Consolonia;
 
@@ -27,5 +29,9 @@ public class ConsoloniaService : IPamelloService
         App.MainWindow.Content = screen = _services.GetRequiredService<TUserControl>();
         
         return screen;
+    }
+
+    public void LogMessage(object? obj, IPamelloModule? module, ELogLevel level) {
+        (App.LoadingScreen).WriteLine(obj, module, level);
     }
 }

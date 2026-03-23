@@ -11,6 +11,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Discord.Audio;
 using PamelloV7.Module.Marsoau.Discord.Services;
@@ -98,7 +99,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         
         Register(client, guild);
 
-        Console.WriteLine($"Before connect: {Guild.AudioClient}");
+        StaticLogger.Log($"Before connect: {Guild.AudioClient}");
         
         await vc.ConnectAsync();
     }
@@ -111,9 +112,9 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     private async Task ClientOnVoiceServerUpdated(SocketVoiceServer voiceServer) {
-        Console.WriteLine($"VSU: {Guild.AudioClient}");
+        StaticLogger.Log($"VSU: {Guild.AudioClient}");
         Guild.AudioClient.Connected += async () => {
-            Console.WriteLine("AC Connected");
+            StaticLogger.Log("AC Connected");
             Sink.Stream = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
 
             foreach (var listener in Listeners) {

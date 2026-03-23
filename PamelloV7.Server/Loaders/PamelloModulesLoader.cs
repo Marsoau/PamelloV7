@@ -6,6 +6,7 @@ using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Config.Attributes;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Loaders.Context;
@@ -106,10 +107,10 @@ public class PamelloModulesLoader
                 try {
                     var assembly = _moduleContext.LoadMainModule(moduleName);
                     loadedModuleAssemblies.Add(assembly);
-                    Console.WriteLine($"[Loader] Loaded assembly: {moduleName}");
+                    StaticLogger.Log($"[Loader] Loaded assembly: {moduleName}");
                 }
                 catch (Exception ex) {
-                    Console.WriteLine($"[Loader] Failed to load {moduleName}: {ex.Message}");
+                    StaticLogger.Log($"[Loader] Failed to load {moduleName}: {ex.Message}");
                 }
             }
 
@@ -122,7 +123,7 @@ public class PamelloModulesLoader
             if (container.ConfigType is not null) {
                 _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");
             }
-            Console.WriteLine($"{container}\n| {container.Module.Description}");
+            StaticLogger.Log($"{container}\n| {container.Module.Description}");
         }
         
         StaticLogger.Log($"Loaded {Containers.Count} modules");
@@ -142,7 +143,7 @@ public class PamelloModulesLoader
 
             var isDisabled = ServerConfig.Root.DisabledModules.Contains($"{module.Author}/{module.Name}");
 
-            if (isDisabled) Console.WriteLine($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
+            if (isDisabled) StaticLogger.Log($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
             
             return isDisabled;
         }
@@ -160,7 +161,7 @@ public class PamelloModulesLoader
             foreach (var dependency in container.Dependencies) {
                 var dependencyContainer = Containers.FirstOrDefault(c => c.Assembly.GetName().Name == dependency);
                 if (dependencyContainer is null) {
-                    Console.WriteLine($"| Module {container.Module.Author}/{container.Module.Name} depends on {dependency}, which is not loaded");
+                    StaticLogger.Log($"| Module {container.Module.Author}/{container.Module.Name} depends on {dependency}, which is not loaded");
                     notSatisfiedCount++;
                 }
             }
@@ -180,15 +181,15 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Configuring module services: ({Containers.SelectMany(c => c.Services).Count()} services from {Containers.Count} modules)");
         
         foreach (var container in Containers) {
-            Console.WriteLine($"{container}");
+            StaticLogger.Log($"{container}");
             
             foreach (var kvp in container.Services) {
                 if (kvp.Value is not null) {
-                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
+                    StaticLogger.Log($"| {kvp.Key.Name} : {kvp.Value.Name}");
                     services.AddSingleton(kvp.Value, kvp.Key);
                 }
                 else {
-                    Console.WriteLine($"| {kvp.Key.Name}");
+                    StaticLogger.Log($"| {kvp.Key.Name}");
                     services.AddSingleton(kvp.Key);
                 }
             }
@@ -199,7 +200,7 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Configuring modules: ({Containers.Count} modules)");
         
         foreach (var container in Containers) {
-            Console.WriteLine($"{container}");
+            StaticLogger.Log($"{container}");
             container.Module.Configure(services);
         }
         
@@ -210,13 +211,13 @@ public class PamelloModulesLoader
         StaticLogger.Log($"Shutting down module services: ({Containers.SelectMany(c => c.Services).Count()} services from {Containers.Count} modules)");
         
         foreach (var container in Containers) {
-            Console.WriteLine($"{container}");
+            StaticLogger.Log($"{container}");
             
             IPamelloService? service;
             
             foreach (var kvp in container.Services) {
                 if (kvp.Value is not null) {
-                    Console.WriteLine($"| {kvp.Key.Name} : {kvp.Value.Name}");
+                    StaticLogger.Log($"| {kvp.Key.Name} : {kvp.Value.Name}");
                     
                     service = services.GetService(kvp.Value) as IPamelloService;
                     if (service is null) continue;
@@ -224,7 +225,7 @@ public class PamelloModulesLoader
                     service.Shutdown();
                 }
                 else {
-                    Console.WriteLine($"| {kvp.Key.Name}");
+                    StaticLogger.Log($"| {kvp.Key.Name}");
                     
                     service = services.GetService(kvp.Key) as IPamelloService;
                     if (service is null) continue;
@@ -245,12 +246,12 @@ public class PamelloModulesLoader
         
         StaticLogger.Log($"Starting modules in {stage} stage: ({stagedContainers.Count} modules)");
         foreach (var container in stagedContainers) {
-            Console.WriteLine($"{container}");
+            StaticLogger.Log($"{container}");
 
             foreach (var (classType, interfaceType) in container.Services) {
                 if (classType.GetMethod(nameof(IPamelloService.Startup)) is not null) {
                     var service = (IPamelloService)services.GetRequiredService(interfaceType ?? classType);
-                    Console.WriteLine($"| starting {classType.Name}");
+                    StaticLogger.Log($"| starting {classType.Name}");
                     service.Startup(services);
                 }
             }

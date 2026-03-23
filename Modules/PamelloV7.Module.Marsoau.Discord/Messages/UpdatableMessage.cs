@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Discord;
+using PamelloV7.Framework.Logging;
 
 namespace PamelloV7.Module.Marsoau.Discord.Messages;
 
@@ -53,7 +54,7 @@ public class UpdatableMessage : IDisposable
                 
                 if (timeLeft <= 0) break;
 
-                Console.WriteLine($"Added {timeLeft} seconds to lifetime");
+                StaticLogger.Log($"Added {timeLeft} seconds to lifetime");
                 
                 LifetimeTask = Task.Delay(timeLeft * 1000, _cancellation.Token);
             }
@@ -65,7 +66,7 @@ public class UpdatableMessage : IDisposable
     }
 
     public void Touch() {
-        Console.WriteLine("YOUCH");
+        StaticLogger.Log("YOUCH");
         LastTouched = DateTimeOffset.Now;
     }
 
@@ -76,7 +77,7 @@ public class UpdatableMessage : IDisposable
         var timePassed = currentTime - _lastRefreshNew;
 
         if (timePassed >= _refreshIntervalNew) {
-            Console.WriteLine($"Refresh at {currentTime}");
+            StaticLogger.Log($"Refresh at {currentTime}");
             
             _lastRefreshNew = currentTime;
             
@@ -86,14 +87,14 @@ public class UpdatableMessage : IDisposable
         
         Task.Run(async () => {
             var delaySpan = _refreshIntervalNew - timePassed;
-            Console.WriteLine($"Scheduling refresh in {delaySpan} at {currentTime}");
+            StaticLogger.Log($"Scheduling refresh in {delaySpan} at {currentTime}");
             _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);
             
             await _scheduledRefresh;
             
             currentTime = DateTime.Now;
             
-            Console.WriteLine($"Awaited refresh at {currentTime}");
+            StaticLogger.Log($"Awaited refresh at {currentTime}");
             _scheduledRefresh = null;
 
             _lastRefreshNew = currentTime;

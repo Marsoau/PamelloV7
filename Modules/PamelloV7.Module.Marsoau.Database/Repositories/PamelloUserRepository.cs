@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Platforms.Infos;
 using PamelloV7.Framework.Repositories;
@@ -35,7 +36,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
 
     public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
-        Console.WriteLine($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
+        StaticLogger.Log($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;
         
         if (!allowCreation) return null;
@@ -44,10 +45,10 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         if (platform is null) return null;
         
         var userInfo = platform.GetUserInfo(pk.Key);
-        Console.WriteLine($"Info by pk {(userInfo is not null ? $"found: {userInfo}" : "not found")}");
+        StaticLogger.Log($"Info by pk {(userInfo is not null ? $"found: {userInfo}" : "not found")}");
         if (userInfo is null) return null;
         
-        Console.WriteLine("Adding user by info");
+        StaticLogger.Log("Adding user by info");
         return Add(userInfo);
     }
 

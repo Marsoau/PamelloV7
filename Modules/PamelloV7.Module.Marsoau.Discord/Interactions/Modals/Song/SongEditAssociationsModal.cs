@@ -2,6 +2,7 @@ using Discord;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Difference;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 
@@ -37,11 +38,11 @@ public class SongEditAssociationsModal : DiscordModal
         await ReleaseInteractionAsync();
         
         foreach (var (at, association) in differenceResult.Added) {
-            Console.WriteLine($"+{association}");
+            StaticLogger.Log($"+{association}");
             Command<SongAssociationsAdd>().Execute(song, association);
         }
         foreach (var (at, association) in differenceResult.Deleted) {
-            Console.WriteLine($"-{association}");
+            StaticLogger.Log($"-{association}");
             Command<SongAssociationsRemove>().Execute(song, association);
         }
     }

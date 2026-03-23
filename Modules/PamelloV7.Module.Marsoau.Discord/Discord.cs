@@ -8,6 +8,7 @@ using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Module.Marsoau.Discord.Config;
 using PamelloV7.Module.Marsoau.Discord.Handlers;
@@ -48,7 +49,7 @@ public class Discord : IPamelloModule
 
         clients.Main.Log += DiscordLog;
         clients.Main.Ready += async () => {
-            Console.WriteLine("Discord client ready");
+            StaticLogger.Log("Discord client ready");
             
             whenReady.SetResult();
         };
@@ -69,7 +70,7 @@ public class Discord : IPamelloModule
     public async Task DiscordLog(LogMessage message) {
         //if ((int)message.Severity >= 2) return;
         
-        Console.WriteLine($"[Discord {message.Severity} | message] {message.Message}");
-        if (message.Exception is not null) Console.WriteLine($"[Discord {message.Severity} | exception] {message.Exception}");
+        StaticLogger.Log($"[Discord {message.Severity} | message] {message.Message}");
+        if (message.Exception is not null) StaticLogger.Log($"[Discord {message.Severity} | exception] {message.Exception}");
     }
 }

@@ -153,7 +153,7 @@ namespace PamelloV7.Server.Repositories.Dynamic
         }
 
         public void Dispose() {
-            Console.WriteLine("Disposing players");
+            StaticLogger.Log("Disposing players");
             
             foreach (var player in _players) {
                 ((PamelloPlayer)player).Dispose();

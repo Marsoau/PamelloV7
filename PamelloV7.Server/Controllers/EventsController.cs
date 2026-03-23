@@ -6,6 +6,7 @@ using PamelloV7.Server.Services;
 using System.Text.Json;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Server.Controllers
@@ -23,19 +24,19 @@ namespace PamelloV7.Server.Controllers
 
         [HttpGet]
         public async Task Connect() {
-            Console.WriteLine("test con");
+            StaticLogger.Log("test con");
             var listener = await _events.AddListener(Response, HttpContext.RequestAborted);
 
-            Console.WriteLine($"created \"{listener.Token}\" events connection");
+            StaticLogger.Log($"created \"{listener.Token}\" events connection");
 
             await listener.Lifetime.Task;
 
-            Console.WriteLine($"closed \"{listener.Token}\" events connection");
+            StaticLogger.Log($"closed \"{listener.Token}\" events connection");
         }
 
         [HttpGet("{eventsToken}/Close")]
         public IActionResult GetConnect(Guid eventsToken) {
-            Console.WriteLine("test disc");
+            StaticLogger.Log("test disc");
             _events.CloseEvents(eventsToken);
 
             return Ok();

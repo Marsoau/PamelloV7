@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Server.Services;
@@ -26,14 +27,14 @@ public class SignalHub : Hub
     }
     
     public override async Task OnConnectedAsync() {
-        Console.WriteLine($"Connected: {Context.ConnectionId}");
+        StaticLogger.Log($"Connected: {Context.ConnectionId}");
         
         _broadcast.AddListener(Context.ConnectionId);
         await _broadcast.BroadcastMessageAsync(null, null, $"Connected new {Context.ConnectionId} client");
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception) {
-        Console.WriteLine($"Disconnected: {Context.ConnectionId}");
+        StaticLogger.Log($"Disconnected: {Context.ConnectionId}");
         
         _broadcast.RemoveListener(Context.ConnectionId);
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} disconnected");
@@ -49,7 +50,7 @@ public class SignalHub : Hub
         
         if (user is null) throw new PamelloException("User not found");
         
-        Console.WriteLine($"Authorized: {Context.ConnectionId} as {user}");
+        StaticLogger.Log($"Authorized: {Context.ConnectionId} as {user}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} authorized as {user}");
         
         _broadcast.AssignUser(Context.ConnectionId, user);
@@ -57,7 +58,7 @@ public class SignalHub : Hub
     public async Task Unauthorize() {
         if (_broadcast.GetUser(Context.ConnectionId) is null) return;
         
-        Console.WriteLine($"Unauthorized: {Context.ConnectionId}");
+        StaticLogger.Log($"Unauthorized: {Context.ConnectionId}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} unauthorized");
         
         _broadcast.AbandonUser(Context.ConnectionId);

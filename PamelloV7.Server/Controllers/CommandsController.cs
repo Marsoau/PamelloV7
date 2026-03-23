@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Controllers.Base;
 using PamelloV7.Framework.Services;
 using PamelloV7.Server.Services;

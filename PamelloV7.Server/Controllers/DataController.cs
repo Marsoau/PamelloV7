@@ -7,6 +7,7 @@ using PamelloV7.Framework.DTO;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Repositories.Base;
 using PamelloV7.Framework.Services;
@@ -24,15 +25,11 @@ namespace PamelloV7.Server.Controllers
         public readonly IEntityQueryService _peql;
         
         public readonly IAssemblyTypeResolver _typeResolver;
-        
-        public readonly IPamelloLogger _logger;
 
         public DataController(IServiceProvider services) : base(services) {
             _peql = services.GetRequiredService<IEntityQueryService>();
             
             _typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
-            
-            _logger = services.GetRequiredService<IPamelloLogger>();
         }
 
         [HttpGet("{*query}")]
@@ -62,7 +59,7 @@ namespace PamelloV7.Server.Controllers
                 view = v;
             }
 
-            _logger.Log($"User: {User} Query: {query} [type: {type?.Name}, view: {view}, single: {single}]");
+            StaticLogger.Log($"User: {User} Query: {query} [type: {type?.Name}, view: {view}, single: {single}]");
             
             IEnumerable<IPamelloEntity> results;
 

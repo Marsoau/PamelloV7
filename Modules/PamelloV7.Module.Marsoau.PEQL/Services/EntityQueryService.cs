@@ -6,6 +6,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Extensions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.PEQL;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
@@ -17,15 +18,11 @@ public class EntityQueryService : IEntityQueryService
 {
     private readonly IServiceProvider _services;
     
-    private readonly IPamelloLogger _logger;
-    
     public readonly List<EntityProviderContainer> Providers;
     public readonly List<EntityOperatorDescriptor> Operators;
     
     public EntityQueryService(IServiceProvider services) {
         _services = services;
-        
-        _logger = services.GetRequiredService<IPamelloLogger>();
         
         Providers = [];
         Operators = [];
@@ -39,7 +36,7 @@ public class EntityQueryService : IEntityQueryService
     }
 
     public void LoadProviders(IServiceCollection collection, IServiceProvider services) {
-        _logger.Log("Loading entity providers");
+        StaticLogger.Log("Loading entity providers");
         
         foreach (var descriptor in collection) {
             if (!descriptor.ServiceType.IsAssignableTo(typeof(IEntityProvider))) continue;
@@ -51,14 +48,14 @@ public class EntityQueryService : IEntityQueryService
             
             Providers.Add(container);
             
-            Console.WriteLine($"| {container.Name}: {container.Type.Name}");
+            StaticLogger.Log($"| {container.Name}: {container.Type.Name}");
         }
         
-        _logger.Log($"Loaded {Providers.Count} entity providers");
+        StaticLogger.Log($"Loaded {Providers.Count} entity providers");
     }
     
     public void LoadOperators(IServiceProvider services) {
-        _logger.Log("Loading PEQL operators");
+        StaticLogger.Log("Loading PEQL operators");
         
         var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         
@@ -72,10 +69,10 @@ public class EntityQueryService : IEntityQueryService
             
             Operators.Add(descriptor);
             
-            Console.WriteLine($"| {descriptor.Symbol} : {descriptor.Name}");
+            StaticLogger.Log($"| {descriptor.Symbol} : {descriptor.Name}");
         }
         
-        _logger.Log($"Loaded {Operators.Count} operators");
+        StaticLogger.Log($"Loaded {Operators.Count} operators");
     }
 
     public async Task<List<IPamelloEntity>> GetAsync(string query, IPamelloUser scopeUser)

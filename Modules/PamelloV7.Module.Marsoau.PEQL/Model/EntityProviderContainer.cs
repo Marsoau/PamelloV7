@@ -5,6 +5,7 @@ using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Extensions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Module.Marsoau.PEQL.Model;
@@ -72,16 +73,16 @@ public class EntityProviderContainer
             var strArg = stringArgsValues.ElementAtOrDefault(i);
             var type = argumentsInfos[i + 1].ParameterType;
 
-            Console.WriteLine($"looking at {argumentsInfos[i + 1].Name} of type {type}");
+            StaticLogger.Log($"looking at {argumentsInfos[i + 1].Name} of type {type}");
 
             if (strArg is null) {
-                Console.WriteLine($"strArg {strArg} is null");
+                StaticLogger.Log($"strArg {strArg} is null");
                 if (argumentsInfos[i + 1].HasDefaultValue) {
-                    Console.WriteLine($"Default value: {argumentsInfos[i + 1].DefaultValue}");
+                    StaticLogger.Log($"Default value: {argumentsInfos[i + 1].DefaultValue}");
                     arguments[i] = argumentsInfos[i + 1].DefaultValue;
                 }
                 else {
-                    Console.WriteLine("Setting null");
+                    StaticLogger.Log("Setting null");
                     arguments[i] = null;
                 }
                 

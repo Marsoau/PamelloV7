@@ -6,6 +6,7 @@ using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.Discord.Builders;
@@ -50,32 +51,32 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
 
     protected async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
-        Console.WriteLine($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
+        StaticLogger.Log($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
         if (task.IsCompleted || !respondWithLoading) {
             await task;
             return;
         }
         
-        Console.WriteLine("Responding loading");
+        StaticLogger.Log("Responding loading");
             
         await RespondLoading();
         await task;
             
-        Console.WriteLine("Wait end");
+        StaticLogger.Log("Wait end");
 
         await task;
     }
         
     protected async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
-        Console.WriteLine($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
+        StaticLogger.Log($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
         if (!task.IsCompleted && respondWithLoading) 
         {
-            Console.WriteLine("Responding loading");
+            StaticLogger.Log("Responding loading");
             
             await RespondLoading();
             await task;
             
-            Console.WriteLine("Wait end");
+            StaticLogger.Log("Wait end");
         }
     
         return await task;
@@ -119,13 +120,13 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
     
     public async Task RespondLoading() {
-        Console.WriteLine("Responding loading");
+        StaticLogger.Log("Responding loading");
         if (Context.Interaction.HasResponded) {
-            Console.WriteLine("Not responding loading, message already exists");
+            StaticLogger.Log("Not responding loading, message already exists");
             return;
         }
 
-        Console.WriteLine("Responding loading, message doesn't exist, creating");
+        StaticLogger.Log("Responding loading, message doesn't exist, creating");
         await RespondComponentAsync(Builder<BasicComponentsBuilder>().Defer().Build());
     }
 

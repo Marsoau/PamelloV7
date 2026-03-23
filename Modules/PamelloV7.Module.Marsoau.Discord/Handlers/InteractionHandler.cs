@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
@@ -58,16 +59,16 @@ public class InteractionHandler : IPamelloService
         if (result is not ExecuteResult executeResult) return;
         if (context is not PamelloSocketInteractionContext pamelloContext) return;
         if (executeResult.Exception?.InnerException is not PamelloException exception) {
-            Console.WriteLine($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
+            StaticLogger.Log($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
             return;
         }
         
         if (context.Interaction.HasResponded) {
-            Console.WriteLine("Folow ephemerally");
+            StaticLogger.Log("Folow ephemerally");
             await context.Interaction.FollowupAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
         else {
-            Console.WriteLine("Responding ephemerally");
+            StaticLogger.Log("Responding ephemerally");
             await context.Interaction.RespondAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
     }
@@ -87,16 +88,16 @@ public class InteractionHandler : IPamelloService
 
     private async Task OnInteractionCreated(SocketInteraction interaction) {
         try {
-            Console.WriteLine("Executing interaction");
+            StaticLogger.Log("Executing interaction");
             await ExecuteInteraction(interaction);
-            Console.WriteLine("Interaction executed");
+            StaticLogger.Log("Interaction executed");
         }
         catch (PamelloException x) {
         }
         catch (Exception x) {
-            Console.WriteLine("ERROR with interaction");
-            Console.WriteLine($"Message: {x.Message}");
-            Console.WriteLine($"More: {x}");
+            StaticLogger.Log("ERROR with interaction");
+            StaticLogger.Log($"Message: {x.Message}");
+            StaticLogger.Log($"More: {x}");
             if (interaction.GetOriginalResponseAsync() is not null) {
                 await interaction.FollowupAsync("An error occured, check the console for more info", ephemeral: true);
             }
