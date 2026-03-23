@@ -4,6 +4,8 @@ using PamelloV7.Server.Services;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Avalonia;
+using Consolonia;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Config;
@@ -15,8 +17,12 @@ using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Server.Consolonia;
+using PamelloV7.Server.Consolonia.Windows;
 using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
+using IApplicationLifetime = Avalonia.Controls.ApplicationLifetimes.IApplicationLifetime;
+using LoadingScreen = PamelloV7.Server.Consolonia.Screens.LoadingScreen;
 
 namespace PamelloV7.Server
 {
@@ -26,58 +32,78 @@ namespace PamelloV7.Server
         
         public static string ConfigPath = "Config/config.jsonc";
         
+        private PamelloConfigLoader _configLoader;
         private PamelloModulesLoader _modulesLoader;
         private PamelloServerLoader _serverLoader;
         
-        public WebApplication App { get; set; }
+        public ConsoloniaApp Consolonia { get; set; } = null!;
+        public WebApplication Asp { get; set; } = null!;
         
-        public static async Task Main(string[] args) => await new Program().MainAsync(args);
+        public static void Main(string[] args) => new Program().ConsoloniaStartup(args);
 
+        public void ConsoloniaStartup(string[] args) {
+            var consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
+                .UseConsolonia()
+                .UseAutoDetectedConsole()
+                .LogToException();
+
+            consoloniaBuilder.AfterSetup(builder => Consolonia = (ConsoloniaApp)builder.Instance!);
+            
+            var asp = Task.Run(async () => await MainAsync(args));
+
+            consoloniaBuilder.StartWithConsoleLifetime(args);
+        }
         public async Task MainAsync(string[] args) {
-            StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
+            await Task.Delay(5000);
+            //StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
             
-            Console.OutputEncoding = Encoding.UTF8;
+            //Console.OutputEncoding = Encoding.UTF8;
 
-            var builder = WebApplication.CreateBuilder(args);
+            var aspBuilder = WebApplication.CreateBuilder(args);
             
-            var configLoader = new PamelloConfigLoader();
-            _serverLoader = new PamelloServerLoader(configLoader);
-            _modulesLoader = new PamelloModulesLoader(configLoader);
+            _configLoader = new PamelloConfigLoader();
+            _serverLoader = new PamelloServerLoader(_configLoader);
+            _modulesLoader = new PamelloModulesLoader(_configLoader);
             
-            configLoader.Load();
+            _configLoader.Load();
             _serverLoader.Load();
             _modulesLoader.Load();
             
             if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
             
-            _serverLoader.ConfigureAssemblyServices(builder.Services);
-            _modulesLoader.Configure(builder.Services);
+            _serverLoader.ConfigureAssemblyServices(aspBuilder.Services);
+            _modulesLoader.Configure(aspBuilder.Services);
             
-            if (!EnsureServicesIsImplemented(builder.Services)) return;
+            if (!EnsureServicesIsImplemented(aspBuilder.Services)) return;
             
-            _serverLoader.ConfigureApiServices(builder.Services);
+            _serverLoader.ConfigureApiServices(aspBuilder.Services);
             
-            builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
-            builder.WebHost.UseUrls($"{ServerConfig.Root.Host}");
+            aspBuilder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Error);
+            aspBuilder.WebHost.UseUrls($"{ServerConfig.Root.Host}");
             
-            builder.Services.AddSingleton(builder.Services);
-            
-            App = builder.Build();
-            
-            _services = App.Services;
+            aspBuilder.Services.AddSingleton(aspBuilder.Services);
 
-            _serverLoader.StartupAssemblyServices(App.Services);
+            aspBuilder.Services.AddTransient<LoadingScreen>();
             
+            Asp = aspBuilder.Build();
+            
+            _services = Asp.Services;
+
+            _serverLoader.StartupAssemblyServices(Asp.Services);
+            
+            var consolonia = _services.GetRequiredService<ConsoloniaService>();
+            consolonia.SetApp(Consolonia);
+
             foreach (var stage in Enum.GetValues<ELoadingStage>()) {
                 try {
-                    await _modulesLoader.StartupStage(App.Services, stage);
+                    await _modulesLoader.StartupStage(Asp.Services, stage);
                 }
                 catch (ModuleStartupException x) {
                     Console.WriteLine($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
                     return;
                 }
             }
-            
+        
             await StartupApp();
         }
 
@@ -109,17 +135,17 @@ namespace PamelloV7.Server
         }
 
         private async Task StartupApp() {
-            App.MapHub<SignalHub>("/Signal");
-            App.MapControllers();
-            App.UseCors();
+            Asp.MapHub<SignalHub>("/Signal");
+            Asp.MapControllers();
+            Asp.UseCors();
 
-            var lifetime = App.Services.GetRequiredService<IHostApplicationLifetime>();
+            var lifetime = Asp.Services.GetRequiredService<IHostApplicationLifetime>();
 
             lifetime.ApplicationStopping.Register(OnStopping);
             lifetime.ApplicationStopped.Register(OnStop);
             lifetime.ApplicationStarted.Register(OnStart);
 
-            await App.RunAsync();
+            await Asp.RunAsync();
         }
 
         private void OnStart() {
@@ -151,9 +177,9 @@ namespace PamelloV7.Server
                 _ => "\nPamelloV7 Started Up\n"
             });
             
-            var events = App.Services.GetRequiredService<IEventsService>();
+            var events = Asp.Services.GetRequiredService<IEventsService>();
             events.Invoke(null, new PamelloStarted() {
-                Services = App.Services
+                Services = Asp.Services
             });
         }
 

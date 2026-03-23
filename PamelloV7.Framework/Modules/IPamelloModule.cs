@@ -14,5 +14,6 @@ public interface IPamelloModule
     public void Configure(IServiceCollection services) { }
 
     public Task StartupAsync(IServiceProvider services) { return Task.CompletedTask; }
+    public Task StartedAsync(IServiceProvider services) { return Task.CompletedTask; }
     public Task ShoutdownAsync() { return Task.CompletedTask; }
 }
