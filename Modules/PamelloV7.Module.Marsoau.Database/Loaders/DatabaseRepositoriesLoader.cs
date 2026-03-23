@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Logging.Messages;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Repositories.Base;
 using PamelloV7.Framework.Services.Base;
@@ -9,6 +10,8 @@ namespace PamelloV7.Server.Loaders;
 
 internal static class DatabaseRepositoriesLoader
 {
+    private static RefreshableLogMessage? _currentMessage;
+    
     public static async Task Load(IServiceCollection collection, IServiceProvider services) {
         var repositories = new List<IPamelloDatabaseRepository>();
 
@@ -18,13 +21,13 @@ internal static class DatabaseRepositoriesLoader
         }
         
         foreach (var repository in repositories) {
-            repository.OnLoadingStart += () => RepositoryOnOnLoadingStart(repository);
-            repository.OnLoadingProgress += (int loaded, int from) => RepositoryOnOnLoadingProgress(repository, loaded, from);
+            repository.OnLoadingStart += () => RepositoryOnOnLoadingStart(repository, "Loading");
+            repository.OnLoadingProgress += (int loaded, int from) => RepositoryOnOnLoadingProgress(repository, loaded, from, "Loading");
             repository.OnLoadingEnd += () => RepositoryOnOnLoadingEnd(repository);
             
-            repository.OnInitStart += () => RepositoryOnOnInitStart(repository);
-            repository.OnInitProgress += (int loaded, int from) => RepositoryOnOnInitProgress(repository, loaded, from);
-            repository.OnInitEnd += () => RepositoryOnOnInitEnd(repository);
+            repository.OnInitStart += () => RepositoryOnOnLoadingStart(repository, "Initializing");
+            repository.OnInitProgress += (int loaded, int from) => RepositoryOnOnLoadingProgress(repository, loaded, from, "Initializing");
+            repository.OnInitEnd += () => RepositoryOnOnLoadingEnd(repository);
         }
         
         foreach (var repository in repositories) {
@@ -39,23 +42,17 @@ internal static class DatabaseRepositoriesLoader
         }
     }
 
-    private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository) {
-        Output.Write($"Loading {repository.CollectionName}                                 ");
+    private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository, string message) {
+        _currentMessage = Output.Write($"{message} {repository.CollectionName}");
+        //Output.Write($"Loading {repository.CollectionName}                                 ");
     }
-    private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Output.Write($"Loading {repository.CollectionName} [{loaded}/{from}]");
+    private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from, string message) {
+        _currentMessage?.ContentBuilder.Clear().Append($"{message} {repository.CollectionName} [{loaded}/{from}]");
+        _currentMessage?.Refresh();
+        //Output.Write($"Loading {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnLoadingEnd(IPamelloDatabaseRepository repository) {
-        Output.Write($"Done");
-    }
-
-    private static void RepositoryOnOnInitStart(IPamelloDatabaseRepository repository) {
-        Output.Write($"Initializing {repository.CollectionName}                            ");
-    }
-    private static void RepositoryOnOnInitProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        Output.Write($"Initializing {repository.CollectionName} [{loaded}/{from}]");
-    }
-    private static void RepositoryOnOnInitEnd(IPamelloDatabaseRepository repository) {
-        Output.Write($"Done");
+        _currentMessage?.ContentBuilder.Append(" Done");
+        _currentMessage?.Refresh();
     }
 }

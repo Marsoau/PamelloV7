@@ -1,4 +1,5 @@
 using System.Text;
+using Avalonia.Threading;
 using PamelloV7.Framework.Modules;
 
 namespace PamelloV7.Framework.Logging.Messages;
@@ -17,6 +18,8 @@ public class RefreshableLogMessage
     public event Action? OnRefresh;
     
     public void Refresh() {
-        throw new NotImplementedException();
+        if (OnRefresh is null) return;
+        
+        Dispatcher.UIThread.Invoke(OnRefresh.Invoke);
     }
 }
