@@ -20,7 +20,7 @@ public partial class LogMessageControl : UserControl
             ELogLevel.Warning => Brushes.Yellow,
             ELogLevel.Error => Brushes.Red,
         };
-        var moduleBrush = module is null ? Brushes.Violet : Brushes.Green;
+        var moduleBrush = module is null ? Brushes.Violet : module.Color;
             
         noteStack.Children.AddRange([
             new TextBlock {

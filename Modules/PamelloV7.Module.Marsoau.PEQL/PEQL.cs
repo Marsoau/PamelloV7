@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Avalonia.Media;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services;
@@ -13,4 +14,5 @@ public class PEQL : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "PEQL language implementation";
     public ELoadingStage Stage => ELoadingStage.Early;
+    public IBrush Color => Brushes.MediumSpringGreen;
 }

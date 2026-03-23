@@ -1,4 +1,5 @@
-﻿using PamelloV7.Framework.Enumerators;
+﻿using Avalonia.Media;
+using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
 
 namespace PamelloV7.Module.Marsoau.YouTube;
@@ -9,4 +10,5 @@ public class YouTube : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "YouTube song platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
+    public IBrush Color => Brushes.Red;
 }

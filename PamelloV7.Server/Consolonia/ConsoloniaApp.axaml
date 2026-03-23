@@ -3,7 +3,36 @@
              xmlns:console="https://github.com/jinek/consolonia"
              x:Class="PamelloV7.Server.Consolonia.ConsoloniaApp"
              RequestedThemeVariant="Default">
+             
     <Application.Styles>
         <console:ModernTheme />
+
+        <!-- 2. Your ScrollBar overrides go AFTER the theme so they take priority -->
+        
+        <!-- Track Background and Arrow Colors -->
+        <Style Selector="ScrollBar">
+            <Setter Property="Background" Value="#323232" />
+            <Setter Property="Foreground" Value="Violet" />
+        </Style>
+
+        <!-- The Draggable Thumb -->
+        <Style Selector="ScrollBar /template/ Thumb">
+            <!-- Foreground changes the color of the text character (█) itself -->
+            <Setter Property="Foreground" Value="Violet" />
+            <Setter Property="Background" Value="Violet" />
+        </Style>
+
+        <!-- Thumb hover state
+        <Style Selector="ScrollBar /template/ Thumb:pointerover">
+            <Setter Property="Foreground" Value="Blue" />
+            <Setter Property="Background" Value="Blue" />
+        </Style>
+        -->
+
+        <!-- (Optional) The repeat buttons (Up/Down or Left/Right arrows at the ends) -->
+        <Style Selector="ScrollBar /template/ RepeatButton">
+            <Setter Property="Background" Value="#484848" />
+            <Setter Property="Foreground" Value="Yellow" />
+        </Style>
     </Application.Styles>
 </Application>
