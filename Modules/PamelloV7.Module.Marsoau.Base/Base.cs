@@ -25,7 +25,7 @@ public class Base : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
     public ELoadingStage Stage => ELoadingStage.Early;
-    public IBrush Color => Brushes.RoyalBlue;
+    public IBrush Color => Brushes.Purple;
 
     public async Task StartupAsync(IServiceProvider services) {
         var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();

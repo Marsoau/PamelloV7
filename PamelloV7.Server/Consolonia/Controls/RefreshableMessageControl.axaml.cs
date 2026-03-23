@@ -56,7 +56,7 @@ public partial class RefreshableMessageControl : UserControl
             ELogLevel.Warning => Brushes.Yellow,
             ELogLevel.Error => Brushes.Red,
         };
-        var moduleBrush = _currentMessage.Module?.Color ?? Brushes.Violet;
+        var moduleBrush = _currentMessage.Module?.Color ?? Brushes.MediumPurple;
             
         noteStack.Children.AddRange([
             new TextBlock {

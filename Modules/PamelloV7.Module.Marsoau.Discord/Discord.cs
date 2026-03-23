@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Avalonia.Media;
 using Discord;
 using Discord.Interactions;
 using Discord.LibDave;
@@ -23,6 +24,7 @@ public class Discord : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Discord user platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
+    public IBrush Color => Brushes.RoyalBlue;
 
     public void Configure(IServiceCollection services) {
         var discordConfig = new DiscordSocketConfig() {

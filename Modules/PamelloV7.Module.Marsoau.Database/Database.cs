@@ -15,7 +15,7 @@ public class Database : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Basic database repositories and other database functionality";
     public ELoadingStage Stage => ELoadingStage.Earliest;
-    public IBrush Color => Brushes.Cyan;
+    public IBrush Color => Brushes.OrangeRed;
 
     public async Task StartupAsync(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();

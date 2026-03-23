@@ -1,7 +1,0 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="PamelloV7.Server.Consolonia.Controls.LogMessageControl"
->
-    <Grid Name="Grid" ColumnDefinitions="Auto,*">
-    </Grid>
-</UserControl>
