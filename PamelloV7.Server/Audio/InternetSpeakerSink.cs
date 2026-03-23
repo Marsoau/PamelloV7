@@ -50,7 +50,7 @@ public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
             _response.Body.FlushAsync(token).Wait(token);
         }
         catch (Exception x) {
-            StaticLogger.Log(x);
+            Framework.Logging.Output.Write(x);
             return false;
         }
         

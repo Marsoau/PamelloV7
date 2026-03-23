@@ -13,7 +13,7 @@ public class PingController : PamelloControllerBase
 
     [HttpGet("{*ignored}")]
     public IActionResult Get() {
-        StaticLogger.Log($"{DateTime.Now.TimeOfDay} /Ping");
+        Output.Write($"{DateTime.Now.TimeOfDay} /Ping");
         return Ok("Pong");
     }
 }

@@ -36,7 +36,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
 
     public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
-        StaticLogger.Log($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
+        Output.Write($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;
         
         if (!allowCreation) return null;
@@ -45,10 +45,10 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         if (platform is null) return null;
         
         var userInfo = platform.GetUserInfo(pk.Key);
-        StaticLogger.Log($"Info by pk {(userInfo is not null ? $"found: {userInfo}" : "not found")}");
+        Output.Write($"Info by pk {(userInfo is not null ? $"found: {userInfo}" : "not found")}");
         if (userInfo is null) return null;
         
-        StaticLogger.Log("Adding user by info");
+        Output.Write("Adding user by info");
         return Add(userInfo);
     }
 

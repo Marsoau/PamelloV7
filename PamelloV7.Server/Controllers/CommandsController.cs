@@ -21,7 +21,7 @@ namespace PamelloV7.Server.Controllers
             RequireUser();
 
             var commandPath = $"{commandName}{Request.QueryString}";
-            StaticLogger.Log($"Command Start: {commandPath}");
+            Output.Write($"Command Start: {commandPath}");
 
             var result = await _commands.ExecutePathAsync(commandPath, User);
             

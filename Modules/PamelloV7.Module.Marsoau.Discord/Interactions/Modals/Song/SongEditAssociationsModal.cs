@@ -38,11 +38,11 @@ public class SongEditAssociationsModal : DiscordModal
         await ReleaseInteractionAsync();
         
         foreach (var (at, association) in differenceResult.Added) {
-            StaticLogger.Log($"+{association}");
+            Output.Write($"+{association}");
             Command<SongAssociationsAdd>().Execute(song, association);
         }
         foreach (var (at, association) in differenceResult.Deleted) {
-            StaticLogger.Log($"-{association}");
+            Output.Write($"-{association}");
             Command<SongAssociationsRemove>().Execute(song, association);
         }
     }

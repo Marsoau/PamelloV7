@@ -43,10 +43,10 @@ public class HistoryService : IHistoryService
     }
 
     public void WriteAll() {
-        StaticLogger.Log($"All records: {_records.Count}");
+        Output.Write($"All records: {_records.Count}");
 
         foreach (var record in _records) {
-            StaticLogger.Log($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
+            Output.Write($"Record {record.CreatedAt} by {record.Performer}: {record.Nested.Event.GetType().Name} with {record.Nested.NestedEvents.Count} nested events");
         }
     }
 
@@ -119,13 +119,13 @@ public class HistoryService : IHistoryService
     }
 
     private void Write(NestedPamelloEvent nested) {
-        StaticLogger.Log($"{nested.Event.GetType().Name} ({nested.NestedEvents.Count})");
+        Output.Write($"{nested.Event.GetType().Name} ({nested.NestedEvents.Count})");
         if (nested.NestedEvents.FirstOrDefault() is { } firstNested) {
-            StaticLogger.Log(" -> ");
+            Output.Write(" -> ");
             Write(firstNested);
         }
         else {
-            StaticLogger.Log();
+            Output.Write();
         }
     }
 }

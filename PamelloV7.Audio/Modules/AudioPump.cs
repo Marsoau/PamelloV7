@@ -34,9 +34,9 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
                     Pump();
                 }
                 catch (Exception x) {
-                    StaticLogger.Log($"PUMP EXCEPTION: {x}");
+                    Framework.Logging.Output.Write($"PUMP EXCEPTION: {x}");
                     Task.Delay(3000).Wait();
-                    StaticLogger.Log("PUMP UNFROZEN");
+                    Framework.Logging.Output.Write("PUMP UNFROZEN");
                 }
             }
         });

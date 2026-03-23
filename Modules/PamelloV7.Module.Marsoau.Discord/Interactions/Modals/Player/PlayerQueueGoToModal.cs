@@ -26,7 +26,7 @@ public class PlayerQueueGoToModal : DiscordModal
 
     [ModalSubmission("player-queue-goto-modal")]
     public async Task Submit() {
-        StaticLogger.Log("exe");
+        Output.Write("exe");
         var position = GetInputValue("position-input");
         var returnBack = GetYesNoValue("return-back");
 

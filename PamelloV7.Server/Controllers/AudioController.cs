@@ -27,18 +27,18 @@ namespace PamelloV7.Server.Controllers
         public async Task Out(string value) {
             TryGetUser();
 
-            StaticLogger.Log($"GOT: {HttpContext.Request.Path}");
+            Output.Write($"GOT: {HttpContext.Request.Path}");
 
             var speaker = _speakers.GetByName(User, value);
             if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloControllerException(BadRequest($"Speaker \"{value}\" not found"));
             
             var listener = await internetSpeaker.CreateListener(Response, HttpContext.RequestAborted, User);
-            StaticLogger.Log($"{(User is null ? $"Unknown ISL connection" : $"User {User} connects ISL")} to <{speaker.Name}>");
+            Output.Write($"{(User is null ? $"Unknown ISL connection" : $"User {User} connects ISL")} to <{speaker.Name}>");
 
             await Task.Delay(-1, HttpContext.RequestAborted);
-            StaticLogger.Log("REQUEST ABORTED");
-            StaticLogger.Log("REQUEST ABORTED");
-            StaticLogger.Log("REQUEST ABORTED");
+            Output.Write("REQUEST ABORTED");
+            Output.Write("REQUEST ABORTED");
+            Output.Write("REQUEST ABORTED");
         }
     }
 }

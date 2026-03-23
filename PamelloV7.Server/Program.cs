@@ -16,14 +16,16 @@ using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Logging.Services;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Consolonia;
+using PamelloV7.Server.Consolonia.Screens;
 using PamelloV7.Server.Consolonia.Windows;
 using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
+using PamelloV7.Server.Logging;
 using IApplicationLifetime = Avalonia.Controls.ApplicationLifetimes.IApplicationLifetime;
-using LoadingScreen = PamelloV7.Server.Consolonia.Screens.LoadingScreen;
 
 namespace PamelloV7.Server
 {
@@ -45,6 +47,9 @@ namespace PamelloV7.Server
         public static void Main(string[] args) => new Program().ConsoloniaStartup(args);
 
         public void ConsoloniaStartup(string[] args) {
+            var logger = new PamelloLogger();
+            Output.Logger = logger;
+            
             var consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
                 .UseConsolonia()
                 .UseAutoDetectedConsole()
@@ -60,7 +65,7 @@ namespace PamelloV7.Server
                     await MainAsync(args);
                 }
                 catch (Exception x) {
-                    StaticLogger.Log($"FATAL ERROR: {x}");
+                    Output.Write($"FATAL ERROR: {x}");
                 }
             });
 
@@ -69,13 +74,9 @@ namespace PamelloV7.Server
         public async Task MainAsync(string[] args) {
             await _consoloniaCreated.Task;
             await Consolonia.Started.Task;
-            await Consolonia.LoadingScreen.Started.Task;
+            await Consolonia.LogScreen.LoadingCompleted.Task;
             
-            StaticLogger.LoadingScreen = Consolonia.LoadingScreen;
-
-            //StaticLogger.Log($"Starting PamelloV7 {Assembly.GetExecutingAssembly().GetName().Version}");
-            
-            //Console.OutputEncoding = Encoding.UTF8;
+            Output.Write("Starting up...");
 
             var aspBuilder = WebApplication.CreateBuilder(args);
             
@@ -101,7 +102,7 @@ namespace PamelloV7.Server
             
             aspBuilder.Services.AddSingleton(aspBuilder.Services);
 
-            aspBuilder.Services.AddTransient<LoadingScreen>();
+            aspBuilder.Services.AddSingleton<IPamelloLogger>(Output.Logger);
             
             Asp = aspBuilder.Build();
             
@@ -109,10 +110,10 @@ namespace PamelloV7.Server
 
             _serverLoader.StartupAssemblyServices(Asp.Services);
             
-
             var types = (AssemblyTypeResolver)_services.GetRequiredService<IAssemblyTypeResolver>();
             types.LoadModules(_modulesLoader, _services);
-            StaticLogger.Types = types;
+            
+            ((PamelloLogger)Output.Logger).Types = types;
             
             var consolonia = _services.GetRequiredService<ConsoloniaService>();
             consolonia.SetApp(Consolonia);
@@ -122,14 +123,13 @@ namespace PamelloV7.Server
                     await _modulesLoader.StartupStage(Asp.Services, stage);
                 }
                 catch (ModuleStartupException x) {
-                    StaticLogger.Log($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
+                    Output.Write($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
                     return;
                 }
             }
         
             await StartupApp();
         }
-
 
         private bool EnsureServicesIsImplemented(IServiceCollection services) {
             var requiredServiceTypes = typeof(IPamelloService).Assembly.GetTypes()
@@ -138,20 +138,20 @@ namespace PamelloV7.Server
             var notConfiguredCount = 0;
             var serviceTypes = requiredServiceTypes as Type[] ?? requiredServiceTypes.ToArray();
             
-            StaticLogger.Log($"Ensuring required services are implemented: ({serviceTypes.Count()} services)");
+            Output.Write($"Ensuring required services are implemented: ({serviceTypes.Count()} services)");
             foreach (var requiredServiceType in serviceTypes) {
                 var service = services.FirstOrDefault(x => x.ServiceType == requiredServiceType);
                 if (service is not null) continue;
                 
                 notConfiguredCount++;
-                StaticLogger.Log($"{requiredServiceType.Name} is not implemented");
+                Output.Write($"{requiredServiceType.Name} is not implemented");
             }
 
             if (notConfiguredCount > 0) {
-                StaticLogger.Log($"{notConfiguredCount} of required services are not implemented, aborting startup");
+                Output.Write($"{notConfiguredCount} of required services are not implemented, aborting startup");
             }
             else {
-                StaticLogger.Log($"All required services are implemented");
+                Output.Write($"All required services are implemented");
             }
             
             return notConfiguredCount == 0;
@@ -172,7 +172,7 @@ namespace PamelloV7.Server
         }
 
         private void OnStart() {
-            StaticLogger.Log(Console.WindowWidth switch {
+            Output.Write(Console.WindowWidth switch {
                 >= 80 => """
                          
                          0000000 \                                  00\ 00\       \00\     \000000000 /
@@ -207,13 +207,15 @@ namespace PamelloV7.Server
         }
 
         private void OnStopping() {
-            StaticLogger.Log("\n---\nSTOPPING\n---");
+            Consolonia.SetLogScreen();
+            
+            Output.Write("\n---\nSTOPPING\n---");
             
             _modulesLoader.Shutdown(_services);
             _serverLoader.ShutdownAssemblyServices(_services);
         }
         private void OnStop() {
-            StaticLogger.Log("\n---\nSTOPPED\n---");
+            Output.Write("\n---\nSTOPPED\n---");
         }
     }
 }

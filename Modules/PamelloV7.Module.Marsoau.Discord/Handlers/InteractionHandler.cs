@@ -59,16 +59,16 @@ public class InteractionHandler : IPamelloService
         if (result is not ExecuteResult executeResult) return;
         if (context is not PamelloSocketInteractionContext pamelloContext) return;
         if (executeResult.Exception?.InnerException is not PamelloException exception) {
-            StaticLogger.Log($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
+            Output.Write($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
             return;
         }
         
         if (context.Interaction.HasResponded) {
-            StaticLogger.Log("Folow ephemerally");
+            Output.Write("Folow ephemerally");
             await context.Interaction.FollowupAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
         else {
-            StaticLogger.Log("Responding ephemerally");
+            Output.Write("Responding ephemerally");
             await context.Interaction.RespondAsync(components: _components.GetBuilder<BasicComponentsBuilder>(pamelloContext).Info("Error", exception.Message).Build(), ephemeral: true);
         }
     }
@@ -88,16 +88,16 @@ public class InteractionHandler : IPamelloService
 
     private async Task OnInteractionCreated(SocketInteraction interaction) {
         try {
-            StaticLogger.Log("Executing interaction");
+            Output.Write("Executing interaction");
             await ExecuteInteraction(interaction);
-            StaticLogger.Log("Interaction executed");
+            Output.Write("Interaction executed");
         }
         catch (PamelloException x) {
         }
         catch (Exception x) {
-            StaticLogger.Log("ERROR with interaction");
-            StaticLogger.Log($"Message: {x.Message}");
-            StaticLogger.Log($"More: {x}");
+            Output.Write("ERROR with interaction");
+            Output.Write($"Message: {x.Message}");
+            Output.Write($"More: {x}");
             if (interaction.GetOriginalResponseAsync() is not null) {
                 await interaction.FollowupAsync("An error occured, check the console for more info", ephemeral: true);
             }

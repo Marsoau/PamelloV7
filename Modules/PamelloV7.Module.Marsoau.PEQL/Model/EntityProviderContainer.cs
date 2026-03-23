@@ -73,16 +73,16 @@ public class EntityProviderContainer
             var strArg = stringArgsValues.ElementAtOrDefault(i);
             var type = argumentsInfos[i + 1].ParameterType;
 
-            StaticLogger.Log($"looking at {argumentsInfos[i + 1].Name} of type {type}");
+            Output.Write($"looking at {argumentsInfos[i + 1].Name} of type {type}");
 
             if (strArg is null) {
-                StaticLogger.Log($"strArg {strArg} is null");
+                Output.Write($"strArg {strArg} is null");
                 if (argumentsInfos[i + 1].HasDefaultValue) {
-                    StaticLogger.Log($"Default value: {argumentsInfos[i + 1].DefaultValue}");
+                    Output.Write($"Default value: {argumentsInfos[i + 1].DefaultValue}");
                     arguments[i] = argumentsInfos[i + 1].DefaultValue;
                 }
                 else {
-                    StaticLogger.Log("Setting null");
+                    Output.Write("Setting null");
                     arguments[i] = null;
                 }
                 

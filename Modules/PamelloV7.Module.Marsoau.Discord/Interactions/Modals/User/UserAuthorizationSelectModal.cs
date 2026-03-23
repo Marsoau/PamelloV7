@@ -41,7 +41,7 @@ public class UserAuthorizationSelectModal : DiscordModal
     public async Task Submit(string userQuery) {
         var song = await GetSingleRequiredAsync<IPamelloSong>(userQuery);
         var authorizationString = GetSelectValue("modal-select");
-        StaticLogger.Log($"authorizationString: {authorizationString}");
+        Output.Write($"authorizationString: {authorizationString}");
         if (!int.TryParse(authorizationString, out var authorizationIndex)) throw new PamelloException("Invalid authorization index key");
 
         Command<UserAuthorizationSelect>().Execute(authorizationIndex);

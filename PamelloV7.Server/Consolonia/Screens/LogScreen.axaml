@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PamelloV7.Server.Consolonia.Screens"
+             xmlns:controls="clr-namespace:PamelloV7.Server.Consolonia.Controls"
+             xmlns:messages="clr-namespace:PamelloV7.Framework.Logging.Messages;assembly=PamelloV7.Framework"
+             x:Class="PamelloV7.Server.Consolonia.Screens.LogScreen">
+    <Grid>
+        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#080808" />
+
+        <ScrollViewer
+            Name="Box"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            IsScrollInertiaEnabled="False">
+            
+            <!-- Bind to the shared Service's Messages -->
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <!-- Perfect: Virtualization is essential for logs! -->
+                        <VirtualizingStackPanel /> 
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <!-- Tell Avalonia: Every time you see a LogMessage, draw a LogMessageControl -->
+                    <DataTemplate DataType="messages:RefreshableLogMessage">
+                        
+                        <!-- Avalonia will create this control and set its DataContext to the LogMessage -->
+                        <controls:RefreshableMessageControl HorizontalAlignment="Stretch" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -41,7 +41,7 @@ public class OsuSongDownloader : SongDownloader
 
         using var zipArchive = new ZipArchive(oszStream, ZipArchiveMode.Read);
         
-        StaticLogger.Log($"zip: {zipArchive.Entries.Count};");
+        Output.Write($"zip: {zipArchive.Entries.Count};");
         
         var audioEntry = zipArchive.Entries.FirstOrDefault(entry => entry.FullName == "audio.mp3")
             ?? zipArchive.Entries.FirstOrDefault(entry => entry.FullName.EndsWith(".mp3"));

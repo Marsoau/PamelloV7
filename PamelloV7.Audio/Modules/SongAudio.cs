@@ -96,7 +96,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
                 result = await Song.SelectedSource.GetDownloader().DownloadAsync();
             }
             catch (Exception x) {
-                StaticLogger.Log($"Exception downloading song {Song}: {x}");
+                Framework.Logging.Output.Write($"Exception downloading song {Song}: {x}");
                 Clean();
                 return false;
             }
@@ -111,7 +111,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 
         await LoadChunksAtAsync(0, token);
         if (_currentChunk is null) {
-            StaticLogger.Log("interesting");
+            Framework.Logging.Output.Write("interesting");
             return false;
         }
 

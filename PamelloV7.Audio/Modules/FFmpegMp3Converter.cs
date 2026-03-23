@@ -63,11 +63,11 @@ public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IA
             }
         }
         catch (OperationCanceledException) {
-            StaticLogger.Log("FFMpeg writing task was canceled");
+            Framework.Logging.Output.Write("FFMpeg writing task was canceled");
             return;
         }
         catch (Exception ex) {
-            StaticLogger.Log($"Stream error: {ex}");
+            Framework.Logging.Output.Write($"Stream error: {ex}");
         }
     }
 }

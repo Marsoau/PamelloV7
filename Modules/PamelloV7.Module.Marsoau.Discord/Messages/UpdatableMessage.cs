@@ -54,7 +54,7 @@ public class UpdatableMessage : IDisposable
                 
                 if (timeLeft <= 0) break;
 
-                StaticLogger.Log($"Added {timeLeft} seconds to lifetime");
+                Output.Write($"Added {timeLeft} seconds to lifetime");
                 
                 LifetimeTask = Task.Delay(timeLeft * 1000, _cancellation.Token);
             }
@@ -66,7 +66,7 @@ public class UpdatableMessage : IDisposable
     }
 
     public void Touch() {
-        StaticLogger.Log("YOUCH");
+        Output.Write("YOUCH");
         LastTouched = DateTimeOffset.Now;
     }
 
@@ -77,7 +77,7 @@ public class UpdatableMessage : IDisposable
         var timePassed = currentTime - _lastRefreshNew;
 
         if (timePassed >= _refreshIntervalNew) {
-            StaticLogger.Log($"Refresh at {currentTime}");
+            Output.Write($"Refresh at {currentTime}");
             
             _lastRefreshNew = currentTime;
             
@@ -87,14 +87,14 @@ public class UpdatableMessage : IDisposable
         
         Task.Run(async () => {
             var delaySpan = _refreshIntervalNew - timePassed;
-            StaticLogger.Log($"Scheduling refresh in {delaySpan} at {currentTime}");
+            Output.Write($"Scheduling refresh in {delaySpan} at {currentTime}");
             _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);
             
             await _scheduledRefresh;
             
             currentTime = DateTime.Now;
             
-            StaticLogger.Log($"Awaited refresh at {currentTime}");
+            Output.Write($"Awaited refresh at {currentTime}");
             _scheduledRefresh = null;
 
             _lastRefreshNew = currentTime;

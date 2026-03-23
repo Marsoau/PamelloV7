@@ -19,7 +19,7 @@ public class ConsoloniaService : IPamelloService
     
     internal void SetApp(ConsoloniaApp app) {
         _app = app;
-        _app.SetServices(_services);
+        _app.Services = _services;
     }
 
     public TUserControl SetScreen<TUserControl>()
@@ -29,9 +29,5 @@ public class ConsoloniaService : IPamelloService
         App.MainWindow.Content = screen = _services.GetRequiredService<TUserControl>();
         
         return screen;
-    }
-
-    public void LogMessage(object? obj, IPamelloModule? module, ELogLevel level) {
-        (App.LoadingScreen).WriteLine(obj, module, level);
     }
 }

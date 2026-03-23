@@ -77,7 +77,7 @@ public class Test : IPamelloModule
             var currentVersion = await dependency.GetInstalledVersionAsync() ?? "none";
             var latestVersion = await dependency.GetLatestVersionAsync() ?? "none";
             
-            StaticLogger.Log($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
+            Output.Write($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
                 ? $"-> {latestVersion}"
                 : "Latest!"
             )}");
@@ -87,7 +87,7 @@ public class Test : IPamelloModule
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
         var counter = 0;
         foreach (var song in songs) {
-            StaticLogger.Log($"{counter++}: {song}");
+            Output.Write($"{counter++}: {song}");
         }
     }
 }

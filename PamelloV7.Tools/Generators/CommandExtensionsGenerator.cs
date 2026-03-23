@@ -16,7 +16,7 @@ public static class CommandExtensionsGenerator
         var commandsType = typeof(PamelloCommandsService);
 
         var path = Path.Combine(targetDirectory.FullName, $"{commandsType.Name}Extensions.g.cs");
-        StaticLogger.Log(path);
+        Output.Write(path);
         
         var commands = assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(PamelloCommand))).ToList();
 
@@ -40,12 +40,12 @@ public static class CommandExtensionsGenerator
 
             var returnTypeInfo = GetReturnTypeInfo(executeMethod.ReturnType, false, false);
 
-            StaticLogger.Log($"Command: {command.Name}");
+            Output.Write($"Command: {command.Name}");
             var csArgString = "";
             var pathArgString = "";
             foreach (var parameter in executeMethod.GetParameters()) {
                 var parameterTypeInfo = GetReturnTypeInfo(parameter.ParameterType, true, false);
-                StaticLogger.Log($"    {parameter.Name}: {parameterTypeInfo}");
+                Output.Write($"    {parameter.Name}: {parameterTypeInfo}");
                 
                 if (parameterTypeInfo.IsVoid) continue;
                 

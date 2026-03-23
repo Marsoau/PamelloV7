@@ -23,9 +23,9 @@ public class DependenciesService : IDependenciesService
 
         var dllResolvers = new Dictionary<Assembly, List<LibDependency>>();
 
-        StaticLogger.Log($"Loading Dependencies: ({types.Count})");
+        Output.Write($"Loading Dependencies: ({types.Count})");
         foreach (var type in types) {
-            StaticLogger.Log($"| {type}");
+            Output.Write($"| {type}");
             
             var dependency = (Dependency)Activator.CreateInstance(type, services)!;
             dependency.Startup();
@@ -39,15 +39,15 @@ public class DependenciesService : IDependenciesService
             Dependencies.Add(dependency);
         }
 
-        StaticLogger.Log($"Mapping Dll Resolvers: ({dllResolvers.Count})");
+        Output.Write($"Mapping Dll Resolvers: ({dllResolvers.Count})");
         foreach (var (assembly, dependencies) in dllResolvers) {
-            StaticLogger.Log($"| {assembly.FullName} : {string.Join(", ", dependencies.Select(d => d.Name))}");
+            Output.Write($"| {assembly.FullName} : {string.Join(", ", dependencies.Select(d => d.Name))}");
             NativeLibrary.SetDllImportResolver(assembly, ((name, b, c) => {
                 foreach (var result in dependencies.Select(dependency => dependency.GetResolver(name, b, c)).Where(result => result != IntPtr.Zero)) {
                     return result;
                 }
 
-                StaticLogger.Log($"Dependency \"{name}\" not found in overriden resolver for {assembly.FullName}");
+                Output.Write($"Dependency \"{name}\" not found in overriden resolver for {assembly.FullName}");
 
                 return IntPtr.Zero;
             }));

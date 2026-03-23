@@ -36,7 +36,7 @@ public class EntityQueryService : IEntityQueryService
     }
 
     public void LoadProviders(IServiceCollection collection, IServiceProvider services) {
-        StaticLogger.Log("Loading entity providers");
+        Output.Write("Loading entity providers");
         
         foreach (var descriptor in collection) {
             if (!descriptor.ServiceType.IsAssignableTo(typeof(IEntityProvider))) continue;
@@ -48,14 +48,14 @@ public class EntityQueryService : IEntityQueryService
             
             Providers.Add(container);
             
-            StaticLogger.Log($"| {container.Name}: {container.Type.Name}");
+            Output.Write($"| {container.Name}: {container.Type.Name}");
         }
         
-        StaticLogger.Log($"Loaded {Providers.Count} entity providers");
+        Output.Write($"Loaded {Providers.Count} entity providers");
     }
     
     public void LoadOperators(IServiceProvider services) {
-        StaticLogger.Log("Loading PEQL operators");
+        Output.Write("Loading PEQL operators");
         
         var typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         
@@ -69,10 +69,10 @@ public class EntityQueryService : IEntityQueryService
             
             Operators.Add(descriptor);
             
-            StaticLogger.Log($"| {descriptor.Symbol} : {descriptor.Name}");
+            Output.Write($"| {descriptor.Symbol} : {descriptor.Name}");
         }
         
-        StaticLogger.Log($"Loaded {Operators.Count} operators");
+        Output.Write($"Loaded {Operators.Count} operators");
     }
 
     public async Task<List<IPamelloEntity>> GetAsync(string query, IPamelloUser scopeUser)

@@ -40,22 +40,22 @@ internal static class DatabaseRepositoriesLoader
     }
 
     private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository) {
-        StaticLogger.Log($"Loading {repository.CollectionName}                                 ");
+        Output.Write($"Loading {repository.CollectionName}                                 ");
     }
     private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        StaticLogger.Log($"Loading {repository.CollectionName} [{loaded}/{from}]");
+        Output.Write($"Loading {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnLoadingEnd(IPamelloDatabaseRepository repository) {
-        StaticLogger.Log($"Done");
+        Output.Write($"Done");
     }
 
     private static void RepositoryOnOnInitStart(IPamelloDatabaseRepository repository) {
-        StaticLogger.Log($"Initializing {repository.CollectionName}                            ");
+        Output.Write($"Initializing {repository.CollectionName}                            ");
     }
     private static void RepositoryOnOnInitProgress(IPamelloDatabaseRepository repository, int loaded, int from) {
-        StaticLogger.Log($"Initializing {repository.CollectionName} [{loaded}/{from}]");
+        Output.Write($"Initializing {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnInitEnd(IPamelloDatabaseRepository repository) {
-        StaticLogger.Log($"Done");
+        Output.Write($"Done");
     }
 }

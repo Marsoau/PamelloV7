@@ -53,8 +53,16 @@
         <DependentUpon>LoadingSreen.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Consolonia\Screens\LoadingScreen.axaml.cs">
+      <Compile Update="Consolonia\Screens\LogScreen.axaml.cs">
         <DependentUpon>MainWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Consolonia\Screens\MainScreen.axaml.cs">
+        <DependentUpon>MainScreen.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Consolonia\Controls\RefreshableMessageControl.axaml.cs">
+        <DependentUpon>RefreshableMessageControl.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

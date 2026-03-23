@@ -18,7 +18,7 @@ public class SongInfoCommand : DiscordCommand
     public async Task Info(
         [Summary("song", "Single song query")] string songQuery = "current"
     ) {
-        StaticLogger.Log($"BSQ: {DateTime.Now.TimeOfDay}");
+        Output.Write($"BSQ: {DateTime.Now.TimeOfDay}");
         var songs = await GetAsync<IPamelloSong>(songQuery);
 
         switch (songs.Count) {

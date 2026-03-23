@@ -27,14 +27,14 @@ public class SignalHub : Hub
     }
     
     public override async Task OnConnectedAsync() {
-        StaticLogger.Log($"Connected: {Context.ConnectionId}");
+        Output.Write($"Connected: {Context.ConnectionId}");
         
         _broadcast.AddListener(Context.ConnectionId);
         await _broadcast.BroadcastMessageAsync(null, null, $"Connected new {Context.ConnectionId} client");
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception) {
-        StaticLogger.Log($"Disconnected: {Context.ConnectionId}");
+        Output.Write($"Disconnected: {Context.ConnectionId}");
         
         _broadcast.RemoveListener(Context.ConnectionId);
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} disconnected");
@@ -50,7 +50,7 @@ public class SignalHub : Hub
         
         if (user is null) throw new PamelloException("User not found");
         
-        StaticLogger.Log($"Authorized: {Context.ConnectionId} as {user}");
+        Output.Write($"Authorized: {Context.ConnectionId} as {user}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} authorized as {user}");
         
         _broadcast.AssignUser(Context.ConnectionId, user);
@@ -58,7 +58,7 @@ public class SignalHub : Hub
     public async Task Unauthorize() {
         if (_broadcast.GetUser(Context.ConnectionId) is null) return;
         
-        StaticLogger.Log($"Unauthorized: {Context.ConnectionId}");
+        Output.Write($"Unauthorized: {Context.ConnectionId}");
         await _broadcast.BroadcastMessageAsync(null, null, $"Client {Context.ConnectionId} unauthorized");
         
         _broadcast.AbandonUser(Context.ConnectionId);

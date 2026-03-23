@@ -39,7 +39,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
             var episodes = e.Song.Episodes.ToList();
             var favoriteBy = e.Song.FavoriteBy.ToList();
 
-            StaticLogger.Log($"About to delete {episodes.Count} episodes from {e.Song}");
+            Output.Write($"About to delete {episodes.Count} episodes from {e.Song}");
             
             //foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
             foreach (var episode in episodes) _episodes.Delete(episode, e.Invoker);
@@ -61,7 +61,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     public async Task<IPamelloSong?> GetByNameAsync(IPamelloUser scopeUser, string query) {
         if (query.Length == 0) return null;
         
-        StaticLogger.Log($"Get by name requested: {query}");
+        Output.Write($"Get by name requested: {query}");
         
         //actual search by name here
         
@@ -76,7 +76,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
 
     public async Task<IPamelloSong?> GetByPlatformKeyAsync(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {
         var song = _loaded.FirstOrDefault(s => s.Sources.Any(source => source.PK == pk));
-        StaticLogger.Log($"Song by pk {(song is not null ? $"found: {song}" : "not found")}");
+        Output.Write($"Song by pk {(song is not null ? $"found: {song}" : "not found")}");
         if (song is not null) return song;
         
         if (!allowCreation) return null;
@@ -85,10 +85,10 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         if (platform is null) return null;
         
         var songInfo = await platform.GetSongInfoAsync(pk.Key);
-        StaticLogger.Log($"Info by pk {(songInfo is not null ? $"found: {songInfo}" : "not found")}");
+        Output.Write($"Info by pk {(songInfo is not null ? $"found: {songInfo}" : "not found")}");
         if (songInfo is null) return null;
         
-        StaticLogger.Log("Adding song by info");
+        Output.Write("Adding song by info");
         return Add(songInfo, scopeUser);
     }
 
@@ -130,7 +130,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IEnumerable<IPamelloSong> TestPoint(IPamelloUser scopeUser, int value) {
-        StaticLogger.Log($"TTEEST PINT: {value}");
+        Output.Write($"TTEEST PINT: {value}");
         return [];
     }
 

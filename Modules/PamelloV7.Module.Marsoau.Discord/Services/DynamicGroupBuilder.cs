@@ -43,7 +43,7 @@ public class DynamicGroupBuilder : IPamelloService
 
         var groups = new List<GroupDescriptor>();
 
-        StaticLogger.Log("Found types:");
+        Output.Write("Found types:");
         foreach (var type in types) {
             var attribute = type.GetCustomAttributes()
                 .OfType<DiscordGroupAttribute>()

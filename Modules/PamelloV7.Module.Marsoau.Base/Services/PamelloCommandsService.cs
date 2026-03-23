@@ -37,7 +37,7 @@ public class PamelloCommandsService : IPamelloCommandsService
         CommandTypes = _typeResolver.GetInheritorsOf<PamelloCommand>().ToList();
         
         foreach (var commandType in CommandTypes) {
-            StaticLogger.Log($"Command: {commandType.FullName}");
+            Output.Write($"Command: {commandType.FullName}");
         }
     }
     
@@ -63,7 +63,7 @@ public class PamelloCommandsService : IPamelloCommandsService
     }
 
     public async Task<object?> ExecutePathAsync(string commandPath, IPamelloUser scopeUser) {
-        StaticLogger.Log($"Executing command path: {commandPath}");
+        Output.Write($"Executing command path: {commandPath}");
         var splitPos = commandPath.IndexOf('?');
         var commandName = splitPos != -1 ? commandPath[..splitPos] : commandPath;
         var queryCollection = HttpUtility.ParseQueryString(splitPos != -1 ? commandPath[(splitPos + 1)..] : "");
@@ -101,7 +101,7 @@ public class PamelloCommandsService : IPamelloCommandsService
             
             if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
                 isEntityType = true;
-                StaticLogger.Log($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                Output.Write($"Pamello Type Argument \"{parameter.Name}\": {argumentType.Name}");
             }
             else if (argumentType.IsGenericType && argumentType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) {
                 argumentType = argumentType.GenericTypeArguments.FirstOrDefault();
@@ -110,11 +110,11 @@ public class PamelloCommandsService : IPamelloCommandsService
                 if (argumentType.IsAssignableTo(typeof(IPamelloEntity))) {
                     isEntityType = true;
                     isManyEntity = true;
-                    StaticLogger.Log($"Pamello Multi Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                    Output.Write($"Pamello Multi Type Argument \"{parameter.Name}\": {argumentType.Name}");
                 }
             }
             else {
-                StaticLogger.Log($"Other Type Argument \"{parameter.Name}\": {argumentType.Name}");
+                Output.Write($"Other Type Argument \"{parameter.Name}\": {argumentType.Name}");
             }
 
             if (!isEntityType) {

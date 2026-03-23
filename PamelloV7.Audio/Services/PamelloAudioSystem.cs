@@ -22,7 +22,7 @@ public class PamelloAudioSystem : IPamelloAudioSystem
     public TAudioModule RegisterModule<TAudioModule>(TAudioModule module)
         where TAudioModule : class, IAudioModule
     {
-        StaticLogger.Log($"Registering module: {module.GetType().FullName}");
+        Output.Write($"Registering module: {module.GetType().FullName}");
         _modules.Add(module);
 
         if (module is AudioModule aModule) {
@@ -48,7 +48,7 @@ public class PamelloAudioSystem : IPamelloAudioSystem
     }
 
     public void DeleteModule<TAudioModule>(TAudioModule module) where TAudioModule : class, IAudioModule {
-        StaticLogger.Log($"Deleting module: {module.GetType().FullName}");
+        Output.Write($"Deleting module: {module.GetType().FullName}");
         
         _modules.Remove(module);
         
@@ -57,7 +57,7 @@ public class PamelloAudioSystem : IPamelloAudioSystem
     }
 
     public TAudioDependant RegisterDependant<TAudioDependant>(TAudioDependant dependant) where TAudioDependant : class, IAudioDependant {
-        StaticLogger.Log($"Registering dependant: {dependant.GetType().FullName}");
+        Output.Write($"Registering dependant: {dependant.GetType().FullName}");
         
         _dependants.Add(dependant);
         

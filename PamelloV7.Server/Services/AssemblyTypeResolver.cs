@@ -8,14 +8,14 @@ namespace PamelloV7.Server.Services;
 
 public class AssemblyTypeResolver : IAssemblyTypeResolver
 {
-    private PamelloModulesLoader _modulesLoader { get; set; } = null!;
+    private PamelloModulesLoader ModulesLoader { get; set; } = null!;
     
     public IEnumerable<Type> GetAll() {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
     }
 
     public void LoadModules(PamelloModulesLoader loader, IServiceProvider services) {
-        _modulesLoader = loader;
+        ModulesLoader = loader;
     }
     
     public Type? GetByName(string name) {
@@ -41,6 +41,6 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     }
 
     public IPamelloModule? GetAssemblyModule(Assembly assembly) {
-        return _modulesLoader.Containers.FirstOrDefault(x => x.Assembly == assembly)?.Module;
+        return ModulesLoader.Containers.FirstOrDefault(x => x.Assembly == assembly)?.Module;
     }
 }

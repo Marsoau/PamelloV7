@@ -51,32 +51,32 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
 
     protected async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
-        StaticLogger.Log($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
+        Output.Write($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
         if (task.IsCompleted || !respondWithLoading) {
             await task;
             return;
         }
         
-        StaticLogger.Log("Responding loading");
+        Output.Write("Responding loading");
             
         await RespondLoading();
         await task;
             
-        StaticLogger.Log("Wait end");
+        Output.Write("Wait end");
 
         await task;
     }
         
     protected async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
-        StaticLogger.Log($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
+        Output.Write($"Got Result {DateTime.Now.TimeOfDay} .IsCompleted: {task.IsCompleted}");
         if (!task.IsCompleted && respondWithLoading) 
         {
-            StaticLogger.Log("Responding loading");
+            Output.Write("Responding loading");
             
             await RespondLoading();
             await task;
             
-            StaticLogger.Log("Wait end");
+            Output.Write("Wait end");
         }
     
         return await task;
@@ -120,13 +120,13 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
     }
     
     public async Task RespondLoading() {
-        StaticLogger.Log("Responding loading");
+        Output.Write("Responding loading");
         if (Context.Interaction.HasResponded) {
-            StaticLogger.Log("Not responding loading, message already exists");
+            Output.Write("Not responding loading, message already exists");
             return;
         }
 
-        StaticLogger.Log("Responding loading, message doesn't exist, creating");
+        Output.Write("Responding loading, message doesn't exist, creating");
         await RespondComponentAsync(Builder<BasicComponentsBuilder>().Defer().Build());
     }
 

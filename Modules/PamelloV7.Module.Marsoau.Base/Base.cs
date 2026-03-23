@@ -31,14 +31,14 @@ public class Base : IPamelloModule
         var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();
 
         foreach (var dependency in dependencies) {
-            StaticLogger.Log($"--- {dependency} ---");
-            StaticLogger.Log($"Is installed: {dependency.IsInstalled}");
+            Output.Write($"--- {dependency} ---");
+            Output.Write($"Is installed: {dependency.IsInstalled}");
             
             if (dependency.IsInstalled) continue;
             
-            StaticLogger.Log("Downloading...");
+            Output.Write("Downloading...");
             await dependency.DownloadOrUpdateAsync();
-            StaticLogger.Log($"Done, Now installed: {dependency.IsInstalled}");
+            Output.Write($"Done, Now installed: {dependency.IsInstalled}");
         }
     }
 }

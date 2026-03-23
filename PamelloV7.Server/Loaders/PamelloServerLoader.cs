@@ -46,18 +46,18 @@ public class PamelloServerLoader
     }
     
     public void ConfigureAssemblyServices(IServiceCollection services) {
-        StaticLogger.Log($"Configuring server services: ({_assemblyServices.Count} services)");
+        Output.Write($"Configuring server services: ({_assemblyServices.Count} services)");
         foreach (var kvp in _assemblyServices) {
             if (kvp.Value is not null) {
-                StaticLogger.Log($"| {kvp.Key.Name} : {kvp.Value.Name}");
+                Output.Write($"| {kvp.Key.Name} : {kvp.Value.Name}");
                 services.AddSingleton(kvp.Value, kvp.Key);
             }
             else {
-                StaticLogger.Log($"| {kvp.Key.Name}");
+                Output.Write($"| {kvp.Key.Name}");
                 services.AddSingleton(kvp.Key);
             }
         }
-        StaticLogger.Log($"Server services configured");
+        Output.Write($"Server services configured");
     }
     
     public void ConfigureApiServices(IServiceCollection services) {
@@ -109,14 +109,14 @@ public class PamelloServerLoader
     public void StartupAssemblyServices(IServiceProvider services) {
         object? result;
         
-        StaticLogger.Log($"Starting server services: ({_assemblyServices.Count} services)");
+        Output.Write($"Starting server services: ({_assemblyServices.Count} services)");
         foreach (var kvp in _assemblyServices) {
             if (kvp.Value is not null) {
-                StaticLogger.Log($"{kvp.Key.Name} : {kvp.Value.Name}");
+                Output.Write($"{kvp.Key.Name} : {kvp.Value.Name}");
                 result = services.GetService(kvp.Value);
             }
             else {
-                StaticLogger.Log($"{kvp.Key.Name}");
+                Output.Write($"{kvp.Key.Name}");
                 result = services.GetService(kvp.Key);
             }
             
@@ -124,20 +124,20 @@ public class PamelloServerLoader
                 ((IPamelloService)result).Startup(services);
             }
             else {
-                StaticLogger.Log($"Service {kvp.Key.Name} failed to start");
+                Output.Write($"Service {kvp.Key.Name} failed to start");
             }
         }
-        StaticLogger.Log($"Server services started");
+        Output.Write($"Server services started");
     }
     
     public void ShutdownAssemblyServices(IServiceProvider services) {
-        StaticLogger.Log($"Stopping server services: ({_assemblyServices.Count} services)");
+        Output.Write($"Stopping server services: ({_assemblyServices.Count} services)");
             
         IPamelloService? service;
             
         foreach (var kvp in _assemblyServices) {
             if (kvp.Value is not null) {
-                StaticLogger.Log($"| {kvp.Key.Name} : {kvp.Value.Name}");
+                Output.Write($"| {kvp.Key.Name} : {kvp.Value.Name}");
                     
                 service = services.GetService(kvp.Value) as IPamelloService;
                 if (service is null) continue;
@@ -145,7 +145,7 @@ public class PamelloServerLoader
                 service.Shutdown();
             }
             else {
-                StaticLogger.Log($"| {kvp.Key.Name}");
+                Output.Write($"| {kvp.Key.Name}");
                     
                 service = services.GetService(kvp.Key) as IPamelloService;
                 if (service is null) continue;
@@ -153,6 +153,6 @@ public class PamelloServerLoader
                 service.Shutdown();
             }
         }
-        StaticLogger.Log($"Server services stopped");
+        Output.Write($"Server services stopped");
     }
 }

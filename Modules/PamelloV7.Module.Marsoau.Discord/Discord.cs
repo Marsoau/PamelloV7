@@ -49,7 +49,7 @@ public class Discord : IPamelloModule
 
         clients.Main.Log += DiscordLog;
         clients.Main.Ready += async () => {
-            StaticLogger.Log("Discord client ready");
+            Output.Write("Discord client ready");
             
             whenReady.SetResult();
         };
@@ -70,7 +70,7 @@ public class Discord : IPamelloModule
     public async Task DiscordLog(LogMessage message) {
         //if ((int)message.Severity >= 2) return;
         
-        StaticLogger.Log($"[Discord {message.Severity} | message] {message.Message}");
-        if (message.Exception is not null) StaticLogger.Log($"[Discord {message.Severity} | exception] {message.Exception}");
+        Output.Write($"[Discord {message.Severity} | message] {message.Message}");
+        if (message.Exception is not null) Output.Write($"[Discord {message.Severity} | exception] {message.Exception}");
     }
 }

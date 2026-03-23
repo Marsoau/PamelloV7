@@ -52,7 +52,7 @@ namespace PamelloV7.Server.Model.Listeners
             while (_eventsQueue.Count > 0) {
                 pamelloEvent = _eventsQueue.Dequeue();
 
-                StaticLogger.Log($"Sending: {pamelloEvent.GetType().Name}");
+                Output.Write($"Sending: {pamelloEvent.GetType().Name}");
 
                 await _response.WriteAsync($"event: {pamelloEvent.GetType().Name}\n");
                 await _response.WriteAsync($"data: {JsonSerializer.Serialize(pamelloEvent, pamelloEvent.GetType(), JsonEntitiesFactory.Options)}\n\n");

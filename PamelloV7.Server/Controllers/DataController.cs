@@ -59,7 +59,7 @@ namespace PamelloV7.Server.Controllers
                 view = v;
             }
 
-            StaticLogger.Log($"User: {User} Query: {query} [type: {type?.Name}, view: {view}, single: {single}]");
+            Output.Write($"User: {User} Query: {query} [type: {type?.Name}, view: {view}, single: {single}]");
             
             IEnumerable<IPamelloEntity> results;
 

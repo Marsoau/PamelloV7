@@ -18,7 +18,7 @@ public abstract class LibDependency : SingleFileDependency
         
         if (IsInstalled) return NativeLibrary.Load(GetFile().FullName);
             
-        StaticLogger.Log($"Custom dependency is requested but not installed! name: \"{Name}\" path: {GetFile().FullName}");
+        Output.Write($"Custom dependency is requested but not installed! name: \"{Name}\" path: {GetFile().FullName}");
         
         return IntPtr.Zero;
     }

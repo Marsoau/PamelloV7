@@ -24,19 +24,19 @@ namespace PamelloV7.Server.Controllers
 
         [HttpGet]
         public async Task Connect() {
-            StaticLogger.Log("test con");
+            Output.Write("test con");
             var listener = await _events.AddListener(Response, HttpContext.RequestAborted);
 
-            StaticLogger.Log($"created \"{listener.Token}\" events connection");
+            Output.Write($"created \"{listener.Token}\" events connection");
 
             await listener.Lifetime.Task;
 
-            StaticLogger.Log($"closed \"{listener.Token}\" events connection");
+            Output.Write($"closed \"{listener.Token}\" events connection");
         }
 
         [HttpGet("{eventsToken}/Close")]
         public IActionResult GetConnect(Guid eventsToken) {
-            StaticLogger.Log("test disc");
+            Output.Write("test disc");
             _events.CloseEvents(eventsToken);
 
             return Ok();

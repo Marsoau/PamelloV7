@@ -99,7 +99,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         
         Register(client, guild);
 
-        StaticLogger.Log($"Before connect: {Guild.AudioClient}");
+        Output.Write($"Before connect: {Guild.AudioClient}");
         
         await vc.ConnectAsync();
     }
@@ -112,9 +112,9 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     private async Task ClientOnVoiceServerUpdated(SocketVoiceServer voiceServer) {
-        StaticLogger.Log($"VSU: {Guild.AudioClient}");
+        Output.Write($"VSU: {Guild.AudioClient}");
         Guild.AudioClient.Connected += async () => {
-            StaticLogger.Log("AC Connected");
+            Output.Write("AC Connected");
             Sink.Stream = Guild.AudioClient.CreatePCMStream(AudioApplication.Music);
 
             foreach (var listener in Listeners) {

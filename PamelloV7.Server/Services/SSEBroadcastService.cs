@@ -45,7 +45,7 @@ namespace PamelloV7.Server.Services
             _listeners.Remove(listener);
             await listener.CloseConnection();
 
-            StaticLogger.Log($"removed \"{listener.Token}\" events");
+            Output.Write($"removed \"{listener.Token}\" events");
         }
 
         public async Task<PamelloSSEListener> AddListener(HttpResponse response, CancellationToken cancellationToken) {
@@ -115,7 +115,7 @@ namespace PamelloV7.Server.Services
         }
 
         public void Shutdown() {
-            StaticLogger.Log("STOPPING SSE");
+            Output.Write("STOPPING SSE");
             foreach (var listener in _listeners) {
                 listener.Dispose();
             }

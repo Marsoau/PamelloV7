@@ -41,7 +41,7 @@ public class SongResetModal : DiscordModal
     public async Task Submit(string songQuery) {
         var song = await GetSingleRequiredAsync<IPamelloSong>(songQuery);
         var platformString = GetSelectValue("modal-select");
-        StaticLogger.Log(platformString);
+        Output.Write(platformString);
         if (!int.TryParse(platformString, out var platformIndex)) throw new PamelloException("Invalid source index key");
 
         var resetTask = Command<SongInfoReset>().Execute(song, platformIndex);
