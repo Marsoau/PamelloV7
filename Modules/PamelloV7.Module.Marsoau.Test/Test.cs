@@ -71,17 +71,15 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         _dependencies = services.GetRequiredService<IDependenciesService>();
-        
-        var dependencies = _dependencies.GetAll();
-        foreach (var dependency in dependencies) {
-            var currentVersion = await dependency.GetInstalledVersionAsync() ?? "none";
-            var latestVersion = await dependency.GetLatestVersionAsync() ?? "none";
-            
-            Output.Write($"{dependency.Name}: {currentVersion} {(latestVersion != currentVersion
-                ? $"-> {latestVersion}"
-                : "Latest!"
-            )}");
-        }
+
+        Output.Write(() =>
+                $"""
+                 Player: {_me.SelectedPlayer}
+                 Time: {_me.SelectedPlayer?.Queue?.CurrentSongTimePosition} / {_me.SelectedPlayer?.Queue?.CurrentSongTimeTotal}
+                 Song: {_me.SelectedPlayer?.Queue?.CurrentSong}
+                 """,
+            () => [_me, _me.SelectedPlayer, _me.SelectedPlayer?.Queue?.CurrentSong]
+        );
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {

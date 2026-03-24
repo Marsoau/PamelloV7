@@ -111,7 +111,7 @@ namespace PamelloV7.Server
             var types = (AssemblyTypeResolver)_services.GetRequiredService<IAssemblyTypeResolver>();
             types.LoadModules(_modulesLoader, _services);
             
-            ((PamelloLogger)Output.Logger).Types = types;
+            ((PamelloLogger)Output.Logger).SetServices(_services);
             
             var consolonia = _services.GetRequiredService<ConsoloniaService>();
             consolonia.SetApp(Consolonia);

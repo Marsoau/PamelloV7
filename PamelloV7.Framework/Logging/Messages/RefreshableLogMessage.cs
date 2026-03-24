@@ -17,7 +17,7 @@ public class RefreshableLogMessage
     
     public event Action? OnRefresh;
     
-    public void Refresh() {
+    public virtual void Refresh() {
         if (OnRefresh is null) return;
         
         Dispatcher.UIThread.Invoke(OnRefresh.Invoke);
