@@ -95,7 +95,7 @@ public class PamelloModulesLoader
             var loadedModuleAssemblies = new List<Assembly>();
         
             var moduleFiles = Directory.GetFiles(path, "*.pv7m");
-            StaticLogger.Log($"Loading modules: ({moduleFiles.Length} files)");
+            Output.Write($"Loading module files: ({moduleFiles.Length} files)");
         
             foreach (var file in moduleFiles) {
                 _moduleContext.PreloadFileToMemory(file);
@@ -107,10 +107,10 @@ public class PamelloModulesLoader
                 try {
                     var assembly = _moduleContext.LoadMainModule(moduleName);
                     loadedModuleAssemblies.Add(assembly);
-                    StaticLogger.Log($"[Loader] Loaded assembly: {moduleName}");
+                    Output.Write($"| Loaded assembly: {moduleName}");
                 }
                 catch (Exception ex) {
-                    StaticLogger.Log($"[Loader] Failed to load {moduleName}: {ex.Message}");
+                    Output.Write($"| Failed to load {moduleName}: {ex.Message}", ELogLevel.Warning);
                 }
             }
 
@@ -119,6 +119,7 @@ public class PamelloModulesLoader
             }
         #endif
 
+        Output.Write($"Modules: ({Containers.Count} modules)");
         foreach (var container in Containers) {
             if (container.ConfigType is not null) {
                 _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");

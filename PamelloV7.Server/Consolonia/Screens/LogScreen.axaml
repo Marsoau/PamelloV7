@@ -4,14 +4,14 @@
              xmlns:controls="clr-namespace:PamelloV7.Server.Consolonia.Controls"
              xmlns:messages="clr-namespace:PamelloV7.Framework.Logging.Messages;assembly=PamelloV7.Framework"
              x:Class="PamelloV7.Server.Consolonia.Screens.LogScreen">
-    <Grid>
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#080808" />
-
+    <Grid RowDefinitions="*,Auto" Background="#080808">
         <ScrollViewer
             Name="Box"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Disabled"
-            IsScrollInertiaEnabled="False">
+            IsScrollInertiaEnabled="False"
+            Grid.Row="0"
+            >
             
             <ItemsControl ItemsSource="{Binding Messages}">
                 <ItemsControl.ItemsPanel>
