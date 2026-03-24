@@ -24,7 +24,7 @@ public class Discord : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Discord user platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
-    public IBrush Color => Brushes.RoyalBlue;
+    public IBrush Color => Brushes.CornflowerBlue;
 
     public void Configure(IServiceCollection services) {
         var discordConfig = new DiscordSocketConfig() {

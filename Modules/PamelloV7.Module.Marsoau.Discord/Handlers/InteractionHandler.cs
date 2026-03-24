@@ -59,7 +59,7 @@ public class InteractionHandler : IPamelloService
         if (result is not ExecuteResult executeResult) return;
         if (context is not PamelloSocketInteractionContext pamelloContext) return;
         if (executeResult.Exception?.InnerException is not PamelloException exception) {
-            Output.Write($"Exception in interaction: {command.Name}\n{executeResult.Exception}");
+            Output.Write($"Exception in interaction: {command.Name}\n{executeResult.Exception}", ELogLevel.Error);
             return;
         }
         

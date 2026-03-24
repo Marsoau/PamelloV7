@@ -13,20 +13,15 @@
             HorizontalScrollBarVisibility="Disabled"
             IsScrollInertiaEnabled="False">
             
-            <!-- Bind to the shared Service's Messages -->
             <ItemsControl ItemsSource="{Binding Messages}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <!-- Perfect: Virtualization is essential for logs! -->
                         <VirtualizingStackPanel /> 
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.ItemTemplate>
-                    <!-- Tell Avalonia: Every time you see a LogMessage, draw a LogMessageControl -->
                     <DataTemplate DataType="messages:RefreshableLogMessage">
-                        
-                        <!-- Avalonia will create this control and set its DataContext to the LogMessage -->
                         <controls:RefreshableMessageControl HorizontalAlignment="Stretch" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

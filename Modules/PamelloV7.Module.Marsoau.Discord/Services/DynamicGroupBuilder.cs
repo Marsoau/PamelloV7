@@ -43,7 +43,6 @@ public class DynamicGroupBuilder : IPamelloService
 
         var groups = new List<GroupDescriptor>();
 
-        Output.Write("Found types:");
         foreach (var type in types) {
             var attribute = type.GetCustomAttributes()
                 .OfType<DiscordGroupAttribute>()
@@ -67,6 +66,14 @@ public class DynamicGroupBuilder : IPamelloService
                 descriptor = GuaranteedGroup(subGroups[1], attribute.Description ?? "none", descriptor.NestedGroups);
             
             descriptor.TargetTypes.Add(type);
+        }
+        
+        Output.Write($"Group types: ({groups.Count} groups)");
+        foreach (var group in groups) {
+            Output.Write($"| {group.Name} ({group.TargetTypes.Count} commands)");
+            foreach (var nestedGroup in group.NestedGroups) {
+                Output.Write($"|    {nestedGroup.Name} ({nestedGroup.TargetTypes.Count} commands)");
+            }
         }
         
         ModulesTypes.AddRange(groups.Select(group => BuildGroup(group)));

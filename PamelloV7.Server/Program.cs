@@ -65,7 +65,7 @@ namespace PamelloV7.Server
                     await MainAsync(args);
                 }
                 catch (Exception x) {
-                    Output.Write($"FATAL ERROR: {x}");
+                    Output.Write($"Server Thread Crushed\n{x}", ELogLevel.Error);
                 }
             });
 
@@ -75,8 +75,6 @@ namespace PamelloV7.Server
             await _consoloniaCreated.Task;
             await Consolonia.Started.Task;
             await Consolonia.LogScreen.LoadingCompleted.Task;
-            
-            Output.Write("Starting up...");
 
             var aspBuilder = WebApplication.CreateBuilder(args);
             
@@ -117,6 +115,8 @@ namespace PamelloV7.Server
             
             var consolonia = _services.GetRequiredService<ConsoloniaService>();
             consolonia.SetApp(Consolonia);
+            
+            //Consolonia.SetMainScreen();
 
             foreach (var stage in Enum.GetValues<ELoadingStage>()) {
                 try {
