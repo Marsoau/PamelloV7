@@ -15,8 +15,13 @@ public partial class ConsoloniaApp : Application
         internal set;
     }
 
-    public MainScreen MainScreen => field ??= Dispatcher.UIThread.Invoke(() => new MainScreen(Services));
-    public LogScreen LogScreen => field ??= Dispatcher.UIThread.Invoke(() => new LogScreen());
+    public MainScreen MainScreen {
+        private set; get => field ??= Dispatcher.UIThread.Invoke(() => new MainScreen(Services));
+    }
+
+    public LogScreen LogScreen {
+        private set; get => field ??= Dispatcher.UIThread.Invoke(() => new LogScreen());
+    }
 
     public readonly TaskCompletionSource Started = new();
 
@@ -44,7 +49,16 @@ public partial class ConsoloniaApp : Application
         SetScreen(LogScreen);
     }
 
-    public void SetScreen(UserControl screen) {
-        Dispatcher.UIThread.InvokeAsync(() => MainWindow.Content = screen);
+    public void SetScreen(Control screen) {
+        Dispatcher.UIThread.InvokeAsync(() => {
+            if (MainWindow.Content is MainScreen) {
+                MainScreen = null!;
+            }
+            else if (MainWindow.Content is LogScreen) {
+                LogScreen = null!;
+            }
+
+            MainWindow.Content = screen;
+        });
     }
 }

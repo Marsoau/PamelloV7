@@ -9,6 +9,7 @@ using Consolonia;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
@@ -126,7 +127,7 @@ namespace PamelloV7.Server
             
             ((PamelloLogger)Output.Logger).SetServices(_services);
             
-            var consolonia = _services.GetRequiredService<ConsoloniaService>();
+            var consolonia = (ConsoloniaService)_services.GetRequiredService<IConsoloniaService>();
             consolonia.SetApp(Consolonia);
             
             //Consolonia.SetMainScreen();

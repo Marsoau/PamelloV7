@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
+using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Services.Base;
@@ -6,7 +8,7 @@ using PamelloV7.Server.Consolonia;
 
 namespace PamelloV7.Server.Services;
 
-public class ConsoloniaService : IPamelloService
+public class ConsoloniaService : IConsoloniaService
 {
     private readonly IServiceProvider _services;
 
@@ -25,13 +27,23 @@ public class ConsoloniaService : IPamelloService
         _app = app;
         _app.Services = _services;
     }
+    
+    public void SetMainScreen() {
+        App.SetMainScreen();
+    }
+    public void SetLogScreen() {
+        App.SetLogScreen();
+    }
 
-    public TUserControl SetScreen<TUserControl>()
-        where TUserControl : UserControl {
-        TUserControl screen;
+    public TControl SetScreen<TControl>(Func<TControl> getScreen) where TControl : Control {
+        var screen = Dispatcher.UIThread.Invoke(getScreen);
         
-        App.MainWindow.Content = screen = _services.GetRequiredService<TUserControl>();
+        App.SetScreen(screen);
         
         return screen;
+    }
+
+    public void SetScreen(Control screen) {
+        App.SetScreen(screen);
     }
 }

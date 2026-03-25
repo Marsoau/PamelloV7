@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Avalonia.Threading;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Logging.Messages;
@@ -14,7 +15,7 @@ namespace PamelloV7.Server.Logging;
 
 public class PamelloLogger : IPamelloLogger
 {
-    private ConsoloniaService? Consolonia { get; set; }
+    private IConsoloniaService? Consolonia { get; set; }
     private IAssemblyTypeResolver? Types { get; set; }
     private IEventsService? Events { get; set; }
 
@@ -23,7 +24,7 @@ public class PamelloLogger : IPamelloLogger
     internal void SetServices(IServiceProvider services) {
         Types = services.GetRequiredService<IAssemblyTypeResolver>();
         Events = services.GetRequiredService<IEventsService>();
-        Consolonia = services.GetRequiredService<ConsoloniaService>();
+        Consolonia = services.GetRequiredService<IConsoloniaService>();
     }
     
     public RefreshableLogMessage Write(object? obj = null, ELogLevel level = ELogLevel.Log, Assembly? assembly = null) {
