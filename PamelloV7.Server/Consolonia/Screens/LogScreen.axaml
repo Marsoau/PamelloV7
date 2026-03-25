@@ -6,7 +6,7 @@
              x:Class="PamelloV7.Server.Consolonia.Screens.LogScreen">
     <Grid RowDefinitions="*,Auto" Background="#080808">
         <ScrollViewer
-            Name="Box"
+            x:Name="MessageList"
             VerticalScrollBarVisibility="Auto"
             HorizontalScrollBarVisibility="Disabled"
             IsScrollInertiaEnabled="False"
@@ -27,5 +27,9 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+        
+        <Grid Grid.Row="1">
+            <Button x:Name="CopyButton" HorizontalAlignment="Right" Content="Copy All" Click="CopyButton_OnClick"/>
+        </Grid>
     </Grid>
 </UserControl>

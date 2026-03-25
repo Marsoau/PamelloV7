@@ -17,20 +17,16 @@ namespace PamelloV7.Server.Consolonia.Screens;
 public partial class MainScreen : PamelloScreen
 {
     private readonly IServiceProvider _services;
+
+    private IPamelloLogger Logger { get; set; }
     
     public MainScreen(IServiceProvider services) {
         _services = services;
         
+        Logger = services.GetRequiredService<IPamelloLogger>();
+        
         InitializeComponent();
         
-        DataContext = Output.Logger;
-        
-        ((PamelloLogger)Output.Logger).Messages.CollectionChanged += MessagesOnCollectionChanged;
-    }
-
-    private void MessagesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-        if (e.Action == NotifyCollectionChangedAction.Add) {
-            Dispatcher.UIThread.Post(() => Box.ScrollToEnd(), DispatcherPriority.Loaded);
-        }
+        DataContext = this;
     }
 }

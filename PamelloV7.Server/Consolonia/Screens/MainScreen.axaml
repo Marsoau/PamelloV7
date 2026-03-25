@@ -4,28 +4,6 @@
              xmlns:controls="clr-namespace:PamelloV7.Server.Consolonia.Controls"
              xmlns:messages="clr-namespace:PamelloV7.Framework.Logging.Messages;assembly=PamelloV7.Framework"
              x:Class="PamelloV7.Server.Consolonia.Screens.MainScreen">
-    <Grid>
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#480808" />
-
-        <ScrollViewer
-            Name="Box"
-            VerticalScrollBarVisibility="Auto"
-            HorizontalScrollBarVisibility="Disabled"
-            IsScrollInertiaEnabled="False">
-            
-            <ItemsControl ItemsSource="{Binding Messages}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel /> 
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="messages:RefreshableLogMessage">
-                        <controls:RefreshableMessageControl HorizontalAlignment="Stretch" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+    <Grid Background="#080808">
     </Grid>
 </UserControl>

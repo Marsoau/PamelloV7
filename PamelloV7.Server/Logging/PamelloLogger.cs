@@ -40,7 +40,7 @@ public class PamelloLogger : IPamelloLogger
             Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
         }
         else {
-            Console.WriteLine($"{message.TimeStamp:HH:mm:ss.fff} [{message.Module?.Name ?? "Server"} | {message.Level}] {message.Content}");   
+            Console.WriteLine(message);   
         }
         
         return message;

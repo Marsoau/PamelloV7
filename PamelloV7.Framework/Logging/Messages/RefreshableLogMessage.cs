@@ -22,4 +22,8 @@ public class RefreshableLogMessage
         
         Dispatcher.UIThread.Invoke(OnRefresh.Invoke);
     }
+
+    public override string ToString() {
+        return $"{TimeStamp:HH:mm:ss.fff} [{Module?.Name ?? "Server"} | {Level}] {Content}";
+    }
 }
