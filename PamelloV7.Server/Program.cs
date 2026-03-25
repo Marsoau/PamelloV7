@@ -50,15 +50,28 @@ namespace PamelloV7.Server
             var logger = new PamelloLogger();
             Output.Logger = logger;
             
-            var consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
-                .UseConsolonia()
-                .UseAutoDetectedConsole()
-                .LogToException();
+            _configLoader = new PamelloConfigLoader();
+            _configLoader.Load();
+        
+            _configLoader.InitType(typeof(ServerConfig), "Server");
 
-            consoloniaBuilder.AfterSetup(builder => {
-                Consolonia = (ConsoloniaApp)builder.Instance!;
-                _consoloniaCreated.SetResult();
-            });
+            AppBuilder consoloniaBuilder;
+            
+            if (ServerConfig.Root.UseConsolonia) {
+                consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
+                    .UseConsolonia()
+                    .UseAutoDetectedConsole()
+                    .LogToException();
+
+                consoloniaBuilder.AfterSetup(builder => {
+                    Consolonia = (ConsoloniaApp)builder.Instance!;
+                    _consoloniaCreated.SetResult();
+                });
+            }
+            else {
+                MainAsync(args).Wait();
+                return;
+            }
             
             var asp = Task.Run(async () => {
                 try {
@@ -68,21 +81,21 @@ namespace PamelloV7.Server
                     Output.Write($"Server Thread Crushed\n{x}", ELogLevel.Error);
                 }
             });
-
+            
             consoloniaBuilder.StartWithConsoleLifetime(args);
         }
         public async Task MainAsync(string[] args) {
-            await _consoloniaCreated.Task;
-            await Consolonia.Started.Task;
-            await Consolonia.LogScreen.LoadingCompleted.Task;
+            if (ServerConfig.Root.UseConsolonia) {
+                await _consoloniaCreated.Task;
+                await Consolonia.Started.Task;
+                await Consolonia.LogScreen.LoadingCompleted.Task;
+            }
 
             var aspBuilder = WebApplication.CreateBuilder(args);
             
-            _configLoader = new PamelloConfigLoader();
             _serverLoader = new PamelloServerLoader(_configLoader);
             _modulesLoader = new PamelloModulesLoader(_configLoader);
             
-            _configLoader.Load();
             _serverLoader.Load();
             _modulesLoader.Load();
             
@@ -100,7 +113,7 @@ namespace PamelloV7.Server
             
             aspBuilder.Services.AddSingleton(aspBuilder.Services);
 
-            aspBuilder.Services.AddSingleton<IPamelloLogger>(Output.Logger);
+            aspBuilder.Services.AddSingleton(Output.Logger);
             
             Asp = aspBuilder.Build();
             

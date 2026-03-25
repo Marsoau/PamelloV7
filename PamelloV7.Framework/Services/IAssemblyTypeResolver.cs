@@ -12,6 +12,5 @@ public interface IAssemblyTypeResolver : IPamelloService
     public IEnumerable<Type> GetWithAttribute<TAttribute>();
     public IEnumerable<Type> GetInheritorsOf<TType>();
     public IEnumerable<Type> GetInheritorsOf(params Type[] types);
-    public Type? GetTypeByName(string name);
     public IPamelloModule? GetAssemblyModule(Assembly assembly);
 }

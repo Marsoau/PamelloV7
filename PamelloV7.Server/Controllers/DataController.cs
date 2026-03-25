@@ -41,7 +41,7 @@ namespace PamelloV7.Server.Controllers
             var single = false;
 
             if (Request.Query.TryGetValue("type", out var typeStrValues)) {
-                type = _typeResolver.GetTypeByName(typeStrValues.FirstOrDefault() ?? "");
+                type = _typeResolver.GetByName(typeStrValues.FirstOrDefault() ?? "");
                 
                 if (!(type?.IsAssignableTo(typeof(IPamelloEntity)) ?? false))
                     throw new PamelloControllerException(BadRequest("type must be assignable to IPamelloEntity"));

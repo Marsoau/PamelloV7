@@ -130,29 +130,6 @@ public class PamelloModulesLoader
         Output.Write($"Loaded {Containers.Count} modules");
     }
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private bool IsModuleDisabled(string dllPath) {
-        var context = new AssemblyLoadContext("ModuleCheck", isCollectible: true);
-
-        try {
-            var assembly = context.LoadFromAssemblyPath(dllPath);
-
-            var moduleType = assembly.GetTypes().FirstOrDefault(x => typeof(IPamelloModule).IsAssignableFrom(x));
-            if (moduleType is null) return true;
-
-            if (Activator.CreateInstance(moduleType) is not IPamelloModule module) return true;
-
-            var isDisabled = ServerConfig.Root.DisabledModules.Contains($"{module.Author}/{module.Name}");
-
-            if (isDisabled) Output.Write($"[{module.Author}/{module.Name}] DISABLED\n| {module.Description}");
-            
-            return isDisabled;
-        }
-        finally {
-            context.Unload();
-        }
-    }
-
     public bool EnsureDependenciesAreSatisfied() {
         Output.Write($"Ensuring modules dependencies are satisfied");;
         

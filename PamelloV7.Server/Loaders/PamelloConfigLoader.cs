@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using PamelloV7.Framework.Attributes;
@@ -37,7 +38,7 @@ public class PamelloConfigLoader
         var configFile = new FileInfo(Program.ConfigPath);
         if (!configFile.Exists) throw new PamelloLoadingException($"Config file by path \"{Program.ConfigPath}\" not found");
         
-        Output.Write($"Loading config from file \"{configFile.FullName}\"");
+        Debug.WriteLine($"Loading config from file \"{configFile.FullName}\"");
             
         var fs = configFile.OpenRead();
 
@@ -46,10 +47,10 @@ public class PamelloConfigLoader
             
         fs.Close();
 
-        Output.Write($"Loaded json file parts: ({jsonParts.Count} parts)");
+        Debug.WriteLine($"Loaded json file parts: ({jsonParts.Count} parts)");
         foreach (var (partName, partJson) in jsonParts) {
             Containers.Add(new PamelloConfigContainer(partName, partJson));
-            Output.Write($"{partName}: {partJson}");
+            Debug.WriteLine($"{partName}: {partJson}");
         }
     }
 
@@ -62,7 +63,7 @@ public class PamelloConfigLoader
         if (container.Part.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.PartName}\" not found in config file");
 
         foreach (var property in rootProperty.FieldType.GetProperties()) {
-            Output.Write($"| {property.Name}: {property.PropertyType}");
+            Debug.WriteLine($"| {property.Name}: {property.PropertyType}");
         }
             
         rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.FieldType, _jsoncProperties));

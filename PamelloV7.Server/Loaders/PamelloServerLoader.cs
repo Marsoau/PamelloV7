@@ -41,8 +41,6 @@ public class PamelloServerLoader
             //StaticLogger.Log($"| {service.FullName} : {serviceInterface?.Name}"); // ({service.Assembly.GetName().FullName})");
             _assemblyServices.Add(service, serviceInterface);
         }
-        
-        _configLoader.InitType(typeof(ServerConfig), "Server");
     }
     
     public void ConfigureAssemblyServices(IServiceCollection services) {

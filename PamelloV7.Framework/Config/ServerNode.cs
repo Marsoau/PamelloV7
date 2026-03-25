@@ -9,4 +9,5 @@ public partial class ServerNode
     public string HostName { get; set; } = "";
     public string DataPath { get; set; } = $"{AppContext.BaseDirectory}Data";
     public string[] DisabledModules { get; set; } = [];
+    public bool UseConsolonia { get; set; } = true;
 }

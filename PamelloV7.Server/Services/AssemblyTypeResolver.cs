@@ -35,10 +35,6 @@ public class AssemblyTypeResolver : IAssemblyTypeResolver
     public IEnumerable<Type> GetInheritorsOf(params Type[] types) {
         return GetAll().Where(x => types.Any(t => t.IsAssignableFrom(x)) && !x.IsAbstract);
     }
-    
-    public Type? GetTypeByName(string name) {
-        return GetAll().FirstOrDefault(x => x.Name == name);
-    }
 
     public IPamelloModule? GetAssemblyModule(Assembly assembly) {
         return ModulesLoader.Containers.FirstOrDefault(x => x.Assembly == assembly)?.Module;

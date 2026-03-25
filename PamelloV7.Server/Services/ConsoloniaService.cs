@@ -13,11 +13,15 @@ public class ConsoloniaService : IPamelloService
     private ConsoloniaApp? _app;
     private ConsoloniaApp App => _app ?? throw new InvalidOperationException("Consolonia app not set");
     
+    public bool IsInitialized => _app != null;
+    
     public ConsoloniaService(IServiceProvider services) {
         _services = services;
     }
     
-    internal void SetApp(ConsoloniaApp app) {
+    internal void SetApp(ConsoloniaApp? app) {
+        if (app is null) return;
+        
         _app = app;
         _app.Services = _services;
     }

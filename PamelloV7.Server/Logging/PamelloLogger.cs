@@ -1,17 +1,20 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Avalonia.Threading;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Logging.Messages;
 using PamelloV7.Framework.Logging.Services;
 using PamelloV7.Framework.Services;
 using PamelloV7.Server.Consolonia.Controls;
+using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Logging;
 
 public class PamelloLogger : IPamelloLogger
 {
+    private ConsoloniaService? Consolonia { get; set; }
     private IAssemblyTypeResolver? Types { get; set; }
     private IEventsService? Events { get; set; }
 
@@ -20,18 +23,25 @@ public class PamelloLogger : IPamelloLogger
     internal void SetServices(IServiceProvider services) {
         Types = services.GetRequiredService<IAssemblyTypeResolver>();
         Events = services.GetRequiredService<IEventsService>();
+        Consolonia = services.GetRequiredService<ConsoloniaService>();
     }
     
     public RefreshableLogMessage Write(object? obj = null, ELogLevel level = ELogLevel.Log, Assembly? assembly = null) {
         assembly ??= Assembly.GetCallingAssembly();
         var module = Types?.GetAssemblyModule(assembly);
+        
         var message = new RefreshableLogMessage() {
             Content = obj?.ToString() ?? "#null",
             Level = level,
             Module = module,
         };
-        
-        Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
+
+        if (ServerConfig.Root.UseConsolonia) {
+            Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
+        }
+        else {
+            Console.WriteLine($"{message.TimeStamp:HH:mm:ss.fff} [{message.Module?.Name ?? "Server"} | {message.Level}] {message.Content}");   
+        }
         
         return message;
     }
@@ -57,8 +67,10 @@ public class PamelloLogger : IPamelloLogger
             message.Refresh();
             return Task.CompletedTask;
         }, getEntities);
-        
-        Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
+
+        if (ServerConfig.Root.UseConsolonia) {
+            Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
+        }
         
         return message;
     }
