@@ -104,16 +104,18 @@ public class DynamicGroupBuilder : IPamelloService
 
         TypeBuilder groupBuilder;
 
+        var groupName = $"Group_{descriptor.Name.Replace("-", "_")}";
+
         if (parentBuilder is not null) {
             groupBuilder = parentBuilder.DefineNestedType(
-                $"Group_{descriptor.Name.Replace("-", "_")}",
+                groupName,
                 TypeAttributes.NestedPublic | TypeAttributes.Class,
                 typeof(DiscordCommand)
             );
         }
         else {
             groupBuilder = _moduleBuilder.DefineType(
-                $"Group_{descriptor.Name.Replace("-", "_")}",
+                groupName,
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeof(DiscordCommand)
             );

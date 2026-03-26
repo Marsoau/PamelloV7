@@ -8,10 +8,5 @@ public partial class GuidedSetupScreen : PamelloScreen
     
     public GuidedSetupScreen() {
         InitializeComponent();
-
-        Loaded += async (_, _) => {
-            await Task.Delay(5000);
-            SetupCompleted.SetResult();
-        };
     }
 }

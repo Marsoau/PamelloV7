@@ -3,6 +3,13 @@
              xmlns:local="clr-namespace:PamelloV7.Module.Marsoau.Setup"
              x:Class="PamelloV7.Module.Marsoau.Setup.Screens.GuidedSetupScreen">
     <Grid Background="#080808">
-        <TextBlock Text="wait"/>
+        <Grid
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            MaxHeight="24"
+            MaxWidth="80"
+            Background="DarkSlateGray"
+        >
+        </Grid>
     </Grid>
 </UserControl>
