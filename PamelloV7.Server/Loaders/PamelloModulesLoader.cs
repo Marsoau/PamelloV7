@@ -8,6 +8,7 @@ using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
+using PamelloV7.Framework.Modules.Loaders;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Loaders.Context;
 using PamelloV7.Server.Services;
@@ -20,12 +21,13 @@ public class PamelloModuleContainer
     public readonly IPamelloModule Module;
     public readonly Dictionary<Type, Type?> Services;
     public readonly List<string> Dependencies;
-    public readonly Type? ConfigType;
+    public readonly Dictionary<string, Type> ConfigTypes;
     
     public PamelloModuleContainer(Assembly assembly, IPamelloModule module) {
         Assembly = assembly;
         Module = module;
         Services = [];
+        ConfigTypes = [];
         
         var serviceTypes = assembly.GetTypes().Where(x => typeof(IPamelloService).IsAssignableFrom(x));
         foreach (var service in serviceTypes) {
@@ -34,7 +36,7 @@ public class PamelloModuleContainer
             
             Services.Add(service, serviceInterface);
         }
-            
+        
         var referencedAssemblies = assembly.GetReferencedAssemblies();
         Dependencies = referencedAssemblies
             .Select(x => x.Name!)
@@ -42,7 +44,10 @@ public class PamelloModuleContainer
             .ToList();
         
         var rootNode = assembly.GetTypes().FirstOrDefault(t => t.GetCustomAttribute<ConfigRootAttribute>() is not null);
-        ConfigType = assembly.GetTypes().FirstOrDefault(t => t.Name == $"{rootNode?.Name.Replace("Node", "")}Config");
+        var type = assembly.GetTypes().FirstOrDefault(t => t.Name == rootNode?.Name.Replace("Node", "Config"));
+        if (type is null) return;
+        
+        ConfigTypes.Add("", type);
     }
 
     public override string ToString() {
@@ -50,7 +55,7 @@ public class PamelloModuleContainer
     }
 }
 
-public class PamelloModulesLoader
+public class PamelloModulesLoader : IPamelloModuleLoader
 {
     private readonly PamelloConfigLoader _configLoader;
 
@@ -121,8 +126,8 @@ public class PamelloModulesLoader
 
         Output.Write($"Modules: ({Containers.Count} modules)");
         foreach (var container in Containers) {
-            if (container.ConfigType is not null) {
-                _configLoader.InitType(container.ConfigType, $"{container.Module.Author}/{container.Module.Name}");
+            if (container.ConfigTypes.FirstOrDefault().Value is { } type) {
+                _configLoader.InitType(type, $"{container.Module.Author}/{container.Module.Name}");
             }
             Output.Write($"{container}\n| {container.Module.Description}");
         }
@@ -237,5 +242,9 @@ public class PamelloModulesLoader
             await container.Module.StartupAsync(services);
         }
         Output.Write($"Started {stagedContainers.Count} modules in {stage} stage");
+    }
+
+    public IPamelloModule? GetAssemblyModule(Assembly assembly) {
+        return Containers.FirstOrDefault(x => x.Assembly == assembly)?.Module;
     }
 }

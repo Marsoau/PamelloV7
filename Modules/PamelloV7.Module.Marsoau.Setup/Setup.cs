@@ -17,7 +17,7 @@ public class Setup : IPamelloModule
     public IBrush Color => Brushes.OrangeRed;
 
     public async Task StartupAsync(IServiceProvider services) {
-        if (false) return; //check if setup is needed
+        if (true) return; //check if setup is needed
         
         var setup = services.GetRequiredService<SetupService>();
         var consolonia = services.GetRequiredService<IConsoloniaService>();

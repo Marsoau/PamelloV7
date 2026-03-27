@@ -9,6 +9,7 @@ using Consolonia;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Config.Loaders;
 using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Enumerators;
@@ -18,6 +19,7 @@ using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Logging.Services;
+using PamelloV7.Framework.Modules.Loaders;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Server.Consolonia;
@@ -36,9 +38,10 @@ namespace PamelloV7.Server
         
         public static string ConfigPath = "Config/config.jsonc";
         
-        private PamelloConfigLoader _configLoader;
-        private PamelloModulesLoader _modulesLoader;
-        private PamelloServerLoader _serverLoader;
+        private PamelloLogger _logger = null!;
+        private PamelloConfigLoader _configLoader = null!;
+        private PamelloModulesLoader _modulesLoader = null!;
+        private PamelloServerLoader _serverLoader = null!;
         
         private readonly TaskCompletionSource _consoloniaCreated = new();
         
@@ -48,8 +51,8 @@ namespace PamelloV7.Server
         public static void Main(string[] args) => new Program().ConsoloniaStartup(args);
 
         public void ConsoloniaStartup(string[] args) {
-            var logger = new PamelloLogger();
-            Output.Logger = logger;
+            _logger = new PamelloLogger();
+            Output.Logger = _logger;
             
             _configLoader = new PamelloConfigLoader();
             _configLoader.Load();
@@ -114,7 +117,9 @@ namespace PamelloV7.Server
             
             aspBuilder.Services.AddSingleton(aspBuilder.Services);
 
-            aspBuilder.Services.AddSingleton(Output.Logger);
+            aspBuilder.Services.AddSingleton<IPamelloLogger>(_logger);
+            aspBuilder.Services.AddSingleton<IPamelloConfigLoader>(_configLoader);
+            aspBuilder.Services.AddSingleton<IPamelloModuleLoader>(_modulesLoader);
             
             Asp = aspBuilder.Build();
             
@@ -125,7 +130,7 @@ namespace PamelloV7.Server
             var types = (AssemblyTypeResolver)_services.GetRequiredService<IAssemblyTypeResolver>();
             types.LoadModules(_modulesLoader, _services);
             
-            ((PamelloLogger)Output.Logger).SetServices(_services);
+            _logger.SetServices(_services);
             
             var consolonia = (ConsoloniaService)_services.GetRequiredService<IConsoloniaService>();
             consolonia.SetApp(Consolonia);

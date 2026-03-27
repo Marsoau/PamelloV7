@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Config.Loaders;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Services;
@@ -20,7 +21,7 @@ public class PamelloConfigContainer
     }
 }
 
-public class PamelloConfigLoader
+public class PamelloConfigLoader : IPamelloConfigLoader
 {
     public List<PamelloConfigContainer> Containers { get; private set; }
 
