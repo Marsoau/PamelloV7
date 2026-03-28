@@ -150,7 +150,7 @@ namespace PamelloV7.Server
                     await _modulesLoader.StartupStage(Asp.Services, stage);
                 }
                 catch (ModuleStartupException x) {
-                    Output.Write($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}");
+                    Output.Write($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}", ELogLevel.Error);
                     return;
                 }
             }

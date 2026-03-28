@@ -11,31 +11,6 @@ using PamelloV7.Framework.Modules;
 
 namespace PamelloV7.Framework.Config.Parts;
 
-public class PamelloConfigPreInitializer
-{
-    public string PropertyPath { get; init; }
-    public Type PropertyType { get; init; }
-
-    private object? _value;
-    public object? Value {
-        get => _value;
-        set {
-            _value = value;
-            IsPreInitialized = true;
-        }
-    }
-    public bool IsPreInitialized { get; private set; }
-
-    public PamelloConfigPreInitializer(string propertyPath, Type propertyType) {
-        PropertyPath = propertyPath;
-        PropertyType = propertyType;
-    }
-
-    public override string ToString() {
-        return $"{PropertyPath}<{PropertyType}>";
-    }
-}
-
 public class PamelloConfigPart
 {
     public Type? _nodeType = null!;
@@ -106,7 +81,7 @@ public class PamelloConfigPart
             if (property.GetCustomAttribute<RequiredMemberAttribute>() is null) continue;
             if (GetInnerNode(propertyPath) is not null) continue;
             
-            yield return new PamelloConfigPreInitializer(propertyPath, property.PropertyType);
+            yield return new PamelloConfigPreInitializer(this, propertyPath, property.PropertyType);
         }
     }
 

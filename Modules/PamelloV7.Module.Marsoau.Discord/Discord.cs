@@ -50,16 +50,19 @@ public class Discord : IPamelloModule
         var whenReady = new TaskCompletionSource();
 
         clients.Main.Log += DiscordLog;
-        clients.Main.Ready += async () => {
-            Output.Write("Discord client ready");
-            
+        clients.Main.Ready += () => {
             whenReady.SetResult();
+            return Task.CompletedTask;
         };
 
+        Output.Write("Staring Discord client");
+        
         await clients.Main.LoginAsync(TokenType.Bot, DiscordConfig.Root.Tokens.Main);
         await clients.Main.StartAsync();
 
         whenReady.Task.Wait();
+        
+        Output.Write("Discord client ready");
         
         //var commands = await clients.Main.GetGlobalApplicationCommandsAsync();
         //Task.WaitAll(commands.Select(command => command.DeleteAsync()));

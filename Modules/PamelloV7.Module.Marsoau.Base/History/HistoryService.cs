@@ -92,7 +92,7 @@ public class HistoryService : IHistoryService
         var nested = _unfinished.FirstOrDefault(record => record.Event == e) ?? new NestedPamelloEvent(e);
         var record = Save(nested, scopeUser);
         
-        Write(record.Nested);
+        //Write(record.Nested);
         
         return record;
     }
