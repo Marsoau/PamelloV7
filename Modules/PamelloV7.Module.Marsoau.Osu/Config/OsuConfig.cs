@@ -8,7 +8,7 @@ public partial class OsuNode
 {
     public partial class AuthorizationNode
     {
-        public string ApplicationId { get; set; } = null!;
-        public string Token { get; set; } = null!;
+        public required string ApplicationId { get; set; } = null!;
+        public required string Token { get; set; } = null!;
     }
 }

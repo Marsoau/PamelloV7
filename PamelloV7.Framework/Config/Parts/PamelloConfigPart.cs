@@ -39,10 +39,12 @@ public class PamelloConfigPreInitializer
 public class PamelloConfigPart
 {
     public Type? _nodeType = null!;
+    public Type? _staticType = null!;
     
     public string Name { get; }
     public JsonNode Json { get; }
     public Type NodeType => _nodeType ?? throw new Exception("Node type not initialized");
+    public Type StaticType => _staticType ?? throw new Exception("Static type not initialized");
     public object? Node { get; private set; } = null;
     public IPamelloModule? Module { get; private set; }
     
@@ -58,8 +60,10 @@ public class PamelloConfigPart
         IsJustCreated = false;
     }
     
-    public void Initialize(Type nodeType, IPamelloModule? module) {
+    public void Initialize(Type nodeType, Type staticType, IPamelloModule? module) {
         _nodeType = nodeType;
+        _staticType = staticType;
+        
         Module = module;
 
         PreInitializers = GetPreInitializers(nodeType).ToList();
@@ -119,5 +123,8 @@ public class PamelloConfigPart
         }
 
         Node = Json.Deserialize(NodeType);
+        
+        var rootField = StaticType.GetField("Root");
+        rootField?.SetValue(null, Node);
     }
 }

@@ -7,9 +7,11 @@ namespace PamelloV7.Module.Marsoau.Osu.Services;
 
 public class OsuClientService : IPamelloService
 {
-    public readonly OsuApiClient Client;
+    public OsuApiClient Client {
+        private set; get => field ?? throw new InvalidOperationException("Client not initialized");
+    }
 
-    public OsuClientService(IServiceProvider services) {
+    public void Startup(IServiceProvider services) {
         Client = new OsuApiClient(
             new OsuClientAccessTokenProvider(
                 OsuConfig.Root.Authorization.ApplicationId,

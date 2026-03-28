@@ -21,7 +21,7 @@ public class PamelloModuleContainer
     public readonly IPamelloModule Module;
     public readonly Dictionary<Type, Type?> Services;
     public readonly List<string> Dependencies;
-    public readonly Dictionary<string, Type> ConfigTypes;
+    public readonly Dictionary<string, KeyValuePair<Type, Type>> ConfigTypes;
     
     public PamelloModuleContainer(Assembly assembly, IPamelloModule module) {
         Assembly = assembly;
@@ -43,11 +43,17 @@ public class PamelloModuleContainer
             .Where(name => name.StartsWith("PamelloV7.Module"))
             .ToList();
         
-        var rootNode = assembly.GetTypes().FirstOrDefault(t => t.GetCustomAttribute<ConfigRootAttribute>() is not null);
-        var type = assembly.GetTypes().FirstOrDefault(t => t.Name == rootNode?.Name.Replace("Node", "Config"));
-        if (type is null) return;
+        var rootNodes = assembly.GetTypes().Where(t => t.GetCustomAttribute<ConfigRootAttribute>() is not null);
+        foreach (var rootNode in rootNodes) {
+            var attribute = rootNode.GetCustomAttribute<ConfigRootAttribute>()!;
+            
+            var staticType = assembly.GetTypes().FirstOrDefault(t => t.Name == rootNode?.Name.Replace("Node", "Config"));
+            var nodeType = assembly.GetTypes().FirstOrDefault(t => t.Name == rootNode?.Name);
         
-        ConfigTypes.Add("", type);
+            if (staticType is null || nodeType is null) return;
+        
+            ConfigTypes.Add(attribute.Name?.Split(":").LastOrDefault() ?? "", new KeyValuePair<Type, Type>(staticType, nodeType));
+        }
     }
 
     public override string ToString() {
@@ -127,6 +133,7 @@ public class PamelloModulesLoader : IPamelloModuleLoader
         Output.Write($"Modules: ({Containers.Count} modules)");
         foreach (var container in Containers) {
             if (container.ConfigTypes.FirstOrDefault().Value is { } type) {
+                _configLoader.InitializeFromContainer(container);
                 //_configLoader.InitType(type, $"{container.Module.Author}/{container.Module.Name}");
             }
             Output.Write($"{container}\n| {container.Module.Description}");
@@ -230,6 +237,8 @@ public class PamelloModulesLoader : IPamelloModuleLoader
         Output.Write($"Starting modules in {stage} stage: ({stagedContainers.Count} modules)");
         foreach (var container in stagedContainers) {
             Output.Write($"{container}");
+            
+            _configLoader.FinishFromContainer(container);
 
             foreach (var (classType, interfaceType) in container.Services) {
                 if (classType.GetMethod(nameof(IPamelloService.Startup)) is not null) {

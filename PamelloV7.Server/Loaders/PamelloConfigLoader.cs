@@ -47,19 +47,28 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     }
 
     public void InitializeFromContainer(PamelloModuleContainer container) {
-        foreach (var (partName, partNodeType) in container.ConfigTypes) {
-            var part = Parts.FirstOrDefault(part => part.Name == partName);
+        foreach (var (partName, staticAndNodeType) in container.ConfigTypes) {
+            var fullName = $"{container.Module.Author}/{container.Module.Name}{
+                (!string.IsNullOrWhiteSpace(partName) ? $":{partName}" : "")
+            }";
+            var (partStaticType, partNodeType) = staticAndNodeType;
+            
+            var part = Parts.FirstOrDefault(part => part.Name == fullName);
             if (part is null) {
                 var json = JsonSerializer.SerializeToNode(partNodeType);
-                if (json is null) throw new PamelloLoadingException($"Config part \"{partName}\" is not serializable");
+                if (json is null) throw new PamelloLoadingException($"Config part \"{fullName}\" is not serializable");
 
-                part = new PamelloConfigPart(partName, json);
+                part = new PamelloConfigPart(fullName, json);
                 
                 Parts.Add(part);
             }
             
-            part.Initialize(partNodeType, container.Module);
+            part.Initialize(partNodeType, partStaticType, container.Module);
         }
+    }
+
+    public void FinishFromContainer(PamelloModuleContainer container) {
+        Parts.Where(part => part.Module == container.Module).ToList().ForEach(part => part.Finish());
     }
 
     /*

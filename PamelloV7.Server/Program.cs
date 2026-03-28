@@ -56,25 +56,14 @@ namespace PamelloV7.Server
             Output.Logger = _logger;
             
             _configLoader = new PamelloConfigLoader();
+            
             _configLoader.Load();
         
             var part = _configLoader.Parts.FirstOrDefault(x => x.Name == "Server");
             if (part is null) return;
             
-            part.Initialize(typeof(ServerNode), null);
-
-            Console.WriteLine(part.PreInitializers.Count);
-            foreach (var preInitializer in part.PreInitializers) {
-                preInitializer.Value = "tstttaa";
-                Console.WriteLine(preInitializer.PropertyPath);
-            }
-            
+            part.Initialize(typeof(ServerNode), typeof(ServerConfig), null);
             part.Finish();
-
-            Console.WriteLine($"Tst: {((ServerNode)part.Node).Tst}");
-            
-            return;
-            //_configLoader.InitType(typeof(ServerConfig), "Server");
 
             AppBuilder consoloniaBuilder;
             
@@ -82,6 +71,7 @@ namespace PamelloV7.Server
                 consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
                     .UseConsolonia()
                     .UseAutoDetectedConsole()
+                    .ThrowOnErrors()
                     .LogToException();
 
                 consoloniaBuilder.AfterSetup(builder => {
@@ -100,9 +90,10 @@ namespace PamelloV7.Server
                 }
                 catch (Exception x) {
                     Output.Write($"Server Thread Crushed\n{x}", ELogLevel.Error);
+                    Console.WriteLine(x);
                 }
             });
-            
+
             consoloniaBuilder.StartWithConsoleLifetime(args);
         }
         public async Task MainAsync(string[] args) {
@@ -119,8 +110,6 @@ namespace PamelloV7.Server
             
             _serverLoader.Load();
             _modulesLoader.Load();
-            
-            return;
             
             if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
             

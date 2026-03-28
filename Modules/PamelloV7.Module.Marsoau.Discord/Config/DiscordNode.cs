@@ -8,7 +8,7 @@ namespace PamelloV7.Module.Marsoau.Discord.Config;
 public partial class DiscordNode
 {
     public partial class TokensNode {
-        public string Main { get; set; } = null!;
+        public required string Main { get; set; }
         public string[] SpeakerTokens { get; set; } = [];
     }
     
