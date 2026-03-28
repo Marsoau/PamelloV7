@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reflection;
 using Avalonia.Threading;
 using PamelloV7.Framework.Config;
@@ -38,13 +39,13 @@ public class PamelloLogger : IPamelloLogger
             Module = module,
         };
 
-        if (ServerConfig.Root.UseConsolonia) {
+        if (ServerConfig.Root.UseConsolonia && Consolonia is not null) {
             Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
         }
-        else {
-            Console.WriteLine(message);   
+        else if (message.Level == ELogLevel.Debug) {
+            Debug.WriteLine(message);
         }
-        
+            
         return message;
     }
 

@@ -4,6 +4,7 @@ namespace PamelloV7.Framework.Logging;
 
 public enum ELogLevel
 {
+    Debug,
     Log,
     Warning,
     Error,
