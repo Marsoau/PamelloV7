@@ -127,7 +127,7 @@ public class PamelloModulesLoader : IPamelloModuleLoader
         Output.Write($"Modules: ({Containers.Count} modules)");
         foreach (var container in Containers) {
             if (container.ConfigTypes.FirstOrDefault().Value is { } type) {
-                _configLoader.InitType(type, $"{container.Module.Author}/{container.Module.Name}");
+                //_configLoader.InitType(type, $"{container.Module.Author}/{container.Module.Name}");
             }
             Output.Write($"{container}\n| {container.Module.Description}");
         }

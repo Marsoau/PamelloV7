@@ -55,7 +55,7 @@ public class StaticConfigGenerator : IIncrementalGenerator
         sb.AppendLine($"{Tab(depth)}public partial class {nodeType.Name} {{");
         
         foreach (var innerType in innerTypes) {
-            sb.AppendLine(Tab(depth + 1) + $"public {innerType.Name} {AdjustedName(innerType.Name, "Node")} {{ get; set; }} = new();");
+            sb.AppendLine(Tab(depth + 1) + $"public {innerType.Name} {AdjustedName(innerType.Name, "Node")} {{ get; set; }}// = new();");
             sb.AppendLine(GenerateNode(innerType, depth + 1));
         }
         
@@ -79,7 +79,7 @@ public class StaticConfigGenerator : IIncrementalGenerator
             
             //static config part
             public static partial class {{AdjustedName(descriptor.ClassType.Name, "Node")}}Config {
-                public static {{descriptor.ClassType.GetFullName()}} Root = new {{descriptor.ClassType.GetFullName()}}();
+                public static {{descriptor.ClassType.GetFullName()}} Root;// = new {{descriptor.ClassType.GetFullName()}}();
             }
             
             //root node

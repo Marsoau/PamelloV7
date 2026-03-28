@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Config.Loaders;
+using PamelloV7.Framework.Config.Parts;
 using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Enumerators;
@@ -47,7 +48,7 @@ namespace PamelloV7.Server
         
         public ConsoloniaApp Consolonia { get; set; } = null!;
         public WebApplication Asp { get; set; } = null!;
-        
+
         public static void Main(string[] args) => new Program().ConsoloniaStartup(args);
 
         public void ConsoloniaStartup(string[] args) {
@@ -57,7 +58,23 @@ namespace PamelloV7.Server
             _configLoader = new PamelloConfigLoader();
             _configLoader.Load();
         
-            _configLoader.InitType(typeof(ServerConfig), "Server");
+            var part = _configLoader.Parts.FirstOrDefault(x => x.Name == "Server");
+            if (part is null) return;
+            
+            part.Initialize(typeof(ServerNode), null);
+
+            Console.WriteLine(part.PreInitializers.Count);
+            foreach (var preInitializer in part.PreInitializers) {
+                preInitializer.Value = "tstttaa";
+                Console.WriteLine(preInitializer.PropertyPath);
+            }
+            
+            part.Finish();
+
+            Console.WriteLine($"Tst: {((ServerNode)part.Node).Tst}");
+            
+            return;
+            //_configLoader.InitType(typeof(ServerConfig), "Server");
 
             AppBuilder consoloniaBuilder;
             
@@ -102,6 +119,8 @@ namespace PamelloV7.Server
             
             _serverLoader.Load();
             _modulesLoader.Load();
+            
+            return;
             
             if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
             

@@ -5,6 +5,7 @@ namespace PamelloV7.Framework.Config;
 [ConfigRoot]
 public partial class ServerNode
 {
+    public required string Tst { get; set; }
     public string Host { get; set; } = "http://*:51630";
     public string HostName { get; set; } = "";
     public string DataPath { get; set; } = $"{AppContext.BaseDirectory}Data";

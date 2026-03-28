@@ -1,34 +1,28 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Config.Loaders;
+using PamelloV7.Framework.Config.Parts;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Loaders;
 
-public class PamelloConfigContainer
-{
-    public string PartName { get; }
-    public JsonElement Part { get; set; }
-    
-    public PamelloConfigContainer(string partName, JsonElement part) {
-        PartName = partName;
-        Part = part;
-    }
-}
-
 public class PamelloConfigLoader : IPamelloConfigLoader
 {
-    public List<PamelloConfigContainer> Containers { get; private set; }
+    public JsonObject? _json;
+    public JsonObject Json => _json ?? throw new InvalidOperationException("Json not set");
+    
+    public List<PamelloConfigPart> Parts { get; private set; }
 
     private readonly JsonSerializerOptions _jsoncProperties;
 
     public PamelloConfigLoader() {
-        Containers = [];
+        Parts = [];
         
         _jsoncProperties = new JsonSerializerOptions {
             ReadCommentHandling = JsonCommentHandling.Skip
@@ -38,35 +32,50 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     public void Load() {
         var configFile = new FileInfo(Program.ConfigPath);
         if (!configFile.Exists) throw new PamelloLoadingException($"Config file by path \"{Program.ConfigPath}\" not found");
+
+        //Output.Write($"Loading config from file \"{configFile.FullName}\"", ELogLevel.Debug);
+            
+        using var fs = configFile.OpenRead();
         
-        Debug.WriteLine($"Loading config from file \"{configFile.FullName}\"");
-            
-        var fs = configFile.OpenRead();
+        _json = JsonSerializer.Deserialize<JsonObject>(fs, _jsoncProperties);
 
-        var jsonParts = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(fs, _jsoncProperties);
-        if (jsonParts is null) throw new PamelloLoadingException("Failed to load config.json");
+        foreach (var (partName, partJson) in Json) {
+            if (partJson is null) continue;
             
-        fs.Close();
-
-        Debug.WriteLine($"Loaded json file parts: ({jsonParts.Count} parts)");
-        foreach (var (partName, partJson) in jsonParts) {
-            Containers.Add(new PamelloConfigContainer(partName, partJson));
-            Debug.WriteLine($"{partName}: {partJson}");
+            Parts.Add(new PamelloConfigPart(partName, partJson));
         }
     }
 
+    public void InitializeFromContainer(PamelloModuleContainer container) {
+        foreach (var (partName, partNodeType) in container.ConfigTypes) {
+            var part = Parts.FirstOrDefault(part => part.Name == partName);
+            if (part is null) {
+                var json = JsonSerializer.SerializeToNode(partNodeType);
+                if (json is null) throw new PamelloLoadingException($"Config part \"{partName}\" is not serializable");
+
+                part = new PamelloConfigPart(partName, json);
+                
+                Parts.Add(part);
+            }
+            
+            part.Initialize(partNodeType, container.Module);
+        }
+    }
+
+    /*
     public void InitType(Type type, string partName) {
         var rootProperty = type.GetField("Root");
         if (rootProperty is null) throw new PamelloLoadingException($"Root property not found in config type {type.FullName}");
-            
-        var container = Containers.FirstOrDefault(x => x.PartName == partName);
+
+        var container = Parts.FirstOrDefault(x => x.Name == partName);
         if (container is null) throw new PamelloLoadingException($"Config part \"{partName}\" not found in config file");
-        if (container.Part.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.PartName}\" not found in config file");
+        if (container.Json.ValueKind == JsonValueKind.Null) throw new PamelloLoadingException($"Config part \"{container.Name}\" not found in config file");
 
         foreach (var property in rootProperty.FieldType.GetProperties()) {
-            Debug.WriteLine($"| {property.Name}: {property.PropertyType}");
+            Output.Write($"| {property.Name}: {property.PropertyType}", ELogLevel.Debug);
         }
-            
-        rootProperty.SetValue(null, container.Part.Deserialize(rootProperty.FieldType, _jsoncProperties));
+
+        rootProperty.SetValue(null, container.Json.Deserialize(rootProperty.FieldType, _jsoncProperties));
     }
+    */
 }
