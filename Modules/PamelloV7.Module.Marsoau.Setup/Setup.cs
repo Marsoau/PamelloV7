@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Config.Loaders;
 using PamelloV7.Framework.Config.Parts;
 using PamelloV7.Framework.Consolonia;
@@ -35,7 +36,6 @@ public class Setup : IPamelloModule
             }");
             
             var parts = config.Parts.Where(part => part.Module == container.Module);
-            var moduleName = container.Module.ToString()!;
             
             foreach (var part in parts) {
                 Output.Write($"|    {part.Name}{
@@ -46,19 +46,21 @@ public class Setup : IPamelloModule
             }
         }
 
-        if (preInitializers.Count > 0) throw new ModuleStartupException(this, $"Some of the pre-initializers are not set\n{string.Join(
-            "\n", preInitializers.Select(preInitializer => $"| {preInitializer.Part.Name} - {preInitializer}")
-        )}");
-        
-        return;
+        if (preInitializers.Count == 0) return;
         
         var setup = services.GetRequiredService<SetupService>();
         var consolonia = services.GetRequiredService<IConsoloniaService>();
         
-        Output.Write("Starting guided setup");
-        await setup.StartGuidedSetupAsync();
-        Output.Write("Setup completed");
+        Output.Write("Starting setup");
+        await setup.StartSetupAsync();
+        
+        await setup.DisplayPreInitializersAsync(preInitializers);
         
         consolonia.SetLogScreen();
+        
+        if (preInitializers.Any(initializer => !initializer.IsPreInitialized))
+            throw new ModuleStartupException(this, "Some pre-initializers are not set");
+        
+        Output.Write("Setup completed");
     }
 }

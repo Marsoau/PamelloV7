@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PamelloV7.Module.Marsoau.Setup"
+             xmlns:controls="clr-namespace:PamelloV7.Module.Marsoau.Setup.Controls"
+             x:Class="PamelloV7.Module.Marsoau.Setup.Pages.InitializationPage">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollViewer Grid.Row="0">
+            <StackPanel Name="Stack">
+            </StackPanel>
+        </ScrollViewer>
+        <Grid Grid.Row="1">
+            <Button Name="CancelButton" Click="CancelButton_OnClick" HorizontalAlignment="Left" Content="Cancel"/>
+            <Button Name="ApplyButton" Click="ApplyButton_OnClick" HorizontalAlignment="Right" Content="Apply"/>
+        </Grid>
+    </Grid>
+</UserControl>

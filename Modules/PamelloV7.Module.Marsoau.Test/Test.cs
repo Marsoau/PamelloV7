@@ -26,6 +26,7 @@ using PamelloV7.Framework.History.Services;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Platforms;
+using PamelloV7.Module.Marsoau.Test.Config;
 using PamelloV7.Module.Marsoau.Test.Events;
 
 namespace PamelloV7.Module.Marsoau.Test;

@@ -12,4 +12,11 @@
       <ProjectReference Include="..\..\PamelloV7.Framework\PamelloV7.Framework.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Page\SetupStep.axaml.cs">
+        <DependentUpon>SetupStep.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

@@ -90,7 +90,6 @@ namespace PamelloV7.Server
                 }
                 catch (Exception x) {
                     Output.Write($"Server Thread Crushed\n{x}", ELogLevel.Error);
-                    Console.WriteLine(x);
                 }
             });
 

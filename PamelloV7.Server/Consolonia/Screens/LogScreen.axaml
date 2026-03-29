@@ -28,7 +28,7 @@
             </ItemsControl>
         </ScrollViewer>
         
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Background="#161616">
             <Button x:Name="CopyButton" HorizontalAlignment="Right" Content="Copy All" Click="CopyButton_OnClick"/>
         </Grid>
     </Grid>
