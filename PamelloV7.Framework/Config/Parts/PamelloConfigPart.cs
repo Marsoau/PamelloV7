@@ -102,4 +102,6 @@ public class PamelloConfigPart
         var rootField = StaticType.GetField("Root");
         rootField?.SetValue(null, Node);
     }
+    
+    public override string ToString() => Name;
 }

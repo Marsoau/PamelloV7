@@ -72,15 +72,6 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         _dependencies = services.GetRequiredService<IDependenciesService>();
-
-        Output.Write(() =>
-                $"""
-                 Player: {_me.SelectedPlayer}
-                 Time: {_me.SelectedPlayer?.Queue?.CurrentSongTimePosition} / {_me.SelectedPlayer?.Queue?.CurrentSongTimeTotal}
-                 Song: {_me.SelectedPlayer?.Queue?.CurrentSong}
-                 """,
-            () => [_me, _me.SelectedPlayer, _me.SelectedPlayer?.Queue?.CurrentSong]
-        );
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {

@@ -7,7 +7,7 @@ public partial class ServerNode
 {
     public string Host { get; set; } = "http://*:51630";
     public string HostName { get; set; } = "";
-    public string DataPath { get; set; } = $"{AppContext.BaseDirectory}Data";
+    public string DataPath { get; set; } = Path.Combine(AppContext.BaseDirectory, "Data");
     public string[] DisabledModules { get; set; } = [];
     public bool UseConsolonia { get; set; } = true;
 }

@@ -31,14 +31,16 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     }
 
     public void Load() {
-        var configFile = new FileInfo(Program.ConfigPath);
-        if (!configFile.Exists) throw new PamelloLoadingException($"Config file by path \"{Program.ConfigPath}\" not found");
+        var configFile = new FileInfo(
+            Path.Combine(FileAccessService.ConfigDirectory.FullName, "config.jsonc")
+        );
 
-        //Output.Write($"Loading config from file \"{configFile.FullName}\"", ELogLevel.Debug);
-            
-        using var fs = configFile.OpenRead();
-        
-        _json = JsonSerializer.Deserialize<JsonObject>(fs, _jsoncProperties);
+        if (!configFile.Exists || configFile.Length == 0) {
+            _json = JsonSerializer.Deserialize<JsonObject>("{}");
+        }
+        else using (var fs = configFile.OpenRead()) {
+            _json = JsonSerializer.Deserialize<JsonObject>(fs, _jsoncProperties);
+        };
 
         foreach (var (partName, partJson) in Json) {
             if (partJson is null) continue;
@@ -47,6 +49,17 @@ public class PamelloConfigLoader : IPamelloConfigLoader
         }
     }
 
+    public void FinishForServer() {
+        var part = Parts.FirstOrDefault(x => x.Name == "Server");
+        if (part is null) {
+            part = new PamelloConfigPart("Server", new JsonObject());
+            Parts.Add(part);
+        }
+        
+        part.Initialize(typeof(ServerNode), typeof(ServerConfig), null);
+        part.Finish();
+    }
+    
     public void InitializeFromContainer(PamelloModuleContainer container) {
         foreach (var (partName, staticAndNodeType) in container.ConfigTypes) {
             var fullName = $"{container.Module.Author}/{container.Module.Name}{
@@ -56,7 +69,7 @@ public class PamelloConfigLoader : IPamelloConfigLoader
             
             var part = Parts.FirstOrDefault(part => part.Name == fullName);
             if (part is null) {
-                var json = JsonSerializer.SerializeToNode(partNodeType);
+                var json = JsonSerializer.Deserialize<JsonNode>("{}");
                 if (json is null) throw new PamelloLoadingException($"Config part \"{fullName}\" is not serializable");
 
                 part = new PamelloConfigPart(fullName, json);

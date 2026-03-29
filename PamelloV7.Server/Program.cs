@@ -58,12 +58,7 @@ namespace PamelloV7.Server
             _configLoader = new PamelloConfigLoader();
             
             _configLoader.Load();
-        
-            var part = _configLoader.Parts.FirstOrDefault(x => x.Name == "Server");
-            if (part is null) return;
-            
-            part.Initialize(typeof(ServerNode), typeof(ServerConfig), null);
-            part.Finish();
+            _configLoader.FinishForServer();
 
             AppBuilder consoloniaBuilder;
             
