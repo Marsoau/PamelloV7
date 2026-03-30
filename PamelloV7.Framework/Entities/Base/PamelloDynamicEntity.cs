@@ -28,9 +28,10 @@ public abstract class PamelloDynamicEntity : IPamelloDynamicEntity
     
     public int Id { get; }
     
-    public abstract string Name { get; protected set; }
-    public abstract bool IsDeleted { get; set; }
+    public abstract string Name { get; }
     public abstract string SetName(string name, IPamelloUser scopeUser);
+    
+    public abstract bool IsDeleted { get; set; }
 
     protected PamelloDynamicEntity(int id, IServiceProvider services) {
         _services = services;

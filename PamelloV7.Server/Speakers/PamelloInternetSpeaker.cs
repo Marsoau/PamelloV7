@@ -20,11 +20,13 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
 {
     private readonly IPamelloAudioSystem _audio;
     
-    public override string Name { get; protected set; }
+    private string _name;
+    
+    public override string Name => _name;
     public override bool IsDeleted { get; set; }
 
     public override string SetName(string name, IPamelloUser scopeUser) {
-        return Name = name;
+        return _name = name;
     }
 
     public AudioBuffer Buffer { get; }
@@ -49,7 +51,7 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     public PamelloInternetSpeaker(int id, string name, IPamelloPlayer player, IServiceProvider services) : base(id, services) {
         Player = player;
         
-        Name = name;
+        _name = name;
 
         _listeners = [];
         

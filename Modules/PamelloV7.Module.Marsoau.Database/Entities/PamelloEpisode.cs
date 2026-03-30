@@ -20,11 +20,10 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
     private string _name;
     private AudioTime _start;
     private bool _autoSkip;
-    private IPamelloSong _song;
+    private IPamelloSong _song = null!;
 
     public override string Name {
         get => _name;
-        protected set => throw new NotImplementedException();
     }
 
     public override bool IsDeleted { get; set; }
@@ -64,7 +63,7 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
     protected override void InitBase() {
         var songs = _services.GetRequiredService<IPamelloSongRepository>();
         
-        _song = songs.Get(_databaseEntity.SongId)!;
+        _song = songs.Get(DatabaseEntity.SongId)!;
     }
 
     public override void SaveInternal() {

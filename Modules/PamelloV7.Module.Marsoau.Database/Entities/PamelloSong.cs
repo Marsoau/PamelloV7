@@ -22,15 +22,12 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     
     public List<SongSource> _sources;
     
-    public List<IPamelloUser> _favoriteBy;
-    public List<IPamelloEpisode> _songEpisodes;
-    public List<IPamelloPlaylist> _songPlaylists;
+    public List<IPamelloUser> _favoriteBy = null!;
+    public List<IPamelloEpisode> _songEpisodes = null!;
+    public List<IPamelloPlaylist> _songPlaylists = null!;
     public List<string> _associations;
 
-    public override string Name {
-        get => _name;
-        protected set => throw new NotImplementedException();
-    }
+    public override string Name => _name;
 
     public override bool IsDeleted { get; set; }
 
@@ -105,7 +102,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         var databaseEpisodes = ((PamelloEpisodeRepository)_episodes).GetCollection().GetAll();
         var databaseUsers = ((PamelloUserRepository)_users).GetCollection().GetAll();
         
-        AddedBy = _users.Get(_databaseEntity.AddedBy)!;
+        AddedBy = _users.Get(DatabaseEntity.AddedBy)!;
         
         _favoriteBy = databaseUsers
             .Where(databaseUser => databaseUser.FavoriteSongIds.Contains(Id))

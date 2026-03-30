@@ -17,15 +17,12 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 {
     private string _name;
     private bool _isProtected;
-    private IPamelloUser _owner;
+    private IPamelloUser _owner = null!;
     
-    private List<IPamelloSong> _playlistSongs;
-    private List<IPamelloUser> _favoriteBy;
+    private List<IPamelloSong> _playlistSongs = null!;
+    private List<IPamelloUser> _favoriteBy = null!;
 
-    public override string Name {
-        get => _name;
-        protected set => throw new NotImplementedException();
-    }
+    public override string Name => _name;
 
     public override bool IsDeleted { get; set; }
 
@@ -58,9 +55,9 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
     protected override void InitBase() {
         var databaseUsers = ((PamelloUserRepository)_users).GetCollection().GetAll();
         
-        _owner = _users.Get(_databaseEntity.OwnerId)!;
+        _owner = _users.Get(DatabaseEntity.OwnerId)!;
         
-        _playlistSongs = _databaseEntity.SongIds
+        _playlistSongs = DatabaseEntity.SongIds
             .Select(id => _songs.Get(id))
             .OfType<IPamelloSong>()
             .ToList();

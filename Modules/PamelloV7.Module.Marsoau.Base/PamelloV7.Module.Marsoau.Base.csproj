@@ -14,7 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Entities\Base\" />
       <Folder Include="History\Records\" />
     </ItemGroup>
 </Project>

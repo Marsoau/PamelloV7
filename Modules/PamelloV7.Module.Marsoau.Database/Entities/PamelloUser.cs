@@ -29,25 +29,20 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     private Guid _token;
     
     private DateTime _joinedAt;
-    private int _songsPlayed;
     
     internal List<UserAuthorization> _authorizations;
     
-    internal List<IPamelloSong> _addedSongs;
-    internal List<IPamelloPlaylist> _addedPlaylists;
-    internal List<IPamelloSong> _favoriteSongs;
-    internal List<IPamelloPlaylist> _favoritePlaylists;
+    internal List<IPamelloSong> _addedSongs = null!;
+    internal List<IPamelloPlaylist> _addedPlaylists = null!;
+    internal List<IPamelloSong> _favoriteSongs = null!;
+    internal List<IPamelloPlaylist> _favoritePlaylists = null!;
     
-    public override string Name {
-        get => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
-        protected set => throw new NotImplementedException();
+    public override string Name => SelectedAuthorization?.Info?.Name ?? $"User{Id}";
+    public override string SetName(string name, IPamelloUser scopeUser) {
+        throw new PamelloException("Cannot set name of a user, its determined by the authorization");
     }
 
     public override bool IsDeleted { get; set; }
-
-    public override string SetName(string name, IPamelloUser scopeUser) {
-        throw new NotImplementedException();
-    }
 
     public string? AvatarUrl {
         get => SelectedAuthorization?.Info?.AvatarUrl;
@@ -111,11 +106,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
             .Select(databasePlaylist => _playlists.Get(databasePlaylist.Id))
             .OfType<IPamelloPlaylist>()
             .ToList();
-        _favoriteSongs = _databaseEntity.FavoriteSongIds
+        _favoriteSongs = DatabaseEntity.FavoriteSongIds
             .Select(id => _songs.Get(id))
             .OfType<IPamelloSong>()
             .ToList();
-        _favoritePlaylists = _databaseEntity.FavoritePlaylistIds
+        _favoritePlaylists = DatabaseEntity.FavoritePlaylistIds
             .Select(id => _playlists.Get(id))
             .OfType<IPamelloPlaylist>()
             .ToList();

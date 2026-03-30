@@ -53,16 +53,12 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         }
     }
 
-    public override string Name {
-        get => Client.CurrentUser.Username ?? $"Speaker-{Id}N";
-        protected set => SetName(value, null);
-    }
-
-    public override bool IsDeleted { get; set; }
-
+    public override string Name => Client.CurrentUser.Username ?? $"Speaker-{Id}N";
     public override string SetName(string name, IPamelloUser scopeUser) {
         throw new PamelloException("Cannot set name of a discord speaker");
     }
+
+    public override bool IsDeleted { get; set; }
 
     public PamelloDiscordSpeaker(int id, ulong guildId, IPamelloPlayer player, IServiceProvider services) : base(id, services) {
         _clients = services.GetRequiredService<DiscordClientService>();

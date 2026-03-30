@@ -10,7 +10,8 @@ namespace PamelloV7.Module.Marsoau.Database.Entities.Base;
 public abstract class PamelloDatabaseEntity<TDatabaseEntity> : PamelloDynamicEntity
     where TDatabaseEntity : DatabaseEntity
 {
-    protected TDatabaseEntity _databaseEntity { get; private set; }
+    private TDatabaseEntity? _databaseEntity;
+    protected TDatabaseEntity DatabaseEntity => _databaseEntity ?? throw new InvalidOperationException("Database entity is already un bound / not bound");
     
     protected PamelloDatabaseEntity(TDatabaseEntity databaseEntity, IServiceProvider services) : base(databaseEntity.Id, services) {
         _databaseEntity = databaseEntity;
