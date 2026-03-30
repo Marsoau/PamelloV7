@@ -44,7 +44,7 @@ public class SongInfoResetCommand : DiscordCommand
         }, () => [.. processedSongs.Skip(processedSongs.Count - 5)]);
 
         foreach (var song in songs) {
-            await Command<SongInfoReset>().Execute(song, song.SelectedSourceIndex);
+            await Command<SongInfoReset>().Execute(song);
             
             processedSongs.Add(song);
             

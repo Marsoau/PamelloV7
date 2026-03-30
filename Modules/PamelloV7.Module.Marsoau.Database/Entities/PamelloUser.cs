@@ -174,7 +174,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         if (SelectedAuthorizationIndex == value) return;
 
         SelectedAuthorizationIndex = value;
-        _sink.Invoke(null, new UserSelectedAuthorizationIndexUpdated() {
+        _sink.Invoke(autoSelected ? null : this, new UserSelectedAuthorizationIndexUpdated() {
             User = this,
             SelectedAuthorizationIndex = SelectedAuthorizationIndex
         });

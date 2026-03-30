@@ -4,6 +4,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Discord.Attributes;
 using PamelloV7.Module.Marsoau.Discord.Builders;
+using PamelloV7.Module.Marsoau.Discord.Builders.Extensions;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Commands.Groups;
 using PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Song;
@@ -26,7 +27,7 @@ public class SongInfoCommand : DiscordCommand
                 var song = songs.First();
             
                 await RespondUpdatableAsync(() =>
-                    Builder<SongInfoBuilder>().Component(song).Build()
+                    Builder<SongInfoBuilder>().Component(song).Result.Build()
                 , () => [song, ..song.FavoriteBy, ..song.Playlists]);
             } break;
             case >= 1: {
@@ -54,6 +55,17 @@ public class SongInfoInteractions : DiscordCommand
         
         await RespondWithModalAsync(SongRenameModal.Build(song));
     }
+    
+    [ComponentInteraction("song-source-select:*")]
+    public async Task SongSelectSource(string songQuery) {
+        var song = await GetSingleAsync<IPamelloSong>(songQuery);
+        if (song is null) {
+            await ReleaseInteractionAsync();
+            return;
+        }
+        
+        await RespondWithModalAsync(SongSourceSelectModal.Build(song, Services));
+    }
 
     [ComponentInteraction("song-info-associations-edit:*")]
     public async Task EditAssociationsButton(string songQuery) {
@@ -65,18 +77,6 @@ public class SongInfoInteractions : DiscordCommand
         
         await RespondWithModalAsync(SongEditAssociationsModal.Build(song));
     }
-    
-    [ComponentInteraction("song-info-reset:*")]
-    public async Task SongInfoResetButton(string songQuery) {
-        var song = await GetSingleAsync<IPamelloSong>(songQuery);
-        if (song is null) {
-            await ReleaseInteractionAsync();
-            return;
-        }
-        
-        await RespondWithModalAsync(SongResetModal.Build(song, Services));
-    }
-    
 
     [ComponentInteraction("song-info-favorite:*")]
     public async Task FavoriteButton(string songQuery) {

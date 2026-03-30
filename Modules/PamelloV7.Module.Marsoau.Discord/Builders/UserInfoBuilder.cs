@@ -19,12 +19,10 @@ public class UserInfoBuilder : PamelloDiscordComponentBuilder
         foreach (var authorization in user.Authorizations) {
             var line = "";
             var emote = await clients.GetEmote(authorization.PK.Platform);
-            if (emote is null) {
-                line = $"{authorization.PK.Platform}: {DiscordString.Code(authorization.PK.Key)}";
-                continue;
-            }
             
-            line = $"{DiscordString.Emote(emote)} {DiscordString.Code(authorization.PK.Key)}";
+            line = emote is null
+                ? $"{authorization.PK.Platform}: {DiscordString.Code(authorization.PK.Key)}"
+                : $"{DiscordString.Emote(emote)} {DiscordString.Code(authorization.PK.Key)}";
 
             if (authorization == user.SelectedAuthorization) {
                 authorizationsBuilder.AppendLine(DiscordString.None($"{line} {DiscordString.Bold(DiscordString.Code("<"))}"));
