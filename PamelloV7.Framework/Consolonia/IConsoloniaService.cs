@@ -5,6 +5,8 @@ namespace PamelloV7.Framework.Consolonia;
 
 public interface IConsoloniaService : IPamelloService
 {
+    public bool IsAvailable { get; }
+    
     public void SetMainScreen();
     public void SetLogScreen();
 

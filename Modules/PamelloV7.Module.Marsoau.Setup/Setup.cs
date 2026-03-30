@@ -30,10 +30,6 @@ public class Setup : IPamelloModule
 
         List<PamelloConfigPreInitializer> preInitializers = [];
 
-        Output.Write($"Is just created: {ServerConfig.Part.IsJustCreated}");
-        
-        await Task.Delay(2000);
-
         Output.Write($"Modules ({modules.Containers.Count} containers)");
         foreach (var container in modules.Containers) {
             Output.Write($"| {container.Module.Name}{
@@ -55,16 +51,19 @@ public class Setup : IPamelloModule
         
         var setup = services.GetRequiredService<SetupService>();
         var consolonia = services.GetRequiredService<IConsoloniaService>();
+
+        if (consolonia.IsAvailable) {
+            await setup.StartSetupAsync();
         
-        Output.Write("Starting setup");
-        await setup.StartSetupAsync();
+            await setup.DisplayPreInitializersAsync(preInitializers);
         
-        await setup.DisplayPreInitializersAsync(preInitializers);
-        
-        consolonia.SetLogScreen();
+            consolonia.SetLogScreen();
+        }
         
         if (preInitializers.Any(initializer => !initializer.IsPreInitialized))
-            throw new ModuleStartupException(this, "Some pre-initializers are not set");
+            throw new ModuleStartupException(this, $"Some config pre-initializers are not set:\n{string.Join("\n", preInitializers.Select(
+                preInitializer => $"| {preInitializer} in {preInitializer.Part}"
+            ))}");
         
         Output.Write("Setup completed");
     }

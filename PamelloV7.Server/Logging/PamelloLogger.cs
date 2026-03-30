@@ -39,11 +39,14 @@ public class PamelloLogger : IPamelloLogger
             Module = module,
         };
 
-        if (ServerConfig.Root.UseConsolonia && Consolonia is not null) {
+        if (Consolonia is not null && Consolonia.IsAvailable) {
             Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
         }
         else if (message.Level == ELogLevel.Debug) {
             Debug.WriteLine(message);
+        }
+        else if (!ServerConfig.Root.UseConsolonia) {
+            Console.WriteLine(message);
         }
             
         return message;

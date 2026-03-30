@@ -27,7 +27,9 @@ public class ConsoloniaService : IConsoloniaService
         _app = app;
         _app.Services = _services;
     }
-    
+
+    public bool IsAvailable => _app is not null;
+
     public void SetMainScreen() {
         App.SetMainScreen();
     }
