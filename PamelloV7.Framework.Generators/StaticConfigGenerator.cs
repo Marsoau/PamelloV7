@@ -81,11 +81,14 @@ public class StaticConfigGenerator : IIncrementalGenerator
             {{descriptor.DebugOutput}}
             */
             
+            using PamelloV7.Framework.Config.Parts;
+            
             namespace {{classNamespace}};
             
             //static config part
             public static partial class {{AdjustedName(descriptor.ClassType.Name, "Node")}}Config {
-                public static {{descriptor.ClassType.GetFullName()}} Root;// = new {{descriptor.ClassType.GetFullName()}}();
+                public static {{descriptor.ClassType.GetFullName()}} Root;
+                public static PamelloConfigPart Part;
             }
             
             //root node

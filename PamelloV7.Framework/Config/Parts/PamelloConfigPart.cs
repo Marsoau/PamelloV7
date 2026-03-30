@@ -100,7 +100,10 @@ public class PamelloConfigPart
         Node = Json.Deserialize(NodeType);
         
         var rootField = StaticType.GetField("Root");
+        var partField = StaticType.GetField("Part");
+        
         rootField?.SetValue(null, Node);
+        partField?.SetValue(null, this);
     }
     
     public override string ToString() => Name;

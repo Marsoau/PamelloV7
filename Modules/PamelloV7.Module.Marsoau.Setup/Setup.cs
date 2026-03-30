@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Config.Loaders;
 using PamelloV7.Framework.Config.Parts;
 using PamelloV7.Framework.Consolonia;
@@ -28,6 +29,10 @@ public class Setup : IPamelloModule
         var modules = services.GetRequiredService<IPamelloModuleLoader>();
 
         List<PamelloConfigPreInitializer> preInitializers = [];
+
+        Output.Write($"Is just created: {ServerConfig.Part.IsJustCreated}");
+        
+        await Task.Delay(2000);
 
         Output.Write($"Modules ({modules.Containers.Count} containers)");
         foreach (var container in modules.Containers) {

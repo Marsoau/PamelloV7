@@ -41,7 +41,7 @@
 
     <ItemGroup>
       <None Update="Config\config.jsonc">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
