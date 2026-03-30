@@ -28,11 +28,11 @@ public class PamelloConfigPart
     public bool IsJustCreated { get; }
     public bool IsInitialized => _nodeType != null;
 
-    public PamelloConfigPart(string name, JsonNode json) {
+    public PamelloConfigPart(string name, JsonNode json, bool isJustCreated = false) {
         Name = name;
         Json = json;
         
-        IsJustCreated = false;
+        IsJustCreated = isJustCreated;
     }
     
     public void Initialize(Type nodeType, Type staticType, IPamelloModule? module) {

@@ -37,8 +37,6 @@ namespace PamelloV7.Server
     {
         private IServiceProvider _services;
         
-        public static string ConfigPath = "Config/config.jsonc";
-        
         private PamelloLogger _logger = null!;
         private PamelloConfigLoader _configLoader = null!;
         private PamelloModulesLoader _modulesLoader = null!;

@@ -11,7 +11,7 @@ public class FileAccessService : IFileAccessService
 {
     private readonly IServiceProvider _services;
     
-    public static DirectoryInfo ConfigDirectory => new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "Config"));
+    public static DirectoryInfo ConfigDirectory => new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "TestConfig"));
     
     private readonly DirectoryInfo RootDirectory;
     

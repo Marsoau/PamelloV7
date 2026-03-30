@@ -13,7 +13,6 @@ using PamelloV7.Framework.Logging.Services;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Server.Consolonia.Controls;
 using PamelloV7.Server.Logging;
-using TextCopy;
 
 namespace PamelloV7.Server.Consolonia.Screens;
 

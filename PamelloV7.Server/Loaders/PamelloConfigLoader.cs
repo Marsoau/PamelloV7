@@ -31,12 +31,13 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     }
 
     public void Load() {
+        if (!FileAccessService.ConfigDirectory.Exists) FileAccessService.ConfigDirectory.Create();
         var configFile = new FileInfo(
             Path.Combine(FileAccessService.ConfigDirectory.FullName, "config.jsonc")
         );
 
         if (!configFile.Exists || configFile.Length == 0) {
-            _json = JsonSerializer.Deserialize<JsonObject>("{}");
+            _json = new JsonObject();
         }
         else using (var fs = configFile.OpenRead()) {
             _json = JsonSerializer.Deserialize<JsonObject>(fs, _jsoncProperties);
@@ -52,7 +53,7 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     public void FinishForServer() {
         var part = Parts.FirstOrDefault(x => x.Name == "Server");
         if (part is null) {
-            part = new PamelloConfigPart("Server", new JsonObject());
+            part = new PamelloConfigPart("Server", new JsonObject(), true);
             Parts.Add(part);
         }
         
@@ -69,11 +70,7 @@ public class PamelloConfigLoader : IPamelloConfigLoader
             
             var part = Parts.FirstOrDefault(part => part.Name == fullName);
             if (part is null) {
-                var json = JsonSerializer.Deserialize<JsonNode>("{}");
-                if (json is null) throw new PamelloLoadingException($"Config part \"{fullName}\" is not serializable");
-
-                part = new PamelloConfigPart(fullName, json);
-                
+                part = new PamelloConfigPart(fullName, new JsonObject(), true);
                 Parts.Add(part);
             }
             
