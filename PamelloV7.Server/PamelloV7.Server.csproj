@@ -14,7 +14,6 @@
 
     <ItemGroup>
         <PackageReference Include="LiteDB" Version="5.0.21" />
-        <PackageReference Include="TextCopy" Version="6.2.1" />
     </ItemGroup>
 
     <ItemGroup>
