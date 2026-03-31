@@ -3,7 +3,10 @@ using PamelloV7.Framework.Config.Attributes;
 namespace PamelloV7.Module.Marsoau.NetCord.Config;
 
 [ConfigRoot]
-public class NetCordNode
+public partial class NetCordNode
 {
-    public required string Token { get; set; }
+    public partial class TokensNode {
+        public required string Main { get; set; }
+        public string[] SpeakerTokens { get; set; } = [];
+    }
 }
