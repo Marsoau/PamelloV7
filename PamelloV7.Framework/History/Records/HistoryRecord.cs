@@ -20,6 +20,9 @@ public partial class HistoryRecord : IHistoryRecord
     
     public DateTime CreatedAt { get; set; }
 
+    public HistoryRecord() {
+        Nested = null!;
+    }
     public HistoryRecord(NestedPamelloEvent nested, IPamelloUser? performer) {
         Nested = nested;
         Performer = performer;

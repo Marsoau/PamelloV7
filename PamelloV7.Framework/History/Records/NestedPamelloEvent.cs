@@ -22,6 +22,10 @@ public class NestedPamelloEvent
     [JsonPropertyName("nestedEvents")]
     public List<NestedPamelloEvent> NestedEvents { get; set; }
 
+    public NestedPamelloEvent() {
+        Event = null!;
+        NestedEvents = [];
+    }
     public NestedPamelloEvent(IPamelloEvent ev) {
         Event = ev;
         NestedEvents = [];
