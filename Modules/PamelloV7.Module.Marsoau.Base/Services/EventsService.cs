@@ -21,7 +21,6 @@ public class EventsService : IEventsService
     
     private readonly IHistoryService _history;
 
-    private readonly ISSEBroadcastService _sse;
     private readonly ISignalBroadcastService _signal;
     
     private readonly List<IEventSubscription> _eventSubscriptions;
@@ -34,7 +33,6 @@ public class EventsService : IEventsService
         
         _history = services.GetRequiredService<IHistoryService>();
         
-        _sse = services.GetRequiredService<ISSEBroadcastService>();
         _signal = services.GetRequiredService<ISignalBroadcastService>();
         
         _eventSubscriptions = [];
@@ -111,7 +109,6 @@ public class EventsService : IEventsService
         }
 
         if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
-            _sse.Broadcast(e);
             _signal.Broadcast(e);
         }
 
@@ -129,7 +126,6 @@ public class EventsService : IEventsService
         if (property.GetValue(e) is not IPamelloEntity entity) return record;
         if (entity is IPamelloPlayer player) {
             if (eventType.GetCustomAttribute<BroadcastToPlayerAttribute>() is not null) {
-                _sse.BroadcastToPlayer(e, player);
                 _signal.BroadcastToPlayer(e, player);
             }
         }

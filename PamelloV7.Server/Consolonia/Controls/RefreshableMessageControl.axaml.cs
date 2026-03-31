@@ -55,6 +55,8 @@ public partial class RefreshableMessageControl : UserControl
             ELogLevel.Log => Brushes.DarkGray,
             ELogLevel.Warning => Brushes.Yellow,
             ELogLevel.Error => Brushes.Red,
+            ELogLevel.Debug => Brushes.DimGray,
+            _ => throw new ArgumentOutOfRangeException()
         };
         var moduleBrush = _currentMessage.Module?.Color ?? Brushes.MediumPurple;
             

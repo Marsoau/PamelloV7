@@ -37,7 +37,7 @@ public class Test : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Test module";
     public ELoadingStage Stage => ELoadingStage.Late;
-    public IBrush Color => Brushes.LightGreen;
+    public IBrush Color => Brushes.SpringGreen;
 
     private IEntityQueryService _peql;
     private IPamelloUserRepository _users;

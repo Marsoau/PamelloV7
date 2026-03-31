@@ -35,7 +35,7 @@ namespace PamelloV7.Server
 {
     public class Program
     {
-        private IServiceProvider _services;
+        private IServiceProvider _services = null!;
         
         private PamelloLogger _logger = null!;
         private PamelloConfigLoader _configLoader = null!;

@@ -12,7 +12,7 @@ public class PamelloInternetSpeakerListener : IPamelloListener, IAudioDependant
     public IPamelloUser? User { get; }
     public IPamelloSpeaker Speaker { get; }
     
-    public InternetSpeakerSink Sink { get; set; } = null!;
+    public InternetSpeakerSink Sink { get; set; }
     
     public TaskCompletionSource Lifetime { get; }
     
@@ -20,6 +20,8 @@ public class PamelloInternetSpeakerListener : IPamelloListener, IAudioDependant
     public PamelloInternetSpeakerListener(HttpResponse response, CancellationToken requestAbortedToken, IPamelloSpeaker speaker, IPamelloUser? user, IServiceProvider services) {
         Speaker = speaker;
         User = user;
+        
+        Lifetime = new TaskCompletionSource();
         
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         

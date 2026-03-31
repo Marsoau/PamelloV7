@@ -16,45 +16,11 @@ namespace PamelloV7.Server.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly ICodeAuthorizationService _authorization;
-        private readonly SSEBroadcastService _events;
         private readonly IPamelloUserRepository _users;
 
         public AuthorizationController(IServiceProvider services) {
             _authorization = services.GetRequiredService<ICodeAuthorizationService>();
-            _events = services.GetRequiredService<ISSEBroadcastService>() as SSEBroadcastService
-                ?? throw new PamelloException("ISSEBroadcastService is expected to be SSEBroadcastService");
             _users = services.GetRequiredService<IPamelloUserRepository>();
-        }
-
-        [HttpGet("Events/{eventsToken}/WithCode/{code}")]
-        public IActionResult GetWithCode(Guid eventsToken, int code) {
-            PamelloSSEListener events;
-
-            events = _events.AuthorizeEventsWithCode(eventsToken, code);
-
-            if (events.User is null)
-                throw new PamelloControllerException(BadRequest("Unexpected exception with null user after authorization"));
-
-            return Ok(events.User.Token);
-        }
-
-        [HttpGet("Events/{eventsToken}/WithToken/{userToken}")]
-        public IActionResult GetWithToken(Guid eventsToken, Guid userToken) {
-            PamelloSSEListener events;
-
-            events = _events.AuthorizeEventsWithToken(eventsToken, userToken);
-
-            if (events.User is null)
-                throw new PamelloControllerException(BadRequest("Unexpected exception with null user after authorization"));
-
-            return Ok(events.User.Token);
-        }
-
-        [HttpGet("Events/{eventsToken}/Unauthorize")]
-        public IActionResult GetClose(Guid eventsToken) {
-            _events.UnauthorizeEvents(eventsToken);
-
-            return Ok();
         }
 
         [HttpGet("GetToken/{code}")]
