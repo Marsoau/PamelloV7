@@ -29,7 +29,7 @@ namespace PamelloV7.Server.Controllers
 
             Output.Write($"GOT: {HttpContext.Request.Path}");
 
-            var speaker = _speakers.GetByName(User, value);
+            var speaker = _speakers.GetByName(User!, value);
             if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloControllerException(BadRequest($"Speaker \"{value}\" not found"));
             
             var listener = await internetSpeaker.CreateListener(Response, HttpContext.RequestAborted, User);

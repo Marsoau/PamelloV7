@@ -52,7 +52,8 @@ public class PamelloModulesLoader : IPamelloModuleLoader
         #if DEBUG
             LoadAssembly(typeof(Module.Marsoau.Base.Base).Assembly);
             LoadAssembly(typeof(Module.Marsoau.Database.Database).Assembly);
-            LoadAssembly(typeof(Module.Marsoau.Discord.Discord).Assembly);
+            //LoadAssembly(typeof(Module.Marsoau.Discord.Discord).Assembly);
+            LoadAssembly(typeof(Module.Marsoau.NetCord.NetCord).Assembly);
             LoadAssembly(typeof(Module.Marsoau.Osu.Osu).Assembly);
             LoadAssembly(typeof(Module.Marsoau.PEQL.PEQL).Assembly);
             LoadAssembly(typeof(Module.Marsoau.Test.Test).Assembly);

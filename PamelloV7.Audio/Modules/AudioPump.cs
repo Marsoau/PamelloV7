@@ -44,12 +44,12 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
 
     public void Pump() {
         while (!Input.Pass(_buffer, true, _cts.Token)) {
-            //StaticLogger.Log("No input, waiting");
             Task.Delay(500).Wait();
+            Framework.Logging.Output.Write("No input, waiting");
         }
         while (!Output.Pass(_buffer, true, _cts.Token)) {
-            //StaticLogger.Log("No output, waiting");
             Task.Delay(500).Wait();
+            Framework.Logging.Output.Write("No output, waiting");
         }
     }
 }
