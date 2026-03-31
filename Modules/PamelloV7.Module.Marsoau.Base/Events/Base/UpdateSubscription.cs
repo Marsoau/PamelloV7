@@ -6,6 +6,7 @@ namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 public class UpdateSubscription : IUpdateSubscription
 {
     public Func<IPamelloEntity?[]> WatchedEntities { get; }
+
     public Func<IPamelloEvent, Task> Handler { get; }
     
     public bool IsDisposed { get; private set; }

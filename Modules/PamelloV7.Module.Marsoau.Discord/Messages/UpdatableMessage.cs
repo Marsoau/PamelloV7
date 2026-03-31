@@ -85,7 +85,7 @@ public class UpdatableMessage : IDisposable
             return;
         }
         
-        Task.Run(async () => {
+        _ = Task.Run(async () => {
             var delaySpan = _refreshIntervalNew - timePassed;
             Output.Write($"Scheduling refresh in {delaySpan} at {currentTime}");
             _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);

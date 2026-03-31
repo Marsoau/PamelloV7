@@ -13,6 +13,6 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [SafeEntity<IPamelloSong>("Song")]
 public partial class SongSourceDownloadProgressUpdated : IPamelloEvent
 {
-    public int SourceIndex { get; set; }
-    public double Progress { get; set; }
+    public required int SourceIndex { get; set; }
+    public required double Progress { get; set; }
 }

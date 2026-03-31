@@ -8,8 +8,8 @@ using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Containers;
-using PamelloV7.Framework.DTO;
-using PamelloV7.Framework.DTO.Other;
+using PamelloV7.Framework.Dto;
+using PamelloV7.Framework.Dto.Other;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Events;
@@ -144,7 +144,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         });
         public int Count => _entries.Count;
 
-        public IReadOnlyList<IPamelloSong> Songs => _entries.Select(entry => entry.Song).ToList();
+        public IReadOnlyList<IPamelloSong> Songs => _entries.Select(entry => entry.Song).OfType<IPamelloSong>().ToList();
         
         public IEnumerable<int> SongsIds => Songs.Select(song => song.Id);
 
@@ -276,8 +276,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return songs;
 		}
 
-        public IEnumerable<IPamelloPlaylist> InsertPlaylist(string positionValue, IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder) {
-            if (!playlists.Any()) return [];
+        public IEnumerable<IPamelloPlaylist> InsertPlaylist(string positionValue, IEnumerable<IPamelloPlaylist> playlistsEnumerable, IPamelloUser? adder) {
+            var playlists = playlistsEnumerable.ToList();
+            if (playlists.Count == 0) return [];
 
 			var insertPosition = TranslateQueuePosition(positionValue, true);
 
@@ -304,13 +305,14 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return playlists;
         }
 
-        public IPamelloSong RemoveSong(string positionValue, IPamelloUser? scopeUser) {
-            if (_entries.Count == 0) throw new PamelloException("Queue is empty");
+        public IPamelloSong? RemoveSong(string positionValue, IPamelloUser? scopeUser) {
+            if (_entries.Count == 0) return null;
 
             IPamelloSong? song;
 			if (_entries.Count == 1) {
 				song = _entries.First().Song;
 				Clear();
+                
                 return song;
 			}
 
@@ -423,7 +425,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             SetCurrent(entry, scopeUser);
 
-            return entry.Song;
+            return entry.Song!;
 		}
 
 		public IPamelloSong? GoToNextSong(IPamelloUser? scopeUser = null, bool forceRemoveCurrentSong = false) {

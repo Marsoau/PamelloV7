@@ -16,8 +16,6 @@ namespace PamelloV7.Module.Marsoau.YouTube.Platforms;
 
 public class YoutubeSongPlatform : ISongPlatform
 {
-    private Process? _tokenServerProcess;
-    
     private readonly IHttpClientFactory _httpClientFactory;
     
     public string Name => "youtube";
@@ -42,10 +40,6 @@ public class YoutubeSongPlatform : ISongPlatform
         
         _tokenServerProcess.Start();
         */
-    }
-    
-    public void Shutdown() {
-        _tokenServerProcess?.Kill();
     }
 
     public string ValueToKey(string value) {

@@ -35,6 +35,8 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         base.StartupRepository();
         
         _events.Subscribe<SongDeleted>(e => {
+            if (e.Song is null) return;
+            
             var playlists = e.Song.Playlists.ToList();
             var episodes = e.Song.Episodes.ToList();
             var favoriteBy = e.Song.FavoriteBy.ToList();
@@ -109,7 +111,7 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
 
     public IEnumerable<IPamelloSong> GetQueue(IPamelloUser scopeUser) {
         var queue = scopeUser.SelectedPlayer?.Queue;
-        return queue is null ? [] : queue.Entries.Select(entry => entry.Song);
+        return queue is null ? [] : queue.Entries.Select(entry => entry.Song).OfType<IPamelloSong>();
     }
 
     public IEnumerable<IPamelloSong> GetAll(IPamelloUser scopeUser, IPamelloUser? addedBy = null, IPamelloUser? favoriteBy = null) {
@@ -135,15 +137,17 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
     }
 
     public IPamelloSong Add(ISongInfo info, IPamelloUser adder) {
-        var databaseSong = new DatabaseSong() {
+        var databaseSong = new DatabaseSong {
             Name = info.Name,
             CoverUrl = info.CoverUrl,
             Associations = [],
             Sources = [
-                new PlatformKey(info.Platform.Name, info.Key)
+                new PlatformKey(info.Platform.Name,
+                    info.Key)
             ],
             AddedBy = adder.Id,
             AddedAt = DateTime.Now,
+            SelectedSource = 0,
         };
         
         GetCollection().Add(databaseSong);

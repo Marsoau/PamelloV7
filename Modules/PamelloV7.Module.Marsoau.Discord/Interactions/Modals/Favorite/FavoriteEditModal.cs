@@ -13,6 +13,7 @@ public class FavoriteEditModal : DiscordModal
         IReadOnlyList<IPamelloEntity> items = songOrPlaylist switch {
             ESongOrPlaylist.Song => user.FavoriteSongs,
             ESongOrPlaylist.Playlist => user.FavoritePlaylists,
+            _ => throw new ArgumentOutOfRangeException(nameof(songOrPlaylist), songOrPlaylist, null)
         };
         
         var modalBuilder = new ModalBuilder()

@@ -2,7 +2,7 @@ using PamelloV7.Core.Entities.Base;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Entities.Base;
 
-namespace PamelloV7.Framework.DTO;
+namespace PamelloV7.Framework.Dto;
 
 public class DtoDescription
 {

@@ -4,5 +4,5 @@ namespace PamelloV7.Framework.Events;
 
 public partial class EventsAuthorized : IPamelloEvent
 {
-    public Guid UserToken { get; set; }
+    public required Guid UserToken { get; set; }
 }

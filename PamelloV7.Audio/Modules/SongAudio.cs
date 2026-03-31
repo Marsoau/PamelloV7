@@ -44,7 +44,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     private Task<MemoryStream?>? _nextChunkTask;
 
     public bool IsEnded { get; private set; }
-    public Action OnEnded;
+    public Action? OnEnded;
 
     public bool IsDisposed { get; private set; }
 
@@ -310,10 +310,10 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     }
 
     private async Task<MemoryStream?> LoadChunkAsync(int position, CancellationToken token) {
-        return await Task.Run(() => LoadChunk(position, token));
+        return await Task.Run(() => LoadChunk(position, token), token);
     }
         
-    private async Task<MemoryStream?> LoadChunk(int position, CancellationToken token) {
+    private MemoryStream? LoadChunk(int position, CancellationToken token) {
         //StaticLogger.Log($"->\n-> loading chunk at {position}\n->");
 
         if (_ffmpeg is null) {
@@ -402,8 +402,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         Output.ProcessAudio = NextBytes;
     }
 
-    public void Dispose()
-    {
+    protected override void Dispose(bool isDisposing) {
         IsDisposed = true;
         Clean();
             

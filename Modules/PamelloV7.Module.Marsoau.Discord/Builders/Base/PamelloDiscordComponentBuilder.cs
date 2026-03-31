@@ -8,8 +8,8 @@ namespace PamelloV7.Module.Marsoau.Discord.Builders.Base;
 
 public abstract class PamelloDiscordComponentBuilder
 {
-    public readonly IServiceProvider Services;
-    public readonly PamelloSocketInteractionContext Context;
+    public readonly IServiceProvider Services = null!;
+    public readonly PamelloSocketInteractionContext Context = null!;
     
     protected IPamelloUser ScopeUser => Context.User;
     

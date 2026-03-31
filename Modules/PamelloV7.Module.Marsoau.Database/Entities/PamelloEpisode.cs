@@ -4,7 +4,7 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.InfoUpdate;

@@ -5,17 +5,17 @@ namespace PamelloV7.Framework.Data.Entities;
 
 public class DatabaseSong : DatabaseEntity
 {
-    public string Name { get; set; }
+    public required string Name { get; set; }
     
     //Url can point to either a pamello file or any internet image
-    public string CoverUrl { get; set; }
+    public required string CoverUrl { get; set; }
     
     //<filename> part of "[this song id]-<filename>.opus" full file name
-    public List<string> Associations { get; set; }
+    public required List<string> Associations { get; set; }
     
     //key - Service, value - ID
-    public int SelectedSource { get; set; }
-    public List<PlatformKey> Sources { get; set; }
-    public int AddedBy { get; set; }
-    public DateTime AddedAt { get; set; }
+    public required int SelectedSource { get; set; }
+    public required List<PlatformKey> Sources { get; set; }
+    public required int AddedBy { get; set; }
+    public required DateTime AddedAt { get; set; }
 }

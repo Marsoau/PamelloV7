@@ -4,15 +4,15 @@ namespace PamelloV7.Core.Dto.Entities.Other;
 
 public class PamelloQueueDto
 {
-    public int CurrentSong { get; set; }
-    public int CurrentSongTimePassed { get; set; }
-    public int CurrentSongTimeTotal { get; set; }
-    public IEnumerable<PamelloQueueEntryDto> Entries { get; set; }
-    public int Position { get; set; }
-    public int NextPositionRequest { get; set; }
-    public int CurrentEpisodePosition { get; set; }
-    public bool IsRandom { get; set; }
-    public bool IsReversed { get; set; }
-    public bool IsNoLeftovers { get; set; }
-    public bool IsFeedRandom { get; set; }
+    public required int CurrentSong { get; set; }
+    public required int CurrentSongTimePassed { get; set; }
+    public required int CurrentSongTimeTotal { get; set; }
+    public required IEnumerable<PamelloQueueEntryDto> Entries { get; set; }
+    public required int Position { get; set; }
+    public required int NextPositionRequest { get; set; }
+    public required int CurrentEpisodePosition { get; set; }
+    public required bool IsRandom { get; set; }
+    public required bool IsReversed { get; set; }
+    public required bool IsNoLeftovers { get; set; }
+    public required bool IsFeedRandom { get; set; }
 }

@@ -84,7 +84,7 @@ public class EntityQueryService : IEntityQueryService
         var attribute = entityType.GetCustomAttribute<PamelloEntityAttribute>();
         if (attribute is null) return null;
         
-        var entity = Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null);
+        var entity = Providers.FirstOrDefault(provider => provider.Name == attribute.ProviderName)?.GetById(id, null!);
         
         if (entity?.IsDeleted ?? false) return null;
         

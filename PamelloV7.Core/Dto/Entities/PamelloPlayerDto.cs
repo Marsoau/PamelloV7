@@ -5,9 +5,9 @@ namespace PamelloV7.Core.Dto.Entities
 {
     public class PamelloPlayerDto : PamelloEntityDto
     {
-        public int Owner { get; set; }
-        public bool IsProtected { get; set; }
-        public bool IsPaused { get; set; }
-        public PamelloQueueDto Queue { get; set; }
+        public required int Owner { get; set; }
+        public required bool IsProtected { get; set; }
+        public required bool IsPaused { get; set; }
+        public required PamelloQueueDto? Queue { get; set; }
     }
 }

@@ -18,12 +18,12 @@ public abstract class PamelloRepository<TPamelloEntity> : IPamelloRepository<TPa
 
     protected readonly List<TPamelloEntity> _loaded;
 
-    protected IPamelloUserRepository _users;
-    protected IPamelloSongRepository _songs;
-    protected IPamelloEpisodeRepository _episodes;
-    protected IPamelloPlaylistRepository _playlists;
+    protected IPamelloUserRepository _users = null!;
+    protected IPamelloSongRepository _songs = null!;
+    protected IPamelloEpisodeRepository _episodes = null!;
+    protected IPamelloPlaylistRepository _playlists = null!;
     
-    protected IEventsService _events;
+    protected IEventsService _events = null!;
     
     protected PamelloRepository(IServiceProvider services) {
         _services = services;

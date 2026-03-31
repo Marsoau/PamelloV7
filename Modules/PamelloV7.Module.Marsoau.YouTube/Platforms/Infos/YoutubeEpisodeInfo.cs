@@ -9,8 +9,8 @@ namespace PamelloV7.Module.Marsoau.YouTube.Platforms.Infos
     {
         public ISongInfo SongInfo { get; }
         
-        public string Name { get; set; }
-        public int Start { get; set; }
+        public required string Name { get; set; }
+        public required int Start { get; set; }
         
         public YoutubeEpisodeInfo(ISongInfo songInfo) {
             SongInfo = songInfo;

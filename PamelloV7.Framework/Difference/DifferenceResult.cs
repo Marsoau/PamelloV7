@@ -1,6 +1,7 @@
 ﻿namespace PamelloV7.Framework.Difference
 {
     public class DifferenceResult<TType>
+        where TType : notnull
     {
         public Dictionary<int, TType> Added { get; set; }
         public Dictionary<int, int> Moved { get; set; }
@@ -15,6 +16,7 @@
             Moved = [];
             Changed = [];
             Deleted = [];
+            Swapped = [];
         }
 
         public static DifferenceResult<TType> From(IEnumerable<TType> ebefore, IEnumerable<TType> eafter, Func<TType, TType, bool>? equals = null, bool withMoved = false) {

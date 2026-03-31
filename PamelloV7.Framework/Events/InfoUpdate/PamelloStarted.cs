@@ -4,5 +4,5 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 
 public partial class PamelloStarted : IPamelloEvent
 {
-    public IServiceProvider Services { init; get; }
+    public required IServiceProvider Services { init; get; }
 }

@@ -10,7 +10,7 @@ namespace PamelloV7.Audio.Modules;
 public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IAudioModuleWithOutput
 {
     private Process? _ffmpeg;
-    private Task _convertTask;
+    private Task? _convertTask;
 
     protected override void InitAudioInternal(IServiceProvider services) {
         var dependencies = services.GetRequiredService<IDependenciesService>();

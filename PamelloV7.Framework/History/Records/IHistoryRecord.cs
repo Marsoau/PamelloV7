@@ -1,5 +1,5 @@
 using PamelloV7.Framework.Attributes;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 

@@ -201,7 +201,7 @@ public class PamelloEventGenerator : IIncrementalGenerator
               """ : "//invoker is not needed")}}
               
                       {{(!eventClass.HasDefaultPack ? "" : $"partial class Pack : RevertPack<{eventClass.ClassName}>;")}}
-                      {{(eventClass.NeedsRevertPack ? $"[JsonIgnore] public IRevertPack RevertPack {{ get; set; }}{(
+                      {{(eventClass.NeedsRevertPack ? $"[JsonIgnore] public{(eventClass.HasDefaultPack ? " " : " required ")}IRevertPack RevertPack {{ get; set; }}{(
                           eventClass.HasDefaultPack ? " = new Pack();" : " //default pack is not needed"
                       )}" : "//revert pack is not needed")}}
                   }

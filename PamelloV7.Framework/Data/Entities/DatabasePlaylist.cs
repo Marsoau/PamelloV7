@@ -4,9 +4,9 @@ namespace PamelloV7.Framework.Data.Entities;
 
 public class DatabasePlaylist : DatabaseEntity
 {
-    public string Name { get; set; }
-    public List<int> SongIds { get; set; }
-    public int OwnerId { get; set; }
-    public bool IsProtected { get; set; }
-    public DateTime AddedAt { get; set; }
+    public required string Name { get; set; }
+    public required List<int> SongIds { get; set; }
+    public required int OwnerId { get; set; }
+    public required bool IsProtected { get; set; }
+    public required DateTime AddedAt { get; set; }
 }

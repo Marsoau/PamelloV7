@@ -10,7 +10,7 @@ namespace PamelloV7.Core.Events;
 [PamelloEventCategory(EEventCategory.Miscellaneous)]
 public partial class Jombis : IPamelloEvent
 {
-    public List<IPamelloSong> Songs { get; set; }
-    public IPamelloSong Song { get; set; }
-    public string Message { get; set; }
+    public required List<IPamelloSong> Songs { get; set; }
+    public required IPamelloSong Song { get; set; }
+    public required string Message { get; set; }
 }

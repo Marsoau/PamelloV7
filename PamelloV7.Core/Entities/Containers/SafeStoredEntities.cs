@@ -36,9 +36,11 @@ public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<
         _safeEntities = [];
     }
     public SafeStoredEntities(IEnumerable<int> ids) {
+        _safeEntities = null!;
         InternalIds = ids;
     }
     public SafeStoredEntities(IEnumerable<TEntityType?> entities) {
+        _safeEntities = null!;
         InternalEntities = entities;
     }
 

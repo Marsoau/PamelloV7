@@ -31,6 +31,8 @@ public class PamelloCommandsService : IPamelloCommandsService
         
         _typeResolver = _services.GetRequiredService<IAssemblyTypeResolver>();
         _peql = _services.GetRequiredService<IEntityQueryService>();
+        
+        CommandTypes = [];
     }
     
     public void Startup(IServiceProvider services) {

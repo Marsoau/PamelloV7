@@ -29,6 +29,6 @@ public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePa
         }
     }
     
-    public int InsertPosition { get; set; }
+    public required int InsertPosition { get; set; }
 }
 

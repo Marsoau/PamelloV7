@@ -28,6 +28,7 @@ public class FavoriteListBuilder : PamelloDiscordComponentBuilder
             string.Join("\n", itemsOnPage.Select(item => $"`{counter++}` : {songOrPlaylist switch {
                 ESongOrPlaylist.Song => ((IPamelloSong)item).ToDiscordString(),
                 ESongOrPlaylist.Playlist => ((IPamelloPlaylist)item).ToDiscordString(),
+                _ => throw new ArgumentOutOfRangeException(nameof(songOrPlaylist), songOrPlaylist, null)
             }}"));
         
         var containerBuilder = new ContainerBuilder();

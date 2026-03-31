@@ -23,8 +23,6 @@ public class Setup : IPamelloModule
     public IBrush Color => Brushes.OrangeRed;
 
     public async Task StartupAsync(IServiceProvider services) {
-        if (false) return; //check if setup is needed
-        
         var config = services.GetRequiredService<IPamelloConfigLoader>();
         var modules = services.GetRequiredService<IPamelloModuleLoader>();
 

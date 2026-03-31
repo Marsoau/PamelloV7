@@ -23,9 +23,12 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     private readonly DiscordClientService _clients;
     
     private readonly ulong _guildId;
+
+    private DiscordSocketClient? _client;
+    public DiscordSocketClient Client => _client ?? throw new PamelloException("Client not registered");
     
-    public DiscordSocketClient Client { get; private set; }
-    public SocketGuild Guild { get; private set; }
+    private SocketGuild? _guild;
+    public SocketGuild Guild => _guild ?? throw new PamelloException("Guild not registered");
     
     [OnAudioMap]
     public IPamelloPlayer Player { get; }
@@ -101,8 +104,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     private void Register(DiscordSocketClient client, SocketGuild guild) {
-        Client = client;
-        Guild = guild;
+        _client = client;
+        _guild = guild;
         
         Client.VoiceServerUpdated += ClientOnVoiceServerUpdated;
     }

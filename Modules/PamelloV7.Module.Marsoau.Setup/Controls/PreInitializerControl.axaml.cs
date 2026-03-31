@@ -14,7 +14,10 @@ public partial class PreInitializerControl : UserControl
     public string Type => PreInitializer.PropertyType.Name;
     
     public Action? Apply { get; private set; }
-    
+
+    public PreInitializerControl() {
+        throw new Exception("This constructor is not intended to be used");
+    }
     public PreInitializerControl(PamelloConfigPreInitializer preInitializer) {
         PreInitializer = preInitializer;
         

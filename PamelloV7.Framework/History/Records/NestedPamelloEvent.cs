@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using PamelloV7.Framework.Exceptions;
-using PamelloV7.Framework.DTO.Other;
+using PamelloV7.Framework.Dto.Other;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Base;
 
@@ -22,7 +22,6 @@ public class NestedPamelloEvent
     [JsonPropertyName("nestedEvents")]
     public List<NestedPamelloEvent> NestedEvents { get; set; }
 
-    public NestedPamelloEvent() { }
     public NestedPamelloEvent(IPamelloEvent ev) {
         Event = ev;
         NestedEvents = [];
@@ -70,8 +69,8 @@ public class NestedPamelloEvent
         _isPropagated = true;
     }
 
-    public NestedEventDTO GetDto() {
-        return new NestedEventDTO() {
+    public NestedEventDto GetDto() {
+        return new NestedEventDto() {
             EventName = Event.GetType().Name,
             EventData = Event,
             NestedEvents = NestedEvents.Select(nestedEvent => nestedEvent.GetDto()).ToList()

@@ -14,7 +14,7 @@ namespace PamelloV7.Module.Marsoau.Database.Events.RestorePacks;
 
 public class SongDeletionRevertPack : RevertPack<SongDeleted>
 {
-    public DatabaseSong DatabaseSong { get; set; }
+    public required DatabaseSong DatabaseSong { get; set; }
 
     protected override void RevertInternal(IPamelloUser scopeUser) {
         var songs = (PamelloSongRepository)Services.GetRequiredService<IPamelloSongRepository>();

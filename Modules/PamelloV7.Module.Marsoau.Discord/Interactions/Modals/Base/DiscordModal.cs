@@ -18,15 +18,14 @@ namespace PamelloV7.Module.Marsoau.Discord.Interactions.Modals.Base;
 
 public abstract class DiscordModal
 {
-    public IServiceProvider Services;
-    public SocketModal Modal;
+    public readonly IServiceProvider Services = null!;
+    public readonly SocketModal Modal = null!;
 
     public IPamelloUser User
         => Services.GetRequiredService<IPamelloUserRepository>().GetByPlatformKey(new PlatformKey("discord", Modal.User.Id.ToString()))!;
-    
-    private IEntityQueryService? __peql;
+
     public IEntityQueryService PEQL =>
-        __peql ??= Services.GetRequiredService<IEntityQueryService>();
+        field ??= Services.GetRequiredService<IEntityQueryService>();
     
     private async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading) 
     {

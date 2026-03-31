@@ -1,6 +1,6 @@
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
-using PamelloV7.Framework.DTO.Speakers;
+using PamelloV7.Framework.Dto.Speakers;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 

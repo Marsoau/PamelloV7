@@ -13,7 +13,7 @@ namespace PamelloV7.Module.Marsoau.Database.Events.RestorePacks;
 
 public class EpisodeDeletionRevertPack : RevertPack<EpisodeDeleted>
 {
-    public DatabaseEpisode DatabaseEpisode { get; set; }
+    public required DatabaseEpisode DatabaseEpisode { get; set; }
 
     protected override void RevertInternal(IPamelloUser scopeUser) {
         var episodes = (PamelloEpisodeRepository)Services.GetRequiredService<IPamelloEpisodeRepository>();

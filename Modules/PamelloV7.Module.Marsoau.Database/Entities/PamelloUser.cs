@@ -6,7 +6,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Difference;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
@@ -55,10 +55,6 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
     public int SelectedAuthorizationIndex { get; set; }
     
-    private IPamelloPlayer? _previousPlayer;
-
-    public IPamelloPlayer? PreviousPlayer { get; }
-
     public IPamelloPlayer? SelectedPlayer { get; private set; }
 
     public IPamelloPlayer RequiredSelectedPlayer
@@ -285,7 +281,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated {
             User = this,
-            FavoritePlaylists = FavoritePlaylists
+            FavoritePlaylists = IPamelloEntity.GetIds(FavoritePlaylists)
         });
         
         Save();
@@ -300,7 +296,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
-            FavoritePlaylists = FavoritePlaylists
+            FavoritePlaylists = IPamelloEntity.GetIds(FavoritePlaylists)
         });
         
         Save();
@@ -327,7 +323,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
-            FavoritePlaylists = FavoritePlaylists
+            FavoritePlaylists = IPamelloEntity.GetIds(FavoritePlaylists)
         });
         
         Save();
@@ -345,7 +341,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _sink.Invoke(automatic ? null : this, new UserFavoritePlaylistsUpdated() {
             User = this,
-            FavoritePlaylists = FavoritePlaylists
+            FavoritePlaylists = IPamelloEntity.GetIds(FavoritePlaylists)
         });
         
         Save();

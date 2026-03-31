@@ -6,8 +6,8 @@ namespace PamelloV7.Framework.Data.Entities;
 
 public class DatabaseUser : DatabaseEntity
 {
-    public List<int> FavoriteSongIds { get; set; }
-    public List<int> FavoritePlaylistIds { get; set; }
+    public List<int> FavoriteSongIds { get; set; } = [];
+    public List<int> FavoritePlaylistIds { get; set; } = [];
     
     public DateTime JoinedAt { get; set; }
     
@@ -17,5 +17,5 @@ public class DatabaseUser : DatabaseEntity
     public int SelectedAuthorization { get; set; }
     
     //key - Service, value - User
-    public List<PlatformKey> Authorizations { get; set; }
+    public List<PlatformKey> Authorizations { get; set; } = [];
 }

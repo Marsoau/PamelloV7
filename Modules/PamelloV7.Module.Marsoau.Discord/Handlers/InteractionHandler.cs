@@ -92,7 +92,8 @@ public class InteractionHandler : IPamelloService
             await ExecuteInteraction(interaction);
             Output.Write("Interaction executed");
         }
-        catch (PamelloException x) {
+        catch (PamelloException) {
+            //ignored
         }
         catch (Exception x) {
             Output.Write("ERROR with interaction");

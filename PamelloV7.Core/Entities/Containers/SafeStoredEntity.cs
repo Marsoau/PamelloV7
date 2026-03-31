@@ -5,7 +5,7 @@ namespace PamelloV7.Framework.Containers;
 
 public static class SafeStoredEntityStaticContainer
 {
-    public static Func<Type, int, IDeletableEntity?> GetById;
+    public static Func<Type, int, IDeletableEntity?> GetById = (_, _) => null;
 
     public static SafeStoredEntities<TEntityType> ToSafeEntities<TEntityType>(this IEnumerable<TEntityType> entities)
         where TEntityType : class, IDeletableEntity

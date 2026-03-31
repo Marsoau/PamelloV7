@@ -3,7 +3,7 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
@@ -250,7 +250,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         _episodes.DeleteAllFrom(this, scopeUser);
     }
 
-    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, int? position = null, bool fromInside = false) {
+    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, IPamelloUser? scopeUser, int? position = null, bool fromInside = false) {
         if (!_songPlaylists.Contains(playlist)) _songPlaylists.Add(playlist);
         
         if (!fromInside) playlist.AddSongs([this], scopeUser, position, fromInside);
@@ -260,7 +260,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         return playlist;
     }
 
-    public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, bool fromInside = false) {
+    public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser? scopeUser, bool fromInside = false) {
         if (!_songPlaylists.Remove(playlist)) return;
 
         if (!fromInside) playlist.RemoveSong(this, scopeUser, fromInside);
@@ -274,11 +274,12 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
             Associations = _associations,
             AddedAt = AddedAt,
             AddedBy = AddedBy?.Id ?? 0,
-            
+
             FavoriteBy = IPamelloEntity.GetIds(FavoriteBy),
             Playlists = IPamelloEntity.GetIds(Playlists),
             Episodes = IPamelloEntity.GetIds(Episodes),
-            
+
+            SelectedSourceIndex = SelectedSourceIndex,
             SourcesPlatformKeys = Sources.Select(source => source.PK.ToString())
         };
     }

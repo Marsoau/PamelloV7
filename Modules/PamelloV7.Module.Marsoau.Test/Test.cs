@@ -10,7 +10,7 @@ using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Dependencies;
 using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Downloads;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Enumerators;
@@ -39,24 +39,24 @@ public class Test : IPamelloModule
     public ELoadingStage Stage => ELoadingStage.Late;
     public IBrush Color => Brushes.SpringGreen;
 
-    private IEntityQueryService _peql;
-    private IPamelloUserRepository _users;
-    private IPamelloSongRepository _songs;
-    private IPamelloPlaylistRepository _playlists;
-    private IPamelloEpisodeRepository _episodes;
-    private IPamelloPlayerRepository _players;
-    private IPlatformService _platforms;
-    private IPamelloCommandsService _commands;
-    private IEventsService _events;
-    private IFileAccessService _files;
-    private IDownloadService _downloaders;
-    private IHistoryService _history;
-    private IDependenciesService _dependencies;
+    private IEntityQueryService _peql = null!;
+    private IPamelloUserRepository _users = null!;
+    private IPamelloSongRepository _songs = null!;
+    private IPamelloPlaylistRepository _playlists = null!;
+    private IPamelloEpisodeRepository _episodes = null!;
+    private IPamelloPlayerRepository _players = null!;
+    private IPlatformService _platforms = null!;
+    private IPamelloCommandsService _commands = null!;
+    private IEventsService _events = null!;
+    private IFileAccessService _files = null!;
+    private IDownloadService _downloaders = null!;
+    private IHistoryService _history = null!;
+    private IDependenciesService _dependencies = null!;
     
-    private IPamelloUser _me => _users.GetRequired(1);
-    private IPamelloUser _ferrout => _users.GetRequired(3);
-    private IPamelloUser _pivozavr => _users.GetRequired(2);
-    private IPamelloUser _jombis => _users.GetRequired(4);
+    private IPamelloUser Me => _users.GetRequired(1);
+    private IPamelloUser Ferrout => _users.GetRequired(3);
+    private IPamelloUser Pivozavr => _users.GetRequired(2);
+    private IPamelloUser Jombis => _users.GetRequired(4);
 
     public async Task StartupAsync(IServiceProvider services) {
         _peql = services.GetRequiredService<IEntityQueryService>();

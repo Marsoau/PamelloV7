@@ -4,8 +4,8 @@ namespace PamelloV7.Framework.Data.Entities;
 
 public class DatabaseEpisode : DatabaseEntity
 {
-    public string Name { get; set; }
-    public int SongId { get; set;}
-    public int StartSeconds { get; set;}
-    public bool AutoSkip { get; set;}
+    public required string Name { get; set; }
+    public required int SongId { get; set;}
+    public required int StartSeconds { get; set;}
+    public required bool AutoSkip { get; set;}
 }

@@ -4,5 +4,5 @@ namespace PamelloV7.Core.Entities.Attributes;
 public class SafeEntityAttribute<TEntityType> : Attribute
     where TEntityType : class
 {
-    public SafeEntityAttribute(string name, params Type[] attributeTypes) { }
+    public SafeEntityAttribute(string name, bool isRequired = false, params Type[] attributeTypes) { }
 }

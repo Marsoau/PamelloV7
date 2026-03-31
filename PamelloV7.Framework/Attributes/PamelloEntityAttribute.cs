@@ -8,5 +8,6 @@ public class PamelloEntityAttribute : Attribute
     
     public PamelloEntityAttribute(string providerName, Type dtoType) {
         ProviderName = providerName;
+        DtoType = dtoType;
     }
 }

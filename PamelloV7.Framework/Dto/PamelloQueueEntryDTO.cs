@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace PamelloV7.Framework.DTO
+namespace PamelloV7.Framework.Dto
 {
     public record PamelloQueueEntryDTO
     {

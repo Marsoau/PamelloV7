@@ -3,7 +3,7 @@ using PamelloV7.Core.Entities.Attributes;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Events.Base;
-using PamelloV7.Framework.DTO;
+using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Exceptions;
 
@@ -20,7 +20,6 @@ public partial class HistoryRecord : IHistoryRecord
     
     public DateTime CreatedAt { get; set; }
 
-    public HistoryRecord() { }
     public HistoryRecord(NestedPamelloEvent nested, IPamelloUser? performer) {
         Nested = nested;
         Performer = performer;

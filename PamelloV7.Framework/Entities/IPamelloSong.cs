@@ -40,6 +40,6 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public void RemoveEpisode(IPamelloEpisode episode, IPamelloUser scopeUser);
     public void RemoveEpisodeAt(int position, IPamelloUser scopeUser);
     public void RemoveAllEpisodes(IPamelloUser scopeUser);
-    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, int? position = null, bool fromInside = false);
-    public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser scopeUser, bool fromInside = false);
+    public IPamelloPlaylist AddToPlaylist(IPamelloPlaylist playlist, IPamelloUser? scopeUser, int? position = null, bool fromInside = false);
+    public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser? scopeUser, bool fromInside = false);
 }

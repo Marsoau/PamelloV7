@@ -1,4 +1,5 @@
 using Discord.Interactions;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.Discord.Builders;
@@ -18,6 +19,9 @@ public partial class PlayerSelectCommand : DiscordCommand
         var player = await GetSingleRequiredAsync<IPamelloPlayer>(playerQuery);
         
         var selectedPlayer = Command<PlayerSelect>().Execute(player);
+        if (selectedPlayer is null) {
+            throw new PamelloException("Failed to select player");
+        }
 
         await RespondUpdatableAsync(() =>
             Builder<BasicComponentsBuilder>().Info("Player Selected", selectedPlayer.ToDiscordString()).Build()

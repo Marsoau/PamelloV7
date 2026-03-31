@@ -8,7 +8,7 @@ namespace PamelloV7.Framework.Entities.Other;
 public partial record PamelloQueueEntry
 {
     public PamelloQueueEntry() { }
-    public PamelloQueueEntry(IPamelloSong song, IPamelloUser adder) {
+    public PamelloQueueEntry(IPamelloSong song, IPamelloUser? adder) {
         Song = song;
         Adder = adder;
     }

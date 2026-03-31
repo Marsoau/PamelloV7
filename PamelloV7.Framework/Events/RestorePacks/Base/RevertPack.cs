@@ -7,14 +7,12 @@ using PamelloV7.Framework.Exceptions;
 namespace PamelloV7.Framework.Events.RestorePacks.Base;
 
 public abstract class RevertPack<TEventType> : IRevertPack
-    where TEventType : IRevertiblePamelloEvent, IPamelloEvent
+    where TEventType : class, IRevertiblePamelloEvent, IPamelloEvent
 {
     public bool IsExpired { get; set; }
     
-    [JsonIgnore]
-    public readonly IServiceProvider Services;
-    [JsonIgnore]
-    public readonly TEventType Event;
+    public readonly IServiceProvider Services = null!;
+    public readonly TEventType Event = null!;
     
     [JsonIgnore]
     IPamelloEvent IRevertPack.Event => Event;

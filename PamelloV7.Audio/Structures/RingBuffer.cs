@@ -2,8 +2,8 @@ namespace PamelloV7.Server.Structures;
 
 public class AwaitingOperation
 {
-    public int Size;
-    public TaskCompletionSource<bool> Completion;
+    public required int Size;
+    public required TaskCompletionSource<bool> Completion;
 }
 
 public class RingBuffer<TType> : IDisposable
