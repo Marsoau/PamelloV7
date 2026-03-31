@@ -3,6 +3,7 @@ using PamelloV7.Framework.Enumerators;
 
 namespace PamelloV7.Module.Marsoau.Test.Config;
 
+[ConfigRoot]
 public class TestNode
 {
     public required int TtVl { get; set; }
