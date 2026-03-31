@@ -174,15 +174,21 @@ public class PamelloClient
     }
     
     public async Task UnauthorizeAsync(bool isAutomatic = false) {
-        await Signal.UnauthorizeAsync(isAutomatic);
-        
-        PEQL.ClearCache();
+        try {
+            await Signal.UnauthorizeAsync(isAutomatic);
+        }
+        finally {
+            PEQL.ClearCache();
+        }
     }
 
     public async Task DisconnectAsync(bool isAutomatic = false) {
-        await UnauthorizeAsync(isAutomatic);
-        await Signal.DisconnectAsync(isAutomatic);
-        
-        Config.BaseUrl = null;
+        try {
+            await UnauthorizeAsync(isAutomatic);
+            await Signal.DisconnectAsync(isAutomatic);
+        }
+        finally {
+            Config.BaseUrl = null;
+        }
     }
 }
