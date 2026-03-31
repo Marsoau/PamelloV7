@@ -35,6 +35,7 @@ public class NetCord : IPamelloModule
         Output.Write("NetCord setup");
         var clients = services.GetRequiredService<DiscordClientService>();
         var interactions = services.GetRequiredService<DiscordInteractionsHandler>();
+        var commands = services.GetRequiredService<DiscordCommandsService>();
 
         var completions = new List<TaskCompletionSource>();
         var starts = new List<Task>();
@@ -54,10 +55,7 @@ public class NetCord : IPamelloModule
         await Task.WhenAll(starts);
         await Task.WhenAll(completions.Select(c => c.Task));
         
-        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, [
-            new SlashCommandProperties("else", "aaa"),
-            new SlashCommandProperties("ping", "Ping the bot"),
-        ]);
+        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, commands.GetProperties());
         
         interactions.LateStartup();
         

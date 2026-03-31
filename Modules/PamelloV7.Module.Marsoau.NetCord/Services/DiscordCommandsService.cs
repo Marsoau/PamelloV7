@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
+using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
@@ -83,5 +84,24 @@ public class DiscordCommandsService : IPamelloService
         interactionField.SetValue(command, interaction);
         
         return command;
+    }
+    
+    public IEnumerable<ApplicationCommandProperties> GetProperties() {
+        var infos = CommandsDescriptors.SelectMany(descriptor => descriptor.Attributes).Select(attribute => attribute.GetInfo());
+        
+        var commandGroups = infos.GroupBy(info => info.Command);
+        
+        foreach (var commandGroup in commandGroups) {
+            var groupInfos = commandGroup.ToList();
+            
+            var commandName = commandGroup.Key;
+            var isSingleCommand = groupInfos.Count == 1;
+
+            var command = new SlashCommandProperties(commandName, isSingleCommand ? groupInfos[0].Description : commandName);
+            if (isSingleCommand) {
+                yield return command;
+                continue;
+            }
+        }
     }
 }

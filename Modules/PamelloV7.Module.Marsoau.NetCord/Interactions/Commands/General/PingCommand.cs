@@ -5,8 +5,8 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 
-[DiscordCommand("ping", "Ping")]
-[DiscordCommand("else", "Something else")]
+[DiscordCommand("test", "Ping aaa")]
+[DiscordCommand("anything", "Something else")]
 public class PingCommand : DiscordCommand
 {
     public async Task Execute() {
