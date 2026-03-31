@@ -41,14 +41,18 @@ public class PamelloLogger : IPamelloLogger
 
         if (Consolonia is not null && Consolonia.IsAvailable) {
             Dispatcher.UIThread.InvokeAsync(() => Messages.Add(message));
+            return message;
         }
-        else if (message.Level == ELogLevel.Debug) {
+        
+        if (message.Level == ELogLevel.Debug) {
             Debug.WriteLine(message);
         }
         else if (!ServerConfig.Root.UseConsolonia) {
             Console.WriteLine(message);
         }
-            
+        
+        Messages.Add(message);
+        
         return message;
     }
 
@@ -79,5 +83,11 @@ public class PamelloLogger : IPamelloLogger
         }
         
         return message;
+    }
+
+    public void WriteAll() {
+        foreach (var message in Messages) {
+            Console.WriteLine(message);
+        }
     }
 }

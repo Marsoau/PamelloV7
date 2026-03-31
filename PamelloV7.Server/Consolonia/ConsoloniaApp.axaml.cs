@@ -49,7 +49,7 @@ public partial class ConsoloniaApp : Application
         SetScreen(LogScreen);
     }
 
-    public void SetScreen(Control screen) {
+    public void SetScreen(Control? screen) {
         Dispatcher.UIThread.InvokeAsync(() => {
             if (MainWindow.Content is MainScreen) {
                 MainScreen = null!;
