@@ -4,6 +4,7 @@ using NetCord;
 using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Logging;
+using NetCord.Rest;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Commands;
@@ -16,6 +17,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Config;
+using PamelloV7.Module.Marsoau.NetCord.Handlers;
 using PamelloV7.Module.Marsoau.NetCord.Logger;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -32,6 +34,7 @@ public class NetCord : IPamelloModule
     public async Task StartupAsync(IServiceProvider services) {
         Output.Write("NetCord setup");
         var clients = services.GetRequiredService<DiscordClientService>();
+        var interactions = services.GetRequiredService<DiscordInteractionsHandler>();
 
         var completions = new List<TaskCompletionSource>();
         var starts = new List<Task>();
@@ -50,6 +53,13 @@ public class NetCord : IPamelloModule
         
         await Task.WhenAll(starts);
         await Task.WhenAll(completions.Select(c => c.Task));
+        
+        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, [
+            new SlashCommandProperties("else", "aaa"),
+            new SlashCommandProperties("ping", "Ping the bot"),
+        ]);
+        
+        interactions.LateStartup();
         
         Output.Write("Started NetCord");
     }
