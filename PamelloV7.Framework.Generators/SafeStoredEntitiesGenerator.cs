@@ -53,14 +53,16 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             
             var argument = attribute.ConstructorArguments.FirstOrDefault();
             if (argument.Value is not string propertyName) continue;
+            
+            var isRequired = attribute.ConstructorArguments.ElementAtOrDefault(1).Value as bool? ?? false;
 
-            var attributes = attribute.ConstructorArguments.ElementAtOrDefault(1);
+            var attributes = attribute.ConstructorArguments.ElementAtOrDefault(2);
             var attributesTypes = attributes.Values.Select(v => v.Value?.ToString()).OfType<string>().ToArray();
 
             debugOutput += $"Count: {attributesTypes.Length}; {string.Join("; ", attributes.Values.Select(value => value.Value?.GetType()))}";
             
-            if (isMany) manyEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
-            if (isSingle) singleEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes));
+            if (isMany) manyEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired));
+            if (isSingle) singleEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired));
         }
         
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace 
@@ -93,7 +95,7 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
                           public readonly SafeStoredEntity<{{propertyInfo.EntityType.GetFullName()}}> _safe{{propertyInfo.PropertyName}} = new(0);
                           // With {{propertyInfo.PropertyAttributes.Length}} attributes
                           {{string.Join("\n", propertyInfo.PropertyAttributes.Select(attribute => $"[{attribute}]"))}}
-                          public {{propertyInfo.EntityType.GetFullName()}}? {{propertyInfo.PropertyName}} {
+                          public{{(propertyInfo.IsRequired ? " required" : "")}} {{propertyInfo.EntityType.GetFullName()}}? {{propertyInfo.PropertyName}} {
                               get => _safe{{propertyInfo.PropertyName}}.Entity!;
                               set => _safe{{propertyInfo.PropertyName}}.Entity = value;
                           }

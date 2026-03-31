@@ -87,8 +87,8 @@ public class PamelloEventGenerator : IIncrementalGenerator
                 Length: >= 2
             } constructorArguments) continue;
             
-            var entityPropertyName = constructorArguments.ElementAt(0).Value?.ToString();
-            var updatePropertyPath = constructorArguments.ElementAt(1).Values.Select(v => v.Value?.ToString()).ToArray();
+            var entityPropertyName = constructorArguments.ElementAt(0).Value?.ToString()!;
+            var updatePropertyPath = constructorArguments.ElementAt(1).Values.Select(v => v.Value?.ToString()!).ToArray();
             
             debugSb.AppendLine($"at 2:1 {string.Join(".", updatePropertyPath)}");
             
@@ -166,7 +166,7 @@ public class PamelloEventGenerator : IIncrementalGenerator
             if (property is null) continue;
 
             infoUpdatePropertiesSb.AppendLine(
-                $"        public {property.Type.GetFullName()} {property.Name} {{ get; set; }}"
+                $"        public required {property.Type.GetFullName()} {property.Name} {{ get; set; }}"
             );
         }
 

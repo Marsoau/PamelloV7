@@ -19,5 +19,6 @@ public readonly record struct SafeStoredEntitiesClassDescriptor(
 public readonly record struct SafeStoredEntityDescriptor(
     ITypeSymbol EntityType,
     string PropertyName,
-    string[] PropertyAttributes
+    string[] PropertyAttributes,
+    bool IsRequired
 );
