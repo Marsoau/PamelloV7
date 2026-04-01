@@ -10,11 +10,9 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 [DiscordCommand("ping", "Ping the bot")]
 [DiscordCommand("execution clap", "clap")]
 [DiscordCommand("ado film red", "red")]
-public class PingCommand : DiscordCommand
+public class Ping : DiscordCommand
 {
-    public async Task Execute([SongDescription] string songQuery = "aa") {
-        var song = await GetSingleRequiredAsync<IPamelloSong>(songQuery);
-        
-        var message = await RespondAsync(() => $"Song: {song}", () => [song]);
+    public async Task Execute([SongsDescription] List<IPamelloSong> songs) {
+        var message = await RespondAsync(() => $"Songs:\n{string.Join("\n", songs)}\n`{songs.Count}`", () => [..songs]);
     }
 }

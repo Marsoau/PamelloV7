@@ -63,7 +63,7 @@ public abstract class DiscordInteraction<TInteraction>
         
         await task;
     }
-    protected async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
+    public async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
         if (!task.IsCompleted && respondWithLoading) {
             await RespondLoading();
         }

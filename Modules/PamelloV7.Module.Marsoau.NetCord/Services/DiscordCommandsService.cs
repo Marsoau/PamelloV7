@@ -6,6 +6,8 @@ using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Config;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
@@ -77,12 +79,12 @@ public class DiscordCommandsService : IPamelloService
             _ => interaction.Data.Options
         } ?? [];
 
-        Output.Write($"Executing command {command.GetType().FullName} with options:");
+        var message = Output.Write($"Executing command {command.GetType().Name} by {command.ScopeUser} with options:");
         foreach (var option in options) {
-            Output.Write($"| {option.Name} : {option.Value}");
+            message.Append($"\n| {option.Name} : {option.Value}");
         }
 
-        var arguments = executeMethod.GetParameters().Select(parameter => {
+        var argumentsTasks = executeMethod.GetParameters().Select(async parameter => {
             var attribute = DescriptionAttribute.GetFromParameter(parameter);
             if (attribute is null) throw new PamelloException("Could not create description attribute");
             
@@ -91,8 +93,27 @@ public class DiscordCommandsService : IPamelloService
             object? value = null;
 
             if (option is not null) {
-                var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);
-                value = converter.ConvertFromString(option.Value ?? "");
+                if (attribute.Parameter.ParameterType.IsAssignableTo(typeof(IPamelloEntity))) {
+                    var query = option.Value ?? "";
+                    if (new NullabilityInfoContext().Create(attribute.Parameter).WriteState == NullabilityState.NotNull) {
+                        value = await _peql.ReflectiveGetSingleRequiredAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
+                    }
+                    else {
+                        value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
+                    }
+                }
+                else if (
+                    attribute.Parameter.ParameterType.IsGenericType &&
+                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
+                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
+                    attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
+                ) {
+                    value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), option.Value ?? "", command.ScopeUser);
+                }
+                else {
+                    var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);
+                    value = converter.ConvertFromString(option.Value ?? "");
+                }
             }
             else {
                 if (attribute.Parameter.HasDefaultValue) {
@@ -102,6 +123,9 @@ public class DiscordCommandsService : IPamelloService
             
             return value;
         }).ToArray();
+        
+        await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
+        var arguments = argumentsTasks.Select(task => task.Result).ToArray();
 
         if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
             await (dynamic)executeMethod.Invoke(command, arguments)!;

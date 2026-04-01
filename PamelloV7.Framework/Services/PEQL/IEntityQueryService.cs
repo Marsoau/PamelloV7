@@ -46,6 +46,8 @@ public interface IEntityQueryService : IPamelloService
     }
     
     //reflective
+    public async Task<object?> ReflectiveGetSingleRequiredAsync(Type entityType, string query, IPamelloUser scopeUser)
+        => await ReflectiveGetSingleAsync(entityType, query, scopeUser) ?? throw new PamelloException($"Entity not found: {query}");
     public async Task<object?> ReflectiveGetSingleAsync(Type entityType, string query, IPamelloUser scopeUser) {
         var listResult = await ReflectiveGetAsync(entityType, query, scopeUser) as IList;
         if (listResult is null) Debug.Assert(false, "Get should return List");

@@ -23,6 +23,15 @@ public class RefreshableLogMessage
         Dispatcher.UIThread.Invoke(OnRefresh.Invoke);
     }
 
+    public void Append(object? obj) {
+        ContentBuilder.Append(obj);
+        Refresh();
+    }
+    public void AppendLine(object? obj = null) {
+        ContentBuilder.AppendLine(obj?.ToString() ?? "");
+        Refresh();
+    }
+
     public override string ToString() {
         return $"{TimeStamp:HH:mm:ss.fff} [{Module?.Name ?? "Server"} | {Level}] {Content}";
     }
