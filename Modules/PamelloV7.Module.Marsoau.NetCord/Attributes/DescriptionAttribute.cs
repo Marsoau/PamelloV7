@@ -22,8 +22,8 @@ public class DescriptionAttribute : Attribute
     public static DescriptionAttribute? GetFromParameter(ParameterInfo parameter) {
         if (parameter.Name is null) return null;
         
-        var attribute = parameter.GetCustomAttribute<DescriptionAttribute>()
-                        ?? new DescriptionAttribute(parameter.Name, parameter.Name);
+        var attribute = parameter.GetCustomAttributes().FirstOrDefault(a => a is DescriptionAttribute) as DescriptionAttribute
+            ?? new DescriptionAttribute(parameter.Name, parameter.Name);
             
         attribute.Parameter = parameter;
         
