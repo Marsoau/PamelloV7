@@ -86,21 +86,75 @@ public class DiscordCommandsService : IPamelloService
         return command;
     }
     
-    public IEnumerable<ApplicationCommandProperties> GetProperties() {
+    public IEnumerable<SlashCommandProperties> GetProperties() {
         var infos = CommandsDescriptors.SelectMany(descriptor => descriptor.Attributes).Select(attribute => attribute.GetInfo());
         
         var commandGroups = infos.GroupBy(info => info.Command);
         
         foreach (var commandGroup in commandGroups) {
-            var groupInfos = commandGroup.ToList();
-            
-            var commandName = commandGroup.Key;
-            var isSingleCommand = groupInfos.Count == 1;
+            var commandInfos = commandGroup.ToList();
 
-            var command = new SlashCommandProperties(commandName, isSingleCommand ? groupInfos[0].Description : commandName);
-            if (isSingleCommand) {
+            var command = new SlashCommandProperties(commandGroup.Key, commandGroup.Key);
+            
+            var subGroupsGroups = commandInfos.GroupBy(info => info.SubGroup).ToList();
+            if (subGroupsGroups.Count == 1 && subGroupsGroups.First() is { Key: null } noSubGroupGroup) {
+                var noSubCommandInfo = noSubGroupGroup.FirstOrDefault(info => info.SubCommand is null);
+                if (noSubCommandInfo is not null) {
+                    if (noSubGroupGroup.Count() > 1) throw new PamelloException("n;0;>1!");
+                    
+                    command.Description = noSubCommandInfo.Description;
+                    
+                    yield return command;
+                    continue;
+                }
+                
+                var subCommandOptions = new List<ApplicationCommandOptionProperties>();
+                command.Options = subCommandOptions;
+
+                foreach (var subCommandInfo in noSubGroupGroup) {
+                    var subCommand = new ApplicationCommandOptionProperties(
+                        ApplicationCommandOptionType.SubCommand,
+                        subCommandInfo.SubCommand!,
+                        subCommandInfo.Description
+                    );
+                    
+                    subCommandOptions.Add(subCommand);
+                }
+                
                 yield return command;
                 continue;
+            }
+            
+            var subGroupsOptions = new List<ApplicationCommandOptionProperties>();
+            command.Options = subGroupsOptions;
+            
+            foreach (var subGroupGroup in subGroupsGroups) {
+                if (subGroupGroup.Key is null) {
+                    throw new PamelloException("n;0+n!;n");
+                }
+                
+                var subGroupCommandOptions = new List<ApplicationCommandOptionProperties>();
+                var subGroupProperties = new ApplicationCommandOptionProperties(
+                    ApplicationCommandOptionType.SubCommandGroup,
+                    subGroupGroup.Key,
+                    subGroupGroup.Key
+                );
+                
+                subGroupProperties.Options = subGroupCommandOptions;
+
+                subGroupsOptions.Add(subGroupProperties);
+
+                foreach (var subCommandInfo in subGroupGroup) {
+                    var subCommand = new ApplicationCommandOptionProperties(
+                        ApplicationCommandOptionType.SubCommand,
+                        subCommandInfo.SubCommand!,
+                        subCommandInfo.Description
+                    );
+                    
+                    subGroupCommandOptions.Add(subCommand);
+                }
+                
+                yield return command;
             }
         }
     }

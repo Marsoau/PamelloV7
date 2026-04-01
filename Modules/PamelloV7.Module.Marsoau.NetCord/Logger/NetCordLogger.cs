@@ -9,6 +9,6 @@ public class NetCordLogger : IGatewayLogger
         Output.Write($"Logger: {formatter(state, exception)}");
     }
     public bool IsEnabled(LogLevel logLevel) {
-        return logLevel >= LogLevel.Information;
+        return logLevel > LogLevel.Information;
     }
 }

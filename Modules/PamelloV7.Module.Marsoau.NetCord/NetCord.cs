@@ -10,12 +10,12 @@ using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
-using PamelloV7.Module.Marsoau.Base.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Handlers;
 using PamelloV7.Module.Marsoau.NetCord.Logger;
@@ -36,7 +36,38 @@ public class NetCord : IPamelloModule
         var clients = services.GetRequiredService<DiscordClientService>();
         var interactions = services.GetRequiredService<DiscordInteractionsHandler>();
         var commands = services.GetRequiredService<DiscordCommandsService>();
+        
+        var properties = commands.GetProperties().ToList();
 
+        Output.Write("Properties:");
+        foreach (var property in properties) {
+            var message = Output.Write($"{property.Name}");
+            
+            var options = (property.Options ?? []).ToList();
+            if (options.Count == 0) {
+                message.ContentBuilder.Append($" : {property.Description}");
+                continue;
+            }
+            
+            foreach (var commandOption in options) {
+                if (commandOption.Type == ApplicationCommandOptionType.SubCommandGroup) {
+                    foreach (var groupOption in commandOption.Options ?? []) {
+                        message.ContentBuilder.Append($"\n  {groupOption.Name}");
+
+                        foreach (var subCommandOption in groupOption.Options ?? []) {
+                            message.ContentBuilder.Append($"\n    {subCommandOption.Name} : {subCommandOption.Description}");
+                        }
+                    }
+                }
+                else if (commandOption.Type == ApplicationCommandOptionType.SubCommand) {
+                    foreach (var subCommandOption in commandOption.Options ?? []) {
+                        message.ContentBuilder.Append($"\n  {subCommandOption.Name} : {subCommandOption.Description}");
+                    }
+                }
+            }
+        }
+
+        //throw new ModuleStartupException(this, "");
         var completions = new List<TaskCompletionSource>();
         var starts = new List<Task>();
         
@@ -54,8 +85,11 @@ public class NetCord : IPamelloModule
         
         await Task.WhenAll(starts);
         await Task.WhenAll(completions.Select(c => c.Task));
+
+        //var ping = await clients.Main.Rest.GetGlobalApplicationCommandAsync(clients.Main.Id, 1304142495453548646);
+        //await ping.DeleteAsync();
         
-        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, commands.GetProperties());
+        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1463545154894823648, properties);
         
         interactions.LateStartup();
         
