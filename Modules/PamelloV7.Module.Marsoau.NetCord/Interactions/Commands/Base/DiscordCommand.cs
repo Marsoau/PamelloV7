@@ -7,6 +7,7 @@ using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
+using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;
@@ -15,57 +16,74 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
 public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteraction>
 {
-    private IEventsService Events { get; set; } = null!;
-    private UpdatableMessageService UpdatableMessageService { get; set; } = null!;
+    private IEventsService _events = null!;
+    private UpdatableMessageService _updatableMessageService = null!;
     
-    protected UpdatableMessage? _updatableMessage;
+    protected UpdatableMessage? UpdatableMessage;
 
     public override void Initialize(IServiceProvider services, SlashCommandInteraction interaction, IPamelloUser scopeUser) {
         base.Initialize(services, interaction, scopeUser);
         
-        Events = services.GetRequiredService<IEventsService>();
-        UpdatableMessageService = services.GetRequiredService<UpdatableMessageService>();
+        _events = services.GetRequiredService<IEventsService>();
+        _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();
     }
 
     public override Task RespondLoading() {
         if (HasResponded) return Task.CompletedTask;
 
-        return RespondTextAsync("loading");
+        return RespondComponentAsync([
+            Builder<BasicComponentsBuilder>().Loading()
+        ]);
     }
 
-    public Task RespondTextAsync(string content) {
+    public Task RespondComponentAsync(IEnumerable<IMessageComponentProperties> components) {
         return Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties() {
-            Content = content,
-            Flags = MessageFlags.Ephemeral
+            Components = components,
+            Flags = MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
         }));
     }
     
-    public Task RespondAsync(string content)
-        => RespondAsync(() => content, () => []);
-
     private void ProcessUpdatableAsync(Func<IPamelloEntity?[]> getEntities) {
-        if (_updatableMessage is null) throw new Exception("Updatable message is not set on processing");
+        if (UpdatableMessage is null) throw new Exception("Updatable message is not set on processing");
 
-        var subscription = Events.Watch(async e => {
-            await _updatableMessage.Refresh();
+        var subscription = _events.Watch(async e => {
+            await UpdatableMessage.Refresh();
         }, getEntities);
 
-        _updatableMessage.OnDead += () => {
+        UpdatableMessage.OnDead += () => {
             subscription.Dispose();
         };
     }
     
-    public async Task<UpdatableMessage> RespondAsync(Func<string> getContent, Func<IPamelloEntity?[]>? entities = null) {
+    public async Task RespondAsync(string content, Func<IPamelloEntity?[]>? entities = null) {
+        entities ??= () => [];
+
+        await RespondAsync(() => [
+            Builder<BasicComponentsBuilder>().Info(null, content)
+        ], entities);
+    }
+    public async Task RespondAsync(string header, string content, Func<IPamelloEntity?[]>? entities = null) {
+        entities ??= () => [];
+
+        await RespondAsync(() => [
+            Builder<BasicComponentsBuilder>().Info(header, content)
+        ], entities);
+    }
+    
+    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties> getContent, Func<IPamelloEntity?[]>? entities = null)
+        => RespondAsync(() => [getContent()], entities);
+    
+    public async Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties>> getContent, Func<IPamelloEntity?[]>? entities = null) {
         entities ??= () => [];
         
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
-            await RespondTextAsync(getContent());
+            await RespondComponentAsync(getContent());
         }
 
-        _updatableMessage = UpdatableMessageService.Watch(new UpdatableMessage(this, 100,
+        UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, 100,
             async _ => {
-                await Interaction.ModifyResponseAsync(properties => properties.Content = getContent());
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getContent());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }
@@ -74,9 +92,9 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ProcessUpdatableAsync(entities);
         
         if (needsRefresh) {
-            await _updatableMessage.Refresh();
+            await UpdatableMessage.Refresh();
         }
         
-        return _updatableMessage;
+        return UpdatableMessage;
     }
 }

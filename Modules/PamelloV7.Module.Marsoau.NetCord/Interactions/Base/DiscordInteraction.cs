@@ -6,19 +6,22 @@ using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
+using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 
 public abstract class DiscordInteraction<TInteraction>
     where TInteraction : Interaction
 {
-    public IServiceProvider Services { get; private set; } = null!;
+    public IServiceProvider Services = null!;
     
-    public TInteraction Interaction { get; private set; } = null!;
-    public IPamelloUser ScopeUser { get; private set; } = null!;
+    public TInteraction Interaction = null!;
+    public IPamelloUser ScopeUser = null!;
     
-    public IPamelloCommandsService Commands { get; private set; } = null!;
-    public IEntityQueryService PEQL { get; private set; } = null!;
+    public DiscordComponentBuilderService ComponentBuilders = null!;
+    public IPamelloCommandsService Commands = null!;
+    public IEntityQueryService PEQL = null!;
     
     public bool HasResponded { get; protected set; }
     
@@ -28,6 +31,7 @@ public abstract class DiscordInteraction<TInteraction>
         Interaction = interaction;
         ScopeUser = scopeUser;
         
+        ComponentBuilders = services.GetRequiredService<DiscordComponentBuilderService>();
         Commands = services.GetRequiredService<IPamelloCommandsService>();
         PEQL = services.GetRequiredService<IEntityQueryService>();
     }
@@ -37,6 +41,10 @@ public abstract class DiscordInteraction<TInteraction>
         => Commands.Get<TCommand>(ScopeUser);
     public async Task<object?> Command(string commandPath)
         => await Commands.ExecutePathAsync(commandPath, ScopeUser);
+    
+    public TBuilder Builder<TBuilder>()
+        where TBuilder : DiscordComponentBuilder
+        => ComponentBuilders.Get<TBuilder>(ScopeUser);
     
     public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
         => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);

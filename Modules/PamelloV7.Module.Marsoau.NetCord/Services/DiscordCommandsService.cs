@@ -79,7 +79,9 @@ public class DiscordCommandsService : IPamelloService
             _ => interaction.Data.Options
         } ?? [];
 
-        var message = Output.Write($"Executing command {command.GetType().Name} by {command.ScopeUser} with options:");
+        var message = Output.Write($"Executing command {command.GetType().Name} by {command.ScopeUser}");
+        message.Append(options.Count > 0 ? " with options:" : " with no options");
+
         foreach (var option in options) {
             message.Append($"\n| {option.Name} : {option.Value}");
         }
