@@ -13,7 +13,7 @@ public class PingCommand : DiscordCommand
 {
     public async Task Execute([Description("nam", "descriptiong of num paramenter")] int num, bool yes, [SongDescription] string opt = "aa") {
         await Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties() {
-            Content = $"Num: {num}; Yes: {yes}; Opt: {opt}",
+            Content = $"Num: {num}; Yes: {yes}; Opt: {opt}; By: {ScopeUser.Name}",
             Flags = MessageFlags.Ephemeral
         }));
     }

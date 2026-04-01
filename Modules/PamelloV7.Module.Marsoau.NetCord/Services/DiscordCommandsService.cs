@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
@@ -26,6 +29,7 @@ public class DiscordCommandsService : IPamelloService
     
     private readonly IAssemblyTypeResolver _types;
     private readonly IEntityQueryService _peql;
+    private readonly IPamelloUserRepository _users;
     
     public List<DiscordCommandDescriptor> CommandsDescriptors { get; private set; } = [];
     
@@ -34,6 +38,7 @@ public class DiscordCommandsService : IPamelloService
         
         _types = services.GetRequiredService<IAssemblyTypeResolver>();
         _peql = services.GetRequiredService<IEntityQueryService>();
+        _users = services.GetRequiredService<IPamelloUserRepository>();
     }
 
     public void Startup(IServiceProvider services) {
@@ -107,6 +112,9 @@ public class DiscordCommandsService : IPamelloService
     }
 
     public DiscordCommand Get(SlashCommandInteraction interaction) {
+        var scopeUser = _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
+        if (scopeUser is null) throw new PamelloException("User could not be found/created");
+        
         var fullName = interaction.Data.Name;
         
         if (interaction.Data.Options.FirstOrDefault(option => option.Type == ApplicationCommandOptionType.SubCommand) is { } subCommand) {
@@ -124,11 +132,7 @@ public class DiscordCommandsService : IPamelloService
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
             throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" cannot be null");
         
-        var servicesField = descriptor.Type.GetField(nameof(DiscordCommand.Services))!;
-        var interactionField = descriptor.Type.GetField(nameof(DiscordCommand.Interaction))!;
-        
-        servicesField.SetValue(command, _services);
-        interactionField.SetValue(command, interaction);
+        command.Initialize(_services, interaction, scopeUser);
         
         return command;
     }

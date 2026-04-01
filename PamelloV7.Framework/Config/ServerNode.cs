@@ -10,4 +10,5 @@ public partial class ServerNode
     public string DataPath { get; set; } = Path.Combine(AppContext.BaseDirectory, "Data");
     public string[] DisabledModules { get; set; } = [];
     public bool UseConsolonia { get; set; } = true;
+    public bool AllowUserCreation { get; set; } = true;
 }
