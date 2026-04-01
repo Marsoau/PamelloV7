@@ -45,7 +45,7 @@ public class DiscordClientService : IPamelloService
 	}
 
 	private async Task Client_UserVoiceStateUpdated(SocketUser discordUser, SocketVoiceState fromVc, SocketVoiceState toVc) {
-		var user = _users.GetByPlatformKey(new PlatformKey("discord", discordUser.Id.ToString()));
+		var user = await _users.GetByPlatformKey(new PlatformKey("discord", discordUser.Id.ToString()));
 		if (user is null) return;
 
 		Output.Write($"User {user}, from {fromVc.VoiceChannel?.Name ?? "NONE"} to {toVc.VoiceChannel?.Name ?? "NONE"}");

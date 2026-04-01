@@ -71,9 +71,9 @@ public class PlatformService : IPlatformService
         return _userPlatforms.FirstOrDefault(x => x.Name == name);
     }
 
-    public IUserInfo? GetUserInfo(string value) {
+    public async Task<IUserInfo?> GetUserInfoAsync(string value) {
         foreach (var platform in _userPlatforms) {
-            var userInfo = platform.GetUserInfo(value);
+            var userInfo = await platform.GetUserInfo(value);
             if (userInfo is not null) return userInfo;
         }
         

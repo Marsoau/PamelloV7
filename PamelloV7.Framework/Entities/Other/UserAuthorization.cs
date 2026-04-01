@@ -16,7 +16,7 @@ public partial class UserAuthorization
     public IUserInfo? Info {
         get {
             if (_info is not null) return _info;
-            return UpdateInfo();
+            return UpdateInfo().Result;
         }
     }
     
@@ -29,11 +29,11 @@ public partial class UserAuthorization
         PK = pk;
     }
     
-    public IUserInfo? UpdateInfo() {
+    public async Task<IUserInfo?> UpdateInfo() {
         var platform = _platfroms.GetUserPlatform(PK.Platform);
         if (platform is null) return _info = null;
         
-        var info = platform.GetUserInfo(PK.Key);
+        var info = await platform.GetUserInfo(PK.Key);
         return _info = info;
     }
 }

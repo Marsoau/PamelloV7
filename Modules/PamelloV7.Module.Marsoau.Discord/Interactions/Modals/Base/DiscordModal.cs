@@ -22,7 +22,7 @@ public abstract class DiscordModal
     public readonly SocketModal Modal = null!;
 
     public IPamelloUser User
-        => Services.GetRequiredService<IPamelloUserRepository>().GetByPlatformKey(new PlatformKey("discord", Modal.User.Id.ToString()))!;
+        => Services.GetRequiredService<IPamelloUserRepository>().GetByPlatformKey(new PlatformKey("discord", Modal.User.Id.ToString()))!.Result;
 
     public IEntityQueryService PEQL =>
         field ??= Services.GetRequiredService<IEntityQueryService>();

@@ -12,5 +12,5 @@ public interface IPlatformService : IPamelloService
     public PlatformKey? GetSongPlatformKey(string value);
     
     public IUserPlatform? GetUserPlatform(string name);
-    public IUserInfo? GetUserInfo(string value);
+    public Task<IUserInfo?> GetUserInfoAsync(string value);
 }

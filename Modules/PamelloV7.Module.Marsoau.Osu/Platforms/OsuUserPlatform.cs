@@ -32,10 +32,10 @@ public class OsuUserPlatform : IUserPlatform
         return id;
     }
 
-    public IUserInfo? GetUserInfo(string key) {
+    public async Task<IUserInfo?> GetUserInfo(string key) {
         if (!int.TryParse(key, out var id)) return null;
         
-        var user = _client.Client.GetUserAsync(id).Result.Value;
+        var user = (await _client.Client.GetUserAsync(id)).Value;
         if (user is null) return null;
         
         return new OsuUserInfo(this, user);

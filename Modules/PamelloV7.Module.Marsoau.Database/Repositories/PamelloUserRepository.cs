@@ -34,7 +34,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         throw new NotImplementedException();
     }
 
-    public IPamelloUser? GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
+    public async Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
         Output.Write($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;
@@ -44,7 +44,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         var platform = _platforms.GetUserPlatform(pk.Platform);
         if (platform is null) return null;
         
-        var userInfo = platform.GetUserInfo(pk.Key);
+        var userInfo = await platform.GetUserInfo(pk.Key);
         Output.Write($"Info by pk {(userInfo is not null ? $"found: {userInfo}" : "not found")}");
         if (userInfo is null) return null;
         

@@ -64,7 +64,7 @@ public class DiscordCommandsService : IPamelloService
     }
 
     public async Task ExecuteAsync(SlashCommandInteraction interaction) {
-        var command = Get(interaction);
+        var command = await GetAsync(interaction);
         
         var executeMethod = command.GetType().GetMethod("Execute");
         if (executeMethod is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" doesnt have execution method");
@@ -111,8 +111,8 @@ public class DiscordCommandsService : IPamelloService
         }
     }
 
-    public DiscordCommand Get(SlashCommandInteraction interaction) {
-        var scopeUser = _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
+    public async Task<DiscordCommand> GetAsync(SlashCommandInteraction interaction) {
+        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
         if (scopeUser is null) throw new PamelloException("User could not be found/created");
         
         var fullName = interaction.Data.Name;

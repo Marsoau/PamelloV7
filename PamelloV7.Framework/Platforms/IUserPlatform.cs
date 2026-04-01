@@ -8,7 +8,7 @@ public interface IUserPlatform
     public string Name { get; }
     
     public string ValueToKey(string value);
-    public IUserInfo? GetUserInfo(string key);
+    public Task<IUserInfo?> GetUserInfo(string key);
     
     public void Startup() { }
     public void Shutdown() { }

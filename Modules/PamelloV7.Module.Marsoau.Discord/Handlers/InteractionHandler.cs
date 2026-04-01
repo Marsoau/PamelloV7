@@ -111,7 +111,7 @@ public class InteractionHandler : IPamelloService
     private async Task ExecuteInteraction(SocketInteraction interaction) {
         //await interaction.DeferAsync(true);
 
-        var pamelloUser = _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), true);
+        var pamelloUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), true);
         if (pamelloUser is null) {
             await interaction.RespondAsync("Unexpected user error occurred");
             throw new Exception("Unexpected user error occurred");

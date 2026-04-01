@@ -15,7 +15,7 @@ public class PamelloDiscordSpeakerListener : IPamelloListener
     public IPamelloSpeaker Speaker { get; }
 
     public IPamelloUser? User {
-        get => field ?? _users.GetByPlatformKey(new PlatformKey("discord", DiscordUser.Id.ToString()));
+        get => field ?? _users.GetByPlatformKey(new PlatformKey("discord", DiscordUser.Id.ToString())).Result;
         private init => field = value;
     }
 

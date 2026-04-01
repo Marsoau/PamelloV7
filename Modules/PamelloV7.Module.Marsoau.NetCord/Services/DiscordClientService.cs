@@ -23,6 +23,19 @@ public class DiscordClientService : IPamelloService
         
         Clients = [main, ..speakerClients];
     }
+
+    public async Task<User?> GetDiscordUser(ulong id) {
+        foreach (var client in Clients) {
+            try {
+                return await client.Rest.GetUserAsync(id);
+            }
+            catch {
+                //ignored
+            }
+        }
+        
+        return null;
+    }
     
     public void Shutdown() {
         foreach (var client in Clients) {
