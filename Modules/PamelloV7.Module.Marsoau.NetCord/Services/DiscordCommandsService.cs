@@ -71,7 +71,18 @@ public class DiscordCommandsService : IPamelloService
     }
 
     public DiscordCommand Get(SlashCommandInteraction interaction) {
-        var descriptor = CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Attributes.Any(attribute => attribute.Name == interaction.Data.Name));
+        var fullName = interaction.Data.Name;
+        
+        if (interaction.Data.Options.FirstOrDefault(option => option.Type == ApplicationCommandOptionType.SubCommand) is { } subCommand) {
+            fullName += $" {subCommand.Name}";
+        }
+        else if (interaction.Data.Options.FirstOrDefault(option =>
+                option.Type == ApplicationCommandOptionType.SubCommandGroup) is { } subGroup) {
+            var subCommandInGroup = subGroup.Options!.FirstOrDefault(option => option.Type == ApplicationCommandOptionType.SubCommand);
+            fullName += $" {subGroup.Name} {subCommandInGroup!.Name}";
+        }
+        
+        var descriptor = CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Attributes.Any(attribute => attribute.Name == fullName));
         if (descriptor is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" not found");
 
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
