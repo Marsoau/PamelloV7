@@ -4,7 +4,8 @@ public record SlashCommandNameInfo(
     string Command,
     string? SubGroup,
     string? SubCommand,
-    string Description
+    string Description,
+    DiscordCommandAttribute Attribute
 );
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
@@ -40,7 +41,7 @@ public class DiscordCommandAttribute : Attribute
         }
 
         return new SlashCommandNameInfo(
-            name, subGroup, subCommand, Description
+            name, subGroup, subCommand, Description, this
         );
     }
 }

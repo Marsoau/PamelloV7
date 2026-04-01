@@ -10,9 +10,9 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 [DiscordCommand("ado film red", "red")]
 public class PingCommand : DiscordCommand
 {
-    public async Task Execute() {
+    public async Task Execute(int num, bool yes, string opt = "aa") {
         await Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties() {
-            Content = Interaction.Data.Id.ToString(),
+            Content = $"Num: {num}; Yes: {yes}; Opt: {opt}",
             Flags = MessageFlags.Ephemeral
         }));
     }

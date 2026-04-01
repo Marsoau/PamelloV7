@@ -96,6 +96,43 @@ public class DiscordCommandsService : IPamelloService
         
         return command;
     }
+
+    private IEnumerable<ApplicationCommandOptionProperties> GetCommandParametersOptions(DiscordCommandAttribute attribute) {
+        var descriptor = CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Attributes.Contains(attribute));
+        if (descriptor is null) throw new PamelloException($"Discord command with attribute \"{attribute.Name}\" not found");
+
+        var parameters = DescriptionAttribute.GetFromParameters(descriptor.Type);
+        
+        foreach (var parameter in parameters) {
+            var type = Type.GetTypeCode(parameter.Parameter.ParameterType) switch {
+                TypeCode.Byte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 or
+                TypeCode.SByte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64
+                    => ApplicationCommandOptionType.Integer,
+                TypeCode.Single or TypeCode.Double or TypeCode.Decimal => ApplicationCommandOptionType.Double,
+                TypeCode.Boolean => ApplicationCommandOptionType.Boolean,
+                TypeCode.String or TypeCode.Char => ApplicationCommandOptionType.String,
+                TypeCode.Object or TypeCode.DateTime => GetForObject(parameter.Parameter.ParameterType),
+                _ => throw new PamelloException("Command parameter cannot be empty"),
+            };
+            
+            var properties = new ApplicationCommandOptionProperties(
+                type,
+                parameter.Name,
+                parameter.Description
+            ) {
+                Required = !parameter.IsOptional
+            };
+
+            yield return properties;
+        }
+
+        yield break;
+
+        ApplicationCommandOptionType GetForObject(Type type) {
+            //todo some object type specific options, like enums
+            return ApplicationCommandOptionType.String;
+        }
+    }
     
     public IEnumerable<SlashCommandProperties> GetProperties() {
         var infos = CommandsDescriptors.SelectMany(descriptor => descriptor.Attributes).Select(attribute => attribute.GetInfo());
@@ -114,13 +151,14 @@ public class DiscordCommandsService : IPamelloService
                     if (noSubGroupGroup.Count() > 1) throw new PamelloException("n;0;>1!");
                     
                     command.Description = noSubCommandInfo.Description;
+                    command.Options = GetCommandParametersOptions(noSubCommandInfo.Attribute).ToList();
                     
                     yield return command;
                     continue;
                 }
                 
-                var subCommandOptions = new List<ApplicationCommandOptionProperties>();
-                command.Options = subCommandOptions;
+                var commandOptions = new List<ApplicationCommandOptionProperties>();
+                command.Options = commandOptions;
 
                 foreach (var subCommandInfo in noSubGroupGroup) {
                     var subCommand = new ApplicationCommandOptionProperties(
@@ -129,7 +167,9 @@ public class DiscordCommandsService : IPamelloService
                         subCommandInfo.Description
                     );
                     
-                    subCommandOptions.Add(subCommand);
+                    subCommand.Options = GetCommandParametersOptions(subCommandInfo.Attribute).ToList();
+                    
+                    commandOptions.Add(subCommand);
                 }
                 
                 yield return command;
@@ -161,6 +201,8 @@ public class DiscordCommandsService : IPamelloService
                         subCommandInfo.SubCommand!,
                         subCommandInfo.Description
                     );
+                    
+                    subCommand.Options = GetCommandParametersOptions(subCommandInfo.Attribute).ToList();
                     
                     subGroupCommandOptions.Add(subCommand);
                 }
