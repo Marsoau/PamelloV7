@@ -9,8 +9,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song;
 public class SongInfo : DiscordCommand
 {
     public async Task Execute(
-        [SongDescription] IPamelloSong song
+        [SongDescription] [DefaultQuery("current")] List<IPamelloSong> song
     ) {
-        await RespondAsync($"Song: {song}", () => [song]);
+        await RespondAsync($"Song: {song.Count}", () => [..song]);
     }
 }

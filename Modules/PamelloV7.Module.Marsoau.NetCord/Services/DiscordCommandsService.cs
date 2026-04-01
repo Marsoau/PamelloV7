@@ -95,28 +95,31 @@ public class DiscordCommandsService : IPamelloService
             
             object? value = null;
 
-            if (option is not null) {
-                if (attribute.Parameter.ParameterType.IsAssignableTo(typeof(IPamelloEntity))) {
-                    var query = option.Value ?? "";
-                    if (new NullabilityInfoContext().Create(attribute.Parameter).WriteState == NullabilityState.NotNull) {
-                        value = await _peql.ReflectiveGetSingleRequiredAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
-                    }
-                    else {
-                        value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
-                    }
-                }
-                else if (
-                    attribute.Parameter.ParameterType.IsGenericType &&
-                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
-                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
-                    attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
-                ) {
-                    value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), option.Value ?? "", command.ScopeUser);
+            if (attribute.Parameter.ParameterType.IsAssignableTo(typeof(IPamelloEntity))) {
+                var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
+                var query = option?.Value ?? defaultQuery?.Query ?? "";
+                
+                if (new NullabilityInfoContext().Create(attribute.Parameter).WriteState == NullabilityState.NotNull) {
+                    value = await _peql.ReflectiveGetSingleRequiredAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
                 }
                 else {
-                    var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);
-                    value = converter.ConvertFromString(option.Value ?? "");
+                    value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
                 }
+            }
+            else if (
+                attribute.Parameter.ParameterType.IsGenericType &&
+                attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
+                attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
+                attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
+            ) {
+                var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
+                var query = option?.Value ?? defaultQuery?.Query ?? "";
+                
+                value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), query, command.ScopeUser);
+            }
+            else if (option is not null) {
+                var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);
+                value = converter.ConvertFromString(option.Value ?? "");
             }
             else {
                 if (attribute.Parameter.HasDefaultValue) {

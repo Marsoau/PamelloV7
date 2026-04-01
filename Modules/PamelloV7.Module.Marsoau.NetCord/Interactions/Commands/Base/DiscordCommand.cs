@@ -59,19 +59,19 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
             subscription.Dispose();
         };
     }
+
+    public Task RespondAsync(string content, Func<IPamelloEntity?[]>? entities = null)
+        => RespondAsync(() => null, () => content, entities);
+    public Task RespondAsync(string header, string content, Func<IPamelloEntity?[]>? entities = null)
+        => RespondAsync(() => header, () => content, entities);
     
-    public async Task RespondAsync(string content, Func<IPamelloEntity?[]>? entities = null) {
+    public async Task RespondAsync(Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null)
+        => await RespondAsync(() => null, getContent, entities);
+    public async Task RespondAsync(Func<string?> getHeader, Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null) {
         entities ??= () => [];
 
         await RespondAsync(() => [
-            Builder<BasicComponentsBuilder>().Info(null, content)
-        ], entities);
-    }
-    public async Task RespondAsync(string header, string content, Func<IPamelloEntity?[]>? entities = null) {
-        entities ??= () => [];
-
-        await RespondAsync(() => [
-            Builder<BasicComponentsBuilder>().Info(header, content)
+            Builder<BasicComponentsBuilder>().Info(getHeader(), getContent())
         ], entities);
     }
     

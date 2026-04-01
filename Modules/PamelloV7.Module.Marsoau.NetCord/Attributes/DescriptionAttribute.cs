@@ -12,7 +12,7 @@ public class DescriptionAttribute : Attribute
     
     public ParameterInfo Parameter { get; set; } = null!;
     
-    public bool IsOptional => Parameter.HasDefaultValue;
+    public bool IsOptional => Parameter.HasDefaultValue || Parameter.GetCustomAttribute<DefaultQueryAttribute>() is not null;
     
     public DescriptionAttribute(string name, string description) {
         Name = name;
