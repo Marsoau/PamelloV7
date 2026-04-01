@@ -37,6 +37,11 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
     }
 
     public Task RespondComponentAsync(IEnumerable<IMessageComponentProperties> components) {
+        if (!HasResponded) HasResponded = true;
+        else {
+            return Interaction.ModifyResponseAsync(properties => properties.Components = components);
+        }
+        
         return Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties() {
             Components = components,
             Flags = MessageFlags.Ephemeral | MessageFlags.IsComponentsV2

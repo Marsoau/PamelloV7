@@ -15,6 +15,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using DescriptionAttribute = PamelloV7.Module.Marsoau.NetCord.Attributes.DescriptionAttribute;
 
@@ -126,14 +127,29 @@ public class DiscordCommandsService : IPamelloService
             return value;
         }).ToArray();
         
-        await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
-        var arguments = argumentsTasks.Select(task => task.Result).ToArray();
+        try {
+            await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
+            var arguments = argumentsTasks.Select(task => task.Result).ToArray();
 
-        if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
-            await (dynamic)executeMethod.Invoke(command, arguments)!;
+            if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
+                await (dynamic)executeMethod.Invoke(command, arguments)!;
+            }
+            else {
+                executeMethod.Invoke(command, arguments);
+            }
         }
-        else {
-            executeMethod.Invoke(command, arguments);
+        catch (PamelloException pamelloException) {
+            await HandlePamelloException(pamelloException);
+        }
+        
+        return;
+        
+        Task HandlePamelloException(PamelloException pamelloException) {
+            Output.Write($"Command execution exception: {pamelloException.Message}", ELogLevel.Error);
+            
+            return command.RespondComponentAsync([
+                command.Builder<BasicComponentsBuilder>().Info("Exception", pamelloException.Message)
+            ]);
         }
     }
 
@@ -195,7 +211,7 @@ public class DiscordCommandsService : IPamelloService
         yield break;
 
         ApplicationCommandOptionType GetForObject(Type type) {
-            //todo some object type specific options, like enums
+            //todo some object type specific options, like enums, or entities with suggestions
             return ApplicationCommandOptionType.String;
         }
     }
