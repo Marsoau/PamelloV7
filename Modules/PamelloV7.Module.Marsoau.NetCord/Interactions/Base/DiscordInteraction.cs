@@ -22,12 +22,13 @@ public abstract class DiscordInteraction<TInteraction>
     
     public bool HasResponded { get; protected set; }
     
-    public void Initialize(IServiceProvider services, TInteraction interaction, IPamelloUser scopeUser) {
+    public virtual void Initialize(IServiceProvider services, TInteraction interaction, IPamelloUser scopeUser) {
         Services = services;
         
         Interaction = interaction;
         ScopeUser = scopeUser;
         
+        Commands = services.GetRequiredService<IPamelloCommandsService>();
         PEQL = services.GetRequiredService<IEntityQueryService>();
     }
     
