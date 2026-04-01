@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
+using DescriptionAttribute = PamelloV7.Module.Marsoau.NetCord.Attributes.DescriptionAttribute;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -61,12 +63,46 @@ public class DiscordCommandsService : IPamelloService
         
         var executeMethod = command.GetType().GetMethod("Execute");
         if (executeMethod is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" doesnt have execution method");
+        
+        var options = interaction.Data.Options.FirstOrDefault() switch {
+            { Type: ApplicationCommandOptionType.SubCommandGroup } group 
+                => group.Options?.FirstOrDefault(o => o.Type == ApplicationCommandOptionType.SubCommand)?.Options,
+            { Type: ApplicationCommandOptionType.SubCommand } sub 
+                => sub.Options,
+            _ => interaction.Data.Options
+        } ?? [];
+
+        Output.Write($"Executing command {command.GetType().FullName} with options:");
+        foreach (var option in options) {
+            Output.Write($"| {option.Name} : {option.Value}");
+        }
+
+        var arguments = executeMethod.GetParameters().Select(parameter => {
+            var attribute = DescriptionAttribute.GetFromParameter(parameter);
+            if (attribute is null) throw new PamelloException("Could not create description attribute");
+            
+            var option = options.FirstOrDefault(o => o.Name == attribute.Name);
+            
+            object? value = null;
+
+            if (option is not null) {
+                var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);
+                value = converter.ConvertFromString(option.Value ?? "");
+            }
+            else {
+                if (attribute.Parameter.HasDefaultValue) {
+                    value = attribute.Parameter.DefaultValue;
+                }
+            }
+            
+            return value;
+        }).ToArray();
 
         if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
-            await (dynamic)executeMethod.Invoke(command, [])!;
+            await (dynamic)executeMethod.Invoke(command, arguments)!;
         }
         else {
-            executeMethod.Invoke(command, []);
+            executeMethod.Invoke(command, arguments);
         }
     }
 
