@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
+using NetCord.Rest;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
@@ -15,6 +16,7 @@ public class DiscordInteractionsHandler : IPamelloService
     private readonly DiscordClientService _clients;
     
     private readonly DiscordCommandsService _commands;
+    private readonly DiscordButtonsService _buttons;
     
     public DiscordInteractionsHandler(IServiceProvider services) {
         _services = services;
@@ -22,6 +24,7 @@ public class DiscordInteractionsHandler : IPamelloService
         _clients = services.GetRequiredService<DiscordClientService>();
         
         _commands = services.GetRequiredService<DiscordCommandsService>();
+        _buttons = services.GetRequiredService<DiscordButtonsService>();
     }
 
     public void LateStartup() {
@@ -29,8 +32,13 @@ public class DiscordInteractionsHandler : IPamelloService
     }
 
     private async ValueTask MainOnInteractionCreate(Interaction interaction) {
-        if (interaction is not SlashCommandInteraction slashCommand) return;
-
-        await _commands.ExecuteAsync(slashCommand);
+        switch (interaction) {
+            case SlashCommandInteraction slashCommand:
+                await _commands.ExecuteAsync(slashCommand);
+                break;
+            case ButtonInteraction buttonInteraction:
+                await _buttons.ExecuteAsync(buttonInteraction);
+                break;
+        }
     }
 }
