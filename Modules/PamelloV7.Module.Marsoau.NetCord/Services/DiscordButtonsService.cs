@@ -56,7 +56,7 @@ public class DiscordButtonsService : IPamelloService
         if (Activator.CreateInstance(buttonType) is not DiscordButton button)
             throw new PamelloException($"Discord button with custom id \"{interaction.Data.CustomId}\" was null on creation");
         
-        button.Initialize(_services, interaction, scopeUser);
+        button.InitializeInteraction(_services, interaction, scopeUser);
         
         return button;
     }

@@ -156,41 +156,6 @@ public class DiscordCommandsService : IPamelloService
         }
     }
 
-    public static async Task<object?> ExecuteMethodAsync(object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
-        if (obj is null) return null;
-        
-        var method = obj.GetType().GetMethod("Execute");
-        if (method is null) throw new PamelloException("Could not find Execute method");
-        
-        return await ExecuteMethodAsync(method, obj, arguments, exceptionHandler);
-    }
-    public static async Task<object?> ExecuteMethodAsync(MethodInfo method, object obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
-        exceptionHandler ??= x => throw x;
-
-        try {
-            object? result;
-            
-            if (typeof(Task).IsAssignableFrom(method.ReturnType)) {
-                if (method.ReturnType.IsGenericType) {
-                    result = await (dynamic)method.Invoke(obj, arguments ?? [])!;
-                }
-                else {
-                    await (Task)method.Invoke(obj, arguments ?? [])!;
-                    result = null;
-                }
-            }
-            else {
-                result = method.Invoke(obj, arguments ?? []);
-            }
-            
-            return result;
-        }
-        catch (Exception x) {
-            exceptionHandler(x);
-            return null;
-        }
-    }
-
     public async Task<DiscordCommand> GetAsync(SlashCommandInteraction interaction) {
         var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
         if (scopeUser is null) throw new PamelloException("User could not be found/created");
@@ -212,7 +177,7 @@ public class DiscordCommandsService : IPamelloService
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
             throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" cannot be null");
         
-        command.Initialize(_services, interaction, scopeUser);
+        command.InitializeInteraction(_services, interaction, scopeUser);
         
         return command;
     }

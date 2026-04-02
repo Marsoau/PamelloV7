@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
@@ -91,7 +92,7 @@ public class InteractionTokenizationService : IPamelloService
     public ButtonProperties Button<TButton>()
         where TButton : DiscordButton
         => Button<TButton>(async button => {
-            await DiscordCommandsService.ExecuteMethodAsync(button);
+            await PamelloBasicActions.RunExecuteMethodAsync(button);
         });
     public ButtonProperties Button<TButton>(Action<TButton> execute)
         where TButton : DiscordButton

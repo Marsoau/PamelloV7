@@ -6,11 +6,11 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
 public abstract class DiscordButton : DiscordInteraction<ButtonInteraction>
 {
-    public override Task RespondLoading() {
+    protected override Task RespondLoadingInternal() {
         return Task.CompletedTask;
     }
 
-    public override Task ReleaseInteraction() {
+    protected override Task ReleaseInteractionInternal() {
         return Interaction.SendResponseAsync(InteractionCallback.ModifyMessage(_ => { }));
     }
 }

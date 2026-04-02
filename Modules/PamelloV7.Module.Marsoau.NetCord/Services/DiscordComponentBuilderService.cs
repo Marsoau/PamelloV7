@@ -23,7 +23,7 @@ public class DiscordComponentBuilderService : IPamelloService
         
         var builder = (DiscordComponentBuilder)constructor.Invoke([]);
         
-        builder.Initialize(_services, scopeUser);
+        builder.InitializeActions(_services, scopeUser);
         
         return builder;
     }

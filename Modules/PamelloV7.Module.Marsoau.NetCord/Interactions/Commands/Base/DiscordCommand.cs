@@ -21,14 +21,14 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
     
     protected UpdatableMessage? UpdatableMessage;
 
-    public override void Initialize(IServiceProvider services, SlashCommandInteraction interaction, IPamelloUser scopeUser) {
-        base.Initialize(services, interaction, scopeUser);
+    public override void InitializeInteraction(IServiceProvider services, SlashCommandInteraction interaction, IPamelloUser scopeUser) {
+        base.InitializeInteraction(services, interaction, scopeUser);
         
         _events = services.GetRequiredService<IEventsService>();
         _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();
     }
 
-    public override Task RespondLoading() {
+    protected override Task RespondLoadingInternal() {
         if (HasResponded) return Task.CompletedTask;
 
         return RespondComponentAsync([
@@ -36,7 +36,7 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ]);
     }
 
-    public override Task ReleaseInteraction() {
+    protected override Task ReleaseInteractionInternal() {
         return Task.CompletedTask;
     }
 
