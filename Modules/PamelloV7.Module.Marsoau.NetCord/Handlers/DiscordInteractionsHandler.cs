@@ -43,16 +43,9 @@ public class DiscordInteractionsHandler : IPamelloService
                 break;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
                 var tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
-                if (tokenizedInteraction is ITokenizedButtonInteraction tokenizedButtonInteraction) {
-                    var button = await tokenizedButtonInteraction.ExecuteButtonAsync(buttonInteraction);
-
-                    await button.ReleaseInteraction();
-                    
-                    break;
-                }
                 
-                await tokenizedInteraction.Action(interaction);
                 await buttonInteraction.SendResponseAsync(InteractionCallback.ModifyMessage(_ => { }));
+                await tokenizedInteraction.Action(interaction);
                 
                 break;
         }

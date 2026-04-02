@@ -18,6 +18,8 @@ public abstract class DiscordComponentBuilder
     public IPamelloCommandsService Commands = null!;
     public InteractionTokenizationService Tokenizer = null!;
     
+    protected IPamelloPlayer? SelectedPlayer => ScopeUser.SelectedPlayer;
+    
     public void Initialize(IServiceProvider services, IPamelloUser scopeUser) {
         ScopeUser = scopeUser;
         

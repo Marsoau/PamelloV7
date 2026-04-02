@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
 using PamelloV7.Module.Marsoau.Osu.Services;
 
