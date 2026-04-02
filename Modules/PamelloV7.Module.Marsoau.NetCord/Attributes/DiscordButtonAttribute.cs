@@ -5,6 +5,8 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 namespace PamelloV7.Module.Marsoau.NetCord.Attributes;
 
 [AutoInherit(typeof(DiscordButton))]
+[RequiredMethodName("Execute")]
+
 [AttributeUsage(AttributeTargets.Class)]
 public class DiscordButtonAttribute : Attribute
 {

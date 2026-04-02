@@ -82,11 +82,9 @@ public class AutoInheritanceGenerator : IIncrementalGenerator
                 
               public partial class {{descriptor.ClassType.Name}}{{(
                   descriptor.InheritFromType is not null ? $" : {descriptor.InheritFromType.GetFullName()}" : ""
-              )}} {
-                  public partial void RequiredMethod();
-              }
+              )}};
               """;
         
-        context.AddSource($"{descriptor.ClassType.Name}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{descriptor.ClassType.Name}.AutoInheritance.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 }

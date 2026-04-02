@@ -9,7 +9,7 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 
 [DiscordModal("Song Rename")]
-public partial class SongRenameModal : DiscordModal
+public partial class SongRenameModal
 {
     [AddInput("NewName")]
     public partial class SongRenameModalBuilder : DiscordModalBuilder;

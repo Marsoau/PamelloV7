@@ -12,6 +12,8 @@ public record SlashCommandNameInfo(
 );
 
 [AutoInherit(typeof(DiscordCommand))]
+[RequiredMethodName("Execute")]
+
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class DiscordCommandAttribute : Attribute
 {
