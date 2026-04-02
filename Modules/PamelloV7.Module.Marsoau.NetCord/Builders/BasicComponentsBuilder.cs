@@ -14,9 +14,7 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
         );
     }
     
-    public ComponentContainerProperties Loading() {
-        return new ComponentContainerProperties().AddComponents(
-            new TextDisplayProperties("-# _loading..._")
-        );
+    public TextDisplayProperties Loading() {
+        return new TextDisplayProperties("-# _loading..._");
     }
 }
