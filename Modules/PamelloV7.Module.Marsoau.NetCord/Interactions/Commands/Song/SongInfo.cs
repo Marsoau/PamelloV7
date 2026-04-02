@@ -1,3 +1,5 @@
+using NetCord;
+using NetCord.Rest;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
@@ -16,8 +18,13 @@ public class SongInfo : DiscordCommand
         var counter = 0;
         
         await RespondAsync(() => [
-            Builder<BasicComponentsBuilder>().Info(null, $"{Interaction.Id}\nContent {++counter}"),
-            Builder<BasicButtonsBuilder>().RefreshButton()
+            Builder<BasicComponentsBuilder>().Info(null, $"{Interaction.Id}\nContent {counter}"),
+            Builder<BasicButtonsBuilder>().RefreshButtonRow(),
+            new ActionRowProperties().AddComponents(
+                Button("Test", ButtonStyle.Secondary, () => {
+                    counter++;
+                })
+            )
         ]);
     }
 }

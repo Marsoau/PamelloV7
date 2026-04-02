@@ -36,6 +36,10 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ]);
     }
 
+    public override Task ReleaseInteraction() {
+        return Task.CompletedTask;
+    }
+
     public Task RespondComponentAsync(IEnumerable<IMessageComponentProperties> components) {
         if (!HasResponded) HasResponded = true;
         else {

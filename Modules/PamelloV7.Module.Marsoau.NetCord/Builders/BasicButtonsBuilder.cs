@@ -1,14 +1,19 @@
+using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
+using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Builders;
 
 public class BasicButtonsBuilder : DiscordComponentBuilder
 {
-    public ActionRowProperties RefreshButton() {
+    public ActionRowProperties RefreshButtonRow() {
         return new ActionRowProperties().AddComponents(
-            new ButtonProperties("refresh", "Refresh", ButtonStyle.Secondary)
+            Button<RefreshButton>()
         );
     }
 }

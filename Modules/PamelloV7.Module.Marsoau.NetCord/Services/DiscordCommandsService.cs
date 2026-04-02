@@ -58,9 +58,9 @@ public class DiscordCommandsService : IPamelloService
         }
 
         Output.Write("Discord commands:");
-        foreach (var commandType in CommandsDescriptors) {
-            Output.Write($"| {commandType.Type.FullName}");
-            foreach (var attribute in commandType.Attributes) {
+        foreach (var commandDescriptor in CommandsDescriptors) {
+            Output.Write($"| {commandDescriptor.Type.FullName}");
+            foreach (var attribute in commandDescriptor.Attributes) {
                 Output.Write($"|   {attribute.Name} : {attribute.Description}");
             }
         }
@@ -153,6 +153,41 @@ public class DiscordCommandsService : IPamelloService
             return command.RespondComponentAsync([
                 command.Builder<BasicComponentsBuilder>().Info("Exception", pamelloException.Message)
             ]);
+        }
+    }
+
+    public static async Task<object?> ExecuteMethodAsync(object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
+        if (obj is null) return null;
+        
+        var method = obj.GetType().GetMethod("Execute");
+        if (method is null) throw new PamelloException("Could not find Execute method");
+        
+        return await ExecuteMethodAsync(method, obj, arguments, exceptionHandler);
+    }
+    public static async Task<object?> ExecuteMethodAsync(MethodInfo method, object obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
+        exceptionHandler ??= x => throw x;
+
+        try {
+            object? result;
+            
+            if (typeof(Task).IsAssignableFrom(method.ReturnType)) {
+                if (method.ReturnType.IsGenericType) {
+                    result = await (dynamic)method.Invoke(obj, arguments ?? [])!;
+                }
+                else {
+                    await (Task)method.Invoke(obj, arguments ?? [])!;
+                    result = null;
+                }
+            }
+            else {
+                result = method.Invoke(obj, arguments ?? []);
+            }
+            
+            return result;
+        }
+        catch (Exception x) {
+            exceptionHandler(x);
+            return null;
         }
     }
 

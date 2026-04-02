@@ -1,8 +1,18 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Framework.Services.PEQL;
+using PamelloV7.Module.Marsoau.NetCord.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -10,30 +20,53 @@ public class DiscordButtonsService : IPamelloService
 {
     private readonly IServiceProvider _services;
     
+    private readonly IAssemblyTypeResolver _types;
+    private readonly IEntityQueryService _peql;
+    private readonly IPamelloUserRepository _users;
+    
     private readonly UpdatableMessageService _messages;
+    
+    private List<Type> ButtonTypes { get; set; } = [];
     
     public DiscordButtonsService(IServiceProvider services) {
         _services = services;
         
+        _types = services.GetRequiredService<IAssemblyTypeResolver>();
+        _peql = services.GetRequiredService<IEntityQueryService>();
+        _users = services.GetRequiredService<IPamelloUserRepository>();
+        
         _messages = services.GetRequiredService<UpdatableMessageService>();
     }
-    
-    public async Task ExecuteAsync(ButtonInteraction interaction) {
-        if (interaction.Data.CustomId == "refresh") {
-            await Refresh(interaction);
-            return;
-        }
+
+    public void Startup(IServiceProvider services) {
+        var types = _types.GetInheritorsOf<DiscordButton>().ToList();
         
+        ButtonTypes = types;
     }
 
-    private async Task Refresh(ButtonInteraction interaction) {
-        if (interaction.Message.InteractionMetadata is null) return;
 
-        var message = _messages.Get(interaction.Message.InteractionMetadata.Id);
-        if (message is null) return;
+    public async Task<TButton> GetAsync<TButton>(ButtonInteraction interaction)
+        where TButton : DiscordButton
+        => (TButton)await GetAsync(typeof(TButton), interaction);
+    
+    public async Task<DiscordButton> GetAsync(Type buttonType, ButtonInteraction interaction) {
+        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
+        if (scopeUser is null) throw new PamelloException("User could not be found/created");
         
-        await message.Refresh();
+        if (Activator.CreateInstance(buttonType) is not DiscordButton button)
+            throw new PamelloException($"Discord button with custom id \"{interaction.Data.CustomId}\" was null on creation");
         
-        await interaction.SendResponseAsync(InteractionCallback.ModifyMessage(_ => { }));
+        button.Initialize(_services, interaction, scopeUser);
+        
+        return button;
+    }
+
+    public static ButtonProperties GetProperties<TButton>(string customId)
+        => GetProperties(typeof(TButton), customId);
+    public static ButtonProperties GetProperties(Type buttonType, string customId) {
+        var attribute = buttonType.GetCustomAttribute<DiscordButtonAttribute>();
+        if (attribute is null) throw new PamelloException($"Discord button with custom id \"{buttonType.Name}\" does not have DiscordButton attribute");
+        
+        return new ButtonProperties(customId, attribute.Label, attribute.Style);
     }
 }
