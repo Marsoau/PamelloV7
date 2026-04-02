@@ -8,7 +8,6 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 
 [DiscordCommand("ping", "Ping the bot")]
-[DiscordCommand("test grouped alias", "Ping the bot alias")]
 public partial class Ping
 {
     public async Task Execute() {
