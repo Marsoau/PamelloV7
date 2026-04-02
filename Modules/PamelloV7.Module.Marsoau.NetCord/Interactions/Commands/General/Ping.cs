@@ -9,7 +9,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 
 [DiscordCommand("ping", "Ping the bot")]
 [DiscordCommand("test grouped alias", "Ping the bot alias")]
-public class Ping : DiscordCommand
+public partial class Ping
 {
     public async Task Execute() {
         await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");

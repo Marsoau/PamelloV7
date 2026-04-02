@@ -122,7 +122,7 @@ public class PamelloEventGenerator : IIncrementalGenerator
         );
     }
 
-    private static bool InheritsFrom(INamedTypeSymbol? classSymbol, string targetName) {
+    public static bool InheritsFrom(INamedTypeSymbol? classSymbol, string targetName) {
         if (classSymbol == null) return false;
         if (classSymbol.AllInterfaces.Any(i => i.Name == targetName)) return true;
 

@@ -1,3 +1,6 @@
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
+
 namespace PamelloV7.Module.Marsoau.NetCord.Attributes;
 
 public record SlashCommandNameInfo(
@@ -8,6 +11,7 @@ public record SlashCommandNameInfo(
     DiscordCommandAttribute Attribute
 );
 
+[AutoInherit(typeof(DiscordCommand))]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class DiscordCommandAttribute : Attribute
 {

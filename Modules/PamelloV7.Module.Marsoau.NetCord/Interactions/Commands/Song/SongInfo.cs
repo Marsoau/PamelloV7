@@ -11,7 +11,7 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song;
 
 [DiscordCommand("song info", "Get info about a song")]
-public class SongInfo : DiscordCommand
+public partial class SongInfo
 {
     public async Task Execute(
         [SongDescription] [DefaultQuery("current")] IPamelloSong song

@@ -6,7 +6,7 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 
 [DiscordButton("Refresh")]
-public class RefreshButton : DiscordButton
+public partial class RefreshButton
 {
     public async Task Execute() {
         if (Interaction.Message.InteractionMetadata is null) return;

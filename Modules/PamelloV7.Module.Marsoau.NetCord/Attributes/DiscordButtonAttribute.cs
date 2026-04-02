@@ -1,7 +1,10 @@
 using NetCord;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Attributes;
 
+[AutoInherit(typeof(DiscordButton))]
 [AttributeUsage(AttributeTargets.Class)]
 public class DiscordButtonAttribute : Attribute
 {
