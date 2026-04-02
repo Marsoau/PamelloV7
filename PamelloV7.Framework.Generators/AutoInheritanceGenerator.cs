@@ -65,11 +65,18 @@ public class AutoInheritanceGenerator : IIncrementalGenerator
             debug
         );
     }
+
     
     private static void Generate(SourceProductionContext context, AutoInheritanceDescriptor descriptor) {
-        var classNamespace = descriptor.ClassType.ContainingNamespace.IsGlobalNamespace 
-            ? string.Empty 
-            : descriptor.ClassType.ContainingNamespace.ToDisplayString();
+        var classNamespace = GeneratorBase.GetNamespace(descriptor.ClassType);
+        
+        var sb = GeneratorBase.WriteInsideClasses(
+            descriptor.ClassType,
+            descriptor.InheritFromType is not null
+                ? $" : {descriptor.InheritFromType.GetFullName()}"
+                : "",
+            "//nothing"
+        );
 
         var source =
             $$"""
@@ -79,10 +86,8 @@ public class AutoInheritanceGenerator : IIncrementalGenerator
               */
               
               namespace {{classNamespace}};
-                
-              public partial class {{descriptor.ClassType.Name}}{{(
-                  descriptor.InheritFromType is not null ? $" : {descriptor.InheritFromType.GetFullName()}" : ""
-              )}};
+              
+              {{sb}}
               """;
         
         context.AddSource($"{descriptor.ClassType.Name}.AutoInheritance.g.cs", SourceText.From(source, Encoding.UTF8));

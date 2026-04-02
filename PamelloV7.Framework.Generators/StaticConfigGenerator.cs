@@ -43,19 +43,18 @@ public class StaticConfigGenerator : IIncrementalGenerator
         );
     }
 
-    private static string Tab(int count) => string.Join("", Enumerable.Repeat("    ", count));
-    private static string AdjustedName(string name, string end) => name.EndsWith(end) ? name.Substring(0, name.Length - end.Length) : name;
+    public static string AdjustedName(string name, string end) => name.EndsWith(end) ? name.Substring(0, name.Length - end.Length) : name;
     
     private static string GenerateNode(ITypeSymbol nodeType, int depth, bool isRoot = true) {
         var innerTypes = nodeType.GetTypeMembers().Where(t => !t.IsAbstract && t.Arity == 0).ToList();
-        if (!innerTypes.Any()) return $"{Tab(depth)}//no inner types";
+        if (!innerTypes.Any()) return $"{GeneratorBase.Tab(depth)}//no inner types";
         
         var sb = new StringBuilder();
         
-        sb.AppendLine($"{Tab(depth)}public partial class {nodeType.Name} {{");
+        sb.AppendLine($"{GeneratorBase.Tab(depth)}public partial class {nodeType.Name} {{");
         
         foreach (var innerType in innerTypes) {
-            sb.Append(Tab(depth + 1) + $"public {innerType.Name} {AdjustedName(innerType.Name, "Node")} {{ get; set; }}");
+            sb.Append(GeneratorBase.Tab(depth + 1) + $"public {innerType.Name} {AdjustedName(innerType.Name, "Node")} {{ get; set; }}");
             if (innerType.GetMembers().OfType<IPropertySymbol>().Any(p => p.IsRequired)) {
                 sb.AppendLine();
             }
@@ -65,7 +64,7 @@ public class StaticConfigGenerator : IIncrementalGenerator
             sb.AppendLine(GenerateNode(innerType, depth + 1));
         }
         
-        sb.AppendLine($"{Tab(depth)}}}");
+        sb.AppendLine($"{GeneratorBase.Tab(depth)}}}");
         
         return sb.ToString();
     }

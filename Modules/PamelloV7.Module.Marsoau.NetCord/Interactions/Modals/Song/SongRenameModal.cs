@@ -8,12 +8,13 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 
+
 [DiscordModal("Song Rename")]
-public partial class SongRenameModal
+public partial class SongRenameModalaaa
 {
-    [AddInput("NewName")]
-    public partial class SongRenameModalBuilder : DiscordModalBuilder;
-    
+    [DiscordModalBuilder]
+    public partial class SongRenameModalBuilder;
+
     public async Task Submit(IPamelloSong song) {
         //Command<SongRename>().Execute(song, NetName);
     }
