@@ -18,13 +18,15 @@ public interface IAddModalPropertyAttribute
 public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute, IAddModalPropertyAttribute
     where TProperties : notnull
 {
-    public string PropertyName { get; set; }
+    public string PropertyName { get; }
+    public bool IsRequired { get; }
     
     public Type PropertiesType => typeof(TProperties);
     public Type ValueType => typeof(TValue);
 
     protected AddModalPropertyAttribute(string property) {
-        PropertyName = property;
+        IsRequired = property.EndsWith('*');
+        PropertyName = IsRequired ? property[..^1] : property;
     }
     
     public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder);

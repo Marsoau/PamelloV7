@@ -8,17 +8,20 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 
-
 [DiscordModal("Song Rename")]
+
+[AddShortInput("Input11", "First input on modal")]
+[AddShortInput("Input22*", "Second input on modal")]
+
 public partial class SongRenameModal
 {
-    [AddShortInput("soitsid", "Text input name")]
-    [AddShortInput("soitsid2", "Text input name another")]
-    [AddShortInput("soitsid3", "Text input name moooore")]
+    [AddShortInput("Input1*", "First input")]
+    [AddShortInput("Input2*", "Second input")]
+    [AddShortInput("Input3", "Third input")]
 
     public partial class Builder;
 
-    public async Task Submit() {
+    public void Submit() {
         Output.Write("modal actually submitted");
     }
 }
