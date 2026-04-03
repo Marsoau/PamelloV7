@@ -15,10 +15,15 @@ public partial class Ping
 {
     public async Task Execute() {
         //await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
+        
+        var song = await GetSingleRequiredAsync<IPamelloSong>("35");
 
         await RespondAsync(() => [
             new ActionRowProperties().AddComponents(
-                ModalButton<SongRenameModal>("Modal", ButtonStyle.Secondary)
+                ModalButton<SongRenameModal, SongRenameModal.Builder>("Modal", ButtonStyle.Secondary,
+                    async builder => builder.Build(song),
+                    async modal => modal.Submit(song)
+                )
             )
         ]);
         

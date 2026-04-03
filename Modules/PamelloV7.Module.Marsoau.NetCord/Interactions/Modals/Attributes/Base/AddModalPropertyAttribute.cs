@@ -1,5 +1,6 @@
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
@@ -12,7 +13,7 @@ public interface IAddModalPropertyAttribute
     public Type ValueType { get; }
     
     public object AddPropertiesTo(DiscordModalBuilder builder);
-    public object? GetValueIn(ILabelComponent component);
+    public Task<object?> GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser);
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
@@ -31,8 +32,10 @@ public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute
     }
     
     public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder);
-    public abstract TValue GetValueIn(ILabelComponent component);
+
+    public abstract Task<TValue> GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser);
     
     object IAddModalPropertyAttribute.AddPropertiesTo(DiscordModalBuilder builder) => AddPropertiesTo(builder);
-    object? IAddModalPropertyAttribute.GetValueIn(ILabelComponent component) => GetValueIn(component);
+    async Task<object?> IAddModalPropertyAttribute.GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser)
+        => await GetValueInAsync(component, services, scopeUser);
 }

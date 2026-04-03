@@ -1,5 +1,9 @@
+using System.ComponentModel;
 using System.Reflection;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Actions;
 
@@ -42,5 +46,30 @@ public class PamelloBasicActions
             exceptionHandler(x);
             return null;
         }
+    }
+
+    public static async Task<TType> InTypeFromStringAsync<TType>(string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
+        var value = await InTypeFromStringAsync(typeof(TType), str, defaultQuery, peql, scopeUser);
+        return (TType)value!;
+    }
+    
+    public static async Task<object?> InTypeFromStringAsync(Type type, string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
+        var query = string.IsNullOrEmpty(str) ? defaultQuery : str;
+
+        if (type.IsAssignableTo(typeof(IPamelloEntity))) {
+            return await peql.ReflectiveGetSingleAsync(type, query, scopeUser);
+        }
+        
+        if (
+            type.IsGenericType && (
+            type.GetGenericTypeDefinition() == typeof(List<>) ||
+            type.GetGenericTypeDefinition() == typeof(IEnumerable<>)) &&
+            type.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
+        ) {
+            return await peql.ReflectiveGetAsync(type.GenericTypeArguments.First(), query, scopeUser);
+        }
+        
+        var converter = TypeDescriptor.GetConverter(type);
+        return converter.ConvertFromString(str);
     }
 }

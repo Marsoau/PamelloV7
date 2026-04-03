@@ -10,23 +10,18 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 
 [DiscordModal("Song Rename")]
 
-[AddShortInput("Input11", "First input on modal")]
-[AddShortInput("Input22*", "Second input on modal")]
+[AddShortInput("NewName*", "Name of a song")]
 
 public partial class SongRenameModal
 {
-    [AddShortInput("Input1*", "First input")]
-    [AddShortInput("Input2*", "Second input")]
-    [AddShortInput("Input3", "Third input")]
-
     public partial class Builder
     {
-        public void Build() {
-            Input11.WithRequired();
+        public void Build(IPamelloSong song) {
+            NewName.Value = song.Name;
         }
     }
-
-    public void Submit() {
-        Output.Write($"modal actually submitted, value {Input22}; {Input3}");
+    
+    public void Submit(IPamelloSong song) {
+        Command<SongRename>().Execute(song, NewName);
     }
 }

@@ -31,16 +31,16 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             ..GetType().GetCustomAttributes().OfType<IAddModalPropertyAttribute>(),
             ..BuilderType.GetCustomAttributes().OfType<IAddModalPropertyAttribute>()
         ];
+
+        var tasks = interaction.Data.Components
+            .OfType<Label>()
+            .Select(label => SetValueForComponent(label.Component));
         
-        foreach (var component in interaction.Data.Components) {
-            if (component is Label label) {
-               SetValueForComponent(label.Component);
-            }
-        }
+        Task.WhenAll(tasks).Wait();
         
         return;
 
-        void SetValueForComponent(ILabelComponent component) {
+        async Task SetValueForComponent(ILabelComponent component) {
             var customIdProperty = component.GetType().GetProperty("CustomId");
             var customId = customIdProperty?.GetValue(component);
             
@@ -48,8 +48,8 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             
             var attribute = attributes.FirstOrDefault(a => a.PropertyName == customIdString);
             if (attribute is null) throw new PamelloException($"Attribute for name of custom id \"{customIdString}\" not found");
-            
-            var value = attribute.GetValueIn(component);
+
+            var value = await attribute.GetValueInAsync(component, Services, ScopeUser);
 
             var property = GetType().GetProperty(attribute.PropertyName);
             property?.SetValue(this, value);
