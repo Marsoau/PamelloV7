@@ -63,7 +63,7 @@ public class DiscordModalGenerator : IIncrementalGenerator
 
               public partial class {{descriptor.ModalClass.Name}} {
                   public partial class SongRenameModalBuilder {
-                      public void Build() { }
+                      //public void Build() { }
                   }
               }
               """;

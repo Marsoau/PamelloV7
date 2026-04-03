@@ -9,9 +9,9 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 [AttributeUsage(AttributeTargets.Class)]
 public class DiscordModalAttribute : Attribute
 {
-    public string Name { get; set; }
+    public string Title { get; set; }
     
-    public DiscordModalAttribute(string name) {
-        Name = name;
+    public DiscordModalAttribute(string title) {
+        Title = title;
     }
 }

@@ -1,8 +1,39 @@
+using System.Reflection;
+using NetCord.Rest;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 public abstract class DiscordModalBuilder : DiscordComponentBuilder
 {
+    private Type? _modalType;
+    public Type ModalType => _modalType ?? throw new InvalidOperationException($"Modal type is not found on builder {GetType().FullName}");
     
+    public string ModalId { get; private set; } = null!;
+
+    protected DiscordModalBuilder() {
+        _modalType = GetType().DeclaringType!;
+    }
+    
+    protected ModalProperties Properties = null!;
+
+    public virtual void InitializeModalBuilder(IServiceProvider services, string modalId, IPamelloUser scopeUser) {
+        ModalId = modalId;
+        
+        InitializeActions(services, scopeUser);
+        InitializeProperties();
+    }
+
+    private ModalProperties InitializeProperties() {
+        var modalAttribute = ModalType.GetCustomAttribute<DiscordModalAttribute>();
+        if (modalAttribute is null) throw new InvalidOperationException($"Modal type {ModalType.FullName} does not have DiscordModalAttribute");
+
+        return Properties = new ModalProperties(ModalId, modalAttribute.Title);
+    }
+    
+    public virtual ModalProperties Build() {
+        return Properties;
+    }
 }

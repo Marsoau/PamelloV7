@@ -37,12 +37,14 @@ public class DiscordInteractionsHandler : IPamelloService
     }
 
     private async ValueTask MainOnInteractionCreate(Interaction interaction) {
+        TokenizedInteraction tokenizedInteraction;
+        
         switch (interaction) {
             case SlashCommandInteraction slashCommand:
                 await _commands.ExecuteAsync(slashCommand);
                 break;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
-                var tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
+                tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
                 
                 await buttonInteraction.SendResponseAsync(InteractionCallback.ModifyMessage(_ => { }));
                 await tokenizedInteraction.Action(interaction);

@@ -57,6 +57,22 @@ public class MethodObligationGenerator : IIncrementalGenerator
             debug
         );
     }
+
+    public static bool HasMethod(ITypeSymbol? type, string methodName, StringBuilder sb) {
+        while (true) {
+            if (type is null) return false;
+
+            sb.AppendLine($"Checking: {type.Name}");
+            foreach (var member in type.GetMembers().OfType<IMethodSymbol>()) {
+                sb.AppendLine($"| {member.Name}");
+            }
+            
+            if (type.GetMembers().OfType<IMethodSymbol>().Any(m => m.Name == methodName))
+                return true;
+
+            type = type.BaseType;
+        }
+    }
     
     private static void Generate(SourceProductionContext context, MethodObligationDescriptor descriptor) {
         var classNamespace = GeneratorBase.GetNamespace(descriptor.ClassType);
@@ -78,7 +94,7 @@ public class MethodObligationGenerator : IIncrementalGenerator
               public interface I{{descriptor.ClassType.Name}}Obligations {
                   {{(
                       string.Join("\n", descriptor.RequiredMethods.Select(method => 
-                          (descriptor.ClassType.GetMembers().OfType<IMethodSymbol>().Any(m => m.Name == method)
+                          (HasMethod(descriptor.ClassType, method, descriptor.DebugOutput)
                               ? $"//method \"{method}\" was found"
                               : $"        protected void {method}();"
                           )

@@ -6,6 +6,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
