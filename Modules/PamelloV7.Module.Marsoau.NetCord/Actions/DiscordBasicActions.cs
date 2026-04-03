@@ -1,9 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
@@ -19,6 +22,8 @@ public abstract class DiscordBasicActions
     
     public IPamelloUser ScopeUser = null!;
     
+    public DiscordClientService Clients = null!;
+    
     public DiscordComponentBuilderService ComponentBuilders = null!;
     public IPamelloCommandsService Commands = null!;
     public IEntityQueryService PEQL = null!;
@@ -26,11 +31,20 @@ public abstract class DiscordBasicActions
     public InteractionTokenizationService Tokenizer = null!;
     
     public IPamelloPlayer? SelectedPlayer => ScopeUser.SelectedPlayer;
+    public IPamelloPlayer RequiredSelectedPlayer
+        => SelectedPlayer ?? throw new PamelloException("Selected player required");
+    public IPamelloPlayer GuaranteedSelectedPlayer
+        => SelectedPlayer ?? Command<PlayerCreate>().Execute("Player");
+    
+    protected IPamelloQueue? Queue => SelectedPlayer?.Queue;
+    protected IPamelloQueue RequiredQueue => RequiredSelectedPlayer.RequiredQueue;
     
     public virtual void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
         ScopeUser = scopeUser;
         
         Services = services;
+        
+        Clients = services.GetRequiredService<DiscordClientService>();
         
         ComponentBuilders = services.GetRequiredService<DiscordComponentBuilderService>();
         Commands = services.GetRequiredService<IPamelloCommandsService>();

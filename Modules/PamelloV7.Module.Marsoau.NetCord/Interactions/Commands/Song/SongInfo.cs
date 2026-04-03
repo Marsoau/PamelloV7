@@ -6,6 +6,7 @@ using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song;
@@ -18,14 +19,11 @@ public partial class SongInfo
     ) {
         await RespondAsync(() => [
             Builder<BasicComponentsBuilder>().Info(null, $"{Interaction.Id}\n{song.ToDiscordString()}"),
-            Builder<BasicButtonsBuilder>().RefreshButtonRow(),
             new ActionRowProperties().AddComponents(
-                Button("Rename", ButtonStyle.Secondary, () => {
-                    Command<SongRename>().Execute(song, "Test Name");
-                }),
-                Button("Reset", ButtonStyle.Secondary, async () => {
-                    await Command<SongInfoReset>().Execute(song);
-                })
+                ModalButton<SongRenameModal, SongRenameModal.Builder>("Rename", ButtonStyle.Secondary,
+                    async builder => builder.Build(song),
+                    async modal => modal.Submit(song)
+                )
             )
         ], () => [song]);
     }

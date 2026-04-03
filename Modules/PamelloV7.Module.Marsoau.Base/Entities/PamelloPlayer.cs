@@ -72,6 +72,7 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     
     [OnAudioMap]
     public AudioCopy Copy { get; set; }
+    IAudioModule IPamelloPlayer.Copy => Copy;
 
     private static int _idCounter = 1;
     public PamelloPlayer(string name, IPamelloUser owner, IServiceProvider services) : base(_idCounter, services) {

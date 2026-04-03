@@ -23,6 +23,8 @@ public interface IPamelloPlayer : IPamelloEntity
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue { get; }
     
+    public IAudioModule Copy { get; }
+    
     public IEnumerable<IPamelloSpeaker> ConnectedSpeakers { get; }
 
     public bool IsAvailableFor(IPamelloUser user) {
