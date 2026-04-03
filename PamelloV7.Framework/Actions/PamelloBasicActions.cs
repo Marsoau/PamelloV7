@@ -12,8 +12,8 @@ public class PamelloBasicActions
     public static async Task<object?> RunMethodAsync(string methodName, object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
         if (obj is null) return null;
         
-        var method = obj.GetType().GetMethod("Execute");
-        if (method is null) throw new PamelloException("Could not find Execute method");
+        var method = obj.GetType().GetMethod(methodName);
+        if (method is null) throw new PamelloException($"Could not find \"{methodName}\" method");
         
         return await RunMethodAsync(method, obj, arguments, exceptionHandler);
     }

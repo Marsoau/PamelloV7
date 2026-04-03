@@ -59,9 +59,9 @@ public class InteractionTokenizationService : IPamelloService
 
     public ButtonProperties ModalButton(string label, ButtonStyle style) {
         var tokenizedInteraction = new TokenizedModalInteraction(
-            async interaction => await _modals.GetBuilder(null, interaction),
-            async interaction => await _modals.GetModal(null, interaction),
-            async builder => await builder.BuildAsync(),
+            async interaction => await _modals.GetBuilder(typeof(SongRenameModal.SongRenameModalBuilder), interaction),
+            async interaction => await _modals.GetModal(typeof(SongRenameModal), interaction),
+            async builder => await PamelloBasicActions.RunMethodAsync("Build", builder),
             async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal)
         );
         Interactions.Add(tokenizedInteraction);

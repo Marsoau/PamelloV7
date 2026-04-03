@@ -10,13 +10,13 @@ public class TokenizedModalInteraction : TokenizedInteraction
     protected Func<ButtonInteraction, Task<DiscordModalBuilder>> CreateModalBuilder { get; }
     protected Func<ModalInteraction, Task<DiscordModal>> CreateModal { get; }
     
-    protected Func<DiscordModalBuilder, Task<ModalProperties>> BuildModal { get; }
+    protected Func<DiscordModalBuilder, Task> BuildModal { get; }
     protected Func<DiscordModal, Task> SubmitModal { get; }
 
     public TokenizedModalInteraction(
         Func<ButtonInteraction, Task<DiscordModalBuilder>> createModalBuilder,
         Func<ModalInteraction, Task<DiscordModal>> createModal,
-        Func<DiscordModalBuilder, Task<ModalProperties>> buildModal,
+        Func<DiscordModalBuilder, Task> buildModal,
         Func<DiscordModal, Task> submitModal
     ) {
         CreateModalBuilder = createModalBuilder;
@@ -37,10 +37,10 @@ public class TokenizedModalInteraction : TokenizedInteraction
 
     public async Task OnButtonSubmit(ButtonInteraction interaction) {
         var builder = await CreateModalBuilder(interaction);
-        builder.ModalId = CustomId;
-        var modalProperties = await BuildModal(builder);
+        
+        await BuildModal(builder);
 
-        await interaction.SendResponseAsync(InteractionCallback.Modal(modalProperties));
+        await interaction.SendResponseAsync(InteractionCallback.Modal(builder.Properties));
     }
 
     public async Task OnModalSubmit(ModalInteraction interaction) {

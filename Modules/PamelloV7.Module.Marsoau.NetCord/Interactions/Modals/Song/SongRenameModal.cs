@@ -29,18 +29,14 @@ public partial class SongRenameModal
 
     public partial class SongRenameModalBuilder
     {
-        public override ModalProperties BuildAsync() {
-            Properties = new ModalProperties(ModalId, "Song Rename");
-            
+        public void Build() {
             Properties.AddComponents(
                 new LabelProperties("One Line", new TextInputProperties("input-one", TextInputStyle.Short))
             );
-            
-            return base.BuildAsync();
         }
     }
 
-    public async Task Submit(IPamelloSong song) {
+    public async Task Submit() {
         Output.Write("modal actually submitted");
     }
 }
