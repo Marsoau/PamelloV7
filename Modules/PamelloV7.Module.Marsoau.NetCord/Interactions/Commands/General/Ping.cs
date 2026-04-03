@@ -16,11 +16,17 @@ public partial class Ping
     public async Task Execute() {
         //await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
 
-        var button = Tokenizer.ModalButton("Modal", ButtonStyle.Secondary);
-        
         await RespondAsync(() => [
             new ActionRowProperties().AddComponents(
-                button
+                Tokenizer.ModalButton<SongRenameModal, SongRenameModal.SongRenameModalBuilder>("Modal", ButtonStyle.Secondary,
+                    async builder => {
+                        Output.Write("custom build");
+                        builder.Build();
+                    },
+                    async modal => {
+                        Output.Write("custom submit");
+                        await modal.Submit();
+                    })
             )
         ]);
         

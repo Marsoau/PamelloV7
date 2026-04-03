@@ -41,12 +41,11 @@ public class DiscordModalsService : IPamelloService
     public void Startup(IServiceProvider services) {
         var types = _types.GetInheritorsOf<DiscordModal>().ToList();
         
-        ModalsDescriptors = types.Select(type => new DiscordModalDescriptor(
-            type.GetCustomAttribute<DiscordModalAttribute>()
-                ?? throw new PamelloException($"Modal {type.FullName} doesn't have DiscordModalAttribute"),
-            type,
-            type.GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)))
-                ?? throw new PamelloException($"Modal {type.FullName} doesn't have DiscordModalBuilder")
+        ModalsDescriptors = types.Select(modalType => new DiscordModalDescriptor(
+            modalType.GetCustomAttribute<DiscordModalAttribute>()
+                ?? throw new PamelloException($"Modal {modalType.FullName} doesn't have DiscordModalAttribute"),
+            modalType,
+            DiscordModalBuilder.GetFromModal(modalType)
         )).ToList();
 
         Output.Write("Discord modals:");

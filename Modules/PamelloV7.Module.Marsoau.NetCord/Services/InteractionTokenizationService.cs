@@ -56,13 +56,80 @@ public class InteractionTokenizationService : IPamelloService
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
-
-    public ButtonProperties ModalButton(string label, ButtonStyle style) {
-        var tokenizedInteraction = new TokenizedModalInteraction(
-            async interaction => await _modals.GetBuilder(typeof(SongRenameModal.SongRenameModalBuilder), interaction),
-            async interaction => await _modals.GetModal(typeof(SongRenameModal), interaction),
+    
+    public ButtonProperties ModalButton<TModal>(
+        string label,
+        ButtonStyle style
+    )
+        where TModal : DiscordModal
+    {
+        return ModalButton(typeof(TModal), label, style,
             async builder => await PamelloBasicActions.RunMethodAsync("Build", builder),
             async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal)
+        );
+    }
+
+    public ButtonProperties ModalButton<TModal>(
+        string label,
+        ButtonStyle style,
+        Func<TModal, Task> submitModal
+    )
+        where TModal : DiscordModal
+    {
+        return ModalButton(
+            typeof(TModal),
+            label,
+            style,
+            async builder => await PamelloBasicActions.RunMethodAsync("Build", builder),
+            async m => {
+                if (m is not TModal modal)
+                    throw new PamelloException($"Modal {m.GetType().FullName} is not of type {typeof(TModal).FullName}");
+                
+                await submitModal(modal);
+            }
+        );
+    }
+    
+    public ButtonProperties ModalButton<TModal, TModalBuilder>(
+        string label,
+        ButtonStyle style,
+        Func<TModalBuilder, Task> buildModal,
+        Func<TModal, Task> submitModal
+    )
+        where TModal : DiscordModal
+        where TModalBuilder : DiscordModalBuilder
+    {
+        return ModalButton(
+            typeof(TModal),
+            label,
+            style,
+            async b => {
+                if (b is not TModalBuilder builder)
+                    throw new PamelloException($"Modal builder {b.GetType().FullName} is not of type {typeof(TModalBuilder).FullName}");
+                
+                await buildModal(builder);
+            },
+            async m => {
+                if (m is not TModal modal)
+                    throw new PamelloException($"Modal {m.GetType().FullName} is not of type {typeof(TModal).FullName}");
+                
+                await submitModal(modal);
+            }
+        );
+    }
+
+    public ButtonProperties ModalButton(
+        Type modalType,
+        string label,
+        ButtonStyle style,
+        Func<DiscordModalBuilder, Task> buildModal,
+        Func<DiscordModal, Task> submitModal
+    ) {
+        var tokenizedInteraction = new TokenizedModalInteraction(
+            async interaction => await _modals.GetBuilder(DiscordModalBuilder.GetFromModal(modalType), interaction),
+            async interaction => await _modals.GetModal(modalType, interaction),
+            async builder => await buildModal(builder),
+            async modal => await submitModal(modal)
         );
         Interactions.Add(tokenizedInteraction);
         

@@ -1,5 +1,6 @@
 using System.Reflection;
 using NetCord.Rest;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
@@ -32,5 +33,12 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         if (modalAttribute is null) throw new InvalidOperationException($"Modal type {ModalType.FullName} does not have DiscordModalAttribute");
 
         return Properties = new ModalProperties(ModalId, modalAttribute.Title);
+    }
+    
+    public static Type GetFromModal(Type modalType) {
+        var builderType = modalType.GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
+        if (builderType is null) throw new PamelloException($"Modal {modalType.FullName} doesn't have DiscordModalBuilder");
+        
+        return builderType;
     }
 }
