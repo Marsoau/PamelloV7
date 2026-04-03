@@ -1,3 +1,4 @@
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
@@ -11,7 +12,7 @@ public interface IAddModalPropertyAttribute
     public Type ValueType { get; }
     
     public object AddPropertiesTo(DiscordModalBuilder builder);
-    public object? GetValueIn(DiscordModal modal);
+    public object? GetValueIn(ILabelComponent component);
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
@@ -30,8 +31,8 @@ public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute
     }
     
     public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder);
-    public abstract TValue GetValueIn(DiscordModal modal);
+    public abstract TValue GetValueIn(ILabelComponent component);
     
     object IAddModalPropertyAttribute.AddPropertiesTo(DiscordModalBuilder builder) => AddPropertiesTo(builder);
-    object? IAddModalPropertyAttribute.GetValueIn(DiscordModal modal) => GetValueIn(modal);
+    object? IAddModalPropertyAttribute.GetValueIn(ILabelComponent component) => GetValueIn(component);
 }

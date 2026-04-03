@@ -1,14 +1,58 @@
+using System.Reflection;
 using NetCord;
+using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
 {
+    private Type? _builderType;
+    public Type BuilderType => _builderType ?? throw new InvalidOperationException($"Modal type is not found on builder {GetType().FullName}");
+    
+    protected DiscordModal() {
+        _builderType = GetType().GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
+    }
+    
     protected override Task RespondLoadingInternal() {
         throw new NotImplementedException();
     }
     protected override Task ReleaseInteractionInternal() {
         throw new NotImplementedException();
+    }
+
+    public override void InitializeInteraction(IServiceProvider services, ModalInteraction interaction, IPamelloUser scopeUser) {
+        base.InitializeInteraction(services, interaction, scopeUser);
+
+        IAddModalPropertyAttribute[] attributes = [
+            ..GetType().GetCustomAttributes().OfType<IAddModalPropertyAttribute>(),
+            ..BuilderType.GetCustomAttributes().OfType<IAddModalPropertyAttribute>()
+        ];
+        
+        foreach (var component in interaction.Data.Components) {
+            if (component is Label label) {
+               SetValueForComponent(label.Component);
+            }
+        }
+        
+        return;
+
+        void SetValueForComponent(ILabelComponent component) {
+            var customIdProperty = component.GetType().GetProperty("CustomId");
+            var customId = customIdProperty?.GetValue(component);
+            
+            if (customId is not string customIdString) throw new PamelloException($"CustomId not found in {component}");
+            
+            var attribute = attributes.FirstOrDefault(a => a.PropertyName == customIdString);
+            if (attribute is null) throw new PamelloException($"Attribute for name of custom id \"{customIdString}\" not found");
+            
+            var value = attribute.GetValueIn(component);
+
+            var property = GetType().GetProperty(attribute.PropertyName);
+            property?.SetValue(this, value);
+        }
     }
 }

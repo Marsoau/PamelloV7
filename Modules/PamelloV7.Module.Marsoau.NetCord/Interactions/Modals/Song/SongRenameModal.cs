@@ -19,9 +19,14 @@ public partial class SongRenameModal
     [AddShortInput("Input2*", "Second input")]
     [AddShortInput("Input3", "Third input")]
 
-    public partial class Builder;
+    public partial class Builder
+    {
+        public void Build() {
+            Input11.WithRequired();
+        }
+    }
 
     public void Submit() {
-        Output.Write($"modal actually submitted, value {Input22}");
+        Output.Write($"modal actually submitted, value {Input22}; {Input3}");
     }
 }

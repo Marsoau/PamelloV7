@@ -42,13 +42,10 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         Properties = new ModalProperties(ModalId, modalAttribute.Title);
 
         foreach (var attribute in Attributes) {
-            if (attribute.AddPropertiesTo(this) is not IModalComponentProperties properties) continue;
+            if (attribute.AddPropertiesTo(this) is not { } properties) continue;
             
             var property = GetType().GetProperty(attribute.PropertyName);
-            if (property is null) continue;
-            
-            //label on attribute as a method or property like HasLablek idk
-            //property.SetValue(this, properties);
+            property?.SetValue(this, properties);
         }
         
         return Properties;

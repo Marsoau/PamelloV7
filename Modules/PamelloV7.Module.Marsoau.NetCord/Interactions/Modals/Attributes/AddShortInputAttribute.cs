@@ -1,3 +1,4 @@
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
@@ -20,7 +21,9 @@ public class AddShortInputAttribute : AddModalPropertyAttribute<TextInputPropert
         
         return properties;
     }
-    public override string GetValueIn(DiscordModal modal) {
-        throw new NotImplementedException();
+    public override string GetValueIn(ILabelComponent component) {
+        if (component is not TextInput input) return "";
+        
+        return input.Value;
     }
 }
