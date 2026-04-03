@@ -42,14 +42,18 @@ public class DiscordInteractionsHandler : IPamelloService
         switch (interaction) {
             case SlashCommandInteraction slashCommand:
                 await _commands.ExecuteAsync(slashCommand);
-                break;
+                return;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
                 tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
                 
-                await buttonInteraction.SendResponseAsync(InteractionCallback.ModifyMessage(_ => { }));
                 await tokenizedInteraction.Action(interaction);
                 
                 break;
+            case ModalInteraction modalInteraction:
+                Output.Write($"Received modal: {modalInteraction.Data.CustomId}");
+                break;
         }
+                
+        await interaction.SendResponseAsync(InteractionCallback.DeferredModifyMessage);
     }
 }

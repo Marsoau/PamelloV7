@@ -1,6 +1,7 @@
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
@@ -34,5 +35,18 @@ public partial class Ping
                 new CheckboxGroupOptionProperties("ch-3", "value-3"),
             ]))
         )));
+        
+        return;
+        await RespondAsync(() => [
+            new ActionRowProperties().AddComponents(
+                Button("Test", ButtonStyle.Danger, () => {
+                    Output.Write("Test Button Click");
+                    Interaction.SendFollowupMessageAsync(new InteractionMessageProperties() {
+                        Content = "Test Button Click Message",
+                        Flags = MessageFlags.Ephemeral
+                    });
+                })
+            )
+        ]);
     }
 }
