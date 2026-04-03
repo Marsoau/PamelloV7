@@ -5,6 +5,7 @@ using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
@@ -19,6 +20,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         _modalType = GetType().DeclaringType!;
     }
     
+    public IAddModalPropertyAttribute[] Attributes { get; protected set; } = [];
     public ModalProperties Properties { get; protected set; } = null!;
 
     public virtual void InitializeBuilder(IServiceProvider services, string modalId, IPamelloUser scopeUser) {
@@ -29,10 +31,27 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     }
 
     private ModalProperties InitializeProperties() {
+        Attributes = [
+            ..ModalType.GetCustomAttributes().OfType<IAddModalPropertyAttribute>(),
+            ..GetType().GetCustomAttributes().OfType<IAddModalPropertyAttribute>()
+        ];
+        
         var modalAttribute = ModalType.GetCustomAttribute<DiscordModalAttribute>();
         if (modalAttribute is null) throw new InvalidOperationException($"Modal type {ModalType.FullName} does not have DiscordModalAttribute");
 
-        return Properties = new ModalProperties(ModalId, modalAttribute.Title);
+        Properties = new ModalProperties(ModalId, modalAttribute.Title);
+
+        foreach (var attribute in Attributes) {
+            if (attribute.AddPropertiesTo(this) is not IModalComponentProperties properties) continue;
+            
+            var property = GetType().GetProperty(attribute.PropertyName);
+            if (property is null) continue;
+            
+            //label on attribute as a method or property like HasLablek idk
+            //property.SetValue(this, properties);
+        }
+        
+        return Properties;
     }
     
     public static Type GetFromModal(Type modalType) {

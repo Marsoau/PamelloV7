@@ -12,29 +12,11 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 [DiscordModal("Song Rename")]
 public partial class SongRenameModal
 {
-    [AddShortInput("Name*")]
-    [AddParagraphInput("Description")]
+    [AddShortInput("soitsid", "Text input name")]
+    [AddShortInput("soitsid2", "Text input name another")]
+    [AddShortInput("soitsid3", "Text input name moooore")]
 
-    [AddSelect("Type")]
-    [AddSelectOption("Song")]
-    [AddSelectOption("Episode")]
-    [AddSelectOption("Playlist")]
-
-    [AddCheckBox("Is Public")]
-
-    [AddCheckBoxGroup("Selections")]
-    [AddCheckBoxOption("Selection 1")]
-    [AddCheckBoxOption("Selection 2")]
-    [AddCheckBoxOption("Selection 3")]
-
-    public partial class Builder
-    {
-        public void Build() {
-            Properties.AddComponents(
-                new LabelProperties("One Line", new TextInputProperties("input-one", TextInputStyle.Short))
-            );
-        }
-    }
+    public partial class Builder;
 
     public async Task Submit() {
         Output.Write("modal actually submitted");

@@ -1,22 +1,25 @@
+using NetCord.Rest;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
+
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddShortInputAttribute(string name) : Attribute;
+public class AddShortInputAttribute : AddModalPropertyAttribute<TextInputProperties, string>
+{
+    public string Label { get; }
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddParagraphInputAttribute(string name) : Attribute;
+    public AddShortInputAttribute(string property, string label) : base(property) {
+        Label = label;
+    }
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddCheckBoxAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddCheckBoxGroupAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddCheckBoxOptionAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddSelectAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddSelectOptionAttribute(string name) : Attribute;
+    public override TextInputProperties AddPropertiesTo(DiscordModalBuilder builder) {
+        var properties = new TextInputProperties(PropertyName, TextInputStyle.Short);
+        
+        builder.Properties.AddComponents(new LabelProperties(Label, properties));
+        
+        return properties;
+    }
+    public override string GetValueIn(DiscordModal modal) {
+        throw new NotImplementedException();
+    }
+}

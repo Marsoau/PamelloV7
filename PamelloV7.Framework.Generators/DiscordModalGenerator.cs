@@ -64,7 +64,7 @@ public class DiscordModalGenerator : IIncrementalGenerator
                   public partial class Builder : DiscordModalBuilder {
                       {{(GeneratorBase.HasMethod(descriptor.BuilderClass, "Build", descriptor.DebugOutput)
                           ? "//Build method found"
-                          : "public void Build() => Properties.AddComponents(new TextDisplayProperties(\"Empty Modal\"));"
+                          : """public void Build() { if (!Properties.Any()) Properties.AddComponents(new TextDisplayProperties("Empty Modal")); }"""
                       )}}
                   }
               }
