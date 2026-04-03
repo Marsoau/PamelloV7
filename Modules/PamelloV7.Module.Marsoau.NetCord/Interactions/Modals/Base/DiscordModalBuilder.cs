@@ -11,7 +11,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     private Type? _modalType;
     public Type ModalType => _modalType ?? throw new InvalidOperationException($"Modal type is not found on builder {GetType().FullName}");
     
-    public string ModalId { get; private set; } = null!;
+    public string ModalId { get; set; } = null!;
 
     protected DiscordModalBuilder() {
         _modalType = GetType().DeclaringType!;

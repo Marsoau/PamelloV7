@@ -7,64 +7,23 @@ using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
-public class TokenizedInteraction
-{
-    public Guid Token { get; set; }
-    public Func<Interaction, Task> Action { get; set; }
-    
-    public TokenizedInteraction() {
-        Token = Guid.NewGuid();
-        Action = _ => Task.CompletedTask;
-    }
-    public TokenizedInteraction(Func<Interaction, Task> action) {
-        Token = Guid.NewGuid();
-        Action = action;
-    }
-
-    public string CustomId => $"tokenized:{Token}";
-}
-
-public interface ITokenizedButtonInteraction
-{
-    public Task<DiscordButton> ExecuteButtonAsync(ButtonInteraction interaction);
-}
-
-public class TokenizedButtonInteraction<TButton> : TokenizedInteraction, ITokenizedButtonInteraction
-    where TButton : DiscordButton
-{
-    private Func<ButtonInteraction, Task<TButton>> CreateButton { get; }
-    private Func<TButton, Task> ExecuteButton { get; }
-    
-    public TokenizedButtonInteraction(Func<ButtonInteraction, Task<TButton>> createButton, Func<TButton, Task> execute) {
-        CreateButton = createButton;
-        ExecuteButton = execute;
-        Action = async interaction => {
-            if (interaction is not ButtonInteraction buttonInteraction) return;
-            await ExecuteButtonAsync(buttonInteraction);
-        };
-    }
-
-    async Task<DiscordButton> ITokenizedButtonInteraction.ExecuteButtonAsync(ButtonInteraction interaction)
-        => await ExecuteButtonAsync(interaction);
-    public async Task<TButton> ExecuteButtonAsync(ButtonInteraction interaction) {
-        var button = await CreateButton(interaction);
-        
-        await ExecuteButton(button);
-        
-        return button;
-    }
-}
 
 public class InteractionTokenizationService : IPamelloService
 {
+    private readonly IServiceProvider _services;
+    
     private readonly DiscordButtonsService _buttons;
     
     private List<TokenizedInteraction> Interactions { get; set; } = [];
 
     public InteractionTokenizationService(IServiceProvider services) {
+        _services = services;
+        
         _buttons = services.GetRequiredService<DiscordButtonsService>();
     }
 
@@ -72,6 +31,12 @@ public class InteractionTokenizationService : IPamelloService
         => Get(buttonInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {buttonInteraction.Data.CustomId}");
     public TokenizedInteraction? Get(ButtonInteraction buttonInteraction) {
         return Interactions.FirstOrDefault(i => i.CustomId == buttonInteraction.Data.CustomId);
+    }
+    
+    public TokenizedInteraction GetRequired(ModalInteraction modalInteraction)
+        => Get(modalInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {modalInteraction.Data.CustomId}");
+    public TokenizedInteraction? Get(ModalInteraction modalInteraction) {
+        return Interactions.FirstOrDefault(i => i.CustomId == modalInteraction.Data.CustomId);
     }
 
     public ButtonProperties ActionButton(string label, ButtonStyle style, Action action)
@@ -88,6 +53,25 @@ public class InteractionTokenizationService : IPamelloService
         Interactions.Add(tokenizedInteraction);
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
+    }
+
+    public ButtonProperties ModalButton(string label, ButtonStyle style) {
+        var tokenizedInteraction = new TokenizedModalInteraction(
+            async interaction => await FakeCreateModalBuilder(interaction),
+            async modal => await FakeCreateModal(modal),
+            async modal => modal.Build(),
+            async modal => ((SongRenameModal)modal).Submit(null)
+        );
+        Interactions.Add(tokenizedInteraction);
+        
+        return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
+
+        async Task<SongRenameModal.SongRenameModalBuilder> FakeCreateModalBuilder(ButtonInteraction buttonInteraction) {
+            return new SongRenameModal.SongRenameModalBuilder();
+        }
+        async Task<SongRenameModal> FakeCreateModal(ModalInteraction modalInteraction) {
+            return new SongRenameModal();
+        }
     }
 
     public ButtonProperties Button<TButton>()

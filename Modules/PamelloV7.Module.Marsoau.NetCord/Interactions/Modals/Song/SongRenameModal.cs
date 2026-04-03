@@ -32,13 +32,17 @@ public partial class SongRenameModal
     public partial class SongRenameModalBuilder
     {
         public override ModalProperties Build() {
+            Properties = new ModalProperties(ModalId, "Song Rename");
+            
             Properties.AddComponents(
-                new TextDisplayProperties("This is a text dispalay")
+                new LabelProperties("One Line", new TextInputProperties("input-one", TextInputStyle.Short))
             );
+            
             return base.Build();
         }
     }
 
     public async Task Submit(IPamelloSong song) {
+        Output.Write("modal actually submitted");
     }
 }

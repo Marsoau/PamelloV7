@@ -14,7 +14,15 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 public partial class Ping
 {
     public async Task Execute() {
-        await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
+        //await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
+
+        var button = Tokenizer.ModalButton("Modal", ButtonStyle.Secondary);
+        
+        await RespondAsync(() => [
+            new ActionRowProperties().AddComponents(
+                button
+            )
+        ]);
         
         return;
         await Interaction.SendResponseAsync(InteractionCallback.Modal(new ModalProperties(

@@ -6,6 +6,7 @@ using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Handlers;
@@ -51,9 +52,16 @@ public class DiscordInteractionsHandler : IPamelloService
                 break;
             case ModalInteraction modalInteraction:
                 Output.Write($"Received modal: {modalInteraction.Data.CustomId}");
+                tokenizedInteraction = _tokenizer.GetRequired(modalInteraction);
+                
+                await tokenizedInteraction.Action(interaction);
+                
                 break;
         }
-                
-        await interaction.SendResponseAsync(InteractionCallback.DeferredModifyMessage);
+
+        try {
+            await interaction.SendResponseAsync(InteractionCallback.DeferredModifyMessage);
+        }
+        catch { /*ignored*/ }
     }
 }
