@@ -31,7 +31,10 @@ public static class GeneratorBase
         
         if (depth + 1 >= classNames.Length) {
             sb.AppendLine($"{inheritancePart} {{");
+            
+            sb.Append(Tab(depth + 1));
             sb.AppendLine(innerPart.Replace("\n", $"\n{Tab(depth + 1)}"));
+            
             sb.AppendLine($"{Tab(depth)}}}");
             return;
         }
@@ -48,5 +51,21 @@ public static class GeneratorBase
         WriteInsideClasses([..containingTypes, type.Name], inheritancePart, innerPart, sb);
         
         return sb;
+    }
+    
+    public static bool HasMethod(ITypeSymbol? type, string methodName, StringBuilder? debug = null) {
+        while (true) {
+            if (type is null) return false;
+
+            debug?.AppendLine($"Checking: {type.Name}");
+            foreach (var member in type.GetMembers().OfType<IMethodSymbol>()) {
+                debug?.AppendLine($"| {member.Name}");
+            }
+            
+            if (type.GetMembers().OfType<IMethodSymbol>().Any(m => m.Name == methodName))
+                return true;
+
+            type = type.BaseType;
+        }
     }
 }

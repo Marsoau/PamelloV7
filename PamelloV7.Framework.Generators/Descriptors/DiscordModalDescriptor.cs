@@ -15,6 +15,7 @@ public record DiscordModalFieldDescriptor(
 
 public record DiscordModalDescriptor(
     ITypeSymbol ModalClass,
+    ITypeSymbol? BuilderClass,
     DiscordModalFieldDescriptor[] Fields,
     StringBuilder DebugOutput
 );

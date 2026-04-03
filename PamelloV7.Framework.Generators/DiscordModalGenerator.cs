@@ -42,6 +42,7 @@ public class DiscordModalGenerator : IIncrementalGenerator
         
         return new DiscordModalDescriptor(
             classType,
+            innerType,
             [],
             debug
         );
@@ -54,18 +55,23 @@ public class DiscordModalGenerator : IIncrementalGenerator
 
         var source =
             $$"""
-              /* debug output
-              {{descriptor.DebugOutput}}
-              */
               using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
+              using NetCord.Rest;
 
               namespace {{classNamespace}};
 
               public partial class {{descriptor.ModalClass.Name}} {
-                  public partial class {{descriptor.ModalClass.Name}}Builder : DiscordModalBuilder {
-                      //public void Build() { }
+                  public partial class Builder : DiscordModalBuilder {
+                      {{(GeneratorBase.HasMethod(descriptor.BuilderClass, "Build", descriptor.DebugOutput)
+                          ? "//Build method found"
+                          : "public void Build() => Properties.AddComponents(new TextDisplayProperties(\"Empty Modal\"));"
+                      )}}
                   }
               }
+              
+              /* debug output
+              {{descriptor.DebugOutput}}
+              */
               """;
         
         context.AddSource($"{descriptor.ModalClass.Name}.DiscordModal.g.cs", SourceText.From(source, Encoding.UTF8));

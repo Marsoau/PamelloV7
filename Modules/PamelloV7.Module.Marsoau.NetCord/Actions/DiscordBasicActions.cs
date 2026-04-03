@@ -8,6 +8,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Actions;
@@ -63,8 +64,40 @@ public abstract class DiscordBasicActions
         where TButton : DiscordButton
         => Tokenizer.Button(execute);
     
+    public ButtonProperties ModalButton<TModal>(
+        string label, 
+        ButtonStyle style
+    )
+        where TModal : DiscordModal
+        => Tokenizer.ModalButton<TModal>(label, style);
+
+    public ButtonProperties ModalButton<TModal>(
+        string label, 
+        ButtonStyle style, 
+        Func<TModal, Task> submitModal
+    )
+        where TModal : DiscordModal
+        => Tokenizer.ModalButton<TModal>(label, style, submitModal);
+
+    public ButtonProperties ModalButton<TModal, TModalBuilder>(
+        string label, 
+        ButtonStyle style, 
+        Func<TModalBuilder, Task> buildModal, 
+        Func<TModal, Task> submitModal
+    )
+        where TModal : DiscordModal
+        where TModalBuilder : DiscordModalBuilder
+        => Tokenizer.ModalButton<TModal, TModalBuilder>(label, style, buildModal, submitModal);
+
+    public ButtonProperties ModalButton(
+        Type modalType, 
+        string label, 
+        ButtonStyle style, 
+        Func<DiscordModalBuilder, Task> buildModal, 
+        Func<DiscordModal, Task> submitModal
+    ) => Tokenizer.ModalButton(modalType, label, style, buildModal, submitModal);
+    
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
         => ComponentBuilders.Get<TBuilder>(ScopeUser);
-    
 }

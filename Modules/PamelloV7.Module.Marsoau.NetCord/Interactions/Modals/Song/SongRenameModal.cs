@@ -27,7 +27,7 @@ public partial class SongRenameModal
     [AddCheckBoxOption("Selection 2")]
     [AddCheckBoxOption("Selection 3")]
 
-    public partial class SongRenameModalBuilder
+    public partial class Builder
     {
         public void Build() {
             Properties.AddComponents(

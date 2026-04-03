@@ -18,15 +18,7 @@ public partial class Ping
 
         await RespondAsync(() => [
             new ActionRowProperties().AddComponents(
-                Tokenizer.ModalButton<SongRenameModal, SongRenameModal.SongRenameModalBuilder>("Modal", ButtonStyle.Secondary,
-                    async builder => {
-                        Output.Write("custom build");
-                        builder.Build();
-                    },
-                    async modal => {
-                        Output.Write("custom submit");
-                        await modal.Submit();
-                    })
+                ModalButton<SongRenameModal>("Modal", ButtonStyle.Secondary)
             )
         ]);
         
