@@ -3,19 +3,15 @@ using Microsoft.CodeAnalysis;
 
 namespace PamelloV7.Framework.Generators.Descriptors;
 
-public enum EDiscordModalFieldType {
-    TextInput
-}
-
-public record DiscordModalFieldDescriptor(
-    DiscordModalDescriptor Parent,
-    EDiscordModalFieldType Type,
+public record DiscordModalPropertyDescriptor(
+    ITypeSymbol PropertiesType,
+    ITypeSymbol ValueType,
     string Name
 );
 
 public record DiscordModalDescriptor(
     ITypeSymbol ModalClass,
     ITypeSymbol? BuilderClass,
-    DiscordModalFieldDescriptor[] Fields,
+    DiscordModalPropertyDescriptor[] Properties,
     StringBuilder DebugOutput
 );

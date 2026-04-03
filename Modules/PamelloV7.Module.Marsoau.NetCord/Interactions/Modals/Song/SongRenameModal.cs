@@ -22,6 +22,6 @@ public partial class SongRenameModal
     public partial class Builder;
 
     public void Submit() {
-        Output.Write("modal actually submitted");
+        Output.Write($"modal actually submitted, value {Input22}");
     }
 }

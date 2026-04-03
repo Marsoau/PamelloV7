@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using PamelloV7.Framework.Generators.Descriptors;
+using PamelloV7.Framework.Generators.Extensions;
 
 namespace PamelloV7.Framework.Generators;
 
@@ -19,6 +20,15 @@ public class DiscordModalGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(classDeclarations, (c, d) => Generate(c, d!));
     }
+
+    private static INamedTypeSymbol? FindInBase(INamedTypeSymbol? classSymbol, string name) {
+        while (true) {
+            if (classSymbol is null) return null;
+            if (classSymbol.Name == name) return classSymbol;
+            
+            classSymbol = classSymbol.BaseType;
+        }
+    }
     
     private static DiscordModalDescriptor? GetDescriptor(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
         if (context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken) is not INamedTypeSymbol classType)
@@ -26,24 +36,48 @@ public class DiscordModalGenerator : IIncrementalGenerator
         if (!classType.GetAttributes().Any(a => a.AttributeClass?.Name == "DiscordModalAttribute"))
             return null;
 
-        var attributes = classType.GetAttributes().Where(a => a.AttributeClass?.Name.StartsWith("Add") ?? false).ToList();
-        
         var debug = new StringBuilder();
-        
-        debug.AppendLine($"Found modal in {classType.Name}");
-
-        debug.AppendLine($"Attributes: ({attributes.Count})");
-        foreach (var attribute in attributes) {
-            debug.AppendLine($"| {attribute.AttributeClass?.Name}");
-        }
         
         var innerType = classType.GetTypeMembers().FirstOrDefault(t => !t.IsAbstract && t.Arity == 0);
         debug.AppendLine($"Nested class: {innerType}");
+
+        debug.AppendLine();
+        
+        debug.AppendLine($"Attributes:");
+        
+        var attributes = classType.GetAttributes().AddRange(innerType?.GetAttributes() ?? []);
+        var propertiesDescriptors = attributes
+            .Select(data => {
+                if (data.AttributeClass is not { } attributeClass) return null;
+                
+                var baseClass = FindInBase(attributeClass, "AddModalPropertyAttribute");
+                if (baseClass is null) return null;
+
+                var name = data.ConstructorArguments.FirstOrDefault().Value?.ToString();
+                if (name is null || string.IsNullOrEmpty(name)) return null;
+                
+                name = name.Replace("*", "");
+                
+                var propertyType = baseClass.TypeArguments.ElementAtOrDefault(0);
+                var valueType = baseClass.TypeArguments.ElementAtOrDefault(1);
+                
+                if (propertyType is null || valueType is null) return null;
+                
+                return new DiscordModalPropertyDescriptor(propertyType, valueType, name);
+            })
+            .OfType<DiscordModalPropertyDescriptor>()
+            .ToArray();
+        
+        foreach (var descriptor in propertiesDescriptors) {
+            debug.AppendLine($"| {descriptor.Name}");
+            debug.AppendLine($"|   {descriptor.PropertiesType.Name}");
+            debug.AppendLine($"|   {descriptor.ValueType.Name}");
+        }
         
         return new DiscordModalDescriptor(
             classType,
             innerType,
-            [],
+            propertiesDescriptors,
             debug
         );
     }
@@ -52,6 +86,14 @@ public class DiscordModalGenerator : IIncrementalGenerator
         var classNamespace = descriptor.ModalClass.ContainingNamespace.IsGlobalNamespace 
             ? string.Empty 
             : descriptor.ModalClass.ContainingNamespace.ToDisplayString();
+        
+        var modalPropertiesBuilder = new StringBuilder();
+        var modalBuilderPropertiesBuilder = new StringBuilder();
+
+        foreach (var property in descriptor.Properties) {
+            modalPropertiesBuilder.Append($"\n        public {property.ValueType.GetFullName()} {property.Name} {{ get; set; }}");
+            modalBuilderPropertiesBuilder.Append($"\n        public {property.PropertiesType.GetFullName()} {property.Name} {{ get; set; }}");
+        }
 
         var source =
             $$"""
@@ -61,7 +103,11 @@ public class DiscordModalGenerator : IIncrementalGenerator
               namespace {{classNamespace}};
 
               public partial class {{descriptor.ModalClass.Name}} {
+                  {{modalPropertiesBuilder}}
+                  
                   public partial class Builder : DiscordModalBuilder {
+                      {{modalBuilderPropertiesBuilder}}
+                      
                       {{(GeneratorBase.HasMethod(descriptor.BuilderClass, "Build", descriptor.DebugOutput)
                           ? "//Build method found"
                           : """public void Build() { if (!Properties.Any()) Properties.AddComponents(new TextDisplayProperties("Empty Modal")); }"""
