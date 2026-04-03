@@ -19,7 +19,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     
     protected ModalProperties Properties = null!;
 
-    public virtual void InitializeModalBuilder(IServiceProvider services, string modalId, IPamelloUser scopeUser) {
+    public virtual void InitializeBuilder(IServiceProvider services, string modalId, IPamelloUser scopeUser) {
         ModalId = modalId;
         
         InitializeActions(services, scopeUser);
@@ -33,7 +33,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         return Properties = new ModalProperties(ModalId, modalAttribute.Title);
     }
     
-    public virtual ModalProperties Build() {
-        return Properties;
+    public virtual Task<ModalProperties> BuildAsync() {
+        return Task.FromResult(Properties);
     }
 }

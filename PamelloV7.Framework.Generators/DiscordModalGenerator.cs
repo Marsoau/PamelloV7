@@ -57,12 +57,12 @@ public class DiscordModalGenerator : IIncrementalGenerator
               /* debug output
               {{descriptor.DebugOutput}}
               */
-              using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
+              using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
               namespace {{classNamespace}};
 
               public partial class {{descriptor.ModalClass.Name}} {
-                  public partial class SongRenameModalBuilder {
+                  public partial class {{descriptor.ModalClass.Name}}Builder : DiscordModalBuilder {
                       //public void Build() { }
                   }
               }

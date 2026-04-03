@@ -18,6 +18,7 @@ public class InteractionTokenizationService : IPamelloService
     private readonly IServiceProvider _services;
     
     private readonly DiscordButtonsService _buttons;
+    private readonly DiscordModalsService _modals;
     
     private List<TokenizedInteraction> Interactions { get; set; } = [];
 
@@ -25,6 +26,7 @@ public class InteractionTokenizationService : IPamelloService
         _services = services;
         
         _buttons = services.GetRequiredService<DiscordButtonsService>();
+        _modals = services.GetRequiredService<DiscordModalsService>();
     }
 
     public TokenizedInteraction GetRequired(ButtonInteraction buttonInteraction)
@@ -57,21 +59,14 @@ public class InteractionTokenizationService : IPamelloService
 
     public ButtonProperties ModalButton(string label, ButtonStyle style) {
         var tokenizedInteraction = new TokenizedModalInteraction(
-            async interaction => await FakeCreateModalBuilder(interaction),
-            async modal => await FakeCreateModal(modal),
-            async modal => modal.Build(),
-            async modal => ((SongRenameModal)modal).Submit(null)
+            async interaction => await _modals.GetBuilder(null, interaction),
+            async interaction => await _modals.GetModal(null, interaction),
+            async builder => await builder.BuildAsync(),
+            async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal)
         );
         Interactions.Add(tokenizedInteraction);
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
-
-        async Task<SongRenameModal.SongRenameModalBuilder> FakeCreateModalBuilder(ButtonInteraction buttonInteraction) {
-            return new SongRenameModal.SongRenameModalBuilder();
-        }
-        async Task<SongRenameModal> FakeCreateModal(ModalInteraction modalInteraction) {
-            return new SongRenameModal();
-        }
     }
 
     public ButtonProperties Button<TButton>()

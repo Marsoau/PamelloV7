@@ -13,7 +13,6 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 public partial class SongRenameModal
 {
     [AddShortInput("Name*")]
-
     [AddParagraphInput("Description")]
 
     [AddSelect("Type")]
@@ -28,17 +27,16 @@ public partial class SongRenameModal
     [AddCheckBoxOption("Selection 2")]
     [AddCheckBoxOption("Selection 3")]
 
-    [DiscordModalBuilder]
     public partial class SongRenameModalBuilder
     {
-        public override ModalProperties Build() {
+        public override ModalProperties BuildAsync() {
             Properties = new ModalProperties(ModalId, "Song Rename");
             
             Properties.AddComponents(
                 new LabelProperties("One Line", new TextInputProperties("input-one", TextInputStyle.Short))
             );
             
-            return base.Build();
+            return base.BuildAsync();
         }
     }
 

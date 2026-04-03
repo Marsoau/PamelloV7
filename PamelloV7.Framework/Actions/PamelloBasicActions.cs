@@ -5,7 +5,11 @@ namespace PamelloV7.Framework.Actions;
 
 public class PamelloBasicActions
 {
-    public static async Task<object?> RunExecuteMethodAsync(object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
+    public static Task<object?> RunExecuteMethodAsync(object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
+        return RunMethodAsync("Execute", obj, arguments, exceptionHandler);
+    }
+
+    public static async Task<object?> RunMethodAsync(string methodName, object? obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
         if (obj is null) return null;
         
         var method = obj.GetType().GetMethod("Execute");
@@ -13,7 +17,6 @@ public class PamelloBasicActions
         
         return await RunMethodAsync(method, obj, arguments, exceptionHandler);
     }
-
     public static async Task<object?> RunMethodAsync(MethodInfo method, object obj, object?[]? arguments = null, Action<Exception>? exceptionHandler = null) {
         exceptionHandler ??= x => throw x;
 
