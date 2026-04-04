@@ -136,6 +136,7 @@ public class DiscordCommandsService : IPamelloService
         
         try {
             await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
+            
             var arguments = argumentsTasks.Select(task => task.Result).ToArray();
 
             if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {

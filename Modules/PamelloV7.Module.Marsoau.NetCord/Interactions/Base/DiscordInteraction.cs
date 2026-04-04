@@ -61,15 +61,21 @@ public abstract class DiscordInteraction<TInteraction> : DiscordBasicActions
 
     public Task RespondLoading() {
         if (HasResponded) return Task.CompletedTask;
+        
+        var task = RespondLoadingInternal();
+        
         HasResponded = true;
         
-        return RespondLoadingInternal();
+        return task;
     }
     public Task ReleaseInteraction() {
         if (HasResponded) return Task.CompletedTask;
+        
+        var task = ReleaseInteractionInternal();
+        
         HasResponded = true;
         
-        return ReleaseInteractionInternal();
+        return task;
     }
     
     protected abstract Task RespondLoadingInternal();
