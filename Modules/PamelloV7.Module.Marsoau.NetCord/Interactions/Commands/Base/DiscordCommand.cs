@@ -80,22 +80,22 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ], entities);
     }
     
-    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContent, Func<IPamelloEntity?[]>? entities = null)
         => RespondAsync(() => [getContent()], entities);
     
-    public Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties>> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties?>> getContent, Func<IPamelloEntity?[]>? entities = null)
         => RespondAsync(() => Task.FromResult(getContent()), entities);
-    public async Task<UpdatableMessage> RespondAsync(Func<Task<IEnumerable<IMessageComponentProperties>>> getContent, Func<IPamelloEntity?[]>? entities = null) {
+    public async Task<UpdatableMessage> RespondAsync(Func<Task<IEnumerable<IMessageComponentProperties?>>> getContent, Func<IPamelloEntity?[]>? entities = null) {
         entities ??= () => [];
         
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
-            await RespondComponentAsync(await getContent());
+            await RespondComponentAsync((await getContent()).OfType<IMessageComponentProperties>());
         }
 
         UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
-            async _ => {
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getContent().Result);
+            async message => {
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getContent().Result.OfType<IMessageComponentProperties>());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }

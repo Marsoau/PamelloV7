@@ -10,6 +10,6 @@ public partial class PlayerPauseToggle
     public async Task Execute() {
         await RespondAsync(() =>
             Builder<PlayerPauseToggleBuilder>().Container()
-        , () => [ScopeUser, ScopeUser.SelectedPlayer]);
+        , () => [ScopeUser, SelectedPlayer]);
     }
 }

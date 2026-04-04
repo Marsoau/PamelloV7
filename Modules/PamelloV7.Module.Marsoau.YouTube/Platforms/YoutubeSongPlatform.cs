@@ -97,17 +97,14 @@ public class YoutubeSongPlatform : ISongPlatform
         var youtubeVideoInfo = new YoutubeVideoInfo(this, youtubeId);
 
         JsonDocument json;
-        try 
-        {
+        try {
             json = GetVideoBigJson(html);
         }
-        catch 
-        {
+        catch {
             return null;
         }
 
-        try
-        {
+        try {
             var videoDetails = json.RootElement
                 .GetProperty("playerOverlays")
                 .GetProperty("playerOverlayRenderer")
@@ -127,8 +124,7 @@ public class YoutubeSongPlatform : ISongPlatform
 
             if (string.IsNullOrEmpty(youtubeVideoInfo.Title)) return null;
         }
-        catch (KeyNotFoundException)
-        {
+        catch (KeyNotFoundException) {
             return null;
         }
 
@@ -144,17 +140,14 @@ public class YoutubeSongPlatform : ISongPlatform
     {
         string? jsonStr = null;
         IHtmlCollection<IElement> scriptElements = videoHtml.QuerySelectorAll("script");
-        foreach (IElement scriptElement in scriptElements)
-        {
-            if (scriptElement.InnerHtml.StartsWith("var ytInitialData"))
-            {
+        foreach (IElement scriptElement in scriptElements) {
+            if (scriptElement.InnerHtml.StartsWith("var ytInitialData")) {
                 jsonStr = scriptElement.InnerHtml.Substring(20, scriptElement.InnerHtml.Length - 21);
                 break;
             }
         }
 
-        if (jsonStr is null)
-        {
+        if (jsonStr is null) {
             throw new PamelloException("Couldnt find requires json object in html");
         }
         
@@ -168,8 +161,7 @@ public class YoutubeSongPlatform : ISongPlatform
         var episodes = new List<IEpisodeInfo>();
 
         JsonElement chapterElements;
-        try
-        {
+        try {
             chapterElements = videoJson.RootElement.GetProperty("playerOverlays")
                 .GetProperty("playerOverlayRenderer")
                 .GetProperty("decoratedPlayerBarRenderer")
@@ -181,13 +173,11 @@ public class YoutubeSongPlatform : ISongPlatform
                 .GetProperty("value")
                 .GetProperty("chapters");
         }
-        catch
-        {
+        catch {
             return episodes;
         }
 
-        for (int i = 0; i < chapterElements.GetArrayLength(); i++)
-        {
+        for (int i = 0; i < chapterElements.GetArrayLength(); i++) {
             episodes.Add(new YoutubeEpisodeInfo(songInfo)
             {
                 Name = chapterElements[i]

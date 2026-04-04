@@ -13,7 +13,7 @@ public partial class DebugQuery
         var entities = await GetAsync(query);
 
         await RespondPageAsync(async page => 
-            Builder<BasicComponentsBuilder>().EntitiesList("Query Result", entities, page, displayNames)
+            Builder<BasicComponentsBuilder>().EntitiesList($"Query Result ({entities.Count})", entities, page, displayNames)
         , () => [..entities]);
     }
 }
