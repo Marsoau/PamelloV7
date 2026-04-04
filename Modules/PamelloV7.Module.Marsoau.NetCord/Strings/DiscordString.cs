@@ -42,7 +42,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
         public static string CodeBlock(object? obj, string language = "plaintext") {
             return obj is not null ? $"```{language}\n{obj}\n```" : "";
         }
-        public static string Spoiler(object? obj) {
+        public static string Secret(object? obj) {
             return obj is not null ? $"||{obj}||" : "";
         }
 

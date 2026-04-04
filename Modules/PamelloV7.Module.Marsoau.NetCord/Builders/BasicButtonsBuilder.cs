@@ -16,4 +16,21 @@ public class BasicButtonsBuilder : DiscordComponentBuilder
             Button<RefreshButton>()
         );
     }
+    
+    public ActionRowProperties PageButtons(bool displayPrev, bool displayNext) {
+        var actionRow = new ActionRowProperties();
+        
+        if (displayPrev) {
+            actionRow.AddComponents(
+                Button<PrevButton>()
+            );
+        }
+        if (displayNext) {
+            actionRow.AddComponents(
+                Button<NextButton>()
+            );
+        }
+
+        return actionRow;
+    }
 }

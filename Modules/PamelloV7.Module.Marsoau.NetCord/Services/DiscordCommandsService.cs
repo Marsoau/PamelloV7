@@ -154,9 +154,7 @@ public class DiscordCommandsService : IPamelloService
         Task HandlePamelloException(PamelloException pamelloException) {
             Output.Write($"Command execution exception: {pamelloException.Message}", ELogLevel.Error);
             
-            return command.RespondComponentAsync([
-                command.Builder<BasicComponentsBuilder>().Info("Exception", pamelloException.Message)
-            ]);
+            return command.RespondAsync("Exception", pamelloException.Message);
         }
     }
 
@@ -232,6 +230,7 @@ public class DiscordCommandsService : IPamelloService
             var commandInfos = commandGroup.ToList();
 
             var command = new SlashCommandProperties(commandGroup.Key, commandGroup.Key);
+            
             
             var subGroupsGroups = commandInfos.GroupBy(info => info.SubGroup).ToList();
             

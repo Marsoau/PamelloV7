@@ -8,6 +8,7 @@ using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
+using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;
@@ -107,5 +108,30 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         }
         
         return UpdatableMessage;
+    }
+    
+    public async Task<UpdatablePageMessage> RespondPageAsync(Func<int, Task<IEnumerable<IMessageComponentProperties>>> getPageContent, Func<IPamelloEntity?[]> entities) {
+        var needsRefresh = HasResponded;
+        if (!needsRefresh) {
+            await RespondComponentAsync(await getPageContent(0));
+        }
+        
+        UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
+            async updatableMessage => {
+                if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
+                
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContent(updatablePageMessage.Page).Result);
+            }, async () => {
+                await Interaction.DeleteResponseAsync();
+            }
+        ));
+        
+        ProcessUpdatableAsync(entities);
+
+        if (needsRefresh) {
+            await UpdatableMessage.Refresh();
+        }
+        
+        return (UpdatablePageMessage)UpdatableMessage;
     }
 }
