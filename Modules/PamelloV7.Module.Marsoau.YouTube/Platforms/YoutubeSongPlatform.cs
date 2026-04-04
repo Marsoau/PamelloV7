@@ -86,71 +86,60 @@ public class YoutubeSongPlatform : ISongPlatform
     public async Task<ISongInfo?> GetVideoInfoAsync(string youtubeId)
     {
         using var client = _httpClientFactory.CreateClient();
-        var responce = await client.GetAsync($"https://www.youtube.com/watch?v={youtubeId}");
-        if (!responce.IsSuccessStatusCode) return null;
+        var response = await client.GetAsync($"https://www.youtube.com/watch?v={youtubeId}");
+        if (!response.IsSuccessStatusCode) return null;
 
         var config = Configuration.Default.WithDefaultLoader();
         var context = BrowsingContext.New(config);
-        var stringContent = responce.Content.ReadAsStream();
-        var html = await context.OpenAsync(response => response.Content(stringContent));
+        var stringContent = response.Content.ReadAsStream();
+        var html = await context.OpenAsync(res => res.Content(stringContent));
 
         var youtubeVideoInfo = new YoutubeVideoInfo(this, youtubeId);
 
-        var isTitleFound = false;
-
-        var metaElements = html.QuerySelectorAll("meta");
-        foreach (var metaElement in metaElements)
+        JsonDocument json;
+        try 
         {
-            if (metaElement.GetAttribute("name") == "title")
-            {
-                var title = metaElement.GetAttribute("content");
-                if (title is null || title.Length == 0) return null;
-
-                youtubeVideoInfo.Title = title;
-                isTitleFound = true;
-                break;
-            }
+            json = GetVideoBigJson(html);
+        }
+        catch 
+        {
+            return null;
         }
 
-        if (!isTitleFound) return null;
+        try
+        {
+            var videoDetails = json.RootElement
+                .GetProperty("playerOverlays")
+                .GetProperty("playerOverlayRenderer")
+                .GetProperty("videoDetails")
+                .GetProperty("playerOverlayVideoDetailsRenderer");
 
-        var span = html.QuerySelectorAll("span").First(
-            s => s.GetAttribute("itemprop") == "author"
-        );
-        var link = span.QuerySelectorAll("link").First(l => l.GetAttribute("itemprop") == "name");
+            youtubeVideoInfo.Title = videoDetails
+                .GetProperty("title")
+                .GetProperty("simpleText")
+                .GetString() ?? "";
 
-        youtubeVideoInfo.Channel = link.GetAttribute("content") ?? "";
-            
-        youtubeVideoInfo.CoverUrl = GetVideoCoverUrl(html) ?? $"https://img.youtube.com/vi/{youtubeId}/maxresdefault.jpg";
+            youtubeVideoInfo.Channel = videoDetails
+                .GetProperty("subtitle")
+                .GetProperty("runs")[0]
+                .GetProperty("text")
+                .GetString() ?? "";
 
-        var json = GetVideoBigJson(html);
+            if (string.IsNullOrEmpty(youtubeVideoInfo.Title)) return null;
+        }
+        catch (KeyNotFoundException)
+        {
+            return null;
+        }
+
+        var ogImage = html.QuerySelector("meta[property='og:image']")?.GetAttribute("content");
+        youtubeVideoInfo.CoverUrl = ogImage ?? $"https://i.ytimg.com/vi/{youtubeId}/hqdefault.jpg";
 
         youtubeVideoInfo.Episodes = await GetVideoEpisodes(json, youtubeVideoInfo);
 
         return youtubeVideoInfo;
     }
     
-    private string? GetVideoCoverUrl(IDocument videoHtml) {
-        string? jsonStr = null;
-        IHtmlCollection<IElement> scriptElements = videoHtml.QuerySelectorAll("script");
-        foreach (IElement scriptElement in scriptElements) {
-            if (scriptElement.InnerHtml.StartsWith("{\"@context\"")) {
-                jsonStr = scriptElement.InnerHtml;
-                break;
-            }
-        }
-
-        if (jsonStr is null) return null;
-            
-        var smallJson = JsonDocument.Parse(jsonStr ?? "{}");
-
-        try {
-            return smallJson.RootElement.GetProperty("thumbnailUrl").ToString();
-        }
-        catch {
-            return null;
-        }
-    }
     private JsonDocument GetVideoBigJson(IDocument videoHtml)
     {
         string? jsonStr = null;
@@ -168,6 +157,8 @@ public class YoutubeSongPlatform : ISongPlatform
         {
             throw new PamelloException("Couldnt find requires json object in html");
         }
+        
+        File.WriteAllText("/home/marsoau/YOUTUBE_JSON.json", jsonStr);
 
         return JsonDocument.Parse(jsonStr ?? "{}");
     }

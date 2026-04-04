@@ -17,6 +17,8 @@ public class DiscordInteractionsHandler : IPamelloService
     
     private readonly DiscordClientService _clients;
     
+    private readonly UpdatableMessageService _messages;
+    
     private readonly DiscordCommandsService _commands;
     private readonly DiscordButtonsService _buttons;
     
@@ -26,6 +28,8 @@ public class DiscordInteractionsHandler : IPamelloService
         _services = services;
         
         _clients = services.GetRequiredService<DiscordClientService>();
+        
+        _messages = services.GetRequiredService<UpdatableMessageService>();
         
         _commands = services.GetRequiredService<DiscordCommandsService>();
         _buttons = services.GetRequiredService<DiscordButtonsService>();
@@ -46,7 +50,8 @@ public class DiscordInteractionsHandler : IPamelloService
                 return;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
                 tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
-                
+
+                _messages.Get(buttonInteraction.Message.InteractionMetadata?.Id ?? 0)?.Touch();
                 await tokenizedInteraction.Action(interaction);
                 
                 break;

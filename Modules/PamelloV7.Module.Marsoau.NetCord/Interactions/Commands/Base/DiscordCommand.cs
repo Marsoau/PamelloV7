@@ -93,7 +93,7 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
             await RespondComponentAsync(await getContent());
         }
 
-        UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, 100,
+        UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async _ => {
                 await Interaction.ModifyResponseAsync(properties => properties.Components = getContent().Result);
             }, async () => {
