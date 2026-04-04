@@ -7,19 +7,22 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
 public interface IAddModalPropertyAttribute
 {
+    public bool IsChild { get; }
     public string PropertyName { get; }
+    public bool IsRequired { get; }
     
     public Type PropertiesType { get; }
     public Type ValueType { get; }
     
-    public object AddPropertiesTo(DiscordModalBuilder builder);
-    public Task<object?> GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser);
+    public object AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties);
+    public Task<object?> GetValueInAsync(ILabelComponent component, object? parentValue, IServiceProvider services, IPamelloUser scopeUser);
 }
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute, IAddModalPropertyAttribute
     where TProperties : notnull
 {
+    public bool IsChild { get; protected set; }
     public string PropertyName { get; }
     public bool IsRequired { get; }
     
@@ -31,11 +34,12 @@ public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute
         PropertyName = IsRequired ? property[..^1] : property;
     }
     
-    public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder);
+    public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties);
 
-    public abstract Task<TValue> GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser);
+    public abstract Task<TValue> GetValueInAsync(ILabelComponent component, object? parentValue, IServiceProvider services, IPamelloUser scopeUser);
     
-    object IAddModalPropertyAttribute.AddPropertiesTo(DiscordModalBuilder builder) => AddPropertiesTo(builder);
-    async Task<object?> IAddModalPropertyAttribute.GetValueInAsync(ILabelComponent component, IServiceProvider services, IPamelloUser scopeUser)
-        => await GetValueInAsync(component, services, scopeUser);
+    object IAddModalPropertyAttribute.AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties) => AddPropertiesTo(builder, parentProperties);
+    async Task<object?> IAddModalPropertyAttribute.GetValueInAsync(ILabelComponent component, object? parentValue,
+        IServiceProvider services, IPamelloUser scopeUser)
+        => await GetValueInAsync(component, parentValue, services, scopeUser);
 }

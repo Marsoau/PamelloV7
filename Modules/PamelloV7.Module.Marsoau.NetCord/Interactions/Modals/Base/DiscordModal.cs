@@ -27,6 +27,8 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
     public override void InitializeInteraction(IServiceProvider services, ModalInteraction interaction, IPamelloUser scopeUser) {
         base.InitializeInteraction(services, interaction, scopeUser);
 
+        object? parentValue = null;
+
         IAddModalPropertyAttribute[] attributes = [
             ..GetType().GetCustomAttributes().OfType<IAddModalPropertyAttribute>(),
             ..BuilderType.GetCustomAttributes().OfType<IAddModalPropertyAttribute>()
@@ -49,7 +51,11 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             var attribute = attributes.FirstOrDefault(a => a.PropertyName == customIdString);
             if (attribute is null) throw new PamelloException($"Attribute for name of custom id \"{customIdString}\" not found");
 
-            var value = await attribute.GetValueInAsync(component, Services, ScopeUser);
+            var value = await attribute.GetValueInAsync(component, parentValue, Services, ScopeUser);
+            
+            if (!attribute.IsChild) {
+                parentValue = value;
+            }
 
             var property = GetType().GetProperty(attribute.PropertyName);
             property?.SetValue(this, value);

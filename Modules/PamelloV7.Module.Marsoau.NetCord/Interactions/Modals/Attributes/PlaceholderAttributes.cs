@@ -8,9 +8,3 @@ public class AddCheckBoxGroupAttribute(string name) : Attribute;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class AddCheckBoxOptionAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddSelectAttribute(string name) : Attribute;
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class AddSelectOptionAttribute(string name) : Attribute;

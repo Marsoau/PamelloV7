@@ -40,12 +40,18 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         if (modalAttribute is null) throw new InvalidOperationException($"Modal type {ModalType.FullName} does not have DiscordModalAttribute");
 
         Properties = new ModalProperties(ModalId, modalAttribute.Title);
+        
+        object? parentProperties = null;
 
         foreach (var attribute in Attributes) {
-            if (attribute.AddPropertiesTo(this) is not { } properties) continue;
+            if (attribute.AddPropertiesTo(this, parentProperties) is not { } properties) continue;
             
             var property = GetType().GetProperty(attribute.PropertyName);
             property?.SetValue(this, properties);
+
+            if (!attribute.IsChild) {
+                parentProperties = properties;
+            }
         }
         
         return Properties;
