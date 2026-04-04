@@ -42,17 +42,28 @@ public class DiscordClientService : IPamelloService
         return null;
     }
 
-    public ulong? GetUserVoiceChannelId(IPamelloUser user) {
+    public VoiceState? GetUserVoiceState(IPamelloUser user) {
         if (user.GetPriorityPlatformKey("discord") is not { } discordIdStr || !ulong.TryParse(discordIdStr, out var discordId)) return null;
         
         foreach (var client in Clients) {
             foreach (var guild in client.Cache.Guilds.Values) {
                 if (guild.VoiceStates.TryGetValue(discordId, out var voiceState)) {
-                    return voiceState.ChannelId;
+                    return voiceState;
                 }
             }
         }
         
+        return null;
+    }
+
+    public GatewayClient? GetAvailableClient(ulong guildId) {
+        foreach (var client in Clients) {
+            if (!client.Cache.Guilds.TryGetValue(guildId, out var guild))
+                return client;
+            if (!guild.VoiceStates.TryGetValue(client.Cache.User?.Id ?? 0, out _))
+                return client;
+        }
+
         return null;
     }
     
