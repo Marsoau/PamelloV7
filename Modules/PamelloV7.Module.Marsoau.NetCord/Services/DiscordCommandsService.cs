@@ -230,43 +230,38 @@ public class DiscordCommandsService : IPamelloService
             var command = new SlashCommandProperties(commandGroup.Key, commandGroup.Key);
             
             var subGroupsGroups = commandInfos.GroupBy(info => info.SubGroup).ToList();
-            if (subGroupsGroups.Count == 1 && subGroupsGroups.First() is { Key: null } noSubGroupGroup) {
-                var noSubCommandInfo = noSubGroupGroup.FirstOrDefault(info => info.SubCommand is null);
-                if (noSubCommandInfo is not null) {
-                    if (noSubGroupGroup.Count() > 1) throw new PamelloException("n;0;>1!");
-                    
-                    command.Description = noSubCommandInfo.Description;
-                    command.Options = GetCommandParametersOptions(noSubCommandInfo.Attribute).ToList();
-                    
-                    yield return command;
-                    continue;
-                }
-                
-                var commandOptions = new List<ApplicationCommandOptionProperties>();
-                command.Options = commandOptions;
-
-                foreach (var subCommandInfo in noSubGroupGroup) {
-                    var subCommand = new ApplicationCommandOptionProperties(
-                        ApplicationCommandOptionType.SubCommand,
-                        subCommandInfo.SubCommand!,
-                        subCommandInfo.Description
-                    );
-                    
-                    subCommand.Options = GetCommandParametersOptions(subCommandInfo.Attribute).ToList();
-                    
-                    commandOptions.Add(subCommand);
-                }
-                
-                yield return command;
-                continue;
-            }
             
-            var subGroupsOptions = new List<ApplicationCommandOptionProperties>();
-            command.Options = subGroupsOptions;
+            var commandOptions = new List<ApplicationCommandOptionProperties>();
+            command.Options = commandOptions;
             
             foreach (var subGroupGroup in subGroupsGroups) {
                 if (subGroupGroup.Key is null) {
-                    throw new PamelloException("n;0+n!;n");
+                    var noSubGroupGroup = subGroupGroup;
+                    var noSubCommandInfo = noSubGroupGroup.FirstOrDefault(info => info.SubCommand is null);
+                    if (noSubCommandInfo is not null) {
+                        if (noSubGroupGroup.Count() > 1) throw new PamelloException("n;0;>1!");
+                    
+                        command.Description = noSubCommandInfo.Description;
+                        command.Options = GetCommandParametersOptions(noSubCommandInfo.Attribute).ToList();
+                    
+                        yield return command;
+                        continue;
+                    }
+
+                    foreach (var subCommandInfo in noSubGroupGroup) {
+                        var subCommand = new ApplicationCommandOptionProperties(
+                            ApplicationCommandOptionType.SubCommand,
+                            subCommandInfo.SubCommand!,
+                            subCommandInfo.Description
+                        );
+                    
+                        subCommand.Options = GetCommandParametersOptions(subCommandInfo.Attribute).ToList();
+                    
+                        commandOptions.Add(subCommand);
+                    }
+                
+                    //yield return command;
+                    continue;
                 }
                 
                 var subGroupCommandOptions = new List<ApplicationCommandOptionProperties>();
@@ -278,7 +273,7 @@ public class DiscordCommandsService : IPamelloService
                 
                 subGroupProperties.Options = subGroupCommandOptions;
 
-                subGroupsOptions.Add(subGroupProperties);
+                commandOptions.Add(subGroupProperties);
 
                 foreach (var subCommandInfo in subGroupGroup) {
                     var subCommand = new ApplicationCommandOptionProperties(

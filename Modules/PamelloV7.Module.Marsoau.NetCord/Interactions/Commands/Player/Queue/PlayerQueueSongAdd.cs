@@ -13,7 +13,7 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 
-[DiscordCommand("ado film red", "Add songs to the queue")]
+[DiscordCommand("player queue song-add", "Add songs to the queue")]
 public partial class PlayerQueueSongAdd
 {
     public async Task Execute(
