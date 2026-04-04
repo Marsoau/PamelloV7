@@ -2,6 +2,7 @@ using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Logger;
@@ -35,6 +36,20 @@ public class DiscordClientService : IPamelloService
             }
             catch {
                 //ignored
+            }
+        }
+        
+        return null;
+    }
+
+    public ulong? GetUserVoiceChannelId(IPamelloUser user) {
+        if (user.GetPriorityPlatformKey("discord") is not { } discordIdStr || !ulong.TryParse(discordIdStr, out var discordId)) return null;
+        
+        foreach (var client in Clients) {
+            foreach (var guild in client.Cache.Guilds.Values) {
+                if (guild.VoiceStates.TryGetValue(discordId, out var voiceState)) {
+                    return voiceState.ChannelId;
+                }
             }
         }
         
