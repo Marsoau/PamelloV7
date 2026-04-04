@@ -13,7 +13,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 [AddShortInput("NewName*", "Name of a song")]
 [AddParagraphInput("Test", "Big input 1")]
 
-[AddSelect("Select", "Name of select")]
+[AddCheckBox("Box", "Label", "Name")]
 
 public partial class SongRenameModal
 {
@@ -25,6 +25,7 @@ public partial class SongRenameModal
     }
     
     public void Submit(IPamelloSong song) {
-        Command<SongRename>().Execute(song, NewName);
+        Console.WriteLine($"Box: {Box}");
+        //Command<SongRename>().Execute(song, NewName);
     }
 }
