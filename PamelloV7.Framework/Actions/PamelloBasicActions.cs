@@ -3,6 +3,7 @@ using System.Reflection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Actions;
@@ -59,7 +60,9 @@ public class PamelloBasicActions
         if (type.IsAssignableTo(typeof(IPamelloEntity))) {
             return await peql.ReflectiveGetSingleAsync(type, query, scopeUser);
         }
-        
+        if (type == typeof(PlatformKey)) {
+            return PlatformKey.FromString(str);
+        }
         if (
             type.IsGenericType && (
             type.GetGenericTypeDefinition() == typeof(List<>) ||

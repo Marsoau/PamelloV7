@@ -87,7 +87,7 @@ public partial class SongInfo
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    ModalButton<SongEditAssociationsModal>("Edit", ButtonStyle.Secondary)
+                    ModalButton<SongEditAssociationsModal>("Edit", ButtonStyle.Secondary, [song])
                 ).AddComponents(
                     new TextDisplayProperties(
                         $"""
@@ -129,7 +129,7 @@ public partial class SongInfo
                     )
                 ),
                 new ComponentSectionProperties(
-                    ModalButton<SongSelectSourceModal>("Select", ButtonStyle.Secondary)
+                    ModalButton<SongSelectSourceModal>("Select", ButtonStyle.Secondary, [song])
                 ).AddComponents(
                     new TextDisplayProperties(
                         $"""

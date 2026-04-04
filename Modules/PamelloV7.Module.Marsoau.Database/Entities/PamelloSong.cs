@@ -162,7 +162,9 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     }
 
     public bool AddAssociation(string association, IPamelloUser? scopeUser) {
+        if (string.IsNullOrWhiteSpace(association)) return false;
         if (!association.All(char.IsLetter)) return false;
+        
         association = association.ToLowerInvariant();
         
         var databaseAssociations = ((PamelloSongRepository)_songs)
