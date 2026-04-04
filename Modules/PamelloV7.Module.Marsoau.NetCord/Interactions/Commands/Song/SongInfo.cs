@@ -1,12 +1,17 @@
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
+using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
+using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song;
@@ -17,11 +22,145 @@ public partial class SongInfo
     public async Task Execute(
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
-        await RespondAsync(() => [
-            Builder<BasicComponentsBuilder>().Info(null, $"{Interaction.Id}\n{song.ToDiscordString()}"),
-            new ActionRowProperties().AddComponents(
-                ModalButton<SongRenameModal>("Rename", ButtonStyle.Secondary, [song])
-            )
+        await RespondAsync(async () => [
+            await Builder<ContainerBuilder>().Build(song),
         ], () => [song]);
+    }
+
+    public class ContainerBuilder : DiscordComponentBuilder
+    {
+        public async Task<ComponentContainerProperties> Build(IPamelloSong song) {
+            Uri coverUrl;
+            try {
+                coverUrl = new Uri(song.CoverUrl);
+            }
+            catch {
+                coverUrl = new Uri("https://cdn.discordapp.com/embed/avatars/0.png");
+            }
+
+            var clients = Services.GetRequiredService<DiscordClientService>();
+
+            var sourcesBuilder = new StringBuilder();
+            foreach (var source in song.Sources) {
+                object? emote = null; //await clients.GetEmote(source.PK.Platform);
+                var line = emote is null
+                    ? $"{DiscordString.Code(source.PK.Platform)}: {DiscordString.Url(source.PK.Key, source.GetUrl())}"
+                    : ""; //$"{DiscordString.Emote(emote)} {DiscordString.Url(source.PK.Key, source.GetUrl())}";
+
+                if (source == song.SelectedSource) {
+                    sourcesBuilder.AppendLine(DiscordString.None($"{line} {DiscordString.Bold(DiscordString.Code("<"))}"));
+                    continue;
+                }
+
+                sourcesBuilder.AppendLine(line);
+            }
+
+            var container = new ComponentContainerProperties().AddComponents(
+                new ComponentSectionProperties(
+                    new ComponentSectionThumbnailProperties(
+                        new ComponentMediaProperties(coverUrl.ToString())
+                    )
+                ).AddComponents(
+                    new TextDisplayProperties(
+                        $"""
+                         ## {song.Name}
+
+                         -# Id: {song.Id}
+                         """
+                    )
+                ),
+                new ComponentSeparatorProperties(),
+                new ActionRowProperties().AddComponents(
+                    ModalButton<SongRenameModal>("Edit Name", ButtonStyle.Secondary, [song]),
+                    Button("Change Cover", ButtonStyle.Secondary, () => { })
+                        .WithDisabled(),
+                    Button("Reset", ButtonStyle.Secondary, async () => {
+                        await Command<SongInfoReset>().Execute(song);
+                    })
+                ),
+                new ComponentSeparatorProperties(),
+                new TextDisplayProperties(
+                    $"""
+                     - Added by {song.AddedBy?.ToDiscordString()}
+                     - Added at {DiscordString.Time(song.AddedAt)}
+                     """
+                ),
+                new ComponentSeparatorProperties(),
+                new ComponentSectionProperties(
+                    ModalButton<SongEditAssociationsModal>("Edit", ButtonStyle.Secondary)
+                ).AddComponents(
+                    new TextDisplayProperties(
+                        $"""
+                         ### Associations
+                         {(song.Associations.Count == 0 ? "-# _None_" : "")}
+                         {string.Join("\n", song.Associations)}
+                         """
+                    )
+                ),
+                new ComponentSectionProperties(
+                    Button(song.FavoriteBy.Contains(ScopeUser) ? "Remove" : "Add", ButtonStyle.Secondary, () => {
+                        if (song.FavoriteBy.Contains(ScopeUser)) {
+                            Command<SongFavoritesRemove>().Execute([song]);
+                        }
+                        else {
+                            Command<SongFavoritesAdd>().Execute([song]);
+                        }
+                    })
+                ).AddComponents(
+                    new TextDisplayProperties(
+                        $"""
+                         ### Favorite By Users
+                         {(song.FavoriteBy.Count == 0 ? "-# _None_" : "")}
+                         {string.Join("\n", song.FavoriteBy.Select(user => user.ToDiscordString()))}
+                         """
+                    )
+                ),
+                new ComponentSectionProperties(
+                    Button("Remove All", ButtonStyle.Secondary, () => {
+                        Output.Write($"Remove song {song} from all playlists command needed");
+                    }).WithDisabled(song.Playlists.Count == 0)
+                ).AddComponents(
+                    new TextDisplayProperties(
+                        $"""
+                         ### Included In Playlists
+                         {(song.Playlists.Count == 0 ? "-# _None_" : "")}
+                         {string.Join("\n", song.Playlists.Select(playlist => playlist.ToDiscordString()))}
+                         """
+                    )
+                ),
+                new ComponentSectionProperties(
+                    ModalButton<SongSelectSourceModal>("Select", ButtonStyle.Secondary)
+                ).AddComponents(
+                    new TextDisplayProperties(
+                        $"""
+                         ### Sources
+                         {(song.Sources.Count == 0 ? "-# _None_" : "")}
+                         {sourcesBuilder}
+                         """
+                    )
+                )
+            );
+
+            if (song.Episodes.Count > 0) {
+                container.AddComponents(
+                    new ComponentSectionProperties(
+                        Button("List Episodes", ButtonStyle.Secondary, () => { })
+                            .WithDisabled()
+                    ).AddComponents(
+                        new TextDisplayProperties($"### Episodes: `{song.Episodes.Count}`\n")
+                    )
+                );
+            }
+
+            container.AddComponents(
+                new ActionRowProperties().AddComponents(
+                    Button("Add to queue", ButtonStyle.Primary, () => {
+                        Command<PlayerQueueSongAdd>().Execute([song]);
+                    })
+                )
+            );
+
+            return container;
+        }
     }
 }

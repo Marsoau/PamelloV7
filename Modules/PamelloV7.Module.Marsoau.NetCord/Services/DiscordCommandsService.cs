@@ -105,17 +105,21 @@ public class DiscordCommandsService : IPamelloService
                 else {
                     value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
                 }
-            }
-            else if (
-                attribute.Parameter.ParameterType.IsGenericType &&
-                attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
-                attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
-                attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
-            ) {
-                var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
-                var query = option?.Value ?? defaultQuery?.Query ?? "";
                 
-                value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), query, command.ScopeUser);
+                return value;
+            }
+
+            if (attribute.Parameter.ParameterType.IsGenericType) {
+                if (
+                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
+                    attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
+                    attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
+                ) {
+                    var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
+                    var query = option?.Value ?? defaultQuery?.Query ?? "";
+                
+                    value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), query, command.ScopeUser);
+                }
             }
             else if (option is not null) {
                 var converter = TypeDescriptor.GetConverter(attribute.Parameter.ParameterType);

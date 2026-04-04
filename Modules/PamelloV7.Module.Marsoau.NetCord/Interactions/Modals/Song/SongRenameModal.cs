@@ -11,9 +11,6 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 [DiscordModal("Song Rename")]
 
 [AddShortInput("NewName*", "Name of a song")]
-[AddParagraphInput("Test", "Big input 1")]
-
-[AddCheckBox("Box", "Label", "Name")]
 
 public partial class SongRenameModal
 {
@@ -25,7 +22,6 @@ public partial class SongRenameModal
     }
     
     public void Submit(IPamelloSong song) {
-        Console.WriteLine($"Box: {Box}");
-        //Command<SongRename>().Execute(song, NewName);
+        Command<SongRename>().Execute(song, NewName);
     }
 }
