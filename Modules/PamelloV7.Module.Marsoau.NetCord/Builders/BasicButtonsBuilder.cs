@@ -17,7 +17,9 @@ public class BasicButtonsBuilder : DiscordComponentBuilder
         );
     }
     
-    public ActionRowProperties PageButtons(bool displayPrev, bool displayNext) {
+    public ActionRowProperties? PageButtons(bool displayPrev, bool displayNext) {
+        if (!displayPrev && !displayNext) return null;
+        
         var actionRow = new ActionRowProperties();
         
         if (displayPrev) {

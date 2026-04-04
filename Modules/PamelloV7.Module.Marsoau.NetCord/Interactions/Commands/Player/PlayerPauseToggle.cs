@@ -8,6 +8,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player;
 public partial class PlayerPauseToggle
 {
     public async Task Execute() {
+        Command<Framework.Commands.PlayerPauseToggle>().Execute();
+        
         await RespondAsync(() =>
             Builder<PlayerPauseToggleBuilder>().Container()
         , () => [ScopeUser, SelectedPlayer]);

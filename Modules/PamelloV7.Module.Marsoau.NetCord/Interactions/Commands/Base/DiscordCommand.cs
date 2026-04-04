@@ -110,17 +110,17 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         return UpdatableMessage;
     }
     
-    public async Task<UpdatablePageMessage> RespondPageAsync(Func<int, Task<IEnumerable<IMessageComponentProperties>>> getPageContent, Func<IPamelloEntity?[]> entities) {
+    public async Task<UpdatablePageMessage> RespondPageAsync(Func<int, Task<IEnumerable<IMessageComponentProperties?>>> getPageContent, Func<IPamelloEntity?[]> entities) {
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
-            await RespondComponentAsync(await getPageContent(0));
+            await RespondComponentAsync((await getPageContent(0)).OfType<IMessageComponentProperties>());
         }
         
         UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
                 
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContent(updatablePageMessage.Page).Result);
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContent(updatablePageMessage.Page).Result.OfType<IMessageComponentProperties>());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }

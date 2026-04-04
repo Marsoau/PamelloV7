@@ -8,6 +8,8 @@ using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
+using PamelloV7.Module.Marsoau.NetCord.Commands;
+using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
@@ -19,10 +21,29 @@ public partial class PlayerQueueSongAdd
     public async Task Execute(
         [SongsDescription] List<IPamelloSong> songs
     ) {
-        var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs);
+        if (NetCordConfig.Root.Commands.AutoConnectOnAddition) {
+            if (SelectedPlayer is null || !SelectedPlayer.ConnectedSpeakers.Any()) {
+                var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
+
+                if (!speakers.GetCurrent(ScopeUser).Any()) {
+                    await WithLoadingAsync(
+                        Command<SpeakerDiscordConnect>().Execute()
+                    );
+                }
+            }
+        }
         
-        await RespondAsync(() =>
-            Builder<AddedSongsBuilder>().GetForOne(addedSongs.First())
+        var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs).ToList();
+        
+        await RespondPageAsync(async page =>
+            addedSongs.Count == 1
+                ? [Builder<AddedSongsBuilder>().GetForOne(addedSongs.First())]
+                : Builder<BasicComponentsBuilder>()
+                    .EntitiesList(
+                        $"Added {DiscordString.Code(addedSongs.Count)} Songs",
+                        addedSongs,
+                        page
+                    )
         , () => [..addedSongs]);
     }
 }

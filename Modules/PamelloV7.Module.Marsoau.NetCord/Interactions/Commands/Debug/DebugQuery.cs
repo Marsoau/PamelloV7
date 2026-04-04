@@ -1,5 +1,6 @@
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
+using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Debug;
 
@@ -13,7 +14,7 @@ public partial class DebugQuery
         var entities = await GetAsync(query);
 
         await RespondPageAsync(async page => 
-            Builder<BasicComponentsBuilder>().EntitiesList($"Query Result ({entities.Count})", entities, page, displayNames)
+            Builder<BasicComponentsBuilder>().EntitiesList($"Query Result {DiscordString.Code(entities.Count)}", entities, page, displayNames)
         , () => [..entities]);
     }
 }

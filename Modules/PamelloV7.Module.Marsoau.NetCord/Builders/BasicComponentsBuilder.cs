@@ -16,7 +16,8 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
         );
     }
     
-    public IMessageComponentProperties[] EntitiesList(string title, List<IPamelloEntity> entities, int page, bool displayEntityName = false, string noResultsMessage = "Nema rezultata") {
+    public IMessageComponentProperties?[] EntitiesList(string title, IEnumerable<IPamelloEntity> entitiesEnumerable, int page, bool displayEntityName = false, string noResultsMessage = "Nema rezultata") {
+        var entities = entitiesEnumerable.ToList();
         const int pageSize = 10;
 
         var totalPages = entities.Count / pageSize + (entities.Count % pageSize > 0 ? 1 : 0);
