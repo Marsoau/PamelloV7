@@ -20,10 +20,7 @@ public partial class SongInfo
         await RespondAsync(() => [
             Builder<BasicComponentsBuilder>().Info(null, $"{Interaction.Id}\n{song.ToDiscordString()}"),
             new ActionRowProperties().AddComponents(
-                ModalButton<SongRenameModal, SongRenameModal.Builder>("Rename", ButtonStyle.Secondary,
-                    async builder => builder.Build(song),
-                    async modal => modal.Submit(song)
-                )
+                ModalButton<SongRenameModal>("Rename", ButtonStyle.Secondary, [song])
             )
         ], () => [song]);
     }

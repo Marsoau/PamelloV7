@@ -80,11 +80,12 @@ public abstract class DiscordBasicActions
     
     public ButtonProperties ModalButton<TModal>(
         string label, 
-        ButtonStyle style
+        ButtonStyle style, 
+        object?[]? args = null
     )
         where TModal : DiscordModal
-        => Tokenizer.ModalButton<TModal>(label, style);
-
+        => Tokenizer.ModalButton<TModal>(label, style, args);
+    
     public ButtonProperties ModalButton<TModal>(
         string label, 
         ButtonStyle style, 

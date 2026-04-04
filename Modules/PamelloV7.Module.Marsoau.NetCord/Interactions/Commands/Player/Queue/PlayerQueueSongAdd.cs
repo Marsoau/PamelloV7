@@ -17,12 +17,12 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 public partial class PlayerQueueSongAdd
 {
     public async Task Execute(
-        [SongDescription] IPamelloSong song
+        [SongsDescription] List<IPamelloSong> songs
     ) {
-        Command<Framework.Commands.PlayerQueueSongAdd>().Execute([song]);
+        var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs);
         
         await RespondAsync(() =>
-            Builder<AddedSongsBuilder>().GetForOne(song)
-        , () => [song]);
+            Builder<AddedSongsBuilder>().GetForOne(addedSongs.First())
+        , () => [..addedSongs]);
     }
 }

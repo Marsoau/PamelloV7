@@ -59,13 +59,14 @@ public class InteractionTokenizationService : IPamelloService
     
     public ButtonProperties ModalButton<TModal>(
         string label,
-        ButtonStyle style
+        ButtonStyle style,
+        object?[]? args = null
     )
         where TModal : DiscordModal
     {
         return ModalButton(typeof(TModal), label, style,
-            async builder => await PamelloBasicActions.RunMethodAsync("Build", builder),
-            async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal)
+            async builder => await PamelloBasicActions.RunMethodAsync("Build", builder, args),
+            async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal, args)
         );
     }
 
