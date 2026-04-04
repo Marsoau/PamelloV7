@@ -244,7 +244,6 @@ public class DiscordCommandsService : IPamelloService
                         command.Description = noSubCommandInfo.Description;
                         command.Options = GetCommandParametersOptions(noSubCommandInfo.Attribute).ToList();
                     
-                        yield return command;
                         continue;
                     }
 
@@ -260,7 +259,6 @@ public class DiscordCommandsService : IPamelloService
                         commandOptions.Add(subCommand);
                     }
                 
-                    //yield return command;
                     continue;
                 }
                 
@@ -286,9 +284,9 @@ public class DiscordCommandsService : IPamelloService
                     
                     subGroupCommandOptions.Add(subCommand);
                 }
-                
-                yield return command;
             }
+                
+            yield return command;
         }
     }
 }

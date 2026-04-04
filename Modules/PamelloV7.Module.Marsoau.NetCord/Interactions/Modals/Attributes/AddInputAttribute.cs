@@ -9,20 +9,22 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 
-public class AddShortInputAttribute : AddShortInputAttribute<string> {
-    public AddShortInputAttribute(string property, string label) : base(property, label) { }
+public class AddInputAttribute : AddInputAttribute<string> {
+    public AddInputAttribute(string property, string label, TextInputStyle style = TextInputStyle.Short) : base(property, label, style) { }
 }
 
-public class AddShortInputAttribute<TValue> : AddModalPropertyAttribute<TextInputProperties, TValue>
+public class AddInputAttribute<TValue> : AddModalPropertyAttribute<TextInputProperties, TValue>
 {
     public string Label { get; }
+    public TextInputStyle Style { get; }
 
-    public AddShortInputAttribute(string property, string label) : base(property) {
+    public AddInputAttribute(string property, string label, TextInputStyle style = TextInputStyle.Short) : base(property) {
         Label = label;
+        Style = style;
     }
 
     public override TextInputProperties AddPropertiesTo(DiscordModalBuilder builder) {
-        var properties = new TextInputProperties(PropertyName, TextInputStyle.Short)
+        var properties = new TextInputProperties(PropertyName, Style)
             .WithRequired(IsRequired);
         
         builder.Properties.AddComponents(new LabelProperties(Label, properties));

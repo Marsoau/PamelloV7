@@ -10,7 +10,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 
 [DiscordModal("Song Rename")]
 
-[AddShortInput("NewName*", "Name of a song")]
+[AddInput("NewName*", "Name of a song")]
+[AddInput("Test", "Big input", TextInputStyle.Paragraph)]
 
 public partial class SongRenameModal
 {
