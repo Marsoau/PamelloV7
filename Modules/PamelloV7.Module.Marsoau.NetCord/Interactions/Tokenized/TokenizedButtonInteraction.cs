@@ -15,7 +15,11 @@ public class TokenizedButtonInteraction<TButton> : TokenizedInteraction, ITokeni
     private Func<ButtonInteraction, Task<TButton>> CreateButton { get; }
     private Func<TButton, Task> ExecuteButton { get; }
     
-    public TokenizedButtonInteraction(Func<ButtonInteraction, Task<TButton>> createButton, Func<TButton, Task> execute) {
+    public TokenizedButtonInteraction(
+        string callSite,
+        Func<ButtonInteraction, Task<TButton>> createButton,
+        Func<TButton, Task> execute
+    ) : base(callSite) {
         CreateButton = createButton;
         ExecuteButton = execute;
         Action = async interaction => {

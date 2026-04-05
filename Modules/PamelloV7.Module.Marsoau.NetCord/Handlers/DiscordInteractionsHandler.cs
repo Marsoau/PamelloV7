@@ -49,6 +49,7 @@ public class DiscordInteractionsHandler : IPamelloService
                 await _commands.ExecuteAsync(slashCommand);
                 return;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
+                Output.Write($"Received button: {buttonInteraction.Data.CustomId}");
                 tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
 
                 _messages.Get(buttonInteraction.Message.InteractionMetadata?.Id ?? 0)?.Touch();

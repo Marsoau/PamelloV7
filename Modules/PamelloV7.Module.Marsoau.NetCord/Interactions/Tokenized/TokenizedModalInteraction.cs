@@ -14,11 +14,12 @@ public class TokenizedModalInteraction : TokenizedInteraction
     protected Func<DiscordModal, Task> SubmitModal { get; }
 
     public TokenizedModalInteraction(
+        string callSite,
         Func<ButtonInteraction, Task<DiscordModalBuilder>> createModalBuilder,
         Func<ModalInteraction, Task<DiscordModal>> createModal,
         Func<DiscordModalBuilder, Task> buildModal,
         Func<DiscordModal, Task> submitModal
-    ) {
+    ) : base(callSite) {
         CreateModalBuilder = createModalBuilder;
         CreateModal = createModal;
         BuildModal = buildModal;

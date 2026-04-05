@@ -91,7 +91,7 @@ public class DiscordModalGenerator : IIncrementalGenerator
         var modalBuilderPropertiesBuilder = new StringBuilder();
 
         foreach (var property in descriptor.Properties) {
-            modalPropertiesBuilder.Append($"\n        public {property.ValueType.GetFullName()} {property.Name} {{ get; set; }}");
+            modalPropertiesBuilder.Append($"\n    public {property.ValueType.GetFullName()} {property.Name} {{ get; set; }}");
             modalBuilderPropertiesBuilder.Append($"\n        public {property.PropertiesType.GetFullName()} {property.Name} {{ get; set; }}");
         }
 

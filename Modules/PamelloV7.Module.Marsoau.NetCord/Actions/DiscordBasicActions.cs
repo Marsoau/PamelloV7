@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
@@ -59,24 +62,39 @@ public abstract class DiscordBasicActions
     public async Task<object?> Command(string commandPath)
         => await Commands.ExecutePathAsync(commandPath, ScopeUser);
     
-    public ButtonProperties Button(string label, ButtonStyle style, Action action)
-        => Tokenizer.ActionButton(label, style, action);
+    public ButtonProperties Button(string label, ButtonStyle style, Action action, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
+        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
     public ButtonProperties Button(string label, ButtonStyle style, Action<Interaction> action)
-        => Tokenizer.ActionButton(label, style, action);
+        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
     public ButtonProperties Button(string label, ButtonStyle style, Func<Task> action)
-        => Tokenizer.ActionButton(label, style, action);
+        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
     public ButtonProperties Button(string label, ButtonStyle style, Func<Interaction, Task> action) 
-        => Tokenizer.ActionButton(label, style, action);
+        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
 
     public ButtonProperties Button<TButton>()
         where TButton : DiscordButton
-        => Tokenizer.Button<TButton>();
+        => Tokenizer.Button<TButton>(GetCallSite());
     public ButtonProperties Button<TButton>(Action<TButton> execute)
         where TButton : DiscordButton
-        => Tokenizer.Button(execute);
+        => Tokenizer.Button(GetCallSite(), execute);
     public ButtonProperties Button<TButton>(Func<TButton, Task> execute)
         where TButton : DiscordButton
-        => Tokenizer.Button(execute);
+        => Tokenizer.Button(GetCallSite(), execute);
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static string GetCallSite() {
+        var frame = new StackFrame(2, false);
+
+        var callerMethod = frame.GetMethod();
+        var ilOffset = frame.GetILOffset();
+
+        var hash = (uint)HashCode.Combine(
+            callerMethod?.DeclaringType?.FullName ?? "NoType",
+            callerMethod?.Name ?? "NoMethod"
+        );
+        
+        return $"{hash}_{ilOffset}";
+    }
     
     public ButtonProperties ModalButton<TModal>(
         string label, 
@@ -84,7 +102,7 @@ public abstract class DiscordBasicActions
         object?[]? args = null
     )
         where TModal : DiscordModal
-        => Tokenizer.ModalButton<TModal>(label, style, args);
+        => Tokenizer.ModalButton<TModal>(GetCallSite(), label, style, args);
     
     public ButtonProperties ModalButton<TModal>(
         string label, 
@@ -92,7 +110,7 @@ public abstract class DiscordBasicActions
         Func<TModal, Task> submitModal
     )
         where TModal : DiscordModal
-        => Tokenizer.ModalButton<TModal>(label, style, submitModal);
+        => Tokenizer.ModalButton<TModal>(GetCallSite(), label, style, submitModal);
 
     public ButtonProperties ModalButton<TModal, TModalBuilder>(
         string label, 
@@ -102,7 +120,7 @@ public abstract class DiscordBasicActions
     )
         where TModal : DiscordModal
         where TModalBuilder : DiscordModalBuilder
-        => Tokenizer.ModalButton<TModal, TModalBuilder>(label, style, buildModal, submitModal);
+        => Tokenizer.ModalButton<TModal, TModalBuilder>(GetCallSite(), label, style, buildModal, submitModal);
 
     public ButtonProperties ModalButton(
         Type modalType, 
@@ -110,7 +128,7 @@ public abstract class DiscordBasicActions
         ButtonStyle style, 
         Func<DiscordModalBuilder, Task> buildModal, 
         Func<DiscordModal, Task> submitModal
-    ) => Tokenizer.ModalButton(modalType, label, style, buildModal, submitModal);
+    ) => Tokenizer.ModalButton(GetCallSite(), modalType, label, style, buildModal, submitModal);
     
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder

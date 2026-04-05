@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
@@ -20,7 +21,7 @@ public class InteractionTokenizationService : IPamelloService
     private readonly DiscordButtonsService _buttons;
     private readonly DiscordModalsService _modals;
     
-    private List<TokenizedInteraction> Interactions { get; set; } = [];
+    private ConcurrentDictionary<string, TokenizedInteraction> Interactions { get; } = [];
 
     public InteractionTokenizationService(IServiceProvider services) {
         _services = services;
@@ -32,45 +33,47 @@ public class InteractionTokenizationService : IPamelloService
     public TokenizedInteraction GetRequired(ButtonInteraction buttonInteraction)
         => Get(buttonInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {buttonInteraction.Data.CustomId}");
     public TokenizedInteraction? Get(ButtonInteraction buttonInteraction) {
-        return Interactions.FirstOrDefault(i => i.CustomId == buttonInteraction.Data.CustomId);
+        return Interactions.GetValueOrDefault(buttonInteraction.Data.CustomId);
     }
     
     public TokenizedInteraction GetRequired(ModalInteraction modalInteraction)
         => Get(modalInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {modalInteraction.Data.CustomId}");
     public TokenizedInteraction? Get(ModalInteraction modalInteraction) {
-        return Interactions.FirstOrDefault(i => i.CustomId == modalInteraction.Data.CustomId);
+        return Interactions.GetValueOrDefault(modalInteraction.Data.CustomId);
     }
 
-    public ButtonProperties ActionButton(string label, ButtonStyle style, Action action)
-        => ActionButton(label, style, _ => action());
-    public ButtonProperties ActionButton(string label, ButtonStyle style, Action<Interaction> action)
-        => ActionButton(label, style, interaction => {
+    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Action action)
+        => ActionButton(callSite, label, style, _ => action());
+    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Action<Interaction> action)
+        => ActionButton(callSite, label, style, interaction => {
             action(interaction);
             return Task.CompletedTask;
         });
-    public ButtonProperties ActionButton(string label, ButtonStyle style, Func<Task> action)
-        => ActionButton(label, style, _ => action());
-    public ButtonProperties ActionButton(string label, ButtonStyle style, Func<Interaction, Task> action) {
-        var tokenizedInteraction = new TokenizedInteraction(action);
-        Interactions.Add(tokenizedInteraction);
+    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Task> action)
+        => ActionButton(callSite, label, style, _ => action());
+    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
+        var tokenizedInteraction = new TokenizedInteraction(callSite, action);
+        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
     
     public ButtonProperties ModalButton<TModal>(
+        string callSite,
         string label,
         ButtonStyle style,
         object?[]? args = null
     )
         where TModal : DiscordModal
     {
-        return ModalButton(typeof(TModal), label, style,
+        return ModalButton(callSite, typeof(TModal), label, style,
             async builder => await PamelloBasicActions.RunMethodAsync("Build", builder, args),
             async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal, args)
         );
     }
 
     public ButtonProperties ModalButton<TModal>(
+        string callSite,
         string label,
         ButtonStyle style,
         Func<TModal, Task> submitModal
@@ -78,6 +81,7 @@ public class InteractionTokenizationService : IPamelloService
         where TModal : DiscordModal
     {
         return ModalButton(
+            callSite,
             typeof(TModal),
             label,
             style,
@@ -92,6 +96,7 @@ public class InteractionTokenizationService : IPamelloService
     }
     
     public ButtonProperties ModalButton<TModal, TModalBuilder>(
+        string callSite,
         string label,
         ButtonStyle style,
         Func<TModalBuilder, Task> buildModal,
@@ -101,6 +106,7 @@ public class InteractionTokenizationService : IPamelloService
         where TModalBuilder : DiscordModalBuilder
     {
         return ModalButton(
+            callSite,
             typeof(TModal),
             label,
             style,
@@ -120,6 +126,7 @@ public class InteractionTokenizationService : IPamelloService
     }
 
     public ButtonProperties ModalButton(
+        string callSite,
         Type modalType,
         string label,
         ButtonStyle style,
@@ -127,36 +134,37 @@ public class InteractionTokenizationService : IPamelloService
         Func<DiscordModal, Task> submitModal
     ) {
         var tokenizedInteraction = new TokenizedModalInteraction(
+            callSite,
             async interaction => await _modals.GetBuilder(DiscordModalBuilder.GetFromModal(modalType), interaction),
             async interaction => await _modals.GetModal(modalType, interaction),
             async builder => await buildModal(builder),
             async modal => await submitModal(modal)
         );
-        Interactions.Add(tokenizedInteraction);
+        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
 
-    public ButtonProperties Button<TButton>()
+    public ButtonProperties Button<TButton>(string callSite)
         where TButton : DiscordButton
-        => Button<TButton>(async button => {
+        => Button<TButton>(callSite, async button => {
             await PamelloBasicActions.RunExecuteMethodAsync(button);
         });
-    public ButtonProperties Button<TButton>(Action<TButton> execute)
+    public ButtonProperties Button<TButton>(string callSite, Action<TButton> execute)
         where TButton : DiscordButton
-        => Button<TButton>(button => {
+        => Button<TButton>(callSite, button => {
             execute(button);
             return Task.CompletedTask;
         });
-    public ButtonProperties Button<TButton>(Func<TButton, Task> execute)
+    public ButtonProperties Button<TButton>(string callSite, Func<TButton, Task> execute)
         where TButton : DiscordButton
     {
         var tokenizedInteraction = new TokenizedButtonInteraction<TButton>(
+            callSite,
             async interaction => await _buttons.GetAsync<TButton>(interaction),
             execute
         );
-        
-        Interactions.Add(tokenizedInteraction);
+        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
 
         return DiscordButtonsService.GetProperties<TButton>(tokenizedInteraction.CustomId);
     }

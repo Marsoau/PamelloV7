@@ -4,17 +4,22 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
 
 public class TokenizedInteraction
 {
-    public Guid Token { get; set; }
+    public string CallSite { get; set; }
     public Func<Interaction, Task> Action { get; set; }
     
-    public TokenizedInteraction() {
-        Token = Guid.NewGuid();
+    public TokenizedInteraction(
+        string callSite
+    ) {
+        CallSite = callSite;
         Action = _ => Task.CompletedTask;
     }
-    public TokenizedInteraction(Func<Interaction, Task> action) {
-        Token = Guid.NewGuid();
+    public TokenizedInteraction(
+        string callSite,
+        Func<Interaction, Task> action
+    ) {
+        CallSite = callSite;
         Action = action;
     }
 
-    public string CustomId => $"tokenized:{Token}";
+    public string CustomId => $"tokenized:{CallSite}";
 }

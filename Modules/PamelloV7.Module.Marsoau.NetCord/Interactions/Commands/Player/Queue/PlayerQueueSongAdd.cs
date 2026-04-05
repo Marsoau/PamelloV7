@@ -15,6 +15,7 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 
+[DiscordCommand("add", "Add songs to the queue (/player queue song-add shortcut)")]
 [DiscordCommand("player queue song-add", "Add songs to the queue")]
 public partial class PlayerQueueSongAdd
 {
