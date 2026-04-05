@@ -3,6 +3,7 @@ using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
@@ -49,8 +50,10 @@ public class AddInputAttribute<TValue> : AddModalPropertyAttribute<TextInputProp
         IServiceProvider services, IPamelloUser scopeUser) {
         if (component is not TextInput input) return default!;
 
+        var query = input.Value.Replace("\n", ",");
+
         return await PamelloBasicActions.InTypeFromStringAsync<TValue>(
-            input.Value,
+            query,
             "",
             services.GetRequiredService<IEntityQueryService>(),
             scopeUser

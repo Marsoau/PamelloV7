@@ -76,7 +76,7 @@ public class UpdatableMessage : IDisposable
         var timePassed = currentTime - _lastRefreshNew;
 
         if (timePassed >= _refreshIntervalNew) {
-            Output.Write($"Refresh at {currentTime}");
+            //Output.Write($"Refresh at {currentTime}");
             
             _lastRefreshNew = currentTime;
             
@@ -86,14 +86,14 @@ public class UpdatableMessage : IDisposable
         
         _ = Task.Run(async () => {
             var delaySpan = _refreshIntervalNew - timePassed;
-            Output.Write($"Scheduling refresh in {delaySpan} at {currentTime}");
+            //Output.Write($"Scheduling refresh in {delaySpan} at {currentTime}");
             _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);
             
             await _scheduledRefresh;
             
             currentTime = DateTime.Now;
             
-            Output.Write($"Awaited refresh at {currentTime}");
+            //Output.Write($"Awaited refresh at {currentTime}");
             _scheduledRefresh = null;
 
             _lastRefreshNew = currentTime;

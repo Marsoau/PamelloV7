@@ -9,9 +9,11 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 public class AddCheckBoxAttribute : AddModalPropertyAttribute<CheckboxProperties, bool>
 {
     public string Label { get; }
+    public bool DefaultValue { get; }
 
-    public AddCheckBoxAttribute(string property, string label, string name) : base(property) {
+    public AddCheckBoxAttribute(string property, string label, bool defaultValue = false) : base(property) {
         Label = label;
+        DefaultValue = defaultValue;
     }
     
     public override CheckboxProperties AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties) {
