@@ -91,12 +91,12 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ], entities);
     }
     
-    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContent, GetEntities? entities = null)
-        => RespondAsync(() => [getContent()], entities);
+    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContentSingle, GetEntities? entities = null)
+        => RespondAsync(() => [getContentSingle()], entities);
     
-    public Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties?>> getContent, GetEntities? entities = null)
+    public Task<UpdatableMessage> RespondAsync(GetContent getContent, GetEntities? entities = null)
         => RespondAsync(() => Task.FromResult(getContent()), entities);
-    public async Task<UpdatableMessage> RespondAsync(Func<Task<IEnumerable<IMessageComponentProperties?>>> getContent, GetEntities? entities = null) {
+    public async Task<UpdatableMessage> RespondAsync(GetContentAsync getContent, GetEntities? entities = null) {
         entities ??= () => [];
         
         var needsRefresh = HasResponded;

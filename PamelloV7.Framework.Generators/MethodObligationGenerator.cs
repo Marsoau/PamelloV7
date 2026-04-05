@@ -45,7 +45,10 @@ public class MethodObligationGenerator : IIncrementalGenerator
         var attributes = GetAttributesInClass(classType, "RequiredMethodNameAttribute").ToList();
         if (attributes.Count == 0) return null;
 
-        var methods = attributes.Select(data => data?.ConstructorArguments.ElementAtOrDefault(0).Value?.ToString()).OfType<string>().ToArray();
+        var methods = attributes.Select(data => data?.ConstructorArguments.ElementAtOrDefault(0).Value?.ToString())
+            .OfType<string>()
+            .Distinct()
+            .ToArray();
         
         var debug = new StringBuilder();
         
