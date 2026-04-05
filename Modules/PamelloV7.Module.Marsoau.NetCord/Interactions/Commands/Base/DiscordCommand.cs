@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
@@ -15,7 +16,7 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
-public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteraction>
+public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandInteraction>
 {
     public delegate IEnumerable<IMessageComponentProperties?> GetContent();
     public delegate IEnumerable<IMessageComponentProperties?> GetContentForOne<TType>(TType item);
@@ -149,82 +150,12 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         return (UpdatablePageMessage)UpdatableMessage;
     }
 
-    public Task RespondOneOrManyAsync<TType>
-    (
-        List<TType> items,
-        GetContentForOne<TType> getContentForOne,
-        string manyItemsTitle,
-        GetEntities? getEntities = null
-    ) where TType : IPamelloEntity
-        => RespondOneOrManyAsync(
-            items,
-            item => Task.FromResult(getContentForOne(item)),
-            manyItemsTitle,
-            getEntities
-        );
-
-    public Task RespondOneOrManyAsync<TType>
-    (
-        List<TType> items,
-        GetContentForOneAsync<TType> getContentForOneAsync,
-        string manyItemsTitle,
-        GetEntities? getEntities = null
-    ) where TType : IPamelloEntity
-        => RespondOneOrManyAsync(
-            items,
-            getContentForOneAsync,
-            page => 
-                Builder<BasicComponentsBuilder>()
-                    .EntitiesList(
-                        manyItemsTitle,
-                        items.OfType<IPamelloEntity>(),
-                        page
-                    )
-            ,
-            getEntities
-        );
-    public Task RespondOneOrManyAsync<TType>(
-        List<TType> items,
-        GetContentForOne<TType> getContentForOne,
-        GetPageContent getContentForMany,
-        GetEntities? getEntities = null
-    ) where TType : IPamelloEntity
-        => RespondOneOrManyAsync(
-            items,
-            item => Task.FromResult(getContentForOne(item)),
-            page => Task.FromResult(getContentForMany(page)),
-            getEntities
-        );
-    
-    public Task RespondOneOrManyAsync<TType>(
-        List<TType> items,
-        GetContentForOneAsync<TType> getContentForOneAsync,
-        GetPageContent getContentForMany,
-        GetEntities? getEntities = null
-    ) where TType : IPamelloEntity
-        => RespondOneOrManyAsync(
-            items,
-            getContentForOneAsync,
-            page => Task.FromResult(getContentForMany(page)),
-            getEntities
-        );
-    
-    public Task RespondOneOrManyAsync<TType>(
-        List<TType> items,
-        GetContentForOne<TType> getContentForOne,
-        GetPageContentAsync getContentForManyAsync,
-        GetEntities? getEntities = null
-    ) where TType : IPamelloEntity
-        => RespondOneOrManyAsync(
-            items,
-            item => Task.FromResult(getContentForOne(item)),
-            getContentForManyAsync,
-            getEntities
-        );
-    
     public async Task RespondOneOrManyAsync<TType>(
         List<TType> items,
+        [Variant(nameof(GetContentForOneSync))]
         GetContentForOneAsync<TType> getContentForOneAsync,
+        [Variant(nameof(ManyItemsTitle))]
+        [Variant(nameof(GetContentForManySync))]
         GetPageContentAsync getContentForManyAsync,
         GetEntities? getEntities = null
     ) 
@@ -238,5 +169,21 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         else {
             await RespondPageAsync(getContentForManyAsync, getEntities);
         }
+    }
+
+    protected static GetContentForOneAsync<TType> GetContentForOneSync<TType>(GetContentForOne<TType> getContentForOne) {
+        return item => Task.FromResult(getContentForOne(item));
+    }
+    
+    protected static GetPageContentAsync GetContentForManySync(GetPageContent getContentForMany) {
+        return page => Task.FromResult(getContentForMany(page));
+    }
+
+    protected GetPageContent ManyItemsTitle<TType>(string manyItemsTitle, List<TType> items) {
+        return page => Builder<BasicComponentsBuilder>().EntitiesList(
+            manyItemsTitle,
+            items.OfType<IPamelloEntity>(),
+            page
+        );
     }
 }

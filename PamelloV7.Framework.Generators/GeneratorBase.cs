@@ -30,8 +30,10 @@ public static class GeneratorBase
         sb.Append($"{Tab(depth)}public partial class {classNames[depth]} ");
         
         if (depth + 1 >= classNames.Length) {
-            sb.AppendLine($"{inheritancePart} {{");
-            
+            sb.AppendLine($"{inheritancePart}{(
+                inheritancePart.LastOrDefault() == ' ' ? "{" : " {"
+            )}");
+
             sb.Append(Tab(depth + 1));
             sb.AppendLine(innerPart.Replace("\n", $"\n{Tab(depth + 1)}"));
             
@@ -67,5 +69,71 @@ public static class GeneratorBase
 
             type = type.BaseType;
         }
+    }
+    
+    public static string GetFullyQualifiedConstraints(IMethodSymbol methodSymbol) {
+        if (methodSymbol.TypeParameters.Length == 0)
+            return string.Empty;
+
+        var builder = new StringBuilder();
+
+        foreach (ITypeParameterSymbol typeParam in methodSymbol.TypeParameters) {
+            var constraints = new List<string>();
+
+            if (typeParam.HasReferenceTypeConstraint) {
+                constraints.Add(typeParam.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class");
+            }
+            else if (typeParam.HasValueTypeConstraint) {
+                constraints.Add("struct");
+            }
+            else if (typeParam.HasUnmanagedTypeConstraint) {
+                constraints.Add("unmanaged");
+            }
+            else if (typeParam.HasNotNullConstraint) {
+                constraints.Add("notnull");
+            }
+
+            foreach (ITypeSymbol typeConstraint in typeParam.ConstraintTypes) {
+                constraints.Add(typeConstraint.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+            }
+
+            if (typeParam.HasConstructorConstraint) {
+                constraints.Add("new()");
+            }
+            if (constraints.Count > 0) {
+                builder.Append($" where {typeParam.Name} : {string.Join(", ", constraints)}");
+            }
+        }
+
+        return builder.ToString();
+    }
+    
+    public static string GetMethodModifiers(IMethodSymbol methodSymbol) {
+        var modifiers = new List<string>();
+
+        var accessibility = methodSymbol.DeclaredAccessibility switch {
+            Accessibility.Public => "public",
+            Accessibility.Internal => "internal",
+            Accessibility.Protected => "protected",
+            Accessibility.ProtectedAndInternal => "private protected",
+            Accessibility.ProtectedOrInternal => "protected internal",
+            Accessibility.Private => "private",
+            _ => ""
+        };
+
+        if (!string.IsNullOrEmpty(accessibility))
+            modifiers.Add(accessibility);
+        if (methodSymbol.IsStatic)
+            modifiers.Add("static");
+        if (methodSymbol.IsAbstract)
+            modifiers.Add("abstract");
+        if (methodSymbol.IsVirtual)
+            modifiers.Add("virtual");
+        if (methodSymbol.IsOverride)
+            modifiers.Add("override");
+        if (methodSymbol.IsExtern)
+            modifiers.Add("extern");
+
+        return string.Join(" ", modifiers);
     }
 }
