@@ -58,7 +58,7 @@ public class PamelloLogger : IPamelloLogger
 
     public RefreshableLogMessage Write(
         Func<string> getContent,
-        Func<IPamelloEntity?[]> getEntities,
+        GetEntities getEntities,
         ELogLevel level = ELogLevel.Log,
         Assembly? assembly = null
     ) {

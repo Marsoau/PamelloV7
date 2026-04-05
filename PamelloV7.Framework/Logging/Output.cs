@@ -18,7 +18,7 @@ public static class Output
 
     public static RefreshableLogMessage Write(
         Func<string> getContent,
-        Func<IPamelloEntity?[]> getEntities,
+        GetEntities getEntities,
         ELogLevel level = ELogLevel.Log
     ) {
         var assembly = Assembly.GetCallingAssembly();

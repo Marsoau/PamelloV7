@@ -134,7 +134,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return RespondUpdatableAsync(getComponent, () => entities);
     }
 
-    private void ProcessUpdatableAsync(Func<IPamelloEntity?[]> getEntities) {
+    private void ProcessUpdatableAsync(GetEntities getEntities) {
         if (_updatableMessage is null) throw new Exception("Updatable message is not set on processing");
         
         var events = Services.GetRequiredService<IEventsService>();
@@ -147,7 +147,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
             subscription.Dispose();
         };
     }
-    public async Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, Func<IPamelloEntity?[]> entities) {
+    public async Task<UpdatableMessage> RespondUpdatableAsync(Func<MessageComponent> getComponent, GetEntities entities) {
         var needsRefresh = Context.Interaction.HasResponded;
         if (!needsRefresh) {
             await RespondComponentAsync(getComponent());
@@ -173,7 +173,7 @@ public abstract class DiscordCommand : InteractionModuleBase<PamelloSocketIntera
         return _updatableMessage;
     }
 
-    public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Func<int, MessageComponent> getPageComponent, Func<IPamelloEntity?[]> entities) {
+    public async Task<UpdatablePageMessage> RespondUpdatablePageAsync(Func<int, MessageComponent> getPageComponent, GetEntities entities) {
         var needsRefresh = Context.Interaction.HasResponded;
         if (!needsRefresh) {
             await RespondComponentAsync(getPageComponent(0));

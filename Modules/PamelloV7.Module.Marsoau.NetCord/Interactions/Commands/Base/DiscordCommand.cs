@@ -17,6 +17,14 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
 public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteraction>
 {
+    public delegate IEnumerable<IMessageComponentProperties?> GetContent();
+    public delegate IEnumerable<IMessageComponentProperties?> GetContentForOne<TType>(TType item);
+    public delegate IEnumerable<IMessageComponentProperties?> GetPageContent(int page);
+    
+    public delegate Task<IEnumerable<IMessageComponentProperties?>> GetContentAsync();
+    public delegate Task<IEnumerable<IMessageComponentProperties?>> GetContentForOneAsync<TType>(TType item);
+    public delegate Task<IEnumerable<IMessageComponentProperties?>> GetPageContentAsync(int page);
+    
     private IEventsService _events = null!;
     private UpdatableMessageService _updatableMessageService = null!;
     
@@ -53,7 +61,7 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         }));
     }
     
-    private void ProcessUpdatableAsync(Func<IPamelloEntity?[]> getEntities) {
+    private void ProcessUpdatableAsync(GetEntities getEntities) {
         if (UpdatableMessage is null) throw new Exception("Updatable message is not set on processing");
 
         var subscription = _events.Watch(async e => {
@@ -65,17 +73,17 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         };
     }
 
-    public Task RespondAsync(string content, Func<IPamelloEntity?[]>? entities = null)
+    public Task RespondAsync(string content, GetEntities? entities = null)
         => RespondAsync(() => null, () => content, entities);
-    public Task RespondAsync(string header, string content, Func<IPamelloEntity?[]>? entities = null)
+    public Task RespondAsync(string header, string content, GetEntities? entities = null)
         => RespondAsync(() => header, () => content, entities);
     
-    public Task RespondAsync(string header, Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public Task RespondAsync(string header, Func<string?> getContent, GetEntities? entities = null)
         => RespondAsync(() => header, getContent, entities);
     
-    public async Task RespondAsync(Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public async Task RespondAsync(Func<string?> getContent, GetEntities? entities = null)
         => await RespondAsync(() => null, getContent, entities);
-    public async Task RespondAsync(Func<string?> getHeader, Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null) {
+    public async Task RespondAsync(Func<string?> getHeader, Func<string?> getContent, GetEntities? entities = null) {
         entities ??= () => [];
 
         await RespondAsync(() => [
@@ -83,12 +91,12 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         ], entities);
     }
     
-    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContent, GetEntities? entities = null)
         => RespondAsync(() => [getContent()], entities);
     
-    public Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties?>> getContent, Func<IPamelloEntity?[]>? entities = null)
+    public Task<UpdatableMessage> RespondAsync(Func<IEnumerable<IMessageComponentProperties?>> getContent, GetEntities? entities = null)
         => RespondAsync(() => Task.FromResult(getContent()), entities);
-    public async Task<UpdatableMessage> RespondAsync(Func<Task<IEnumerable<IMessageComponentProperties?>>> getContent, Func<IPamelloEntity?[]>? entities = null) {
+    public async Task<UpdatableMessage> RespondAsync(Func<Task<IEnumerable<IMessageComponentProperties?>>> getContent, GetEntities? entities = null) {
         entities ??= () => [];
         
         var needsRefresh = HasResponded;
@@ -112,18 +120,21 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         
         return UpdatableMessage;
     }
-    
-    public async Task<UpdatablePageMessage> RespondPageAsync(Func<int, Task<IEnumerable<IMessageComponentProperties?>>> getPageContent, Func<IPamelloEntity?[]> entities) {
+
+    public async Task<UpdatablePageMessage> RespondPageAsync(
+        GetPageContent getPageContent, GetEntities entities)
+        => await RespondPageAsync(page => Task.FromResult(getPageContent(page)), entities);
+    public async Task<UpdatablePageMessage> RespondPageAsync(GetPageContentAsync getPageContentAsync, GetEntities entities) {
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
-            await RespondComponentAsync((await getPageContent(0)).OfType<IMessageComponentProperties>());
+            await RespondComponentAsync((await getPageContentAsync(0)).OfType<IMessageComponentProperties>());
         }
         
         UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async updatableMessage => {
                 if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
                 
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContent(updatablePageMessage.Page).Result.OfType<IMessageComponentProperties>());
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContentAsync(updatablePageMessage.Page).Result.OfType<IMessageComponentProperties>());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }
@@ -136,5 +147,96 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
         }
         
         return (UpdatablePageMessage)UpdatableMessage;
+    }
+
+    public Task RespondOneOrManyAsync<TType>
+    (
+        List<TType> items,
+        GetContentForOne<TType> getContentForOne,
+        string manyItemsTitle,
+        GetEntities? getEntities = null
+    ) where TType : IPamelloEntity
+        => RespondOneOrManyAsync(
+            items,
+            item => Task.FromResult(getContentForOne(item)),
+            manyItemsTitle,
+            getEntities
+        );
+
+    public Task RespondOneOrManyAsync<TType>
+    (
+        List<TType> items,
+        GetContentForOneAsync<TType> getContentForOneAsync,
+        string manyItemsTitle,
+        GetEntities? getEntities = null
+    ) where TType : IPamelloEntity
+        => RespondOneOrManyAsync(
+            items,
+            getContentForOneAsync,
+            page => 
+                Builder<BasicComponentsBuilder>()
+                    .EntitiesList(
+                        manyItemsTitle,
+                        items.OfType<IPamelloEntity>(),
+                        page
+                    )
+            ,
+            getEntities
+        );
+    public Task RespondOneOrManyAsync<TType>(
+        List<TType> items,
+        GetContentForOne<TType> getContentForOne,
+        GetPageContent getContentForMany,
+        GetEntities? getEntities = null
+    ) where TType : IPamelloEntity
+        => RespondOneOrManyAsync(
+            items,
+            item => Task.FromResult(getContentForOne(item)),
+            page => Task.FromResult(getContentForMany(page)),
+            getEntities
+        );
+    
+    public Task RespondOneOrManyAsync<TType>(
+        List<TType> items,
+        GetContentForOneAsync<TType> getContentForOneAsync,
+        GetPageContent getContentForMany,
+        GetEntities? getEntities = null
+    ) where TType : IPamelloEntity
+        => RespondOneOrManyAsync(
+            items,
+            getContentForOneAsync,
+            page => Task.FromResult(getContentForMany(page)),
+            getEntities
+        );
+    
+    public Task RespondOneOrManyAsync<TType>(
+        List<TType> items,
+        GetContentForOne<TType> getContentForOne,
+        GetPageContentAsync getContentForManyAsync,
+        GetEntities? getEntities = null
+    ) where TType : IPamelloEntity
+        => RespondOneOrManyAsync(
+            items,
+            item => Task.FromResult(getContentForOne(item)),
+            getContentForManyAsync,
+            getEntities
+        );
+    
+    public async Task RespondOneOrManyAsync<TType>(
+        List<TType> items,
+        GetContentForOneAsync<TType> getContentForOneAsync,
+        GetPageContentAsync getContentForManyAsync,
+        GetEntities? getEntities = null
+    ) 
+        where TType : IPamelloEntity
+    {
+        getEntities ??= () => [..items];
+        
+        if (items.Count == 1) {
+            await RespondAsync(() => getContentForOneAsync(items.First()), getEntities);
+        }
+        else {
+            await RespondPageAsync(getContentForManyAsync, getEntities);
+        }
     }
 }

@@ -51,7 +51,7 @@ public class EventsService : IEventsService
         return subscription;
     }
 
-    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities) {
+    public IUpdateSubscription Watch(Func<IPamelloEvent, Task> handler, GetEntities watchedEntities) {
         var subscription = new UpdateSubscription(handler, watchedEntities);
         
         _updateSubscriptions.Add(subscription);

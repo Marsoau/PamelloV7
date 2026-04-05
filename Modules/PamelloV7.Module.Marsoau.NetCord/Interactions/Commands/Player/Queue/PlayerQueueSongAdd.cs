@@ -35,16 +35,13 @@ public partial class PlayerQueueSongAdd
         }
         
         var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs).ToList();
-        
-        await RespondPageAsync(async page =>
-            addedSongs.Count == 1
-                ? [Builder<AddedSongsBuilder>().GetForOne(addedSongs.First())]
-                : Builder<BasicComponentsBuilder>()
-                    .EntitiesList(
-                        $"Added {DiscordString.Code(addedSongs.Count)} Songs",
-                        addedSongs,
-                        page
-                    )
-        , () => [..addedSongs]);
+
+        await RespondOneOrManyAsync(
+            addedSongs,
+            song => [
+                Builder<AddedSongsBuilder>().GetForOne(song)
+            ],
+            $"Added {DiscordString.Code(addedSongs.Count)} Songs"
+        );
     }
 }

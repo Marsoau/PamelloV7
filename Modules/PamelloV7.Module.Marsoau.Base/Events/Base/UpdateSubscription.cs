@@ -1,17 +1,18 @@
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Events.Base;
 
 public class UpdateSubscription : IUpdateSubscription
 {
-    public Func<IPamelloEntity?[]> WatchedEntities { get; }
+    public GetEntities WatchedEntities { get; }
 
     public Func<IPamelloEvent, Task> Handler { get; }
     
     public bool IsDisposed { get; private set; }
     
-    public UpdateSubscription(Func<IPamelloEvent, Task> handler, Func<IPamelloEntity?[]> watchedEntities) {
+    public UpdateSubscription(Func<IPamelloEvent, Task> handler, GetEntities watchedEntities) {
         WatchedEntities = watchedEntities;
         Handler = handler;
     }
