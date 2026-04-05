@@ -42,6 +42,7 @@ public class YoutubeSongDownloader : SongDownloader
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
             RedirectStandardOutput = true,
+            RedirectStandardError = true,
             EnvironmentVariables = {
                 ["PYTHONPATH"] = "/home/marsoau/.config/yt-dlp/plugins",
             }

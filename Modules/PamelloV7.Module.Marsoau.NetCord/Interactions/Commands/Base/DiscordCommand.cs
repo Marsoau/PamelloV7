@@ -70,6 +70,9 @@ public abstract class DiscordCommand : DiscordInteraction<SlashCommandInteractio
     public Task RespondAsync(string header, string content, Func<IPamelloEntity?[]>? entities = null)
         => RespondAsync(() => header, () => content, entities);
     
+    public Task RespondAsync(string header, Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null)
+        => RespondAsync(() => header, getContent, entities);
+    
     public async Task RespondAsync(Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null)
         => await RespondAsync(() => null, getContent, entities);
     public async Task RespondAsync(Func<string?> getHeader, Func<string?> getContent, Func<IPamelloEntity?[]>? entities = null) {
