@@ -22,14 +22,14 @@ public partial class SongInfo
     public async Task Execute(
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
-        await RespondAsync(async () => [
-            await Builder<ContainerBuilder>().Build(song),
-        ], () => [song]);
+        await RespondAsync(() =>
+            Builder<ContainerBuilder>().Build(song)
+        , () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists]);
     }
 
     public class ContainerBuilder : DiscordComponentBuilder
     {
-        public async Task<ComponentContainerProperties> Build(IPamelloSong song) {
+        public ComponentContainerProperties Build(IPamelloSong song) {
             Uri coverUrl;
             try {
                 coverUrl = new Uri(song.CoverUrl);
@@ -42,10 +42,7 @@ public partial class SongInfo
 
             var sourcesBuilder = new StringBuilder();
             foreach (var source in song.Sources) {
-                object? emote = null; //await clients.GetEmote(source.PK.Platform);
-                var line = emote is null
-                    ? $"{DiscordString.Code(source.PK.Platform)}: {DiscordString.Url(source.PK.Key, source.GetUrl())}"
-                    : ""; //$"{DiscordString.Emote(emote)} {DiscordString.Url(source.PK.Key, source.GetUrl())}";
+                var line = $"{DiscordString.Emoji(source.PK.Platform, clients)} {DiscordString.Url(source.PK.Key, source.GetUrl())}";
 
                 if (source == song.SelectedSource) {
                     sourcesBuilder.AppendLine(DiscordString.None($"{line} {DiscordString.Bold(DiscordString.Code("<"))}"));

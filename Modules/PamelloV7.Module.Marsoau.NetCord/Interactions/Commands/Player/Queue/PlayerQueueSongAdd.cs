@@ -28,7 +28,7 @@ public partial class PlayerQueueSongAdd
 
                 if (!speakers.GetCurrent(ScopeUser).Any()) {
                     await WithLoadingAsync(
-                        Command<SpeakerDiscordConnect>().Execute()
+                        Command<SpeakerDiscordConnect>().Execute(Interaction.User.Id)
                     );
                 }
             }

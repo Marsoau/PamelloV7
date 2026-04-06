@@ -10,10 +10,17 @@ namespace PamelloV7.Module.Marsoau.NetCord.Commands;
 
 public class SpeakerDiscordConnect : PamelloCommand
 {
-    public async Task<PamelloDiscordSpeaker> Execute() {
+    public async Task<PamelloDiscordSpeaker> Execute(ulong discordUserId = 0) {
         var clients = Services.GetRequiredService<DiscordClientService>();
         
-        var vc = clients.GetUserVoiceState(ScopeUser);
+        if (
+            discordUserId == 0 && (
+                ScopeUser.GetPriorityPlatformKey("discord") is not { } discordIdStr ||
+                !ulong.TryParse(discordIdStr, out discordUserId)
+            )
+        ) throw new PamelloException("Could not find discord id for your user");
+        
+        var vc = clients.GetUserVoiceState(discordUserId);
         if (vc?.ChannelId is null) throw new PamelloException("You have to be in a voice channel to connect a speaker");
         
         var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();

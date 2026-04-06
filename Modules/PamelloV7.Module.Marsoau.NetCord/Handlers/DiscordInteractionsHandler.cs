@@ -37,7 +37,7 @@ public class DiscordInteractionsHandler : IPamelloService
         _tokenizer = services.GetRequiredService<InteractionTokenizationService>();
     }
 
-    public void LateStartup() {
+    public void AfterStartup() {
         _clients.Main.InteractionCreate += MainOnInteractionCreate;
     }
 

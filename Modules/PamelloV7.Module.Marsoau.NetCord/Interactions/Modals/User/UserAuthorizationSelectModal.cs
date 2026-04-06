@@ -1,3 +1,4 @@
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
@@ -18,6 +19,7 @@ public partial class UserAuthorizationSelectModal
             
             AuthorizationIndex.Options = ScopeUser.Authorizations.Select(authorization =>
                 new StringMenuSelectOptionProperties(authorization.PK.Key, counter.ToString())
+                    .WithEmoji(EmojiProperties.Custom(Clients.Emojis.FirstOrDefault(e => e.Name == authorization.PK.Platform)?.Id ?? 0))
                     .WithDefault(counter++ == ScopeUser.SelectedAuthorizationIndex)
             ).ToList();
         }

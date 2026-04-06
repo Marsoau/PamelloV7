@@ -51,8 +51,6 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     public Guid Token => _token;
     public DateTime JoinedAt => _joinedAt;
     
-    private int _selectedAuthorizationIndex;
-
     public int SelectedAuthorizationIndex { get; set; }
     
     public IPamelloPlayer? SelectedPlayer { get; private set; }
@@ -78,12 +76,12 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         _token = databaseEntity.Token;
         _joinedAt = databaseEntity.JoinedAt;
 
-        _selectedAuthorizationIndex = databaseEntity.SelectedAuthorization;
+        SelectedAuthorizationIndex = databaseEntity.SelectedAuthorization;
         _authorizations = databaseEntity.Authorizations.Select(pk =>
             new UserAuthorization(services, this, pk)
         ).ToList();
-        if (Id == 2) {
-            //_authorizations.Add(new UserAuthorization(services, this, new PlatformKey("discord", "930156959544516618")));
+        if (Id == 3) {
+            //_authorizations.Add(new UserAuthorization(services, this, new PlatformKey("osu", "29347119")));
         }
         _authorizations.Sort((a, b) => string.Compare(a.PK.Platform, b.PK.Platform, StringComparison.Ordinal));
     }

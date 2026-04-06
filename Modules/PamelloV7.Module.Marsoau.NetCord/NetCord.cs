@@ -90,8 +90,9 @@ public class NetCord : IPamelloModule
         //await ping.DeleteAsync();
         
         await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, properties);
-        
-        interactions.LateStartup();
+
+        await clients.AfterStartupAsync();
+        interactions.AfterStartup();
         
         Output.Write("Started NetCord");
     }

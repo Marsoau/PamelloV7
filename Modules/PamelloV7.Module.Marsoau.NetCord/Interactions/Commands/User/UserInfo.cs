@@ -20,23 +20,19 @@ public partial class UserInfo
     ) {
         user ??= ScopeUser;
         
-        await RespondAsync(async () =>
-            await Builder<Builder>().Build(user)
+        await RespondAsync(() =>
+            Builder<Builder>().Build(user)
         , () => [user]);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public async Task<IMessageComponentProperties?> Build(IPamelloUser user) {
+        public IMessageComponentProperties? Build(IPamelloUser user) {
             var clients = Services.GetRequiredService<DiscordClientService>();
 
             var authorizationsBuilder = new StringBuilder();
             foreach (var authorization in user.Authorizations) {
-                object? emote = null; //await clients.GetEmote(authorization.PK.Platform);
-
-                var line = emote is null
-                    ? $"{authorization.PK.Platform}: {DiscordString.Code(authorization.PK.Key)}"
-                    : ""; //$"{DiscordString.Emote(emote)} {DiscordString.Code(authorization.PK.Key)}";
+                var line = $"{DiscordString.Emoji(authorization.PK.Platform, clients)} {DiscordString.Code(authorization.PK.Key)}";
 
                 if (authorization == user.SelectedAuthorization) {
                     authorizationsBuilder.AppendLine(DiscordString.None($"{line} {DiscordString.Bold(DiscordString.Code("<"))}"));

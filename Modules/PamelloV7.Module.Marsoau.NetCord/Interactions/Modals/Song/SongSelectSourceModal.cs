@@ -1,3 +1,4 @@
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
@@ -19,6 +20,7 @@ public partial class SongSelectSourceModal
             
             SourceIndex.Options = song.Sources.Select(source =>
                 new StringMenuSelectOptionProperties(source.PK.Key, counter.ToString())
+                    .WithEmoji(EmojiProperties.Custom(Clients.Emojis.FirstOrDefault(e => e.Name == source.PK.Platform)?.Id ?? 0))
                     .WithDefault(counter++ == song.SelectedSourceIndex)
             ).ToList();
         }

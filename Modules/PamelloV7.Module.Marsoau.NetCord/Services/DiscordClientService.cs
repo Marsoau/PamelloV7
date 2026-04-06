@@ -14,6 +14,8 @@ public class DiscordClientService : IPamelloService
     public GatewayClient[] Clients = [];
     public GatewayClient Main => Clients.FirstOrDefault() ?? throw new PamelloException("Main client is not registered yet");
 
+    public IReadOnlyList<ApplicationEmoji> Emojis { get; private set; } = [];
+
     public void Startup(IServiceProvider services) {
         var main = new GatewayClient(new BotToken(NetCordConfig.Root.Tokens.Main), new GatewayClientConfiguration() {
             Logger = new NetCordLogger(),
@@ -29,6 +31,10 @@ public class DiscordClientService : IPamelloService
         Clients = [main, ..speakerClients];
     }
 
+    public async Task AfterStartupAsync() {
+        Emojis = await Main.Rest.GetApplicationEmojisAsync(Main.Id);
+    }
+
     public async Task<User?> GetDiscordUser(ulong id) {
         foreach (var client in Clients) {
             try {
@@ -42,12 +48,10 @@ public class DiscordClientService : IPamelloService
         return null;
     }
 
-    public VoiceState? GetUserVoiceState(IPamelloUser user) {
-        if (user.GetPriorityPlatformKey("discord") is not { } discordIdStr || !ulong.TryParse(discordIdStr, out var discordId)) return null;
-        
+    public VoiceState? GetUserVoiceState(ulong userId) {
         foreach (var client in Clients) {
             foreach (var guild in client.Cache.Guilds.Values) {
-                if (guild.VoiceStates.TryGetValue(discordId, out var voiceState)) {
+                if (guild.VoiceStates.TryGetValue(userId, out var voiceState)) {
                     return voiceState;
                 }
             }

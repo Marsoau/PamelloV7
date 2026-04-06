@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Strings
 {
@@ -9,7 +10,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
             var discordAuthorization = user?.SelectedAuthorization;
             if (discordAuthorization is not null && discordAuthorization.PK.Platform != "discord") discordAuthorization = null;
             
-            discordAuthorization = user?.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord");
+            discordAuthorization ??= user?.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord");
             if (discordAuthorization is null) return "<@0>";
             
             return User(ulong.Parse(discordAuthorization.PK.Key));
@@ -72,6 +73,13 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
             
             if (!percent) return Code($"[{sb}]");
             return Code($"[{sb}] {progress * 100:0.00}%");
+        }
+        
+        public static string Emoji(string name, DiscordClientService clients) {
+            var emoji = clients.Emojis.FirstOrDefault(e => e.Name == name);
+            if (emoji is null) return Code(name);
+            
+            return $"<:{emoji.Name}:{emoji.Id}>";
         }
         
         public static string Ecranate(object? obj) {
