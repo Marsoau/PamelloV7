@@ -70,42 +70,42 @@ public static class GeneratorBase
             type = type.BaseType;
         }
     }
-    
+
     public static string GetFullyQualifiedConstraints(IMethodSymbol methodSymbol) {
         if (methodSymbol.TypeParameters.Length == 0)
             return string.Empty;
 
-        var builder = new StringBuilder();
+        var constraints = methodSymbol.TypeParameters.Select(GetFullyQualifiedConstraints);
+        return string.Join(" ", constraints);
+    }
+    public static string GetFullyQualifiedConstraints(ITypeParameterSymbol typeParam) {
+        var constraints = new List<string>();
 
-        foreach (ITypeParameterSymbol typeParam in methodSymbol.TypeParameters) {
-            var constraints = new List<string>();
-
-            if (typeParam.HasReferenceTypeConstraint) {
-                constraints.Add(typeParam.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class");
-            }
-            else if (typeParam.HasValueTypeConstraint) {
-                constraints.Add("struct");
-            }
-            else if (typeParam.HasUnmanagedTypeConstraint) {
-                constraints.Add("unmanaged");
-            }
-            else if (typeParam.HasNotNullConstraint) {
-                constraints.Add("notnull");
-            }
-
-            foreach (ITypeSymbol typeConstraint in typeParam.ConstraintTypes) {
-                constraints.Add(typeConstraint.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-            }
-
-            if (typeParam.HasConstructorConstraint) {
-                constraints.Add("new()");
-            }
-            if (constraints.Count > 0) {
-                builder.Append($" where {typeParam.Name} : {string.Join(", ", constraints)}");
-            }
+        if (typeParam.HasReferenceTypeConstraint) {
+            constraints.Add(typeParam.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class");
+        }
+        else if (typeParam.HasValueTypeConstraint) {
+            constraints.Add("struct");
+        }
+        else if (typeParam.HasUnmanagedTypeConstraint) {
+            constraints.Add("unmanaged");
+        }
+        else if (typeParam.HasNotNullConstraint) {
+            constraints.Add("notnull");
         }
 
-        return builder.ToString();
+        foreach (ITypeSymbol typeConstraint in typeParam.ConstraintTypes) {
+            constraints.Add(typeConstraint.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+        }
+
+        if (typeParam.HasConstructorConstraint) {
+            constraints.Add("new()");
+        }
+        if (constraints.Count > 0) {
+            return $"where {typeParam.Name} : {string.Join(", ", constraints)}";
+        }
+
+        return "";
     }
     
     public static string GetMethodModifiers(IMethodSymbol methodSymbol) {

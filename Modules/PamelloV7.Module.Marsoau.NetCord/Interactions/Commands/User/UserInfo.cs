@@ -6,6 +6,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.User;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -16,7 +17,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.User;
 public partial class UserInfo
 {
     public async Task Execute(
-        IPamelloUser? user = null
+        [UserDescription] IPamelloUser? user = null
     ) {
         user ??= ScopeUser;
         

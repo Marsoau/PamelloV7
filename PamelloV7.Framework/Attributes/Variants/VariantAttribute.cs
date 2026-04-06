@@ -1,4 +1,4 @@
-namespace PamelloV7.Framework.Attributes;
+namespace PamelloV7.Framework.Attributes.Variants;
 
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
 public class VariantAttribute : Attribute {

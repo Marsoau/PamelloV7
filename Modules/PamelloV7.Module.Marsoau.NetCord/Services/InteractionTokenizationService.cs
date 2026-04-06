@@ -5,6 +5,8 @@ using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Actions;
+using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
@@ -14,7 +16,7 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
 
-public class InteractionTokenizationService : IPamelloService
+public partial class InteractionTokenizationService : IPamelloService
 {
     private readonly IServiceProvider _services;
     
@@ -32,14 +34,21 @@ public class InteractionTokenizationService : IPamelloService
 
     public TokenizedInteraction GetRequired(ButtonInteraction buttonInteraction)
         => Get(buttonInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {buttonInteraction.Data.CustomId}");
-    public TokenizedInteraction? Get(ButtonInteraction buttonInteraction) {
-        return Interactions.GetValueOrDefault(buttonInteraction.Data.CustomId);
-    }
-    
     public TokenizedInteraction GetRequired(ModalInteraction modalInteraction)
         => Get(modalInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {modalInteraction.Data.CustomId}");
-    public TokenizedInteraction? Get(ModalInteraction modalInteraction) {
-        return Interactions.GetValueOrDefault(modalInteraction.Data.CustomId);
+    
+    private static string ModalInteractionId(ModalInteraction modalInteraction)
+        => modalInteraction.Data.CustomId;
+    private static string ButtonInteractionId(ButtonInteraction buttonInteraction)
+        => buttonInteraction.Data.CustomId;
+    
+    [RequiredVariant]
+    public TokenizedInteraction? Get(
+        [Variant(nameof(ButtonInteractionId))]
+        [Variant(nameof(ModalInteractionId))]
+        string customId
+    ) {
+        return Interactions.GetValueOrDefault(customId);
     }
 
     public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
@@ -60,59 +69,6 @@ public class InteractionTokenizationService : IPamelloService
         return ModalButton(callSite, typeof(TModal), label, style,
             async builder => await PamelloBasicActions.RunMethodAsync("Build", builder, args),
             async modal => await PamelloBasicActions.RunMethodAsync("Submit", modal, args)
-        );
-    }
-
-    public ButtonProperties ModalButton<TModal>(
-        string callSite,
-        string label,
-        ButtonStyle style,
-        Func<TModal, Task> submitModal
-    )
-        where TModal : DiscordModal
-    {
-        return ModalButton(
-            callSite,
-            typeof(TModal),
-            label,
-            style,
-            async builder => await PamelloBasicActions.RunMethodAsync("Build", builder),
-            async m => {
-                if (m is not TModal modal)
-                    throw new PamelloException($"Modal {m.GetType().FullName} is not of type {typeof(TModal).FullName}");
-                
-                await submitModal(modal);
-            }
-        );
-    }
-    
-    public ButtonProperties ModalButton<TModal, TModalBuilder>(
-        string callSite,
-        string label,
-        ButtonStyle style,
-        Func<TModalBuilder, Task> buildModal,
-        Func<TModal, Task> submitModal
-    )
-        where TModal : DiscordModal
-        where TModalBuilder : DiscordModalBuilder
-    {
-        return ModalButton(
-            callSite,
-            typeof(TModal),
-            label,
-            style,
-            async b => {
-                if (b is not TModalBuilder builder)
-                    throw new PamelloException($"Modal builder {b.GetType().FullName} is not of type {typeof(TModalBuilder).FullName}");
-                
-                await buildModal(builder);
-            },
-            async m => {
-                if (m is not TModal modal)
-                    throw new PamelloException($"Modal {m.GetType().FullName} is not of type {typeof(TModal).FullName}");
-                
-                await submitModal(modal);
-            }
         );
     }
 

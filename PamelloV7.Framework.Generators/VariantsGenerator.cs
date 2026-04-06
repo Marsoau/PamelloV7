@@ -95,16 +95,18 @@ public class VariantsGenerator : IIncrementalGenerator
 
     public record FinalVariant(
         IMethodSymbol Method,
-        List<string> InputFlow,
+        List<ITypeParameterSymbol> TypeParameters,
+        List<IParameterSymbol> InputParameters,
         List<string> OutputFlow
     );
 
-    public static string FlowParameter(IParameterSymbol parameter) {
+    public static string? GetDefaultString(IParameterSymbol parameter) {
         var syntax = parameter.DeclaringSyntaxReferences
             .FirstOrDefault()?.GetSyntax() as ParameterSyntax;
 
-        var defaultString = syntax?.Default?.Value.ToString();
-        
+        return syntax?.Default?.Value.ToString();
+    }
+    public static string FlowParameter(IParameterSymbol parameter, string? defaultString) {
         return $"{parameter.Type.GetFullName()} {parameter.Name}{(defaultString is not null ? $" = {defaultString}" : "")}";
     }
 
@@ -114,12 +116,12 @@ public class VariantsGenerator : IIncrementalGenerator
         FinalVariant? final,
         int index
     ) {
-        final ??= new FinalVariant(method, [], []);
+        final ??= new FinalVariant(method, method.TypeParameters.ToList(), [], []);
         
         var currentVariants = nextVariants.FirstOrDefault();
         if (currentVariants is null) {
             for (; index < method.Parameters.Length; index++) {
-                final.InputFlow.Add(FlowParameter(method.Parameters[index]));
+                final.InputParameters.Add(method.Parameters[index]);
                 final.OutputFlow.Add(method.Parameters[index].Name);
             }
             
@@ -131,37 +133,37 @@ public class VariantsGenerator : IIncrementalGenerator
             var parameter = method.Parameters[index];
 
             if (!SymbolEqualityComparer.Default.Equals(parameter, currentVariants.Parameter)) {
-                final.InputFlow.Add(FlowParameter(parameter));
+                final.InputParameters.Add(parameter);
                 final.OutputFlow.Add(parameter.Name);
                 continue;
             }
 
             foreach (var variant in currentVariants.Variants) {
                 var finalCopy = final with {
-                    InputFlow = [..final.InputFlow],
-                    OutputFlow = [..final.OutputFlow]
+                    InputParameters = [..final.InputParameters],
+                    OutputFlow = [..final.OutputFlow],
+                    TypeParameters = [..final.TypeParameters]
                 };
 
                 if (variant is null) {
-                    finalCopy.InputFlow.Add(FlowParameter(parameter));
+                    finalCopy.InputParameters.Add(parameter);
                     finalCopy.OutputFlow.Add(parameter.Name);
                 }
                 else {
-                    var outputMethodBuilder = new StringBuilder();
-                    
-                    outputMethodBuilder.Append($"{variant.VariantMethod.GetFullName()}(");
-
+                    foreach (var typeParameter in variant.VariantMethod.TypeParameters) {
+                        if (finalCopy.TypeParameters.Any(tp => tp.Name == typeParameter.Name)) continue;
+                        
+                        finalCopy.TypeParameters.Add(typeParameter);
+                    }
                     foreach (var variantParameter in variant.VariantMethod.Parameters) {
                         if (method.Parameters.Any(p => p.Name == variantParameter.Name)) continue;
                         
-                        finalCopy.InputFlow.Add(FlowParameter(variantParameter));
+                        finalCopy.InputParameters.Add(variantParameter);
                     }
                     
-                    outputMethodBuilder.Append(string.Join(", ", variant.VariantMethod.Parameters.Select(p => p.Name)));
-
-                    outputMethodBuilder.Append(')');
-                    
-                    finalCopy.OutputFlow.Add(outputMethodBuilder.ToString());
+                    finalCopy.OutputFlow.Add($"{variant.VariantMethod.GetFullName()}({
+                        string.Join(", ", variant.VariantMethod.Parameters.Select(p => p.Name))
+                    })");
                 }
                 
                 foreach (var nextFlow in GetVariantsFlows(method, nextVariants.Skip(1).ToList(), finalCopy, index + 1)) {
@@ -191,6 +193,42 @@ public class VariantsGenerator : IIncrementalGenerator
         */
     }
 
+    private static string GetFinalMethodName(FinalVariant final) {
+        if (final.TypeParameters.Count == 0) return final.Method.Name;
+        return $"{final.Method.Name}<{string.Join(", ", final.TypeParameters.Select(parameter => parameter.Name))}>";
+    }
+    private static string GetFinalMethodConstraints(FinalVariant final) {
+        return string.Join(" ", final.TypeParameters.Select(GeneratorBase.GetFullyQualifiedConstraints));
+    }
+
+    private static IEnumerable<string> GetFinalMethodInputFlowReversed(FinalVariant final) {
+        var foundNonDefault = false;
+        foreach (var parameter in final.InputParameters
+            .Distinct(SymbolEqualityComparer.Default)
+            .OfType<IParameterSymbol>()
+            .Reverse()
+        ) {
+            var defaultString = GetDefaultString(parameter);
+            
+            if (foundNonDefault) defaultString = null;
+            else foundNonDefault = defaultString is null;
+            
+            yield return FlowParameter(parameter, defaultString);
+        }
+    }
+
+    private static void WriteFinal(StringBuilder sb, FinalVariant final, bool writeRequired = false) {
+        sb.AppendLine($"{GeneratorBase.GetMethodModifiers(final.Method)} {final.Method.ReturnType.GetFullName()} {GetFinalMethodName(final)}(");
+        sb.Append("    ");
+        sb.AppendLine(string.Join(",\n    ", GetFinalMethodInputFlowReversed(final).Reverse().Distinct()));
+        sb.AppendLine($") {GetFinalMethodConstraints(final)} {{");
+        sb.AppendLine($"    return {final.Method.GetFullName()}(");
+        sb.Append("        ");
+        sb.AppendLine(string.Join(",\n        ", final.OutputFlow));
+        sb.AppendLine("    );");
+        sb.AppendLine("}");
+    }
+
     private static void Generate(SourceProductionContext context, VariantsDescriptor descriptor) {
         var classNamespace = GeneratorBase.GetNamespace(descriptor.Class);
         
@@ -200,19 +238,11 @@ public class VariantsGenerator : IIncrementalGenerator
             var variants = kvp.Value;
             
             foreach (var final in GetVariantsFlows(method, variants, null, 0).Skip(1)) {
-                sb.AppendLine($"{GeneratorBase.GetMethodModifiers(final.Method)} {final.Method.ReturnType.GetFullName()} {final.Method.GetFullName()}(");
-                sb.Append("    ");
-                sb.AppendLine(string.Join(",\n    ", final.InputFlow));
-                sb.AppendLine($") {GeneratorBase.GetFullyQualifiedConstraints(final.Method)} {{");
-                sb.AppendLine($"    return {final.Method.GetFullName()}(");
-                sb.Append("        ");
-                sb.AppendLine(string.Join(",\n        ", final.OutputFlow));
-                sb.AppendLine("    );");
-                sb.AppendLine("}");
+                descriptor.DebugOutput.AppendLine($"Final: {final.Method.Name} | {final.TypeParameters.Count}");
+                WriteFinal(sb, final);
             }
         }
 
-        
         var source =
             $$"""
               namespace {{classNamespace}};
