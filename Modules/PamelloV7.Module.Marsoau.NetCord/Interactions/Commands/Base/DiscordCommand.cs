@@ -93,13 +93,16 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         ], entities);
     }
     
-    private static GetContent GetContentSingle(Func<IMessageComponentProperties?> getContentSingle)
+    private static GetContent GetContentSingleSync(Func<IMessageComponentProperties?> getContentSingle)
         => () => [getContentSingle()];
+    private static GetContentAsync GetContentSingleAsync(Func<Task<IMessageComponentProperties?>> getContentSingleAsync)
+        => async () => [await getContentSingleAsync()];
     private static GetContentAsync GetContentSync(GetContent getContentSync)
         => () => Task.FromResult(getContentSync());
     
     public async Task<UpdatableMessage> RespondAsync(
-        [Variant(nameof(GetContentSingle))]
+        [Variant(nameof(GetContentSingleSync))]
+        [Variant(nameof(GetContentSingleAsync))]
         [Variant(nameof(GetContentSync))]
         GetContentAsync getContentAsync,
         GetEntities? entities = null

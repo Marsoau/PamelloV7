@@ -31,7 +31,7 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
     }
 
     public IPamelloUser? GetByName(IPamelloUser scopeUser, string query) {
-        throw new NotImplementedException();
+        return null;
     }
 
     public async Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {

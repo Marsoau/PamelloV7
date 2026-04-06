@@ -89,7 +89,7 @@ public class NetCord : IPamelloModule
         //var ping = await clients.Main.Rest.GetGlobalApplicationCommandAsync(clients.Main.Id, 1304142495453548646);
         //await ping.DeleteAsync();
         
-        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1463545154894823648, properties);
+        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, properties);
         
         interactions.LateStartup();
         
