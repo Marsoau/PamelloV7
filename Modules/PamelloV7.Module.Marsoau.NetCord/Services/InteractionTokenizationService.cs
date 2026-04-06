@@ -42,15 +42,6 @@ public class InteractionTokenizationService : IPamelloService
         return Interactions.GetValueOrDefault(modalInteraction.Data.CustomId);
     }
 
-    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Action action)
-        => ActionButton(callSite, label, style, _ => action());
-    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Action<Interaction> action)
-        => ActionButton(callSite, label, style, interaction => {
-            action(interaction);
-            return Task.CompletedTask;
-        });
-    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Task> action)
-        => ActionButton(callSite, label, style, _ => action());
     public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
         var tokenizedInteraction = new TokenizedInteraction(callSite, action);
         Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
@@ -145,17 +136,6 @@ public class InteractionTokenizationService : IPamelloService
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
 
-    public ButtonProperties Button<TButton>(string callSite)
-        where TButton : DiscordButton
-        => Button<TButton>(callSite, async button => {
-            await PamelloBasicActions.RunExecuteMethodAsync(button);
-        });
-    public ButtonProperties Button<TButton>(string callSite, Action<TButton> execute)
-        where TButton : DiscordButton
-        => Button<TButton>(callSite, button => {
-            execute(button);
-            return Task.CompletedTask;
-        });
     public ButtonProperties Button<TButton>(string callSite, Func<TButton, Task> execute)
         where TButton : DiscordButton
     {

@@ -73,18 +73,19 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             subscription.Dispose();
         };
     }
-
-    public Task RespondAsync(string content, GetEntities? entities = null)
-        => RespondAsync(() => null, () => content, entities);
-    public Task RespondAsync(string header, string content, GetEntities? entities = null)
-        => RespondAsync(() => header, () => content, entities);
     
-    public Task RespondAsync(string header, Func<string?> getContent, GetEntities? entities = null)
-        => RespondAsync(() => header, getContent, entities);
+    private static Func<string?> StaticHeader(string header) => () => header;
+    private static Func<string?> StaticContent(string content) => () => content;
+    private static Func<string?> StandardHeader() => () => null;
     
-    public async Task RespondAsync(Func<string?> getContent, GetEntities? entities = null)
-        => await RespondAsync(() => null, getContent, entities);
-    public async Task RespondAsync(Func<string?> getHeader, Func<string?> getContent, GetEntities? entities = null) {
+    public async Task RespondAsync(
+        [Variant(nameof(StandardHeader))]
+        [Variant(nameof(StaticHeader))]
+        Func<string?> getHeader,
+        [Variant(nameof(StaticContent))]
+        Func<string?> getContent,
+        GetEntities? entities = null
+    ) {
         entities ??= () => [];
 
         await RespondAsync(() => [
@@ -92,22 +93,27 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         ], entities);
     }
     
-    public Task<UpdatableMessage> RespondAsync(Func<IMessageComponentProperties?> getContentSingle, GetEntities? entities = null)
-        => RespondAsync(() => [getContentSingle()], entities);
+    private static GetContent GetContentSingle(Func<IMessageComponentProperties?> getContentSingle)
+        => () => [getContentSingle()];
+    private static GetContentAsync GetContentSync(GetContent getContentSync)
+        => () => Task.FromResult(getContentSync());
     
-    public Task<UpdatableMessage> RespondAsync(GetContent getContent, GetEntities? entities = null)
-        => RespondAsync(() => Task.FromResult(getContent()), entities);
-    public async Task<UpdatableMessage> RespondAsync(GetContentAsync getContent, GetEntities? entities = null) {
+    public async Task<UpdatableMessage> RespondAsync(
+        [Variant(nameof(GetContentSingle))]
+        [Variant(nameof(GetContentSync))]
+        GetContentAsync getContentAsync,
+        GetEntities? entities = null
+    ) {
         entities ??= () => [];
         
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
-            await RespondComponentAsync((await getContent()).OfType<IMessageComponentProperties>());
+            await RespondComponentAsync((await getContentAsync()).OfType<IMessageComponentProperties>());
         }
 
         UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async message => {
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getContent().Result.OfType<IMessageComponentProperties>());
+                await Interaction.ModifyResponseAsync(properties => properties.Components = getContentAsync().Result.OfType<IMessageComponentProperties>());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }
@@ -121,11 +127,15 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         
         return UpdatableMessage;
     }
+    
+    private static GetPageContentAsync GetPageContentSync(GetPageContent getPageContentSync)
+        => page => Task.FromResult(getPageContentSync(page));
 
     public async Task<UpdatablePageMessage> RespondPageAsync(
-        GetPageContent getPageContent, GetEntities entities)
-        => await RespondPageAsync(page => Task.FromResult(getPageContent(page)), entities);
-    public async Task<UpdatablePageMessage> RespondPageAsync(GetPageContentAsync getPageContentAsync, GetEntities entities) {
+        [Variant(nameof(GetPageContentSync))]
+        GetPageContentAsync getPageContentAsync,
+        GetEntities entities
+    ) {
         var needsRefresh = HasResponded;
         if (!needsRefresh) {
             await RespondComponentAsync((await getPageContentAsync(0)).OfType<IMessageComponentProperties>());
@@ -150,6 +160,18 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         return (UpdatablePageMessage)UpdatableMessage;
     }
 
+    private static GetContentForOneAsync<TType> GetContentForOneSync<TType>(GetContentForOne<TType> getContentForOne)
+        => item => Task.FromResult(getContentForOne(item));
+    private static GetPageContentAsync GetContentForManySync(GetPageContent getContentForMany)
+        => page => Task.FromResult(getContentForMany(page));
+    private GetPageContent ManyItemsTitle<TType>(string manyItemsTitle, List<TType> items) {
+        return page => Builder<BasicComponentsBuilder>().EntitiesList(
+            manyItemsTitle,
+            items.OfType<IPamelloEntity>(),
+            page
+        );
+    }
+    
     public async Task RespondOneOrManyAsync<TType>(
         List<TType> items,
         [Variant(nameof(GetContentForOneSync))]
@@ -169,21 +191,5 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         else {
             await RespondPageAsync(getContentForManyAsync, getEntities);
         }
-    }
-
-    protected static GetContentForOneAsync<TType> GetContentForOneSync<TType>(GetContentForOne<TType> getContentForOne) {
-        return item => Task.FromResult(getContentForOne(item));
-    }
-    
-    protected static GetPageContentAsync GetContentForManySync(GetPageContent getContentForMany) {
-        return page => Task.FromResult(getContentForMany(page));
-    }
-
-    protected GetPageContent ManyItemsTitle<TType>(string manyItemsTitle, List<TType> items) {
-        return page => Builder<BasicComponentsBuilder>().EntitiesList(
-            manyItemsTitle,
-            items.OfType<IPamelloEntity>(),
-            page
-        );
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
@@ -19,7 +20,7 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Actions;
 
-public abstract class DiscordBasicActions
+public abstract partial class DiscordBasicActions
 {
     public IServiceProvider Services = null!;
     
@@ -62,24 +63,43 @@ public abstract class DiscordBasicActions
     public async Task<object?> Command(string commandPath)
         => await Commands.ExecutePathAsync(commandPath, ScopeUser);
     
-    public ButtonProperties Button(string label, ButtonStyle style, Action action, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
-        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
-    public ButtonProperties Button(string label, ButtonStyle style, Action<Interaction> action)
-        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
-    public ButtonProperties Button(string label, ButtonStyle style, Func<Task> action)
-        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
-    public ButtonProperties Button(string label, ButtonStyle style, Func<Interaction, Task> action) 
-        => Tokenizer.ActionButton(GetCallSite(), label, style, action);
+    private static Action<Interaction> OnActionSync(Action onAction)
+        => _ => onAction();
+    private static Func<Interaction, Task> OnInteractionSync(Action<Interaction> onInteraction)
+        => interaction => {
+            onInteraction(interaction);
+            return Task.CompletedTask;
+        };
+    private static Func<Interaction, Task> OnActionAsync(Func<Task> onActionAsync)
+        => _ => onActionAsync();
+    
+    public ButtonProperties Button(
+        [Variant(nameof(GetCallSite))]
+        string callSite,
+        string label,
+        ButtonStyle style,
+        [Variant(nameof(OnInteractionSync))]
+        [Variant(nameof(OnActionAsync))]
+        [Variant(nameof(OnActionSync))]
+        Func<Interaction, Task> onInteractionAsync
+    ) => Tokenizer.ActionButton(callSite, label, style, onInteractionAsync);
 
-    public ButtonProperties Button<TButton>()
+    private static Action<TButton> NoExecute<TButton>() => _ => { };
+    private static Func<TButton, Task> ExecuteSync<TButton>(Action<TButton> execute)
+        => button => {
+            execute(button);
+            return Task.CompletedTask;
+        };
+    
+    public ButtonProperties Button<TButton>(
+        [Variant(nameof(GetCallSite))]
+        string callSite,
+        [Variant(nameof(NoExecute))]
+        [Variant(nameof(ExecuteSync))]
+        Func<TButton, Task> executeAsync
+    )
         where TButton : DiscordButton
-        => Tokenizer.Button<TButton>(GetCallSite());
-    public ButtonProperties Button<TButton>(Action<TButton> execute)
-        where TButton : DiscordButton
-        => Tokenizer.Button(GetCallSite(), execute);
-    public ButtonProperties Button<TButton>(Func<TButton, Task> execute)
-        where TButton : DiscordButton
-        => Tokenizer.Button(GetCallSite(), execute);
+        => Tokenizer.Button(callSite, executeAsync);
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static string GetCallSite() {
