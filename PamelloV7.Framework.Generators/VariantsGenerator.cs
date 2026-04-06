@@ -35,8 +35,8 @@ public class VariantsGenerator : IIncrementalGenerator
                     .Where(a => a.AttributeClass?.Name == "VariantAttribute")
                     .ToList();
                 
-                if (!attributes.Any()) continue;
-
+                var requiredAttribute = method.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == "RequiredVariantAttribute");
+                
                 var variants = new List<VariantDescriptor?>();
 
                 foreach (var attribute in attributes) {
@@ -58,15 +58,16 @@ public class VariantsGenerator : IIncrementalGenerator
 
                 debug.AppendLine($"Variants: {variants.Count}");
                 
-                if (!variants.Any()) continue;
-                
-                variants.Insert(0, null);
+                if (variants.Any()) variants.Insert(0, null);
+                else if (requiredAttribute is null) continue;
 
                 if (!methods.ContainsKey(method)) methods[method] = [];
+                
                 methods[method].Add(new ParameterVariantsDescriptor(
                     method,
                     parameter,
-                    variants
+                    variants,
+                    requiredAttribute is not null
                 ));
                 
                 debug.AppendLine($"Parameter: {method.Name} | {parameter.Name} | {string.Join(", ",
@@ -193,9 +194,9 @@ public class VariantsGenerator : IIncrementalGenerator
         */
     }
 
-    private static string GetFinalMethodName(FinalVariant final) {
+    private static string GetFinalMethodName(FinalVariant final, bool isRequired = false) {
         if (final.TypeParameters.Count == 0) return final.Method.Name;
-        return $"{final.Method.Name}<{string.Join(", ", final.TypeParameters.Select(parameter => parameter.Name))}>";
+        return $"{final.Method.Name}{(isRequired ? "Required" : "")}<{string.Join(", ", final.TypeParameters.Select(parameter => parameter.Name))}>";
     }
     private static string GetFinalMethodConstraints(FinalVariant final) {
         return string.Join(" ", final.TypeParameters.Select(GeneratorBase.GetFullyQualifiedConstraints));
@@ -217,12 +218,17 @@ public class VariantsGenerator : IIncrementalGenerator
         }
     }
 
-    private static void WriteFinal(StringBuilder sb, FinalVariant final, bool writeRequired = false) {
-        sb.AppendLine($"{GeneratorBase.GetMethodModifiers(final.Method)} {final.Method.ReturnType.GetFullName()} {GetFinalMethodName(final)}(");
+    private static void WriteFinal(StringBuilder sb, FinalVariant final, bool isRequired = false) {
+        var returnType = final.Method.ReturnType.GetFullName();
+        if (isRequired && GeneratorBase.IsNullable(final.Method.ReturnType)) {
+            returnType = GeneratorBase.MakeNonNullable(final.Method.ReturnType).GetFullName();
+        }
+        
+        sb.AppendLine($"{GeneratorBase.GetMethodModifiers(final.Method)} {returnType} {GetFinalMethodName(final, isRequired)}(");
         sb.Append("    ");
         sb.AppendLine(string.Join(",\n    ", GetFinalMethodInputFlowReversed(final).Reverse().Distinct()));
         sb.AppendLine($") {GetFinalMethodConstraints(final)} {{");
-        sb.AppendLine($"    return {final.Method.GetFullName()}(");
+        sb.AppendLine($"    {(final.Method.ReturnsVoid ? "" : "return ")}{final.Method.GetFullName()}(");
         sb.Append("        ");
         sb.AppendLine(string.Join(",\n        ", final.OutputFlow));
         sb.AppendLine("    );");
@@ -237,9 +243,13 @@ public class VariantsGenerator : IIncrementalGenerator
             var method = kvp.Key;
             var variants = kvp.Value;
             
+            var isRequired = variants.Any(v => v.IsRequired);
+            
             foreach (var final in GetVariantsFlows(method, variants, null, 0).Skip(1)) {
                 descriptor.DebugOutput.AppendLine($"Final: {final.Method.Name} | {final.TypeParameters.Count}");
+                
                 WriteFinal(sb, final);
+                //if (isRequired) WriteFinal(sb, final, true);
             }
         }
 
@@ -255,7 +265,6 @@ public class VariantsGenerator : IIncrementalGenerator
               
               /* debug output
               {{descriptor.DebugOutput}}
-              u
               */
               """;
         

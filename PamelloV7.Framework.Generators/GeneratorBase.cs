@@ -136,4 +136,90 @@ public static class GeneratorBase
 
         return string.Join(" ", modifiers);
     }
+    
+    /// <summary>
+    /// Checks if a type is nullable, either directly (e.g. string?) or inside a Task (e.g. Task<string?>).
+    /// </summary>
+    public static bool IsNullable(ITypeSymbol typeSymbol)
+    {
+        // 1. If it's a Task<T>, check the inner T
+        if (IsGenericTask(typeSymbol, out ITypeSymbol innerType))
+        {
+            // Return true if the inner type is nullable OR if the Task itself is nullable (Task<T>?)
+            return IsTypeDirectlyNullable(innerType) || IsTypeDirectlyNullable(typeSymbol);
+        }
+
+        // 2. Check the type itself
+        return IsTypeDirectlyNullable(typeSymbol);
+    }
+
+    /// <summary>
+    /// Returns a non-nullable version of the type. 
+    /// If the type is a Task<T?>, it reconstructs and returns Task<T>.
+    /// </summary>
+    public static ITypeSymbol MakeNonNullable(ITypeSymbol typeSymbol)
+    {
+        // 1. If it's a Task<T>, reconstruct it with a non-nullable T
+        if (IsGenericTask(typeSymbol, out ITypeSymbol innerType))
+        {
+            // Make the inner type non-nullable
+            ITypeSymbol nonNullableInner = MakeTypeDirectlyNonNullable(innerType);
+
+            // Get the original unbound generic definition (Task<>)
+            INamedTypeSymbol namedType = (INamedTypeSymbol)typeSymbol;
+            INamedTypeSymbol unboundTaskType = namedType.OriginalDefinition;
+
+            // Reconstruct the Task with the new non-nullable inner type -> Task<T>
+            ITypeSymbol reconstructedTask = unboundTaskType.Construct(nonNullableInner);
+
+            // Ensure the Task itself isn't nullable (Task?) and return it
+            return MakeTypeDirectlyNonNullable(reconstructedTask);
+        }
+
+        // 2. Make the type itself non-nullable
+        return MakeTypeDirectlyNonNullable(typeSymbol);
+    }
+
+    // --- Private Internal Helpers ---
+
+    private static bool IsGenericTask(ITypeSymbol typeSymbol, out ITypeSymbol innerType)
+    {
+        if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
+        {
+            string ns = namedType.ContainingNamespace?.ToDisplayString();
+            string name = namedType.MetadataName; // MetadataName includes the tick, e.g. "Task`1"
+
+            if (ns == "System.Threading.Tasks" && (name == "Task`1" || name == "ValueTask`1"))
+            {
+                innerType = namedType.TypeArguments[0];
+                return true;
+            }
+        }
+
+        innerType = null!;
+        return false;
+    }
+
+    private static bool IsTypeDirectlyNullable(ITypeSymbol type)
+    {
+        // Check Value Types (int?)
+        if (type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) return true;
+        
+        // Check Reference Types (string?)
+        if (type.NullableAnnotation == NullableAnnotation.Annotated) return true;
+
+        return false;
+    }
+
+    private static ITypeSymbol MakeTypeDirectlyNonNullable(ITypeSymbol type)
+    {
+        // Strip Value Type Nullability (Nullable<T> -> T)
+        if (type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && type is INamedTypeSymbol namedType)
+        {
+            return namedType.TypeArguments[0];
+        }
+
+        // Strip Reference Type Nullability (string? -> string)
+        return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+    }
 }

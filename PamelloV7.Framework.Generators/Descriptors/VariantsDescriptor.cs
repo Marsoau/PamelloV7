@@ -12,7 +12,8 @@ public record VariantDescriptor(
 public record ParameterVariantsDescriptor(
     IMethodSymbol Method,
     IParameterSymbol Parameter,
-    List<VariantDescriptor?> Variants
+    List<VariantDescriptor?> Variants,
+    bool IsRequired
 );
 
 public record VariantsDescriptor(
