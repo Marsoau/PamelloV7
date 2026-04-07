@@ -26,24 +26,41 @@ public partial class PlaylistInfo
     {
         public IMessageComponentProperties?[] Build(IPamelloPlaylist playlist, int page, int pageSize) {
             var container = new ComponentContainerProperties();
+            
+            var isOwner = playlist.Owner == ScopeUser;
 
             container.AddComponents(
                 new TextDisplayProperties($"## {DiscordString.Code($"[{playlist.Id}]")} {playlist.Name}"),
-                new ComponentSeparatorProperties(),
-                new TextDisplayProperties(
-                    $"""
-                     - Owner {playlist.Owner.ToDiscordString()}
-                     - Added at {DiscordString.Time(playlist.AddedAt)}
-                     - Is Protected: {DiscordString.Code(playlist.IsProtected)}
-                     """
-                ),
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
                     Button("Add To Queue", ButtonStyle.Primary, () => {
                         Command<PlayerQueuePlaylistAdd>().Execute([playlist]);
                     }),
-                    ModalButton<PlaylistRenameModal>("Rename", ButtonStyle.Secondary, [playlist]),
+                    ModalButton<PlaylistRenameModal>("Rename", ButtonStyle.Secondary, [playlist])
+                        .WithDisabled(!isOwner && playlist.IsProtected),
                     ModalButton<PlaylistEditModal>("Edit", ButtonStyle.Secondary, [playlist])
+                        .WithDisabled(!isOwner && playlist.IsProtected)
+                ),
+                new ComponentSeparatorProperties(),
+                new TextDisplayProperties(
+                    $"""
+                     - Added at {DiscordString.Time(playlist.AddedAt)}
+                     """
+                ),
+                new ComponentSeparatorProperties(),
+                new ComponentSectionProperties(
+                    Button("Transfer", ButtonStyle.Secondary, () => {
+                        //transfer a playlist to another user modal
+                    }).WithDisabled(!isOwner)
+                ).AddComponents(
+                    new TextDisplayProperties($"### Owner: {playlist.Owner.ToDiscordString()}")
+                ),
+                new ComponentSectionProperties(
+                    Button("Toggle", ButtonStyle.Secondary, () => {
+                        
+                    }).WithDisabled(!isOwner)
+                ).AddComponents(
+                    new TextDisplayProperties($"### Is Protected: {DiscordString.Code(playlist.IsProtected)}")
                 ),
                 new ComponentSeparatorProperties()
             );
@@ -69,7 +86,7 @@ public partial class PlaylistInfo
                 new ComponentSectionProperties(
                     Button("Clear", ButtonStyle.Secondary, () => {
                         Command<PlaylistClear>().Execute(playlist);
-                    })
+                    }).WithDisabled(!isOwner && playlist.IsProtected)
                 ).AddComponents(
                     new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({playlist.Songs.Count} songs)")
                 )
