@@ -230,10 +230,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     }
 
     public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs) {
-        var filteredSongs = new List<IPamelloSong>();
-        newSongs.ForEach(song => {
-            if (!filteredSongs.Contains(song)) filteredSongs.Add(song);
-        });
+        var filteredSongs = newSongs.Distinct().ToList();
         
         var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, filteredSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
         

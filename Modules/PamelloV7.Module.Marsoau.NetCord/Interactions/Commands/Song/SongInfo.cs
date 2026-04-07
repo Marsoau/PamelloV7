@@ -23,11 +23,11 @@ public partial class SongInfo
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
         await RespondAsync(() =>
-            Builder<ContainerBuilder>().Build(song)
+            Builder<Builder>().Build(song)
         , () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists]);
     }
 
-    public class ContainerBuilder : DiscordComponentBuilder
+    public class Builder : DiscordComponentBuilder
     {
         public ComponentContainerProperties Build(IPamelloSong song) {
             Uri coverUrl;

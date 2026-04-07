@@ -4,6 +4,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Services.PEQL;
 
@@ -28,21 +29,24 @@ public partial class PamelloBasicActions
         Action<Exception>? exceptionHandler = null
     ) {
         exceptionHandler ??= x => throw x;
+        arguments = arguments?.Take(method.GetParameters().Length).ToArray() ?? [];
+
+        Output.Write($"Parameters for {method.Name}: {arguments.Length}");
 
         try {
             object? result;
             
             if (typeof(Task).IsAssignableFrom(method.ReturnType)) {
                 if (method.ReturnType.IsGenericType) {
-                    result = await (dynamic)method.Invoke(obj, arguments ?? [])!;
+                    result = await (dynamic)method.Invoke(obj, arguments)!;
                 }
                 else {
-                    await (Task)method.Invoke(obj, arguments ?? [])!;
+                    await (Task)method.Invoke(obj, arguments)!;
                     result = null;
                 }
             }
             else {
-                result = method.Invoke(obj, arguments ?? []);
+                result = method.Invoke(obj, arguments);
             }
             
             return result;

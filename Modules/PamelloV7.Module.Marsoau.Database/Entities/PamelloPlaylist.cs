@@ -2,6 +2,7 @@ using System.Diagnostics;
 using PamelloV7.Core.Dto;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Framework.Data.Entities;
+using PamelloV7.Framework.Difference;
 using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
@@ -47,9 +48,12 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
     public IReadOnlyList<IPamelloSong> Songs => _playlistSongs;
     public IReadOnlyList<IPamelloUser> FavoriteBy => _favoriteBy;
     
+    public DateTime AddedAt { get; }
+
     public PamelloPlaylist(DatabasePlaylist databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
         _isProtected = databaseEntity.IsProtected;
+        AddedAt = databaseEntity.AddedAt;
     }
     
     protected override void InitBase() {
@@ -126,7 +130,23 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
     }
 
     public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> newSongs, IPamelloUser? scopeUser) {
-        throw new NotImplementedException();
+        var newSongsList = newSongs.ToList();
+        
+        var difference = DifferenceResult<IPamelloSong>.From(Songs, newSongsList, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
+        
+        foreach (var (_, song) in difference.Deleted) song.RemoveFromPlaylist(this, scopeUser, true);
+        foreach (var (_, song) in difference.Added) song.AddToPlaylist(this, scopeUser, -1, true);
+        
+        _playlistSongs = newSongsList;
+        
+        _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
+            Playlist = this,
+            Songs = IPamelloEntity.GetIds(_playlistSongs)
+        });
+        
+        Save();
+        
+        return newSongsList;
     }
 
     public int RemoveSong(IPamelloSong song, IPamelloUser? scopeUser, bool fromInside = false) {

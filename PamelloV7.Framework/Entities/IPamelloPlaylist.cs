@@ -14,6 +14,8 @@ public interface IPamelloPlaylist : IPamelloDatabaseEntity
     public IReadOnlyList<IPamelloSong> Songs { get; }
     public IReadOnlyList<IPamelloUser> FavoriteBy { get; }
     
+    public DateTime AddedAt { get; }
+    
     public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser, int? position = null, bool fromInside = false);
     public IPamelloSong? MoveSong(int fromPosition, int toPosition, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> newSongs, IPamelloUser? scopeUser);

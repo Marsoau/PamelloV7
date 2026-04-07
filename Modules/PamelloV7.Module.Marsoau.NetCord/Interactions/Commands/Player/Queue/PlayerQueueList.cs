@@ -110,21 +110,5 @@ public partial class PlayerQueueList
                 Builder<BasicButtonsBuilder>().PageButtons(page != 0, page < totalPages - 1)
             ];
         }
-
-        public string GetEntriesText(IEnumerable<PamelloQueueEntry> list, int nextPosition, int countStart) {
-            var sb = new StringBuilder();
-
-            foreach (var entry in list) {
-                if (entry.Song is null) continue;
-
-                sb.AppendLine(
-                    $"{DiscordString.Code(countStart + 1)} {(countStart == nextPosition ? DiscordString.Italic("next >") : ":")} {entry.Song.ToDiscordString()}"
-                );
-
-                countStart++;
-            }
-
-            return sb.ToString();
-        }
     }
 }
