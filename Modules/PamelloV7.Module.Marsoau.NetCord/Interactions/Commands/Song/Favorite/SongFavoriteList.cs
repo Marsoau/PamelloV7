@@ -3,9 +3,9 @@ using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 
-namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Favorites;
+namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Favorite;
 
-[DiscordCommand("song favorite list", "List favorites")]
+[DiscordCommand("song favorite list", "View/Manage favorite songs")]
 public partial class SongFavoriteList
 {
     public async Task Execute(

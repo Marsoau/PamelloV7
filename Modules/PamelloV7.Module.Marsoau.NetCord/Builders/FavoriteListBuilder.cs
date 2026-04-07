@@ -7,6 +7,7 @@ using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
+using PlaylistFavoriteEditModal = PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Playlist.PlaylistFavoriteEditModal;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Builders;
 
@@ -65,7 +66,7 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                         })
                     )
                     : new ActionRowProperties().AddComponents(
-                        ModalButton<SongFavoriteEditModal>("Edit", ButtonStyle.Secondary),
+                        ModalButton<PlaylistFavoriteEditModal>("Edit", ButtonStyle.Secondary),
                         Button("Clear", ButtonStyle.Secondary, () => {
                             Command<PlaylistFavoriteClear>().Execute();
                         })
