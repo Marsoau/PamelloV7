@@ -24,9 +24,12 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
         throw new NotImplementedException();
     }
 
-    public override void InitializeInteraction(IServiceProvider services, ModalInteraction interaction, IPamelloUser scopeUser) {
-        base.InitializeInteraction(services, interaction, scopeUser);
-
+    public override void InitializeActions(IServiceProvider services, Interaction interaction, IPamelloUser scopeUser) {
+        base.InitializeActions(services, interaction, scopeUser);
+        
+        if (interaction is not ModalInteraction modalInteraction)
+            throw new PamelloException($"Interaction is not a modal interaction");
+        
         object? parentValue = null;
 
         IAddModalPropertyAttribute[] attributes = [
@@ -34,7 +37,7 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             ..BuilderType.GetCustomAttributes().OfType<IAddModalPropertyAttribute>()
         ];
 
-        var tasks = interaction.Data.Components
+        var tasks = modalInteraction.Data.Components
             .OfType<Label>()
             .Select(label => SetValueForComponent(label.Component));
         

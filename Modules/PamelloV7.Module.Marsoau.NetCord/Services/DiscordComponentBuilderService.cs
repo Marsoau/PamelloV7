@@ -1,3 +1,4 @@
+using NetCord;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Services.Base;
@@ -13,17 +14,17 @@ public class DiscordComponentBuilderService : IPamelloService
         _services = services;
     }
     
-    public TBuilder Get<TBuilder>(IPamelloUser scopeUser)
+    public TBuilder Get<TBuilder>(Interaction interaction, IPamelloUser scopeUser)
         where TBuilder : DiscordComponentBuilder
-        => (TBuilder)Get(typeof(TBuilder), scopeUser);
+        => (TBuilder)Get(typeof(TBuilder), interaction, scopeUser);
     
-    public DiscordComponentBuilder Get(Type builderType, IPamelloUser scopeUser) {
+    public DiscordComponentBuilder Get(Type builderType, Interaction interaction, IPamelloUser scopeUser) {
         var constructor = builderType.GetConstructor([]);
         if (constructor is null) throw new PamelloException($"Builder {builderType.FullName} does not have a default constructor");
         
         var builder = (DiscordComponentBuilder)constructor.Invoke([]);
         
-        builder.InitializeActions(_services, scopeUser);
+        builder.InitializeActions(_services, interaction, scopeUser);
         
         return builder;
     }

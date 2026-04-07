@@ -32,8 +32,8 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     
     protected UpdatableMessage? UpdatableMessage;
 
-    public override void InitializeInteraction(IServiceProvider services, SlashCommandInteraction interaction, IPamelloUser scopeUser) {
-        base.InitializeInteraction(services, interaction, scopeUser);
+    public override void InitializeActions(IServiceProvider services, Interaction interaction, IPamelloUser scopeUser) {
+        base.InitializeActions(services, interaction, scopeUser);
         
         _events = services.GetRequiredService<IEventsService>();
         _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();

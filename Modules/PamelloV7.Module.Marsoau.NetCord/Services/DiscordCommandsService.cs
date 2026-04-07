@@ -180,7 +180,7 @@ public class DiscordCommandsService : IPamelloService
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
             throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" cannot be null");
         
-        command.InitializeInteraction(_services, interaction, scopeUser);
+        command.InitializeActions(_services, interaction, scopeUser);
         
         return command;
     }

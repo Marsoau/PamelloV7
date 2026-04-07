@@ -17,14 +17,10 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 public abstract class DiscordInteraction<TInteraction> : DiscordBasicActions
     where TInteraction : Interaction
 {
-    public TInteraction Interaction = null!;
+    public TInteraction Interaction => _interaction as TInteraction
+        ?? throw new InvalidOperationException($"Interaction is not of type {typeof(TInteraction).FullName}");
     
     public bool HasResponded { get; protected set; }
-    
-    public virtual void InitializeInteraction(IServiceProvider services, TInteraction interaction, IPamelloUser scopeUser) {
-        Interaction = interaction;
-        InitializeActions(services, scopeUser);
-    }
     
     public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
         => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);

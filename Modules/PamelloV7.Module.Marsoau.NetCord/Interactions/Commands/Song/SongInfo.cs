@@ -68,7 +68,7 @@ public partial class SongInfo
                 ),
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
-                    ModalButton<SongRenameModal>("Edit Name", ButtonStyle.Secondary, [song]),
+                    ModalButton<SongRenameModal>("Rename", ButtonStyle.Secondary, [song]),
                     Button("Change Cover", ButtonStyle.Secondary, () => { })
                         .WithDisabled(),
                     Button("Reset", ButtonStyle.Secondary, async () => {

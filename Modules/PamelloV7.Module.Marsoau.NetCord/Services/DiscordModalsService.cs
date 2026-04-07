@@ -65,7 +65,7 @@ public class DiscordModalsService : IPamelloService
         if (Activator.CreateInstance(descriptor.BuilderType) is not DiscordModalBuilder builder)
             throw new PamelloException($"Could not create builder {builderType.FullName}");
         
-        builder.InitializeBuilder(_services, interaction.Data.CustomId, scopeUser);
+        builder.InitializeBuilder(_services, interaction, scopeUser);
         
         return builder;
     }
@@ -80,7 +80,7 @@ public class DiscordModalsService : IPamelloService
         if (Activator.CreateInstance(descriptor.ModalType) is not DiscordModal modal)
             throw new PamelloException($"Could not create modal {modalType.FullName}");
         
-        modal.InitializeInteraction(_services, interaction, scopeUser);
+        modal.InitializeActions(_services, interaction, scopeUser);
         
         return modal;   
     }

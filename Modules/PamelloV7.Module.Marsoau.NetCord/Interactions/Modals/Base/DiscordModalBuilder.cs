@@ -1,4 +1,5 @@
 using System.Reflection;
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Actions;
@@ -23,10 +24,10 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     public IAddModalPropertyAttribute[] Attributes { get; protected set; } = [];
     public ModalProperties Properties { get; protected set; } = null!;
 
-    public virtual void InitializeBuilder(IServiceProvider services, string modalId, IPamelloUser scopeUser) {
-        ModalId = modalId;
+    public virtual void InitializeBuilder(IServiceProvider services, ButtonInteraction modalInteraction, IPamelloUser scopeUser) {
+        ModalId = modalInteraction.Data.CustomId;
         
-        InitializeActions(services, scopeUser);
+        InitializeActions(services, modalInteraction, scopeUser);
         InitializeProperties();
     }
 

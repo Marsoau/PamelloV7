@@ -24,6 +24,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Actions;
 
 public abstract partial class DiscordBasicActions
 {
+    protected Interaction _interaction = null!;
+    
     public IServiceProvider Services = null!;
     
     public IPamelloUser ScopeUser = null!;
@@ -45,7 +47,9 @@ public abstract partial class DiscordBasicActions
     protected IPamelloQueue? Queue => SelectedPlayer?.Queue;
     protected IPamelloQueue RequiredQueue => RequiredSelectedPlayer.RequiredQueue;
     
-    public virtual void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
+    public virtual void InitializeActions(IServiceProvider services, Interaction interaction, IPamelloUser scopeUser) {
+        _interaction = interaction;
+        
         ScopeUser = scopeUser;
         
         Services = services;
@@ -105,18 +109,18 @@ public abstract partial class DiscordBasicActions
         => Tokenizer.Button(callSite, executeAsync);
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static string GetCallSite() {
+    public string GetCallSite() {
         var frame = new StackFrame(2, false);
 
         var callerMethod = frame.GetMethod();
         var ilOffset = frame.GetILOffset();
 
-        var hash = (uint)HashCode.Combine(
+        var frameHash = (uint)HashCode.Combine(
             callerMethod?.DeclaringType?.FullName ?? "NoType",
             callerMethod?.Name ?? "NoMethod"
         );
         
-        return $"{hash}_{ilOffset}";
+        return $"{_interaction.Id}_{frameHash}_{ilOffset}";
     }
     
     private static Func<DiscordModalBuilder, Task> BuildModalGeneric<TModalBuilder>(Func<TModalBuilder, Task> buildModalGeneric)
@@ -168,5 +172,5 @@ public abstract partial class DiscordBasicActions
     
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
-        => ComponentBuilders.Get<TBuilder>(ScopeUser);
+        => ComponentBuilders.Get<TBuilder>(_interaction, ScopeUser);
 }
