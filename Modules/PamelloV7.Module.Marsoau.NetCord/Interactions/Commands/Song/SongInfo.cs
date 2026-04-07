@@ -114,7 +114,11 @@ public partial class SongInfo
                 ),
                 new ComponentSectionProperties(
                     Button("Remove All", ButtonStyle.Secondary, () => {
-                        Output.Write($"Remove song {song} from all playlists command needed");
+                        //todo, use single SongPlaylistRemove?playlists command for this in the future
+
+                        foreach (var playlist in song.Playlists.ToList()) {
+                            Command<PlaylistSongRemove>().Execute(playlist, [song]);
+                        }
                     }).WithDisabled(song.Playlists.Count == 0)
                 ).AddComponents(
                     new TextDisplayProperties(

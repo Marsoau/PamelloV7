@@ -5,8 +5,8 @@ namespace PamelloV7.Framework.Commands;
 
 public class PlayerQueueSongRemove : PamelloCommand
 {
-    public IPamelloSong? Execute(string position) {
-        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.RemoveSong(position, ScopeUser);
+    public IEnumerable<IPamelloSong> Execute(IEnumerable<IPamelloSong> songs) {
+        return ScopeUser.RequiredSelectedPlayer.RequiredQueue.RemoveSongs(songs, ScopeUser);
     }
 }
 

@@ -17,11 +17,11 @@ public interface IPamelloPlaylist : IPamelloDatabaseEntity
     public DateTime AddedAt { get; }
     
     public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser, int? position = null, bool fromInside = false);
-    public IPamelloSong? MoveSong(int fromPosition, int toPosition, IPamelloUser? scopeUser);
+    public IPamelloSong? MoveSong(string fromPosition, string toPosition, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> newSongs, IPamelloUser? scopeUser);
     
-    public int RemoveSong(IPamelloSong song, IPamelloUser? scopeUser, bool fromInside = false);
-    public IPamelloSong? RemoveAt(int position, IPamelloUser? scopeUser);
+    public int RemoveSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser, bool fromInside = false);
+    public IPamelloSong? RemoveAt(string position, IPamelloUser? scopeUser);
     
     public void MakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);
     public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);

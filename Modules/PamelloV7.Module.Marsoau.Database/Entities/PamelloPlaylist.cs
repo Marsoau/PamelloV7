@@ -125,6 +125,10 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         return songs;
     }
 
+    public IPamelloSong? MoveSong(string fromPosition, string toPosition, IPamelloUser? scopeUser) {
+        throw new NotImplementedException();
+    }
+
     public IPamelloSong? MoveSong(int fromPosition, int toPosition, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
@@ -149,10 +153,15 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         return newSongsList;
     }
 
-    public int RemoveSong(IPamelloSong song, IPamelloUser? scopeUser, bool fromInside = false) {
-        var count = _playlistSongs.RemoveAll(s => s == song);
-        
-        if (!fromInside) song.RemoveFromPlaylist(this, scopeUser);
+    public int RemoveSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser, bool fromInside = false) {
+        var songsToRemove = songs.Distinct().ToList();
+        var count = _playlistSongs.RemoveAll(song => songsToRemove.Contains(song));
+
+        if (!fromInside) {
+            foreach (var song in songsToRemove) {
+                song.RemoveFromPlaylist(this, scopeUser, true);
+            }
+        }
 
         _sink.Invoke(scopeUser, new PlaylistSongsUpdated() {
             Playlist = this,
@@ -164,7 +173,7 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         return count;
     }
 
-    public IPamelloSong? RemoveAt(int position, IPamelloUser? scopeUser) {
+    public IPamelloSong? RemoveAt(string position, IPamelloUser? scopeUser) {
         throw new NotImplementedException();
     }
 

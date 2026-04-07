@@ -86,7 +86,7 @@ public partial class PlaylistInfo
                 new ComponentSectionProperties(
                     Button("Clear", ButtonStyle.Secondary, () => {
                         Command<PlaylistClear>().Execute(playlist);
-                    }).WithDisabled(!isOwner && playlist.IsProtected)
+                    }).WithDisabled(playlist.Songs.Count == 0 || (!isOwner && playlist.IsProtected))
                 ).AddComponents(
                     new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({playlist.Songs.Count} songs)")
                 )

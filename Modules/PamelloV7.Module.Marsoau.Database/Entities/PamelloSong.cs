@@ -257,7 +257,10 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         
         if (!fromInside) playlist.AddSongs([this], scopeUser, position, fromInside);
         
-        //todo playlist update event
+        _sink.Invoke(scopeUser, new SongPlaylistsUpdated() {
+            Song = this,
+            Playlists = IPamelloEntity.GetIds(_songPlaylists)
+        });
 
         Save();
         
@@ -267,9 +270,12 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     public void RemoveFromPlaylist(IPamelloPlaylist playlist, IPamelloUser? scopeUser, bool fromInside = false) {
         if (!_songPlaylists.Remove(playlist)) return;
         
-        //todo playlist update event
+        _sink.Invoke(scopeUser, new SongPlaylistsUpdated() {
+            Song = this,
+            Playlists = IPamelloEntity.GetIds(_songPlaylists)
+        });
 
-        if (!fromInside) playlist.RemoveSong(this, scopeUser, fromInside);
+        if (!fromInside) playlist.RemoveSongs([this], scopeUser, fromInside);
     }
 
     public override PamelloEntityDto GetDto() {

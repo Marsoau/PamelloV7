@@ -8,6 +8,7 @@ using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Containers;
+using PamelloV7.Framework.Difference;
 using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Dto.Other;
 using PamelloV7.Framework.Entities;
@@ -305,7 +306,38 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             return playlists;
         }
 
-        public IPamelloSong? RemoveSong(string positionValue, IPamelloUser? scopeUser) {
+        public IEnumerable<IPamelloSong> RemoveSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser) {
+            var queueAfter = _entries.Where(entry => !songs.Contains(entry.Song)).ToList();
+
+            var difference = DifferenceResult<PamelloQueueEntry>.From(_entries, queueAfter, (oldEntry, newEntry) => oldEntry._safeSong.Id == newEntry._safeSong.Id, true);
+            
+            var removedSongs = new List<IPamelloSong?>();
+            var playNextSong = false;
+
+            foreach (var (removedPosition, removed) in difference.Deleted) {
+                removedSongs.Add(removed.Song);
+                
+                if (removedPosition == Position) playNextSong = true;
+                else if (removedPosition < Position) Position--;
+                
+                if (removedPosition == NextPositionRequest) NextPositionRequest = null;
+                else if (removedPosition < NextPositionRequest) NextPositionRequest--;
+            }
+            
+            _entries.Clear();
+            _entries.AddRange(queueAfter);
+            
+            if (playNextSong) GoToNextSong();
+            
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
+                Player = Player,
+                Entries = EntriesDto
+            });
+            
+            return removedSongs.OfType<IPamelloSong>().Distinct();
+        }
+
+        public IPamelloSong? RemoveSongAt(string positionValue, IPamelloUser? scopeUser) {
             if (_entries.Count == 0) return null;
 
             IPamelloSong? song;
