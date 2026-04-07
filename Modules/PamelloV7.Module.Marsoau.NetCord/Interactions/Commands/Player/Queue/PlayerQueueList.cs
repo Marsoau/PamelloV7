@@ -90,6 +90,7 @@ public partial class PlayerQueueList
 
             if (queue.Count == 0) {
                 container.AddComponents(
+                    new ComponentSeparatorProperties(),
                     new TextDisplayProperties($"-# {DiscordString.Italic("Queue is empty")}")
                 );
             }

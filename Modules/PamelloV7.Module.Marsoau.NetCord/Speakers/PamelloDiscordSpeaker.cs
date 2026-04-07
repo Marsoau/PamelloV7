@@ -55,6 +55,11 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     public void InitDependant() {
         Pump.Input.ConnectedPoint = Buffer.Output;
         Pump.Output.ConnectedPoint = Sink.Input;
+
+        Pump.WaitOnInput = false;
+        Pump.OnNoInput = () => {
+            Sink.StopOpusAsync().Wait();
+        };
         
         Pump.Start();
         
@@ -68,12 +73,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         var voiceClient = await Client.JoinVoiceChannelAsync(_guildId, vcId);
         await voiceClient.StartAsync();
         
-        var voiceStream = voiceClient.CreateVoiceStream();
-        var pcmStream = new OpusEncodeStream(voiceStream, PcmFormat.Short, VoiceChannels.Stereo, OpusApplication.Audio);
-        
-        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
-        
-        Sink.Stream = pcmStream;
+        Sink.VoiceClient = voiceClient;
     }
     
     public bool IsAvailableFor(IPamelloUser user) {

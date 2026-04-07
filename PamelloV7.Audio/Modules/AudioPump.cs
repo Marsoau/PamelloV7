@@ -13,6 +13,12 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
     private readonly CancellationTokenSource _cts;
 
     private byte[] _buffer;
+    
+    public Action OnNoInput { get; set; } = () => { };
+    public Action OnNoOutput { get; set; } = () => { };
+    
+    public bool WaitOnInput { get; set; } = true;
+    public bool WaitOnOutput { get; set; } = true;
 
     public AudioPump(int bufferSize) {
         Condition = () => true;
@@ -43,11 +49,13 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
     }
 
     public void Pump() {
-        while (!Input.Pass(_buffer, true, _cts.Token)) {
+        while (!Input.Pass(_buffer, WaitOnInput, _cts.Token)) {
+            OnNoInput();
             Task.Delay(500).Wait();
             //Framework.Logging.Output.Write("No input, waiting");
         }
-        while (!Output.Pass(_buffer, true, _cts.Token)) {
+        while (!Output.Pass(_buffer, WaitOnOutput, _cts.Token)) {
+            OnNoOutput();
             Task.Delay(500).Wait();
             //Framework.Logging.Output.Write("No output, waiting");
         }
