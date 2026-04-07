@@ -86,7 +86,8 @@ public abstract partial class DiscordBasicActions
         Func<Interaction, Task> onInteractionAsync
     ) => Tokenizer.ActionButton(callSite, label, style, onInteractionAsync);
 
-    private static Action<TButton> NoExecute<TButton>() => _ => { };
+    private static Func<TButton, Task> NoExecute<TButton>()
+        => button => PamelloBasicActions.RunMethodAsync(button);
     private static Func<TButton, Task> ExecuteSync<TButton>(Action<TButton> execute)
         => button => {
             execute(button);
