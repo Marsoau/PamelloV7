@@ -119,7 +119,12 @@
             }
         }
 
-        public void Apply<T>(IList<T> target, Func<TType, T> get) {
+        public void Apply(
+            IList<TType> target,
+            Func<TType, TType>? get = null,
+            Action<int, TType>? onAdd = null,
+            Action<int, TType>? onDelete = null
+        ) {
             var lastIndex = -1;
             var offset = 0;
 
@@ -129,10 +134,12 @@
                     lastIndex = kvp.Key;
                 }
 
-                target.Insert(kvp.Key + offset++, get(kvp.Value));
+                target.Insert(kvp.Key, kvp.Value);
+                onAdd?.Invoke(kvp.Key, kvp.Value);
             };
             var delete = (KeyValuePair<int, TType> kvp) => {
                 target.RemoveAt(kvp.Key);
+                onDelete?.Invoke(kvp.Key, kvp.Value);
             };
             var move = (KeyValuePair<int, int> kvp) => {
                 var value = target[kvp.Key];

@@ -1,4 +1,6 @@
+using System.Collections;
 using PamelloV7.Framework.Difference;
+using Xunit.Abstractions;
 
 namespace PamelloV7.Tests.Difference;
 
@@ -76,4 +78,5 @@ public class DifferenceResultTests
             [3] = 2
         }, result.Moved);
     }
+
 }
