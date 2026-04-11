@@ -4,6 +4,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Debug;
@@ -22,6 +23,11 @@ public partial class DebugCallSite
                 Button<RefreshButton>()
             )
         ]);
+
+        if (CommandInteractionIndex == 0) {
+            await RespondCommandAsync<DebugCallSite>();
+            await RespondCommandAsync<Ping>();
+        }
     }
 }
 

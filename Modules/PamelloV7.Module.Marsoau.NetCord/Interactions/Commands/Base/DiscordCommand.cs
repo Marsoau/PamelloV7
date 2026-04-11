@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Commands.Base;
@@ -29,6 +30,8 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     
     private IEventsService _events = null!;
     private UpdatableMessageService _updatableMessageService = null!;
+    
+    private DiscordCommandsService _discordCommands = null!;
     
     protected UpdatableMessage? UpdatableMessage;
 
@@ -65,6 +68,23 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         
         _events = services.GetRequiredService<IEventsService>();
         _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();
+        _discordCommands = services.GetRequiredService<DiscordCommandsService>();
+    }
+    
+    private static Type GenericCommandType<TCommand>() => typeof(TCommand);
+
+    public async Task RespondCommandAsync(
+        [Variant(nameof(GenericCommandType))]
+        Type commandType,
+        params object?[] args
+    ) {
+        var command = await _discordCommands.GetAsync(commandType, Interaction, this);
+        await PamelloStaticActions.ExecuteMethodAsync(command, args);
+    }
+
+    public Task<TCommand> FollowUpCommand<TCommand>()
+        where TCommand : DiscordCommand {
+        return _discordCommands.GetAsync<TCommand>(Interaction, this);
     }
 
     protected override Task StartLoading() {
@@ -78,11 +98,16 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         else {
             return Interaction.ModifyResponseAsync(properties => properties.Components = components);
         }
-        
-        return Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties() {
+
+        var messageProperties = new InteractionMessageProperties() {
             Components = components,
             Flags = MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
-        }));
+        };
+
+        if (CommandInteractionIndex != 0)
+            return Interaction.SendFollowupMessageAsync(messageProperties);
+        
+        return Interaction.SendResponseAsync(InteractionCallback.Message(messageProperties));
     }
     
     private void ProcessUpdatableAsync(GetEntities getEntities) {

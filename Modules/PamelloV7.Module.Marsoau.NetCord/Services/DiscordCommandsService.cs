@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
+using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
@@ -26,19 +27,19 @@ public record DiscordCommandDescriptor(
     Type Type
 );
 
-public class DiscordCommandsService : IPamelloService
+public partial class DiscordCommandsService : IPamelloService
 {
     private readonly IServiceProvider _services;
-    
+
     private readonly IAssemblyTypeResolver _types;
     private readonly IEntityQueryService _peql;
     private readonly IPamelloUserRepository _users;
-    
+
     public List<DiscordCommandDescriptor> CommandsDescriptors { get; private set; } = [];
-    
+
     public DiscordCommandsService(IServiceProvider services) {
         _services = services;
-        
+
         _types = services.GetRequiredService<IAssemblyTypeResolver>();
         _peql = services.GetRequiredService<IEntityQueryService>();
         _users = services.GetRequiredService<IPamelloUserRepository>();
@@ -50,7 +51,7 @@ public class DiscordCommandsService : IPamelloService
         foreach (var type in types) {
             var attributes = type.GetCustomAttributes().OfType<DiscordCommandAttribute>().ToArray();
             if (attributes.Length == 0) continue;
-            
+
             CommandsDescriptors.Add(new DiscordCommandDescriptor(
                 attributes,
                 type
@@ -68,14 +69,16 @@ public class DiscordCommandsService : IPamelloService
 
     public async Task ExecuteAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand) {
         var command = await GetAsync(interaction, parentCommand);
-        
+
         var executeMethod = command.GetType().GetMethod("Execute");
-        if (executeMethod is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" doesnt have execution method");
-        
+        if (executeMethod is null)
+            throw new PamelloException(
+                $"Discord command with interaction name \"{interaction.Data.Name}\" doesnt have execution method");
+
         var options = interaction.Data.Options.FirstOrDefault() switch {
-            { Type: ApplicationCommandOptionType.SubCommandGroup } group 
+            { Type: ApplicationCommandOptionType.SubCommandGroup } group
                 => group.Options?.FirstOrDefault(o => o.Type == ApplicationCommandOptionType.SubCommand)?.Options,
-            { Type: ApplicationCommandOptionType.SubCommand } sub 
+            { Type: ApplicationCommandOptionType.SubCommand } sub
                 => sub.Options,
             _ => interaction.Data.Options
         } ?? [];
@@ -90,22 +93,24 @@ public class DiscordCommandsService : IPamelloService
         var argumentsTasks = executeMethod.GetParameters().Select(async parameter => {
             var attribute = DescriptionAttribute.GetFromParameter(parameter);
             if (attribute is null) throw new PamelloException("Could not create description attribute");
-            
+
             var option = options.FirstOrDefault(o => o.Name == attribute.Name);
-            
+
             object? value = null;
 
             if (attribute.Parameter.ParameterType.IsAssignableTo(typeof(IPamelloEntity))) {
                 var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
                 var query = option?.Value ?? defaultQuery?.Query ?? "";
-                
+
                 if (new NullabilityInfoContext().Create(attribute.Parameter).WriteState == NullabilityState.NotNull) {
-                    value = await _peql.ReflectiveGetSingleRequiredAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
+                    value = await _peql.ReflectiveGetSingleRequiredAsync(attribute.Parameter.ParameterType, query,
+                        command.ScopeUser);
                 }
                 else {
-                    value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query, command.ScopeUser);
+                    value = await _peql.ReflectiveGetSingleAsync(attribute.Parameter.ParameterType, query,
+                        command.ScopeUser);
                 }
-                
+
                 return value;
             }
 
@@ -113,12 +118,14 @@ public class DiscordCommandsService : IPamelloService
                 if (
                     attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>) ||
                     attribute.Parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>) &&
-                    attribute.Parameter.ParameterType.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
+                    attribute.Parameter.ParameterType.GenericTypeArguments.First()
+                        .IsAssignableTo(typeof(IPamelloEntity))
                 ) {
                     var defaultQuery = attribute.Parameter.GetCustomAttribute<DefaultQueryAttribute>();
                     var query = option?.Value ?? defaultQuery?.Query ?? "";
-                
-                    value = await _peql.ReflectiveGetAsync(attribute.Parameter.ParameterType.GenericTypeArguments.First(), query, command.ScopeUser);
+
+                    value = await _peql.ReflectiveGetAsync(
+                        attribute.Parameter.ParameterType.GenericTypeArguments.First(), query, command.ScopeUser);
                 }
             }
             else if (option is not null) {
@@ -130,13 +137,13 @@ public class DiscordCommandsService : IPamelloService
                     value = attribute.Parameter.DefaultValue;
                 }
             }
-            
+
             return value;
         }).ToArray();
-        
+
         try {
             await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
-            
+
             var arguments = argumentsTasks.Select(task => task.Result).ToArray();
 
             if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
@@ -149,32 +156,51 @@ public class DiscordCommandsService : IPamelloService
         catch (PamelloException pamelloException) {
             await HandlePamelloException(pamelloException);
         }
-        
+
         return;
-        
+
         Task HandlePamelloException(PamelloException pamelloException) {
             Output.Write($"Command execution exception: {pamelloException.Message}", ELogLevel.Error);
-            
+
             return command.RespondAsync("Exception", pamelloException.Message);
         }
     }
 
-    public async Task<DiscordCommand> GetAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand) {
-        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
-        if (scopeUser is null) throw new PamelloException("User could not be found/created");
-        
+    public async Task<TCommand> GetAsync<TCommand>(SlashCommandInteraction interaction, DiscordCommand? parentCommand)
+        where TCommand : DiscordCommand
+        => (TCommand)await GetAsync(typeof(TCommand), interaction, parentCommand);
+
+    private DiscordCommandDescriptor? GetDescriptor(Type type) {
+        return CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Type == type);
+    }
+    private DiscordCommandDescriptor? GetDescriptor(SlashCommandInteraction interaction) {
         var fullName = interaction.Data.Name;
         
         if (interaction.Data.Options.FirstOrDefault(option => option.Type == ApplicationCommandOptionType.SubCommand) is { } subCommand) {
             fullName += $" {subCommand.Name}";
         }
         else if (interaction.Data.Options.FirstOrDefault(option =>
-                option.Type == ApplicationCommandOptionType.SubCommandGroup) is { } subGroup) {
+                     option.Type == ApplicationCommandOptionType.SubCommandGroup) is { } subGroup) {
             var subCommandInGroup = subGroup.Options!.FirstOrDefault(option => option.Type == ApplicationCommandOptionType.SubCommand);
             fullName += $" {subGroup.Name} {subCommandInGroup!.Name}";
         }
         
-        var descriptor = CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Attributes.Any(attribute => attribute.Name == fullName));
+        return CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Attributes.Any(attribute => attribute.Name == fullName));
+    }
+
+
+    private static Type? NoCommandType() => null;
+    
+    public async Task<DiscordCommand> GetAsync(
+        [Variant(nameof(NoCommandType))]
+        Type? commandType,
+        SlashCommandInteraction interaction,
+        DiscordCommand? parentCommand
+    ) {
+        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
+        if (scopeUser is null) throw new PamelloException("User could not be found/created");
+        
+        var descriptor = commandType is not null ? GetDescriptor(commandType) : GetDescriptor(interaction);
         if (descriptor is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" not found");
 
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
