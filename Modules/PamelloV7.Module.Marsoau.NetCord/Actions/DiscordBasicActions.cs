@@ -49,7 +49,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         => _ => onActionAsync();
     
     public ButtonProperties Button(
-        [Variant(nameof(GetCallSite))]
+        [Variant(nameof(AutoCallSite))]
+        [Variant(nameof(KeyedCallSite))]
         InteractionCallSite callSite,
         string label,
         ButtonStyle style,
@@ -68,7 +69,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         };
     
     public ButtonProperties Button<TButton>(
-        [Variant(nameof(GetCallSite))]
+        [Variant(nameof(AutoCallSite))]
+        [Variant(nameof(KeyedCallSite))]
         InteractionCallSite callSite,
         [Variant(nameof(NoExecute))]
         [Variant(nameof(ExecuteSync))]
@@ -110,7 +112,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         => typeof(TModal);
     
     public ButtonProperties ModalButton(
-        [Variant(nameof(GetCallSite))]
+        [Variant(nameof(AutoCallSite))]
+        [Variant(nameof(KeyedCallSite))]
         InteractionCallSite callSite,
         [Variant(nameof(ModalTypeGeneric))]
         Type modalType,
@@ -128,9 +131,12 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         where TBuilder : DiscordComponentBuilder
         => ComponentBuilders.Get<TBuilder>(GetCallSiteInteractionDifferentiator(), ScopeUser);
     
+    private InteractionCallSite AutoCallSite() => GetCallSite(-1);
+    private InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public InteractionCallSite GetCallSite() {
-        var frame = new StackFrame(2, false);
+    public InteractionCallSite GetCallSite(int key) {
+        var frame = new StackFrame(3, false);
 
         var callerMethod = frame.GetMethod();
         var ilOffset = frame.GetILOffset();
@@ -143,7 +149,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         return new InteractionCallSite(
             GetCallSiteInteractionDifferentiator(),
             classHash,
-            ilOffset
+            ilOffset,
+            key
         );
     }
 

@@ -7,11 +7,17 @@ namespace PamelloV7.Module.Marsoau.NetCord.Differentiation;
 public record InteractionCallSite(
     Differentiator Differentiator,
     uint ClassHash,
-    int Offset
+    int Offset,
+    int Key
 ) {
     public static string CustomIdPrefix => "tokenized:";
     
-    public override string ToString() => $"{Differentiator}_{ClassHash}-{Offset}";
+    public override string ToString() {
+        var str = $"{Differentiator}_{ClassHash}-{Offset}";
+        if (Key < 0) return str;
+        
+        return $"{str}-{Key}";
+    }
     public string ToCustomId() => $"{CustomIdPrefix}{this}";
     
     public static InteractionCallSite FromString(string str) {
@@ -19,6 +25,10 @@ public record InteractionCallSite(
         
         var differentiatorParts = dcsParts.ElementAtOrDefault(0)?.Split('-');
         var hashOffsetParts = dcsParts.ElementAtOrDefault(1)?.Split('-');
+
+        if (!int.TryParse(dcsParts.ElementAtOrDefault(2), out var key)) {
+            key = -1;
+        }
         
         if (differentiatorParts is null ||
             differentiatorParts.Length != 3 ||
@@ -33,7 +43,8 @@ public record InteractionCallSite(
                 int.Parse(differentiatorParts[2])
             ),
             uint.Parse(hashOffsetParts[0]),
-            int.Parse(hashOffsetParts[1])
+            int.Parse(hashOffsetParts[1]),
+            key
         );
     }
 }

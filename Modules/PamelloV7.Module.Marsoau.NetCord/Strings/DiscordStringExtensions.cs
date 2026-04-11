@@ -19,6 +19,23 @@ public static class DiscordStringExtensions
         return $"{DiscordString.Bold(DiscordString.Code($"[{playlist.Id}]"))} {DiscordString.Ecranate(playlist.Name)} {DiscordString.None(DiscordString.Code($"({playlist.Songs.Count})"))}";
     }
     
+    public static string ToDiscordString(this IPamelloEpisode episode, bool shortTimeString = true, bool withSongId = true)
+    {
+        return $"{DiscordString.Code(
+            shortTimeString
+                ? episode.Start.ToShortString()
+                : episode.Start.ToString()
+        )} {(
+            episode.AutoSkip
+                ? DiscordString.Crossed(DiscordString.Ecranate(episode.Name))
+                : DiscordString.Ecranate(episode.Name)
+        )}{(
+            withSongId
+                ? $" {DiscordString.Bold(DiscordString.Code($"[{episode.Song.Id}]"))}"
+                : ""
+        )}";
+    }
+    
     public static string ToDiscordString(this IPamelloUser user, bool mention = true)
     {
         return $"{DiscordString.Bold(DiscordString.Code($"[{user.Id}]"))} {(mention ? DiscordString.User(user) : user.Name)}";
