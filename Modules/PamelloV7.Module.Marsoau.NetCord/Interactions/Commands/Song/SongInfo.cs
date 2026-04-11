@@ -9,7 +9,10 @@ using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Episode;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Favorite;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -22,14 +25,22 @@ public partial class SongInfo
     public async Task Execute(
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
-        await RespondAsync(() =>
-            Builder<Builder>().Build(song)
-        , () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists]);
+        var switcher = new CommandSwitcher(this, Services);
+        
+        switcher.Add<SongEpisodeList>("episodes", episodesList => episodesList.Execute(song), true);
+        
+        await RespondAsync(() => {
+            var episodesButton = Button(switcher.StateOf("episodes") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
+                await switcher.Toggle("episodes");
+            });
+            
+            return Builder<Builder>().Build(song, episodesButton);
+        }, () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists]);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public ComponentContainerProperties Build(IPamelloSong song) {
+        public ComponentContainerProperties Build(IPamelloSong song, ButtonProperties episodesButton) {
             Uri coverUrl;
             try {
                 coverUrl = new Uri(song.CoverUrl);
@@ -145,8 +156,8 @@ public partial class SongInfo
             if (song.Episodes.Count > 0) {
                 container.AddComponents(
                     new ComponentSectionProperties(
-                        Button("List Episodes", ButtonStyle.Secondary, () => { })
-                            .WithDisabled()
+                        episodesButton
+                            .WithDisabled(song.Episodes.Count == 0)
                     ).AddComponents(
                         new TextDisplayProperties($"### Episodes: `{song.Episodes.Count}`\n")
                     )

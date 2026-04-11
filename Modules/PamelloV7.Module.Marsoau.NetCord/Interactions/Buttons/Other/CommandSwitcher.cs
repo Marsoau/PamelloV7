@@ -22,9 +22,9 @@ public class CommandSwitcher {
         return Items.GetValueOrDefault(key)?.IsShown ?? false;
     }
 
-    public void Add<TCommand>(string key, Func<TCommand, Task> show)
+    public void Add<TCommand>(string key, Func<TCommand, Task> show, bool isFollowUp = false)
         where TCommand : DiscordCommand {
-        Items[key] = new CommandSwitcherItem<TCommand>(_commands, _parentCommand, show);
+        Items[key] = new CommandSwitcherItem<TCommand>(_commands, _parentCommand, show, isFollowUp);
     }
 
     public async Task Toggle(string key) {
@@ -44,14 +44,17 @@ public class CommandSwitcher {
         
         await item.Show();
         
-        var refresh = _parentCommand.UpdatableMessage?.Refresh();
-        if (refresh is not null) await refresh;
+        await Refresh();
     }
 
     public async Task HideAll() {
         var tasks = Items.Values.Select(item => item.Hide());
         await Task.WhenAll(tasks);
         
+        await Refresh();
+    }
+
+    private async Task Refresh() {
         var refresh = _parentCommand.UpdatableMessage?.Refresh();
         if (refresh is not null) await refresh;
     }

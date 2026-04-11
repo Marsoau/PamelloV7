@@ -38,11 +38,11 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     public RestMessage? DiscordMessage { get; private set; }
     
     public DiscordCommand? ParentFollowUp { get; set; }
-    public List<DiscordCommand> FollowUpCommands = null!;
+    public List<DiscordCommand> FollowUpCommands = [];
     public int FollowUpIndex;
     
     public DiscordCommand? ParentPart { get; set; }
-    public List<DiscordCommand> PartCommands = null!;
+    public List<DiscordCommand> PartCommands = [];
     public int PartIndex;
 
     public virtual void InitializeCommand(
@@ -56,34 +56,34 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
 
         if (isFollowUp) {
             ParentFollowUp = parentCommand;
-            
-            if (ParentFollowUp is null) {
-                FollowUpCommands = [this];
-            
-                FollowUpIndex = 0;
-            }
-            else {
-                FollowUpCommands = ParentFollowUp.FollowUpCommands;
-                FollowUpCommands.Add(this);
-            
-                FollowUpIndex = FollowUpCommands.Count - 1;
-            }
         }
         else {
             ParentPart = parentCommand;
             DiscordMessage = ParentPart?.DiscordMessage;
+        }
+        
+        if (ParentFollowUp is null) {
+            FollowUpCommands = [this];
             
-            if (ParentPart is null) {
-                PartCommands = [this];
+            FollowUpIndex = 0;
+        }
+        else {
+            FollowUpCommands = ParentFollowUp.FollowUpCommands;
+            FollowUpCommands.Add(this);
             
-                PartIndex = 0;
-            }
-            else {
-                PartCommands = ParentPart.PartCommands;
-                PartCommands.Add(this);
+            FollowUpIndex = FollowUpCommands.Count - 1;
+        }
+        
+        if (ParentPart is null) {
+            PartCommands = [this];
             
-                PartIndex = PartCommands.Count - 1;
-            }
+            PartIndex = 0;
+        }
+        else {
+            PartCommands = ParentPart.PartCommands;
+            PartCommands.Add(this);
+            
+            PartIndex = PartCommands.Count - 1;
         }
         
         _events = services.GetRequiredService<IEventsService>();
