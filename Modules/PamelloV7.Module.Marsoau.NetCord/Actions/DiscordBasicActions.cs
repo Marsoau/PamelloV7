@@ -129,7 +129,7 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
-        => ComponentBuilders.Get<TBuilder>(GetCallSiteInteractionDifferentiator(), ScopeUser);
+        => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
     
     private InteractionCallSite AutoCallSite() => GetCallSite(-1);
     private InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);

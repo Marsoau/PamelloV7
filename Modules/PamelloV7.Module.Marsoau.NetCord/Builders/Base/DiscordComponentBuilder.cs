@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
@@ -10,6 +11,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.NetCord.Actions;
 using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
+using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
@@ -19,8 +21,13 @@ public abstract class DiscordComponentBuilder : DiscordBasicActions
 {
     private Differentiator _differentiator = null!;
     
+    public UpdatableMessage Message { get; private set; } = null!;
+    
     public void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
         InitializeActions(services, scopeUser);
+        
+        var messages = services.GetRequiredService<UpdatableMessageService>();
+        Message = messages.Get(differentiator) ?? throw new PamelloException($"Message for component {GetType().Name} by {differentiator} differentiator not found");
         
         _differentiator = differentiator;
     }

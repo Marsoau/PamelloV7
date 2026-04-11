@@ -24,7 +24,7 @@ public partial class InteractionTokenizationService : IPamelloService
     private readonly DiscordButtonsService _buttons;
     private readonly DiscordModalsService _modals;
     
-    private ConcurrentDictionary<string, TokenizedInteraction> Interactions { get; } = [];
+    private readonly ConcurrentDictionary<string, TokenizedInteraction> _interactions = [];
 
     public InteractionTokenizationService(IServiceProvider services) {
         _services = services;
@@ -49,12 +49,12 @@ public partial class InteractionTokenizationService : IPamelloService
         [Variant(nameof(ModalInteractionId))]
         string customId
     ) {
-        return Interactions.GetValueOrDefault(customId);
+        return _interactions.GetValueOrDefault(customId);
     }
 
     public ButtonProperties ActionButton(InteractionCallSite callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
         var tokenizedInteraction = new TokenizedInteraction(callSite, action);
-        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
+        _interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
@@ -74,7 +74,7 @@ public partial class InteractionTokenizationService : IPamelloService
             async builder => await buildModal(builder),
             async modal => await submitModal(modal)
         );
-        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
+        _interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
@@ -87,7 +87,7 @@ public partial class InteractionTokenizationService : IPamelloService
             async interaction => await _buttons.GetAsync<TButton>(interaction),
             execute
         );
-        Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
+        _interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
 
         return DiscordButtonsService.GetProperties<TButton>(tokenizedInteraction.CustomId);
     }

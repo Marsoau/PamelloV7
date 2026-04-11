@@ -23,6 +23,14 @@ public partial class SongEpisodeList
 
     public class Builder : DiscordComponentBuilder
     {
+        private enum EpisodeListMode {
+            Edit,
+            Delete,
+            Rewind,
+        }
+        
+        private EpisodeListMode _mode;
+    
         public IMessageComponentProperties?[] Build(IPamelloSong song, int page) {
             var container = new ComponentContainerProperties();
 
@@ -48,7 +56,14 @@ public partial class SongEpisodeList
                 foreach (var episode in itemsOnPage) {
                     container.AddComponents(
                         new ComponentSectionProperties(
-                            ModalButton<SongEpisodeEditModal>(count++, "Edit", ButtonStyle.Secondary, [episode])
+                            _mode switch {
+                                EpisodeListMode.Edit =>
+                                    ModalButton<SongEpisodeEditModal>(count++, "Edit", ButtonStyle.Secondary, [episode]),
+                                EpisodeListMode.Delete =>
+                                    ModalButton<SongEpisodeEditModal>(count++, "Delete", ButtonStyle.Danger, [episode]),
+                                EpisodeListMode.Rewind =>
+                                    ModalButton<SongEpisodeEditModal>(count++, "Rewind", ButtonStyle.Secondary, [episode]),
+                            }
                         ).AddComponents(
                             new TextDisplayProperties($"{DiscordString.Code(count)} : {episode.ToDiscordString(withSongId: false)}")
                         )
@@ -64,9 +79,24 @@ public partial class SongEpisodeList
             container.AddComponents(
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
-                    Button("Edit", ButtonStyle.Primary, () => {}),
-                    Button("Delete", ButtonStyle.Secondary, () => {}),
-                    Button("Rewind", ButtonStyle.Secondary, () => {})
+                    Button("Edit", _mode == EpisodeListMode.Edit ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                        if (_mode == EpisodeListMode.Edit) return;
+                        
+                        _mode = EpisodeListMode.Edit;
+                        await Message.Refresh();
+                    }),
+                    Button("Delete", _mode == EpisodeListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                        if (_mode == EpisodeListMode.Delete) return;
+                        
+                        _mode = EpisodeListMode.Delete;
+                        await Message.Refresh();
+                    }),
+                    Button("Rewind", _mode == EpisodeListMode.Rewind ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                        if (_mode == EpisodeListMode.Rewind) return;
+                        
+                        _mode = EpisodeListMode.Rewind;
+                        await Message.Refresh();
+                    })
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
