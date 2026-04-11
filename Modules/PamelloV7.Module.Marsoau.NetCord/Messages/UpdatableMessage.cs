@@ -29,7 +29,7 @@ public class UpdatableMessage : IDisposable
         _delete = delete;
         
         _refreshIntervalNew = TimeSpan.FromSeconds(1);
-        _lastRefreshNew = DateTime.Now;
+        _lastRefreshNew = DateTime.MinValue;
         
         _cancellation = new CancellationTokenSource();
         

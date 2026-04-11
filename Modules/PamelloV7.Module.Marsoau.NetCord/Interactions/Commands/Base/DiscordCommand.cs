@@ -35,10 +35,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     
     protected UpdatableMessage? UpdatableMessage;
 
-    public bool HasResponded {
-        set; get => field || RespondedWithLoading;
-    }
-
+    public RestMessage? DiscordMessage { get; private set; }
     public DiscordCommand? ParentCommand { get; set; }
     
     public List<DiscordInteraction> CommandsInteractions = null!;
@@ -93,21 +90,37 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         ]);
     }
 
-    public Task RespondComponentAsync(IEnumerable<IMessageComponentProperties> components) {
-        if (!HasResponded) HasResponded = true;
-        else {
-            return Interaction.ModifyResponseAsync(properties => properties.Components = components);
+    public async Task RespondComponentAsync(IEnumerable<IMessageComponentProperties?> components) {
+        var messageComponents = components.OfType<IMessageComponentProperties>();
+        
+        if (DiscordMessage is not null) {
+            if (CommandInteractionIndex != 0) {
+                Output.Write($"Modifying followup {DiscordMessage.Id} in {GetCallSiteInteractionDifferentiator()}");
+                await Interaction.ModifyFollowupMessageAsync(DiscordMessage.Id, properties => properties.Components = messageComponents);
+            }
+            else {
+                Output.Write($"Modifying original {DiscordMessage.Id} in {GetCallSiteInteractionDifferentiator()}");
+                await Interaction.ModifyResponseAsync(properties => properties.Components = messageComponents);
+            }
+            
+            return;
         }
 
         var messageProperties = new InteractionMessageProperties() {
-            Components = components,
+            Components = messageComponents,
             Flags = MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
         };
 
-        if (CommandInteractionIndex != 0)
-            return Interaction.SendFollowupMessageAsync(messageProperties);
-        
-        return Interaction.SendResponseAsync(InteractionCallback.Message(messageProperties));
+        if (CommandInteractionIndex != 0) {
+            DiscordMessage = await Interaction.SendFollowupMessageAsync(messageProperties);
+            Output.Write($"Message after followup: {DiscordMessage?.Id}");
+        }
+        else {
+            var messageCallback = InteractionCallback.Message(messageProperties);
+            var callback = await Interaction.SendResponseAsync(messageCallback, true);
+            DiscordMessage = callback?.Resource.Message;
+            Output.Write($"Message after: {DiscordMessage?.Id}");
+        }
     }
     
     private void ProcessUpdatableAsync(GetEntities getEntities) {
@@ -156,15 +169,10 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         GetEntities? entities = null
     ) {
         entities ??= () => [];
-        
-        var needsRefresh = HasResponded;
-        if (!needsRefresh) {
-            await RespondComponentAsync((await getContentAsync()).OfType<IMessageComponentProperties>());
-        }
 
         UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async message => {
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getContentAsync().Result.OfType<IMessageComponentProperties>());
+                await RespondComponentAsync(await getContentAsync());
             }, async () => {
                 await Interaction.DeleteResponseAsync();
             }
@@ -172,9 +180,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         
         ProcessUpdatableAsync(entities);
         
-        if (needsRefresh) {
-            await UpdatableMessage.Refresh();
-        }
+        await UpdatableMessage.Refresh();
         
         return UpdatableMessage;
     }
@@ -187,7 +193,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         GetPageContentAsync getPageContentAsync,
         GetEntities entities
     ) {
-        var needsRefresh = HasResponded;
+        var needsRefresh = DiscordMessage is not null;
         if (!needsRefresh) {
             await RespondComponentAsync((await getPageContentAsync(0)).OfType<IMessageComponentProperties>());
         }

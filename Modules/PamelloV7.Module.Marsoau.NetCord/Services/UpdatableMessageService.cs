@@ -19,8 +19,8 @@ public class UpdatableMessageService : IPamelloService
         Messages.Remove(message);
     }
 
-    public UpdatableMessage? Get(ulong interactionId) {
-        return Messages.FirstOrDefault(message => message.Command.Interaction.Id == interactionId);
+    public UpdatableMessage? Get(ulong messageId) {
+        return Messages.FirstOrDefault(message => message.Command.DiscordMessage?.Id == messageId);
     }
     
     public void KillAll() {
