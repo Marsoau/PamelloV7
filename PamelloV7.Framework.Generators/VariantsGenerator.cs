@@ -108,7 +108,11 @@ public class VariantsGenerator : IIncrementalGenerator
         return syntax?.Default?.Value.ToString();
     }
     public static string FlowParameter(IParameterSymbol parameter, string? defaultString) {
-        return $"{parameter.Type.GetFullName()} {parameter.Name}{(defaultString is not null ? $" = {defaultString}" : "")}";
+        return $"{(
+            parameter.IsParams ? "params " : ""
+        )}{parameter.Type.GetFullName()} {parameter.Name}{(
+            defaultString is not null ? $" = {defaultString}" : ""
+        )}";
     }
 
     public static IEnumerable<FinalVariant> GetVariantsFlows(
