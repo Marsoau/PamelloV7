@@ -32,6 +32,11 @@ public partial class SongEpisodeList
         private EpisodeListMode _mode;
     
         public IMessageComponentProperties?[] Build(IPamelloSong song, int page) {
+            var isCurrentSong = song == ScopeUser.SelectedPlayer?.Queue?.CurrentSong;
+            if (_mode == EpisodeListMode.Rewind && !isCurrentSong) {
+                _mode = EpisodeListMode.Edit;
+            }
+            
             var container = new ComponentContainerProperties();
 
             const int pageSize = 5;
@@ -62,7 +67,8 @@ public partial class SongEpisodeList
                                 EpisodeListMode.Delete =>
                                     ModalButton<SongEpisodeEditModal>(count++, "Delete", ButtonStyle.Danger, [episode]),
                                 EpisodeListMode.Rewind =>
-                                    ModalButton<SongEpisodeEditModal>(count++, "Rewind", ButtonStyle.Secondary, [episode]),
+                                    ModalButton<SongEpisodeEditModal>(count++, "Rewind", ButtonStyle.Secondary, [episode])
+                                        .WithDisabled(!isCurrentSong)
                             }
                         ).AddComponents(
                             new TextDisplayProperties($"{DiscordString.Code(count)} : {episode.ToDiscordString(withSongId: false)}")
@@ -96,7 +102,7 @@ public partial class SongEpisodeList
                         
                         _mode = EpisodeListMode.Rewind;
                         await Message.Refresh();
-                    })
+                    }).WithDisabled(!isCurrentSong)
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
