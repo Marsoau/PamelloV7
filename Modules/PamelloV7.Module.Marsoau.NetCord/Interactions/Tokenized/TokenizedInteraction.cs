@@ -1,25 +1,26 @@
 using NetCord;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
 
 public class TokenizedInteraction
 {
-    public string CallSite { get; set; }
+    public InteractionCallSite CallSite { get; set; }
     public Func<Interaction, Task> Action { get; set; }
     
     public TokenizedInteraction(
-        string callSite
+        InteractionCallSite callSite
     ) {
         CallSite = callSite;
         Action = _ => Task.CompletedTask;
     }
     public TokenizedInteraction(
-        string callSite,
+        InteractionCallSite callSite,
         Func<Interaction, Task> action
     ) {
         CallSite = callSite;
         Action = action;
     }
 
-    public string CustomId => $"tokenized:{CallSite}";
+    public string CustomId => CallSite.ToCustomId();
 }

@@ -1,6 +1,7 @@
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
@@ -14,7 +15,7 @@ public class TokenizedModalInteraction : TokenizedInteraction
     protected Func<DiscordModal, Task> SubmitModal { get; }
 
     public TokenizedModalInteraction(
-        string callSite,
+        InteractionCallSite callSite,
         Func<ButtonInteraction, Task<DiscordModalBuilder>> createModalBuilder,
         Func<ModalInteraction, Task<DiscordModal>> createModal,
         Func<DiscordModalBuilder, Task> buildModal,

@@ -12,6 +12,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Config;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;
@@ -282,7 +283,11 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         }
     }
 
-    public override string GetCallSiteInteractionDifferentiator() {
-        return $"{Interaction.Id}-{FollowUpIndex}-{PartIndex}";
+    public override Differentiator GetCallSiteInteractionDifferentiator() {
+        return new Differentiator(
+            Interaction.Id,
+            FollowUpIndex,
+            PartIndex
+        );
     }
 }

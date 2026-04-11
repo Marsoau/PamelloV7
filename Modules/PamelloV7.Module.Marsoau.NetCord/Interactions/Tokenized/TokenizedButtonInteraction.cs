@@ -1,5 +1,6 @@
 
 using NetCord;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Tokenized;
@@ -16,7 +17,7 @@ public class TokenizedButtonInteraction<TButton> : TokenizedInteraction, ITokeni
     private Func<TButton, Task> ExecuteButton { get; }
     
     public TokenizedButtonInteraction(
-        string callSite,
+        InteractionCallSite callSite,
         Func<ButtonInteraction, Task<TButton>> createButton,
         Func<TButton, Task> execute
     ) : base(callSite) {

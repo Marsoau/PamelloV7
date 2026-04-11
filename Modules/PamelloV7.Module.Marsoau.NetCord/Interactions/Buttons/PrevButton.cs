@@ -9,12 +9,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 public partial class PrevButton
 {
     public async Task Execute() {
-        if (Interaction.Message.InteractionMetadata is null) return;
-        
-        var messages = Services.GetRequiredService<UpdatableMessageService>();
-
-        var message = messages.Get(Interaction.Message.InteractionMetadata.Id);
-        if (message is not UpdatablePageMessage pageMessage) return;
+        if (Message is not UpdatablePageMessage pageMessage) return;
         
         await pageMessage.SetPage(pageMessage.Page - 1);
     }

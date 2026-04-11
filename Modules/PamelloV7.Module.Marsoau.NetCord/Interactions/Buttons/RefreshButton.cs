@@ -9,11 +9,6 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 public partial class RefreshButton
 {
     public async Task Execute() {
-        var messages = Services.GetRequiredService<UpdatableMessageService>();
-
-        var message = messages.Get(Interaction.Message.Id);
-        if (message is null) return;
-        
-        await message.Refresh();
+        await Message.Refresh();
     }
 }

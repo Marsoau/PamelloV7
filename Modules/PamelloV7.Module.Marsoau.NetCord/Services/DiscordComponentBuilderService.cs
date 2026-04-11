@@ -3,6 +3,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -14,11 +15,11 @@ public class DiscordComponentBuilderService : IPamelloService
         _services = services;
     }
     
-    public TBuilder Get<TBuilder>(string differentiator, IPamelloUser scopeUser)
+    public TBuilder Get<TBuilder>(Differentiator differentiator, IPamelloUser scopeUser)
         where TBuilder : DiscordComponentBuilder
         => (TBuilder)Get(typeof(TBuilder), differentiator, scopeUser);
     
-    public DiscordComponentBuilder Get(Type builderType, string differentiator, IPamelloUser scopeUser) {
+    public DiscordComponentBuilder Get(Type builderType, Differentiator differentiator, IPamelloUser scopeUser) {
         var constructor = builderType.GetConstructor([]);
         if (constructor is null) throw new PamelloException($"Builder {builderType.FullName} does not have a default constructor");
         

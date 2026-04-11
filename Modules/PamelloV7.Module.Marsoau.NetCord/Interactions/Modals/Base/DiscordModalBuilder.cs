@@ -5,6 +5,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
@@ -24,13 +25,10 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     public IAddModalPropertyAttribute[] Attributes { get; protected set; } = [];
     public ModalProperties Properties { get; protected set; } = null!;
 
-    public virtual void InitializeModalBuilder(string modalId, IServiceProvider services, IPamelloUser scopeUser) {
-        ModalId = modalId;
+    public virtual void InitializeModalBuilder(InteractionCallSite callSite, IServiceProvider services, IPamelloUser scopeUser) {
+        ModalId = callSite.ToCustomId();
         
-        var differentiator = ModalId.Replace("tokenized:", "").Split('_').ElementAtOrDefault(1);
-        if (differentiator is null) throw new PamelloException($"Modal id {ModalId} doesnt have differentiator");
-        
-        InitializeComponentBuilder(differentiator, services, scopeUser);
+        InitializeComponentBuilder(callSite.Differentiator, services, scopeUser);
         InitializeProperties();
     }
 

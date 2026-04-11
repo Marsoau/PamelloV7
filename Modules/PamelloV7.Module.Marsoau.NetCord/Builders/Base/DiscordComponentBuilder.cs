@@ -8,6 +8,7 @@ using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.NetCord.Actions;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -16,15 +17,15 @@ namespace PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 
 public abstract class DiscordComponentBuilder : DiscordBasicActions
 {
-    private string _differentiator = "";
+    private Differentiator _differentiator = null!;
     
-    public void InitializeComponentBuilder(string differentiator, IServiceProvider services, IPamelloUser scopeUser) {
+    public void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
         InitializeActions(services, scopeUser);
         
         _differentiator = differentiator;
     }
 
-    public override string GetCallSiteInteractionDifferentiator()
+    public override Differentiator GetCallSiteInteractionDifferentiator()
         => _differentiator;
 
     public static string GetEntriesText(IEnumerable<PamelloQueueEntry> list, int nextPosition, int countStart) {

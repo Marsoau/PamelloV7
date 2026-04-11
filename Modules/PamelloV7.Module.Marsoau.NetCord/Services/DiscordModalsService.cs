@@ -8,6 +8,7 @@ using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
@@ -62,11 +63,13 @@ public class DiscordModalsService : IPamelloService
         
         var descriptor = ModalsDescriptors.FirstOrDefault(d => d.BuilderType == builderType);
         if (descriptor is null) throw new PamelloException($"Could not find builder {builderType.FullName}");
+        
+        var callSite = InteractionCallSite.FromString(interaction.Data.CustomId);
 
         if (Activator.CreateInstance(descriptor.BuilderType) is not DiscordModalBuilder builder)
             throw new PamelloException($"Could not create builder {builderType.FullName}");
         
-        builder.InitializeModalBuilder(interaction.Data.CustomId, _services, scopeUser);
+        builder.InitializeModalBuilder(callSite, _services, scopeUser);
         
         return builder;
     }

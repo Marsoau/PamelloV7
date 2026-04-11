@@ -16,6 +16,7 @@ using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
@@ -49,7 +50,7 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     
     public ButtonProperties Button(
         [Variant(nameof(GetCallSite))]
-        string callSite,
+        InteractionCallSite callSite,
         string label,
         ButtonStyle style,
         [Variant(nameof(OnActionSync))]
@@ -68,7 +69,7 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     
     public ButtonProperties Button<TButton>(
         [Variant(nameof(GetCallSite))]
-        string callSite,
+        InteractionCallSite callSite,
         [Variant(nameof(NoExecute))]
         [Variant(nameof(ExecuteSync))]
         Func<TButton, Task> executeAsync
@@ -110,7 +111,7 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     
     public ButtonProperties ModalButton(
         [Variant(nameof(GetCallSite))]
-        string callSite,
+        InteractionCallSite callSite,
         [Variant(nameof(ModalTypeGeneric))]
         Type modalType,
         string label, 
@@ -128,19 +129,23 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         => ComponentBuilders.Get<TBuilder>(GetCallSiteInteractionDifferentiator(), ScopeUser);
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public string GetCallSite() {
+    public InteractionCallSite GetCallSite() {
         var frame = new StackFrame(2, false);
 
         var callerMethod = frame.GetMethod();
         var ilOffset = frame.GetILOffset();
 
-        var frameHash = (uint)HashCode.Combine(
+        var classHash = (uint)HashCode.Combine(
             callerMethod?.DeclaringType?.FullName ?? "NoType",
             callerMethod?.Name ?? "NoMethod"
         );
-        
-        return $"{GetCallSiteInteractionDifferentiator()}_{frameHash}-{ilOffset}";
+
+        return new InteractionCallSite(
+            GetCallSiteInteractionDifferentiator(),
+            classHash,
+            ilOffset
+        );
     }
 
-    public abstract string GetCallSiteInteractionDifferentiator();
+    public abstract Differentiator GetCallSiteInteractionDifferentiator();
 }

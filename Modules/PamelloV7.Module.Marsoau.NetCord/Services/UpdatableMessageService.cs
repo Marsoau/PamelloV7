@@ -1,4 +1,5 @@
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Services;
@@ -19,8 +20,8 @@ public class UpdatableMessageService : IPamelloService
         Messages.Remove(message);
     }
 
-    public UpdatableMessage? Get(ulong messageId) {
-        return Messages.FirstOrDefault(message => message.Command.DiscordMessage?.Id == messageId);
+    public UpdatableMessage? Get(Differentiator differentiator) {
+        return Messages.FirstOrDefault(message => message.Command.GetCallSiteInteractionDifferentiator() == differentiator);
     }
     
     public void KillAll() {

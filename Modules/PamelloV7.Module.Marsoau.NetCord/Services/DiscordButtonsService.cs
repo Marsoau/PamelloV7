@@ -11,6 +11,7 @@ using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
@@ -56,7 +57,11 @@ public class DiscordButtonsService : IPamelloService
         if (Activator.CreateInstance(buttonType) is not DiscordButton button)
             throw new PamelloException($"Discord button with custom id \"{interaction.Data.CustomId}\" was null on creation");
         
-        button.InitializeInteraction(interaction, _services, scopeUser);
+        var callSite = InteractionCallSite.FromString(interaction.Data.CustomId);
+        var message = _messages.Get(callSite.Differentiator);
+        if (message is null) throw new PamelloException($"Message for discord button with custom id \"{interaction.Data.CustomId}\" was not found");
+        
+        button.InitializeButton(message, interaction, _services, scopeUser);
         
         return button;
     }

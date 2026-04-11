@@ -3,6 +3,7 @@ using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
@@ -48,11 +49,11 @@ public class DiscordInteractionsHandler : IPamelloService
             case SlashCommandInteraction slashCommand:
                 await _commands.ExecuteAsync(slashCommand, null, false);
                 return;
-            case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
+            case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith(InteractionCallSite.CustomIdPrefix):
                 Output.Write($"Received button: {buttonInteraction.Data.CustomId}");
                 tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
 
-                _messages.Get(buttonInteraction.Message.InteractionMetadata?.Id ?? 0)?.Touch();
+                _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
                 await tokenizedInteraction.Action(interaction);
                 
                 break;

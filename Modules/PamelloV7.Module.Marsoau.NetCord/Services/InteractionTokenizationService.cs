@@ -8,6 +8,7 @@ using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
@@ -51,7 +52,7 @@ public partial class InteractionTokenizationService : IPamelloService
         return Interactions.GetValueOrDefault(customId);
     }
 
-    public ButtonProperties ActionButton(string callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
+    public ButtonProperties ActionButton(InteractionCallSite callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
         var tokenizedInteraction = new TokenizedInteraction(callSite, action);
         Interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
@@ -59,7 +60,7 @@ public partial class InteractionTokenizationService : IPamelloService
     }
 
     public ButtonProperties ModalButton(
-        string callSite,
+        InteractionCallSite callSite,
         Type modalType,
         string label,
         ButtonStyle style,
@@ -78,7 +79,7 @@ public partial class InteractionTokenizationService : IPamelloService
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
     }
 
-    public ButtonProperties Button<TButton>(string callSite, Func<TButton, Task> execute)
+    public ButtonProperties Button<TButton>(InteractionCallSite callSite, Func<TButton, Task> execute)
         where TButton : DiscordButton
     {
         var tokenizedInteraction = new TokenizedButtonInteraction<TButton>(

@@ -3,6 +3,7 @@ using NetCord;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
@@ -60,7 +61,7 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
         }
     }
 
-    public override string GetCallSiteInteractionDifferentiator() {
+    public override Differentiator GetCallSiteInteractionDifferentiator() {
         throw new PamelloException("Cannot create Differentiator in DiscordModal");
     }
 }
