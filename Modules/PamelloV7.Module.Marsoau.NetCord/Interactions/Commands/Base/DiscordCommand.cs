@@ -33,41 +33,63 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     
     private DiscordCommandsService _discordCommands = null!;
     
-    protected UpdatableMessage? UpdatableMessage;
-
+    public UpdatableMessage? UpdatableMessage { get; private set; }
     public RestMessage? DiscordMessage { get; private set; }
-    public DiscordCommand? ParentCommand { get; set; }
     
-    public List<DiscordInteraction> CommandsInteractions = null!;
-    public int CommandInteractionIndex;
+    public DiscordCommand? ParentFollowUp { get; set; }
+    public List<DiscordCommand> FollowUpCommands = null!;
+    public int FollowUpIndex;
+    
+    public DiscordCommand? ParentPart { get; set; }
+    public List<DiscordCommand> PartCommands = null!;
+    public int PartIndex;
 
     public virtual void InitializeCommand(
         Interaction interaction,
         DiscordCommand? parentCommand,
+        bool isFollowUp,
         IServiceProvider services,
         IPamelloUser scopeUser
     ) {
         InitializeInteraction(interaction, services, scopeUser);
-        
-        ParentCommand = parentCommand;
 
-        if (ParentCommand is null) {
-            CommandsInteractions = [this];
+        if (isFollowUp) {
+            ParentFollowUp = parentCommand;
             
-            CommandInteractionIndex = 0;
+            if (ParentFollowUp is null) {
+                FollowUpCommands = [this];
+            
+                FollowUpIndex = 0;
+            }
+            else {
+                FollowUpCommands = ParentFollowUp.FollowUpCommands;
+                FollowUpCommands.Add(this);
+            
+                FollowUpIndex = FollowUpCommands.Count - 1;
+            }
         }
         else {
-            CommandsInteractions = ParentCommand.CommandsInteractions;
-            CommandsInteractions.Add(this);
+            ParentPart = parentCommand;
+            DiscordMessage = ParentPart?.DiscordMessage;
             
-            CommandInteractionIndex = CommandsInteractions.Count - 1;
+            if (ParentPart is null) {
+                PartCommands = [this];
+            
+                PartIndex = 0;
+            }
+            else {
+                PartCommands = ParentPart.PartCommands;
+                PartCommands.Add(this);
+            
+                PartIndex = PartCommands.Count - 1;
+            }
         }
         
         _events = services.GetRequiredService<IEventsService>();
         _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();
         _discordCommands = services.GetRequiredService<DiscordCommandsService>();
     }
-    
+
     private static Type GenericCommandType<TCommand>() => typeof(TCommand);
 
     public async Task RespondCommandAsync(
@@ -75,13 +97,8 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         Type commandType,
         params object?[] args
     ) {
-        var command = await _discordCommands.GetAsync(commandType, Interaction, this);
+        var command = await _discordCommands.GetAsync(commandType, false, Interaction, this);
         await PamelloStaticActions.ExecuteMethodAsync(command, args);
-    }
-
-    public Task<TCommand> FollowUpCommand<TCommand>()
-        where TCommand : DiscordCommand {
-        return _discordCommands.GetAsync<TCommand>(Interaction, this);
     }
 
     protected override Task StartLoading() {
@@ -94,7 +111,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         var messageComponents = components.OfType<IMessageComponentProperties>();
         
         if (DiscordMessage is not null) {
-            if (CommandInteractionIndex != 0) {
+            if (FollowUpIndex != 0) {
                 Output.Write($"Modifying followup {DiscordMessage.Id} in {GetCallSiteInteractionDifferentiator()}");
                 await Interaction.ModifyFollowupMessageAsync(DiscordMessage.Id, properties => properties.Components = messageComponents);
             }
@@ -111,7 +128,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             Flags = MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
         };
 
-        if (CommandInteractionIndex != 0) {
+        if (FollowUpIndex != 0) {
             DiscordMessage = await Interaction.SendFollowupMessageAsync(messageProperties);
             Output.Write($"Message after followup: {DiscordMessage?.Id}");
         }
@@ -120,6 +137,17 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             var callback = await Interaction.SendResponseAsync(messageCallback, true);
             DiscordMessage = callback?.Resource.Message;
             Output.Write($"Message after: {DiscordMessage?.Id}");
+        }
+    }
+
+    public async Task DeleteResponseAsync() {
+        if (DiscordMessage is null) return;
+        
+        if (FollowUpIndex != 0) {
+            await Interaction.DeleteFollowupMessageAsync(DiscordMessage.Id);
+        }
+        else {
+            await Interaction.DeleteResponseAsync();
         }
     }
     
@@ -171,10 +199,11 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         entities ??= () => [];
 
         UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
-            async message => {
-                await RespondComponentAsync(await getContentAsync());
+            _ => getContentAsync(),
+            async components => {
+                await RespondComponentAsync(components);
             }, async () => {
-                await Interaction.DeleteResponseAsync();
+                await DeleteResponseAsync();
             }
         ));
         
@@ -199,12 +228,15 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         }
         
         UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
-            async updatableMessage => {
-                if (updatableMessage is not UpdatablePageMessage updatablePageMessage) return;
+            async message => {
+                if (message is not UpdatablePageMessage updatablePageMessage) return [];
                 
-                await Interaction.ModifyResponseAsync(properties => properties.Components = getPageContentAsync(updatablePageMessage.Page).Result.OfType<IMessageComponentProperties>());
+                return await getPageContentAsync(updatablePageMessage.Page);
+            },
+            async components => {
+                await RespondComponentAsync(components);
             }, async () => {
-                await Interaction.DeleteResponseAsync();
+                await DeleteResponseAsync();
             }
         ));
         
@@ -251,6 +283,6 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     }
 
     public override string GetCallSiteInteractionDifferentiator() {
-        return $"{Interaction.Id}-{CommandInteractionIndex}";
+        return $"{Interaction.Id}-{FollowUpIndex}-{PartIndex}";
     }
 }

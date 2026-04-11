@@ -67,8 +67,8 @@ public partial class DiscordCommandsService : IPamelloService
         }
     }
 
-    public async Task ExecuteAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand) {
-        var command = await GetAsync(interaction, parentCommand);
+    public async Task ExecuteAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand, bool isFollowUp) {
+        var command = await GetAsync(isFollowUp, interaction, parentCommand);
 
         var executeMethod = command.GetType().GetMethod("Execute");
         if (executeMethod is null)
@@ -166,9 +166,9 @@ public partial class DiscordCommandsService : IPamelloService
         }
     }
 
-    public async Task<TCommand> GetAsync<TCommand>(SlashCommandInteraction interaction, DiscordCommand? parentCommand)
+    public async Task<TCommand> GetAsync<TCommand>(SlashCommandInteraction interaction, DiscordCommand? parentCommand, bool isFollowUp)
         where TCommand : DiscordCommand
-        => (TCommand)await GetAsync(typeof(TCommand), interaction, parentCommand);
+        => (TCommand)await GetAsync(typeof(TCommand), isFollowUp, interaction, parentCommand);
 
     private DiscordCommandDescriptor? GetDescriptor(Type type) {
         return CommandsDescriptors.FirstOrDefault(descriptor => descriptor.Type == type);
@@ -194,6 +194,7 @@ public partial class DiscordCommandsService : IPamelloService
     public async Task<DiscordCommand> GetAsync(
         [Variant(nameof(NoCommandType))]
         Type? commandType,
+        bool isFollowUp,
         SlashCommandInteraction interaction,
         DiscordCommand? parentCommand
     ) {
@@ -206,7 +207,7 @@ public partial class DiscordCommandsService : IPamelloService
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
             throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" cannot be null");
         
-        command.InitializeCommand(interaction, parentCommand, _services, scopeUser);
+        command.InitializeCommand(interaction, parentCommand, isFollowUp, _services, scopeUser);
         
         return command;
     }

@@ -7,6 +7,9 @@ using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Playlist.Favorite;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Favorite;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.User;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -22,13 +25,17 @@ public partial class UserInfo
         user ??= ScopeUser;
         
         await RespondAsync(() =>
-            Builder<Builder>().Build(user)
+            Builder<Builder>().Build(user, async () => {
+                await RespondCommandAsync<SongFavoriteList>(user);
+            }, async () => {
+                await RespondCommandAsync<PlaylistFavoriteList>(user);
+            })
         , () => [user]);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public IMessageComponentProperties? Build(IPamelloUser user) {
+        public IMessageComponentProperties? Build(IPamelloUser user, Func<Task> showFavoriteSongs, Func<Task> showFavoritePlaylists) {
             var clients = Services.GetRequiredService<DiscordClientService>();
 
             var authorizationsBuilder = new StringBuilder();
@@ -67,14 +74,12 @@ public partial class UserInfo
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    Button("List", ButtonStyle.Secondary, () => { })
-                        .WithDisabled()
+                    Button("Show", ButtonStyle.Secondary, showFavoriteSongs)
                 ).AddComponents(
                     new TextDisplayProperties($"### Favorite Songs: `{user.FavoriteSongs.Count}`\n")
                 ),
                 new ComponentSectionProperties(
-                    Button("List", ButtonStyle.Secondary, () => { })
-                        .WithDisabled()
+                    Button("Show", ButtonStyle.Secondary, showFavoritePlaylists)
                 ).AddComponents(
                     new TextDisplayProperties($"### Favorite Playlists: `{user.FavoritePlaylists.Count}`\n")
                 ),

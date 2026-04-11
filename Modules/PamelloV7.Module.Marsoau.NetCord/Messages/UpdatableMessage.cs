@@ -1,3 +1,4 @@
+using NetCord.Rest;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
@@ -6,30 +7,43 @@ namespace PamelloV7.Module.Marsoau.NetCord.Messages;
 public class UpdatableMessage : IDisposable
 {
     public readonly DiscordCommand Command;
-    private readonly Func<UpdatableMessage, Task> _refresh;
+    
+    private readonly Func<UpdatableMessage, Task<IEnumerable<IMessageComponentProperties?>>> _getContent;
+    private readonly Func<IEnumerable<IMessageComponentProperties?>, Task> _refresh;
     private readonly Func<Task> _delete;
 
-    private readonly TimeSpan _refreshIntervalNew;
-    private DateTime _lastRefreshNew;
+    private readonly TimeSpan _refreshInterval;
+    private DateTime _lastRefresh;
     
     private readonly CancellationTokenSource _cancellation;
     
     public int LifetimeSeconds { get; }
     public Task LifetimeTask { get; private set; }
-    public DateTimeOffset? LastTouched { get; private set; }
     
+    public DateTimeOffset? LastTouched { get; private set; }
+
+    public DateTime LastRefreshInGroup
+        => Command.PartCommands.Select(c => c.UpdatableMessage?._lastRefresh).OfType<DateTime>().Max();
+
     private Task? _scheduledRefresh;
     
     public event Action? OnDead;
     
-    public UpdatableMessage(DiscordCommand command, int lifetimeSeconds, Func<UpdatableMessage, Task> refresh, Func<Task> delete) {
+    public UpdatableMessage(
+        DiscordCommand command,
+        int lifetimeSeconds,
+        Func<UpdatableMessage, Task<IEnumerable<IMessageComponentProperties?>>> getContent,
+        Func<IEnumerable<IMessageComponentProperties?>, Task> refresh,
+        Func<Task> delete
+    ) {
         Command = command;
-        
+
+        _getContent = getContent;
         _refresh = refresh;
         _delete = delete;
         
-        _refreshIntervalNew = TimeSpan.FromSeconds(1);
-        _lastRefreshNew = DateTime.MinValue;
+        _refreshInterval = TimeSpan.FromSeconds(1);
+        _lastRefresh = DateTime.MinValue;
         
         _cancellation = new CancellationTokenSource();
         
@@ -65,27 +79,44 @@ public class UpdatableMessage : IDisposable
     }
 
     public void Touch() {
-        Output.Write("YOUCH");
         LastTouched = DateTimeOffset.Now;
+        
+        for (var i = 0; i < Command.PartIndex; i++) {
+            Command.PartCommands[i].UpdatableMessage?.Touch();
+        }
+    }
+
+    public async Task<IEnumerable<IMessageComponentProperties?>> GetContent(bool all = true) {
+        if (!all) return await _getContent(this);
+        
+        var content = new List<IMessageComponentProperties?>();
+        
+        foreach (var part in Command.PartCommands) {
+            if (part.UpdatableMessage is null) continue;
+            
+            content.AddRange(await part.UpdatableMessage.GetContent(false));
+        }
+        
+        return content;
     }
 
     public async Task Refresh() {
         if (_scheduledRefresh is not null) return;
         
         var currentTime = DateTime.Now;
-        var timePassed = currentTime - _lastRefreshNew;
+        var timePassed = currentTime - LastRefreshInGroup;
 
-        if (timePassed >= _refreshIntervalNew) {
+        if (timePassed >= _refreshInterval) {
             //Output.Write($"Refresh at {currentTime}");
             
-            _lastRefreshNew = currentTime;
+            _lastRefresh = currentTime;
             
-            await _refresh(this);
+            await _refresh(await GetContent());
             return;
         }
         
         _ = Task.Run(async () => {
-            var delaySpan = _refreshIntervalNew - timePassed;
+            var delaySpan = _refreshInterval - timePassed;
             //Output.Write($"Scheduling refresh in {delaySpan} at {currentTime}");
             _scheduledRefresh = Task.Delay(delaySpan, _cancellation.Token);
             
@@ -96,9 +127,9 @@ public class UpdatableMessage : IDisposable
             //Output.Write($"Awaited refresh at {currentTime}");
             _scheduledRefresh = null;
 
-            _lastRefreshNew = currentTime;
+            _lastRefresh = currentTime;
             
-            await _refresh(this);
+            await _refresh(await GetContent());
         });
     }
     

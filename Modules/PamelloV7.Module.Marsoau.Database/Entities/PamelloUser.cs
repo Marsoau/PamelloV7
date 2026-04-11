@@ -234,8 +234,8 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, filteredSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
         
-        foreach (var (pos, song) in difference.Deleted) song.UnmakeFavorite(this, true);
-        foreach (var (pos, song) in difference.Added) song.MakeFavorite(this, true);
+        foreach (var (_, song) in difference.Deleted) song.UnmakeFavorite(this, true);
+        foreach (var (_, song) in difference.Added) song.MakeFavorite(this, true);
         
         _favoriteSongs = filteredSongs;
         

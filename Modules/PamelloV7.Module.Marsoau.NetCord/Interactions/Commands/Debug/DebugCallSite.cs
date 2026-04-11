@@ -24,7 +24,7 @@ public partial class DebugCallSite
             )
         ]);
 
-        if (CommandInteractionIndex == 0) {
+        if (PartIndex == 0) {
             await RespondCommandAsync<DebugCallSite>();
             await RespondCommandAsync<Ping>();
         }
