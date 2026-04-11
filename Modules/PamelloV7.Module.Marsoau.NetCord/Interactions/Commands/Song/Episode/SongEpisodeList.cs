@@ -5,6 +5,7 @@ using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Episode;
@@ -40,9 +41,7 @@ public partial class SongEpisodeList
                 foreach (var episode in itemsOnPage) {
                     container.AddComponents(
                         new ComponentSectionProperties(
-                            Button(count++, "Edit", ButtonStyle.Secondary, () => {
-                                //edit episode
-                            })
+                            ModalButton<SongEpisodeEditModal>(count++, "Edit", ButtonStyle.Secondary, [episode])
                         ).AddComponents(
                             new TextDisplayProperties($"{DiscordString.Code(count)} : {episode.ToDiscordString(withSongId: false)}")
                         )

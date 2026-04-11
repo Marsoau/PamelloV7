@@ -42,18 +42,40 @@ public class PamelloEpisode : PamelloDatabaseEntity<DatabaseEpisode>, IPamelloEp
         return _name;
     }
 
-    public AudioTime Start {
-        get => _start;
-        set => _start = value;
-    }
+    public AudioTime Start => _start;
+    public AudioTime SetStart(AudioTime start, IPamelloUser? scopeUser) {
+        if (_start.TotalSeconds == start.TotalSeconds) return _start;
 
-    public bool AutoSkip {
-        get => _autoSkip;
-        set => _autoSkip = value;
+        _start = start;
+        _sink.Invoke(scopeUser, new EpisodeStartUpdated() {
+            Episode = this,
+            Start = _start.TotalSeconds
+        });
+
+        Save();
+        
+        ((PamelloSong)_song).SortEpisodes();
+        
+        return _name;
+    }
+    
+    public bool AutoSkip => _autoSkip;
+    public bool SetAutoSkip(bool state, IPamelloUser? scopeUser) {
+        if (_autoSkip == state) return _autoSkip;
+        
+        _autoSkip = state;
+        _sink.Invoke(scopeUser, new EpisodeAutoSkipUpdated() {
+            Episode = this,
+            AutoSkip = _autoSkip
+        });
+        
+        Save();
+        
+        return _autoSkip;
     }
 
     public IPamelloSong Song => _song;
-    
+
     public PamelloEpisode(DatabaseEpisode databaseEntity, IServiceProvider services) : base(databaseEntity, services) {
         _name = databaseEntity.Name;
         _start = new AudioTime(databaseEntity.StartSeconds);

@@ -52,7 +52,7 @@ public class AddInputAttribute<TValue> : AddModalPropertyAttribute<TextInputProp
 
         var query = input.Value.Replace("\n", ",");
 
-        return await PamelloStaticActions.InTypeFromStringAsync<TValue>(
+        return await PamelloStaticActions.ConvertStringAsync<TValue>(
             query,
             "",
             services.GetRequiredService<IEntityQueryService>(),

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
+using PamelloV7.Core.Audio;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Entities;
@@ -57,12 +58,12 @@ public partial class PamelloStaticActions
         }
     }
 
-    public static async Task<TType> InTypeFromStringAsync<TType>(string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
-        var value = await InTypeFromStringAsync(typeof(TType), str, defaultQuery, peql, scopeUser);
+    public static async Task<TType> ConvertStringAsync<TType>(string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
+        var value = await ConvertStringAsync(typeof(TType), str, defaultQuery, peql, scopeUser);
         return (TType)value!;
     }
     
-    public static async Task<object?> InTypeFromStringAsync(Type type, string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
+    public static async Task<object?> ConvertStringAsync(Type type, string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
         var query = string.IsNullOrEmpty(str) ? defaultQuery : str;
 
         if (type.IsAssignableTo(typeof(IPamelloEntity))) {
@@ -70,6 +71,9 @@ public partial class PamelloStaticActions
         }
         if (type == typeof(PlatformKey)) {
             return PlatformKey.FromString(str);
+        }
+        if (type == typeof(AudioTime)) {
+            return AudioTime.FromString(str);
         }
         if (
             type.IsGenericType && (

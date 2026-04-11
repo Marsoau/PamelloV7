@@ -9,7 +9,10 @@ namespace PamelloV7.Framework.Entities;
 [PamelloEntity("episodes", typeof(PamelloEpisodeDto))]
 public interface IPamelloEpisode : IPamelloDatabaseEntity
 {
-    public AudioTime Start { get; set; }
-    public bool AutoSkip { get; set; }
+    public AudioTime Start { get; }
+    public bool AutoSkip { get; }
     public IPamelloSong Song { get; }
+    
+    public AudioTime SetStart(AudioTime time, IPamelloUser? scopeUser);
+    public bool SetAutoSkip(bool state, IPamelloUser? scopeUser);
 }

@@ -70,7 +70,7 @@ namespace PamelloV7.Core.Audio
             return new AudioTime(time.TimeValue * scalar);
         }
 
-        public static AudioTime FromStrTime(string strTime) {
+        public static AudioTime FromString(string strTime) {
             var segments = strTime.Split(':').Reverse().ToArray();
             var seconds = 0;
 
@@ -78,10 +78,10 @@ namespace PamelloV7.Core.Audio
                 if (segments.Length >= 1) {
                     seconds += int.Parse(segments[0]);
                 }
-                if (segments.Count() >= 2) {
+                if (segments.Length >= 2) {
                     seconds += int.Parse(segments[1]) * 60;
                 }
-                if (segments.Count() == 3) {
+                if (segments.Length == 3) {
                     seconds += int.Parse(segments[2]) * 3600;
                 }
             }
@@ -104,6 +104,6 @@ namespace PamelloV7.Core.Audio
                 return $"{(Minutes < 10 ? '0' : "")}{Minutes}:{(Seconds < 10 ? '0' : "")}{Seconds}";
         }
         
-        public static implicit operator AudioTime(string strTime) => FromStrTime(strTime);
+        public static implicit operator AudioTime(string strTime) => FromString(strTime);
     }
 }

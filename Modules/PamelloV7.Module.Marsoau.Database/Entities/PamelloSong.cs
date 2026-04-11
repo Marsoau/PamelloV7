@@ -120,10 +120,25 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
             .OfType<IPamelloPlaylist>()
             .ToList();
         
+        SortEpisodes(true);
+    }
+
+    public void SortEpisodes(bool onInit = false) {
+        var before = new List<IPamelloEpisode>(_songEpisodes);
+        
         _songEpisodes.Sort((a, b) => {
             if (a.Start.TotalSeconds == b.Start.TotalSeconds) return 0;
             return a.Start.TotalSeconds > b.Start.TotalSeconds ? 1 : -1;
         });
+        
+        if (onInit || before.SequenceEqual(_songEpisodes)) return;
+        
+        _sink.Invoke(null, new SongEpisodesUpdated() {
+            Song = this,
+            Episodes = IPamelloEntity.GetIds(_songEpisodes)
+        });
+        
+        Save();
     }
 
     public override void SaveInternal() {

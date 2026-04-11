@@ -40,7 +40,7 @@ public class AddSelectAttribute<TValue> : AddModalPropertyAttribute<StringMenuPr
         var value = menu.SelectedValues?.FirstOrDefault();
         if (value is null) return default!;
         
-        return await PamelloStaticActions.InTypeFromStringAsync<TValue>(
+        return await PamelloStaticActions.ConvertStringAsync<TValue>(
             value,
             "",
             services.GetRequiredService<IEntityQueryService>(),

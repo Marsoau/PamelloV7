@@ -16,7 +16,7 @@ public record InteractionCallSite(
         var str = $"{Differentiator}_{ClassHash}-{Offset}";
         if (Key < 0) return str;
         
-        return $"{str}-{Key}";
+        return $"{str}_{Key}";
     }
     public string ToCustomId() => $"{CustomIdPrefix}{this}";
     

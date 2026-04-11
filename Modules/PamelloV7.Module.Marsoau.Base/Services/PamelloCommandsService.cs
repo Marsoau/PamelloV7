@@ -122,7 +122,7 @@ public class PamelloCommandsService : IPamelloCommandsService
 
             if (!isEntityType) {
                 if (argumentType == typeof(AudioTime)) {
-                    args[i] = AudioTime.FromStrTime(queryStringValue);
+                    args[i] = AudioTime.FromString(queryStringValue);
                 }
                 else {
                     try {
