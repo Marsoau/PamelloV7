@@ -19,23 +19,67 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.User;
 [DiscordCommand("user info", "Get info about a user")]
 public partial class UserInfo
 {
+    private SongFavoriteList? _songFavoriteCommand;
+    private PlaylistFavoriteList? _playlistFavoriteCommand;
+    
     public async Task Execute(
         [UserDescription] IPamelloUser? user = null
     ) {
         user ??= ScopeUser;
         
-        await RespondAsync(() =>
-            Builder<Builder>().Build(user, async () => {
-                await RespondCommandAsync<SongFavoriteList>(user);
-            }, async () => {
-                await RespondCommandAsync<PlaylistFavoriteList>(user);
-            })
-        , () => [user]);
+        await RespondAsync(() => {
+            var favoriteSongsButton = Button(_songFavoriteCommand is not null ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
+                await ToggleSongFavorite(user);
+            });
+            var favoritePlaylistsButton = Button(_playlistFavoriteCommand is not null ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
+                await TogglePlaylistFavorite(user);
+            });
+            
+            return Builder<Builder>().Build(user, favoriteSongsButton, favoritePlaylistsButton);
+        }, () => [user]);
+    }
+
+    public async Task<bool> HideSongFavorite() {
+        if (_songFavoriteCommand is null) return false;
+        
+        var command = _songFavoriteCommand;
+        _songFavoriteCommand = null;
+            
+        await command.DisposeAsync();
+        
+        return true;
+    }
+
+    public async Task<bool> HidePlaylistFavorite() {
+        if (_playlistFavoriteCommand is null) return false;
+        
+        var command = _playlistFavoriteCommand;
+        _playlistFavoriteCommand = null;
+            
+        await command.DisposeAsync();
+        
+        return true;
+    }
+
+    public async Task ToggleSongFavorite(IPamelloUser user) {
+        await HidePlaylistFavorite();
+        if (await HideSongFavorite()) return;
+        
+        _songFavoriteCommand = await AddCommand<SongFavoriteList>();
+        await _songFavoriteCommand.Execute(user);
+    }
+    
+    public async Task TogglePlaylistFavorite(IPamelloUser user) {
+        await HideSongFavorite();
+        if (await HidePlaylistFavorite()) return;
+        
+        _playlistFavoriteCommand = await AddCommand<PlaylistFavoriteList>();
+        await _playlistFavoriteCommand.Execute(user);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public IMessageComponentProperties? Build(IPamelloUser user, Func<Task> showFavoriteSongs, Func<Task> showFavoritePlaylists) {
+        public IMessageComponentProperties? Build(IPamelloUser user, ButtonProperties favoriteSongsButton, ButtonProperties favoritePlaylistsButton) {
             var clients = Services.GetRequiredService<DiscordClientService>();
 
             var authorizationsBuilder = new StringBuilder();
@@ -74,12 +118,12 @@ public partial class UserInfo
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    Button("Show", ButtonStyle.Secondary, showFavoriteSongs)
+                    favoriteSongsButton
                 ).AddComponents(
                     new TextDisplayProperties($"### Favorite Songs: `{user.FavoriteSongs.Count}`\n")
                 ),
                 new ComponentSectionProperties(
-                    Button("Show", ButtonStyle.Secondary, showFavoritePlaylists)
+                    favoritePlaylistsButton
                 ).AddComponents(
                     new TextDisplayProperties($"### Favorite Playlists: `{user.FavoritePlaylists.Count}`\n")
                 ),

@@ -17,7 +17,5 @@ public partial class PlaylistFavoriteList
         await RespondPageAsync(page => 
             Builder<FavoriteListBuilder>().Build(user, ESongOrPlaylist.Playlist, page, 10)
         , () => [ScopeUser, ..ScopeUser.FavoritePlaylists]);
-
-        await RespondCommandAsync<SongFavoriteList>(user);
     }
 }

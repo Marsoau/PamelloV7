@@ -19,7 +19,7 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
-public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandInteraction>
+public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandInteraction>, IAsyncDisposable
 {
     public delegate IEnumerable<IMessageComponentProperties?> GetContent();
     public delegate IEnumerable<IMessageComponentProperties?> GetContentForOne<TType>(TType item);
@@ -93,14 +93,20 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
 
     private static Type GenericCommandType<TCommand>() => typeof(TCommand);
 
-    public async Task RespondCommandAsync(
+    public async Task<DiscordCommand> RespondCommandAsync(
         [Variant(nameof(GenericCommandType))]
         Type commandType,
         params object?[] args
     ) {
         var command = await _discordCommands.GetAsync(commandType, false, Interaction, this);
         await PamelloStaticActions.ExecuteMethodAsync(command, args);
+
+        return command;
     }
+
+    public async Task<TCommand> AddCommand<TCommand>(bool isFollowUp = false)
+        where TCommand : DiscordCommand
+        => await _discordCommands.GetAsync<TCommand>(Interaction, this, isFollowUp);
 
     protected override Task StartLoading() {
         return RespondComponentAsync([
@@ -204,7 +210,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             async components => {
                 await RespondComponentAsync(components);
             }, async () => {
-                await DeleteResponseAsync();
+                await DisposeAsync();
             }
         ));
         
@@ -223,11 +229,6 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         GetPageContentAsync getPageContentAsync,
         GetEntities entities
     ) {
-        var needsRefresh = DiscordMessage is not null;
-        if (!needsRefresh) {
-            await RespondComponentAsync((await getPageContentAsync(0)).OfType<IMessageComponentProperties>());
-        }
-        
         UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async message => {
                 if (message is not UpdatablePageMessage updatablePageMessage) return [];
@@ -237,15 +238,13 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             async components => {
                 await RespondComponentAsync(components);
             }, async () => {
-                await DeleteResponseAsync();
+                await DisposeAsync();
             }
         ));
         
         ProcessUpdatableAsync(entities);
 
-        if (needsRefresh) {
-            await UpdatableMessage.Refresh();
-        }
+        await UpdatableMessage.Refresh();
         
         return (UpdatablePageMessage)UpdatableMessage;
     }
@@ -289,5 +288,19 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             FollowUpIndex,
             PartIndex
         );
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (ParentPart is not null) {
+            PartCommands.RemoveAt(PartIndex);
+            
+            var parentMessage = ParentPart.UpdatableMessage;
+            if (parentMessage is null) return;
+            
+            await parentMessage.Refresh();
+        }
+        else {
+            await DeleteResponseAsync();
+        }
     }
 }
