@@ -5,12 +5,12 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 
-[DiscordButton("Prev")]
-public partial class PrevButton
+[DiscordButton("Next")]
+public partial class NextPageButton
 {
     public async Task Execute() {
         if (Message is not UpdatablePageMessage pageMessage) return;
         
-        await pageMessage.SetPage(pageMessage.Page - 1);
+        await pageMessage.SetPage(pageMessage.Page + 1);
     }
 }

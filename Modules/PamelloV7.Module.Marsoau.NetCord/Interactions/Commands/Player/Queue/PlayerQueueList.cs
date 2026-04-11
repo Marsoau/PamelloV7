@@ -108,7 +108,7 @@ public partial class PlayerQueueList
 
             return [
                 container,
-                Builder<BasicButtonsBuilder>().PageButtons(page != 0, page < totalPages - 1)
+                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, queue.Count)
             ];
         }
     }

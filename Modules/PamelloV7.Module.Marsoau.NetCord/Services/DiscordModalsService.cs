@@ -80,11 +80,13 @@ public class DiscordModalsService : IPamelloService
         
         var descriptor = ModalsDescriptors.FirstOrDefault(d => d.ModalType == modalType);
         if (descriptor is null) throw new PamelloException($"Could not find modal {modalType.FullName}");
+        
+        var callSite = InteractionCallSite.FromString(interaction.Data.CustomId);
 
         if (Activator.CreateInstance(descriptor.ModalType) is not DiscordModal modal)
             throw new PamelloException($"Could not create modal {modalType.FullName}");
         
-        modal.InitializeModal(interaction.Data.CustomId, interaction, _services, scopeUser);
+        modal.InitializeModal(callSite, interaction, _services, scopeUser);
         
         return modal;   
     }

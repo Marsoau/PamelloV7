@@ -14,14 +14,16 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
     private Type? _builderType;
     public Type BuilderType => _builderType ?? throw new InvalidOperationException($"Modal type is not found on builder {GetType().FullName}");
 
-    public string ModalId { get; set; } = null!;
+    public InteractionCallSite CallSite = null!;
     
     protected DiscordModal() {
         _builderType = GetType().GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
     }
 
-    public virtual void InitializeModal(string modalId, Interaction interaction, IServiceProvider services, IPamelloUser scopeUser) {
+    public virtual void InitializeModal(InteractionCallSite callSite, Interaction interaction, IServiceProvider services, IPamelloUser scopeUser) {
         base.InitializeInteraction(interaction, services, scopeUser);
+        
+        CallSite = callSite;
         
         if (interaction is not ModalInteraction modalInteraction)
             throw new PamelloException($"Interaction is not a modal interaction");

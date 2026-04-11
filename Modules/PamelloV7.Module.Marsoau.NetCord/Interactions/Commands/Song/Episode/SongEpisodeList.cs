@@ -17,14 +17,16 @@ public partial class SongEpisodeList
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
         await RespondPageAsync(page =>
-            Builder<Builder>().Build(song, page, 5)
+            Builder<Builder>().Build(song, page)
         , () => [song, ..song.Episodes]);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public IMessageComponentProperties?[] Build(IPamelloSong song, int page, int pageSize) {
+        public IMessageComponentProperties?[] Build(IPamelloSong song, int page) {
             var container = new ComponentContainerProperties();
+
+            const int pageSize = 5;
             
             var totalPages = song.Episodes.Count / pageSize + (song.Episodes.Count % pageSize > 0 ? 1 : 0);
             if (totalPages == 0) totalPages = 1;
@@ -33,6 +35,11 @@ public partial class SongEpisodeList
 
             container.AddComponents(
                 new TextDisplayProperties($"## Episodes of {song.ToDiscordString()}"),
+                new ComponentSeparatorProperties(),
+                new ActionRowProperties().AddComponents(
+                    Button("Add Episode", ButtonStyle.Primary, () => {}),
+                    Button("Reset", ButtonStyle.Secondary, () => {})
+                ),
                 new ComponentSeparatorProperties()
             );
 
@@ -56,6 +63,12 @@ public partial class SongEpisodeList
             
             container.AddComponents(
                 new ComponentSeparatorProperties(),
+                new ActionRowProperties().AddComponents(
+                    Button("Edit", ButtonStyle.Primary, () => {}),
+                    Button("Delete", ButtonStyle.Secondary, () => {}),
+                    Button("Rewind", ButtonStyle.Secondary, () => {})
+                ),
+                new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
                     Button("Clear", ButtonStyle.Secondary, () => {
                         //remove all episodes from a song
@@ -67,7 +80,7 @@ public partial class SongEpisodeList
 
             return [
                 container,
-                Builder<BasicButtonsBuilder>().PageButtons(page > 0, page < totalPages - 1),
+                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, song.Episodes.Count),
                 Builder<BasicButtonsBuilder>().RefreshButtonRow()
             ];
         }

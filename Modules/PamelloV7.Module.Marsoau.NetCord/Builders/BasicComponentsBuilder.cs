@@ -30,7 +30,7 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
                     $"{(displayEntityName ? $"{DiscordString.Code(entity.GetType().Name)} " : "")}{entity.ToDiscordString()}"
                 ))
             ),
-            Builder<BasicButtonsBuilder>().PageButtons(page != 0, page < totalPages - 1)
+            Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, entities.Count)
         ];
     }
     
