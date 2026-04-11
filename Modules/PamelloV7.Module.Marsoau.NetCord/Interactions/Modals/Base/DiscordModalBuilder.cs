@@ -24,10 +24,13 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     public IAddModalPropertyAttribute[] Attributes { get; protected set; } = [];
     public ModalProperties Properties { get; protected set; } = null!;
 
-    public virtual void InitializeBuilder(IServiceProvider services, ButtonInteraction modalInteraction, IPamelloUser scopeUser) {
-        ModalId = modalInteraction.Data.CustomId;
+    public virtual void InitializeModalBuilder(string modalId, IServiceProvider services, IPamelloUser scopeUser) {
+        ModalId = modalId;
         
-        InitializeActions(services, modalInteraction, scopeUser);
+        var differentiator = ModalId.Replace("tokenized:", "").Split('_').ElementAtOrDefault(1);
+        if (differentiator is null) throw new PamelloException($"Modal id {ModalId} doesnt have differentiator");
+        
+        InitializeComponentBuilder(differentiator, services, scopeUser);
         InitializeProperties();
     }
 
@@ -58,7 +61,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         return Properties;
     }
     
-    public static Type GetFromModal(Type modalType) {
+    public static Type GetTypeFromModal(Type modalType) {
         var builderType = modalType.GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
         if (builderType is null) throw new PamelloException($"Modal {modalType.FullName} doesn't have DiscordModalBuilder");
         

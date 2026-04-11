@@ -14,66 +14,24 @@ using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 
-public abstract class DiscordInteraction<TInteraction> : DiscordBasicActions
+public abstract class DiscordInteraction<TInteraction> : DiscordInteraction
     where TInteraction : Interaction
 {
     public TInteraction Interaction => _interaction as TInteraction
-        ?? throw new InvalidOperationException($"Interaction is not of type {typeof(TInteraction).FullName}");
-    
-    public bool HasResponded { get; protected set; }
-    
-    public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);
+       ?? throw new InvalidOperationException($"Interaction is not of type {typeof(TInteraction).FullName}");
+}
 
-    public Task<TPamelloEntity?> GetSingleAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync<TPamelloEntity>(query, ScopeUser), respond);
+public abstract class DiscordInteraction : DiscordBasicActions
+{
+    protected Interaction _interaction = null!;
 
-    public Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync<TPamelloEntity>(query, ScopeUser), respond);
-
-    public Task<IPamelloEntity> GetSingleRequiredAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync(query, ScopeUser), respond);
-
-    public Task<IPamelloEntity?> GetSingleAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync(query, ScopeUser), respond);
-
-    public Task<List<IPamelloEntity>> GetAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync(query, ScopeUser), respond);
-
-    protected async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
-        if (!task.IsCompleted && respondWithLoading) {
-            await RespondLoading();
-        }
+    public virtual void InitializeInteraction(
+        Interaction interaction,
+        IServiceProvider services,
+        IPamelloUser scopeUser
+    ) {
+        InitializeActions(services, scopeUser);
         
-        await task;
+        _interaction = interaction;
     }
-    public async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
-        if (!task.IsCompleted && respondWithLoading) {
-            await RespondLoading();
-        }
-    
-        return await task;
-    }
-
-    public Task RespondLoading() {
-        if (HasResponded) return Task.CompletedTask;
-        
-        var task = RespondLoadingInternal();
-        
-        HasResponded = true;
-        
-        return task;
-    }
-    public Task ReleaseInteraction() {
-        if (HasResponded) return Task.CompletedTask;
-        
-        var task = ReleaseInteractionInternal();
-        
-        HasResponded = true;
-        
-        return task;
-    }
-    
-    protected abstract Task RespondLoadingInternal();
-    protected abstract Task ReleaseInteractionInternal();
 }

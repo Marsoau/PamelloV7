@@ -8,6 +8,7 @@ using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
@@ -45,7 +46,7 @@ public class DiscordModalsService : IPamelloService
             modalType.GetCustomAttribute<DiscordModalAttribute>()
                 ?? throw new PamelloException($"Modal {modalType.FullName} doesn't have DiscordModalAttribute"),
             modalType,
-            DiscordModalBuilder.GetFromModal(modalType)
+            DiscordModalBuilder.GetTypeFromModal(modalType)
         )).ToList();
 
         Output.Write("Discord modals:");
@@ -65,7 +66,7 @@ public class DiscordModalsService : IPamelloService
         if (Activator.CreateInstance(descriptor.BuilderType) is not DiscordModalBuilder builder)
             throw new PamelloException($"Could not create builder {builderType.FullName}");
         
-        builder.InitializeBuilder(_services, interaction, scopeUser);
+        builder.InitializeModalBuilder(interaction.Data.CustomId, _services, scopeUser);
         
         return builder;
     }
@@ -80,7 +81,7 @@ public class DiscordModalsService : IPamelloService
         if (Activator.CreateInstance(descriptor.ModalType) is not DiscordModal modal)
             throw new PamelloException($"Could not create modal {modalType.FullName}");
         
-        modal.InitializeActions(_services, interaction, scopeUser);
+        modal.InitializeInteraction(interaction, _services, scopeUser);
         
         return modal;   
     }

@@ -68,7 +68,7 @@ public partial class InteractionTokenizationService : IPamelloService
     ) {
         var tokenizedInteraction = new TokenizedModalInteraction(
             callSite,
-            async interaction => await _modals.GetBuilder(DiscordModalBuilder.GetFromModal(modalType), interaction),
+            async interaction => await _modals.GetBuilder(DiscordModalBuilder.GetTypeFromModal(modalType), interaction),
             async interaction => await _modals.GetModal(modalType, interaction),
             async builder => await buildModal(builder),
             async modal => await submitModal(modal)

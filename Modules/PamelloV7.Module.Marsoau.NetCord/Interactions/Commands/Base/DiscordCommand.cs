@@ -32,23 +32,45 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     
     protected UpdatableMessage? UpdatableMessage;
 
-    public override void InitializeActions(IServiceProvider services, Interaction interaction, IPamelloUser scopeUser) {
-        base.InitializeActions(services, interaction, scopeUser);
+    public bool HasResponded {
+        set; get => field || RespondedWithLoading;
+    }
+
+    public DiscordCommand? ParentCommand { get; set; }
+    
+    public List<DiscordInteraction> CommandsInteractions = null!;
+    public int CommandInteractionIndex;
+
+    public virtual void InitializeCommand(
+        Interaction interaction,
+        DiscordCommand? parentCommand,
+        IServiceProvider services,
+        IPamelloUser scopeUser
+    ) {
+        InitializeInteraction(interaction, services, scopeUser);
+        
+        ParentCommand = parentCommand;
+
+        if (ParentCommand is null) {
+            CommandsInteractions = [this];
+            
+            CommandInteractionIndex = 0;
+        }
+        else {
+            CommandsInteractions = ParentCommand.CommandsInteractions;
+            CommandsInteractions.Add(this);
+            
+            CommandInteractionIndex = CommandsInteractions.Count - 1;
+        }
         
         _events = services.GetRequiredService<IEventsService>();
         _updatableMessageService = services.GetRequiredService<UpdatableMessageService>();
     }
 
-    protected override Task RespondLoadingInternal() {
-        if (HasResponded) return Task.CompletedTask;
-
+    protected override Task StartLoading() {
         return RespondComponentAsync([
             Builder<BasicComponentsBuilder>().Loading()
         ]);
-    }
-
-    protected override Task ReleaseInteractionInternal() {
-        return Task.CompletedTask;
     }
 
     public Task RespondComponentAsync(IEnumerable<IMessageComponentProperties> components) {
@@ -195,5 +217,9 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         else {
             await RespondPageAsync(getContentForManyAsync, getEntities);
         }
+    }
+
+    public override string GetCallSiteInteractionDifferentiator() {
+        return $"{Interaction.Id}-{CommandInteractionIndex}";
     }
 }

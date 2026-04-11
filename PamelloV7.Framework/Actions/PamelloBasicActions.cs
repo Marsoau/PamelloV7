@@ -1,86 +1,84 @@
-using System.ComponentModel;
-using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
-using PamelloV7.Framework.Attributes.Variants;
+using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
-using PamelloV7.Framework.Logging;
-using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Framework.Actions;
 
-public partial class PamelloBasicActions
+public abstract class PamelloBasicActions
 {
-    private static string NoMethod() => "Execute";
-    private static MethodInfo MethodFromName(string methodName, object? obj) {
-        var method = obj?.GetType().GetMethod(methodName);
-        if (method is null) throw new PamelloException($"Could not find \"{methodName}\" method");
+    public IServiceProvider Services = null!;
+    
+    public IPamelloUser ScopeUser = null!;
+    
+    public IEntityQueryService PEQL = null!;
+    public IPamelloCommandsService Commands = null!;
+    
+    public IPamelloPlayer? SelectedPlayer => ScopeUser.SelectedPlayer;
+    public IPamelloPlayer RequiredSelectedPlayer
+        => SelectedPlayer ?? throw new PamelloException("Selected player required");
+    public IPamelloPlayer GuaranteedSelectedPlayer
+        => SelectedPlayer ?? Command<PlayerCreate>().Execute("Player");
+    
+    protected IPamelloQueue? Queue => SelectedPlayer?.Queue;
+    protected IPamelloQueue RequiredQueue => RequiredSelectedPlayer.RequiredQueue;
+    
+    public bool RespondedWithLoading { get; protected set; }
+    
+    public virtual void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
+        Services = services;
         
-        return method;
+        ScopeUser = scopeUser;
+        
+        PEQL = services.GetRequiredService<IEntityQueryService>();
+        Commands = services.GetRequiredService<IPamelloCommandsService>();
     }
     
-    public static async Task<object?> RunMethodAsync(
-        [Variant(nameof(NoMethod))]
-        [Variant(nameof(MethodFromName))]
-        MethodInfo method,
-        object? obj,
-        object?[]? arguments = null,
-        Action<Exception>? exceptionHandler = null
-    ) {
-        exceptionHandler ??= x => throw x;
-        arguments = arguments?.Take(method.GetParameters().Length).ToArray() ?? [];
-
-        Output.Write($"Parameters for {method.Name}: {arguments.Length}");
-
-        try {
-            object? result;
-            
-            if (typeof(Task).IsAssignableFrom(method.ReturnType)) {
-                if (method.ReturnType.IsGenericType) {
-                    result = await (dynamic)method.Invoke(obj, arguments)!;
-                }
-                else {
-                    await (Task)method.Invoke(obj, arguments)!;
-                    result = null;
-                }
-            }
-            else {
-                result = method.Invoke(obj, arguments);
-            }
-            
-            return result;
-        }
-        catch (Exception x) {
-            exceptionHandler(x);
-            return null;
-        }
-    }
-
-    public static async Task<TType> InTypeFromStringAsync<TType>(string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
-        var value = await InTypeFromStringAsync(typeof(TType), str, defaultQuery, peql, scopeUser);
-        return (TType)value!;
-    }
+    public TCommand Command<TCommand>()
+        where TCommand : PamelloCommand, new()
+        => Commands.Get<TCommand>(ScopeUser);
+    public async Task<object?> Command(string commandPath)
+        => await Commands.ExecutePathAsync(commandPath, ScopeUser);
     
-    public static async Task<object?> InTypeFromStringAsync(Type type, string str, string defaultQuery, IEntityQueryService peql, IPamelloUser scopeUser) {
-        var query = string.IsNullOrEmpty(str) ? defaultQuery : str;
+    public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);
 
-        if (type.IsAssignableTo(typeof(IPamelloEntity))) {
-            return await peql.ReflectiveGetSingleAsync(type, query, scopeUser);
-        }
-        if (type == typeof(PlatformKey)) {
-            return PlatformKey.FromString(str);
-        }
-        if (
-            type.IsGenericType && (
-            type.GetGenericTypeDefinition() == typeof(List<>) ||
-            type.GetGenericTypeDefinition() == typeof(IEnumerable<>)) &&
-            type.GenericTypeArguments.First().IsAssignableTo(typeof(IPamelloEntity))
-        ) {
-            return await peql.ReflectiveGetAsync(type.GenericTypeArguments.First(), query, scopeUser);
+    public Task<TPamelloEntity?> GetSingleAsync<TPamelloEntity>(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetSingleAsync<TPamelloEntity>(query, ScopeUser), respond);
+
+    public Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetAsync<TPamelloEntity>(query, ScopeUser), respond);
+
+    public Task<IPamelloEntity> GetSingleRequiredAsync(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetSingleRequiredAsync(query, ScopeUser), respond);
+
+    public Task<IPamelloEntity?> GetSingleAsync(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetSingleAsync(query, ScopeUser), respond);
+
+    public Task<List<IPamelloEntity>> GetAsync(string query, bool respond = true) 
+        => WithLoadingAsync(PEQL.GetAsync(query, ScopeUser), respond);
+    
+    public async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
+        if (!task.IsCompleted && !RespondedWithLoading && respondWithLoading) {
+            await StartLoading();
         }
         
-        var converter = TypeDescriptor.GetConverter(type);
-        return converter.ConvertFromString(str);
+        await task;
+    }
+    public async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
+        if (!task.IsCompleted && !RespondedWithLoading && respondWithLoading) {
+            await StartLoading();
+        }
+    
+        return await task;
+    }
+
+    protected virtual Task StartLoading() {
+        return Task.CompletedTask;
     }
 }

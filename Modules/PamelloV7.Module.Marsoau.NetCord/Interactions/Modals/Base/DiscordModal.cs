@@ -12,20 +12,15 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
 {
     private Type? _builderType;
     public Type BuilderType => _builderType ?? throw new InvalidOperationException($"Modal type is not found on builder {GetType().FullName}");
+
+    public string ModalId { get; set; } = null!;
     
     protected DiscordModal() {
         _builderType = GetType().GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
     }
-    
-    protected override Task RespondLoadingInternal() {
-        throw new NotImplementedException();
-    }
-    protected override Task ReleaseInteractionInternal() {
-        throw new NotImplementedException();
-    }
 
-    public override void InitializeActions(IServiceProvider services, Interaction interaction, IPamelloUser scopeUser) {
-        base.InitializeActions(services, interaction, scopeUser);
+    public virtual void InitializeModal(string modalId, Interaction interaction, IServiceProvider services, IPamelloUser scopeUser) {
+        base.InitializeInteraction(interaction, services, scopeUser);
         
         if (interaction is not ModalInteraction modalInteraction)
             throw new PamelloException($"Interaction is not a modal interaction");
@@ -63,5 +58,9 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             var property = GetType().GetProperty(attribute.PropertyName);
             property?.SetValue(this, value);
         }
+    }
+
+    public override string GetCallSiteInteractionDifferentiator() {
+        throw new PamelloException("Cannot create Differentiator in DiscordModal");
     }
 }

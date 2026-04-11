@@ -14,17 +14,17 @@ public class DiscordComponentBuilderService : IPamelloService
         _services = services;
     }
     
-    public TBuilder Get<TBuilder>(Interaction interaction, IPamelloUser scopeUser)
+    public TBuilder Get<TBuilder>(string differentiator, IPamelloUser scopeUser)
         where TBuilder : DiscordComponentBuilder
-        => (TBuilder)Get(typeof(TBuilder), interaction, scopeUser);
+        => (TBuilder)Get(typeof(TBuilder), differentiator, scopeUser);
     
-    public DiscordComponentBuilder Get(Type builderType, Interaction interaction, IPamelloUser scopeUser) {
+    public DiscordComponentBuilder Get(Type builderType, string differentiator, IPamelloUser scopeUser) {
         var constructor = builderType.GetConstructor([]);
         if (constructor is null) throw new PamelloException($"Builder {builderType.FullName} does not have a default constructor");
         
         var builder = (DiscordComponentBuilder)constructor.Invoke([]);
         
-        builder.InitializeActions(_services, interaction, scopeUser);
+        builder.InitializeComponentBuilder(differentiator, _services, scopeUser);
         
         return builder;
     }

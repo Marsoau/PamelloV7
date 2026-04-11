@@ -66,8 +66,8 @@ public class DiscordCommandsService : IPamelloService
         }
     }
 
-    public async Task ExecuteAsync(SlashCommandInteraction interaction) {
-        var command = await GetAsync(interaction);
+    public async Task ExecuteAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand) {
+        var command = await GetAsync(interaction, parentCommand);
         
         var executeMethod = command.GetType().GetMethod("Execute");
         if (executeMethod is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" doesnt have execution method");
@@ -159,7 +159,7 @@ public class DiscordCommandsService : IPamelloService
         }
     }
 
-    public async Task<DiscordCommand> GetAsync(SlashCommandInteraction interaction) {
+    public async Task<DiscordCommand> GetAsync(SlashCommandInteraction interaction, DiscordCommand? parentCommand) {
         var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
         if (scopeUser is null) throw new PamelloException("User could not be found/created");
         
@@ -180,7 +180,7 @@ public class DiscordCommandsService : IPamelloService
         if (Activator.CreateInstance(descriptor.Type) is not DiscordCommand command)
             throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" cannot be null");
         
-        command.InitializeActions(_services, interaction, scopeUser);
+        command.InitializeCommand(interaction, parentCommand, _services, scopeUser);
         
         return command;
     }
@@ -193,9 +193,7 @@ public class DiscordCommandsService : IPamelloService
         
         foreach (var parameter in parameters) {
             var type = Type.GetTypeCode(parameter.Parameter.ParameterType) switch {
-                TypeCode.Byte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 or
-                TypeCode.SByte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64
-                    => ApplicationCommandOptionType.Integer,
+                >= TypeCode.SByte and <= TypeCode.UInt64 => ApplicationCommandOptionType.Integer,
                 TypeCode.Single or TypeCode.Double or TypeCode.Decimal => ApplicationCommandOptionType.Double,
                 TypeCode.Boolean => ApplicationCommandOptionType.Boolean,
                 TypeCode.String or TypeCode.Char => ApplicationCommandOptionType.String,

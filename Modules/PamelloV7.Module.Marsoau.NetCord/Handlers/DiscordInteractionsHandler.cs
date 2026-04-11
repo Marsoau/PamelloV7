@@ -46,7 +46,7 @@ public class DiscordInteractionsHandler : IPamelloService
         
         switch (interaction) {
             case SlashCommandInteraction slashCommand:
-                await _commands.ExecuteAsync(slashCommand);
+                await _commands.ExecuteAsync(slashCommand, null);
                 return;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith("tokenized:"):
                 Output.Write($"Received button: {buttonInteraction.Data.CustomId}");

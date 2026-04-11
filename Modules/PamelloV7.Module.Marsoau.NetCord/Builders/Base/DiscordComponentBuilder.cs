@@ -16,6 +16,17 @@ namespace PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 
 public abstract class DiscordComponentBuilder : DiscordBasicActions
 {
+    private string _differentiator = "";
+    
+    public void InitializeComponentBuilder(string differentiator, IServiceProvider services, IPamelloUser scopeUser) {
+        InitializeActions(services, scopeUser);
+        
+        _differentiator = differentiator;
+    }
+
+    public override string GetCallSiteInteractionDifferentiator()
+        => _differentiator;
+
     public static string GetEntriesText(IEnumerable<PamelloQueueEntry> list, int nextPosition, int countStart) {
         return GetEntriesText(list.Select(entry => entry.Song).OfType<IPamelloSong>(), countStart, nextPosition, DiscordString.Italic("next >"));
     }
