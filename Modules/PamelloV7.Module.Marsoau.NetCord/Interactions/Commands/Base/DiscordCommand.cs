@@ -201,11 +201,12 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         [Variant(nameof(GetContentSingleAsync))]
         [Variant(nameof(GetContentSync))]
         GetContentAsync getContentAsync,
-        GetEntities? entities = null
+        GetEntities? entities = null,
+        int? lifetimeSeconds = null
     ) {
         entities ??= () => [];
 
-        UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
+        UpdatableMessage = _updatableMessageService.Watch(new UpdatableMessage(this, lifetimeSeconds ?? NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             _ => getContentAsync(),
             async components => {
                 await RespondComponentAsync(components);

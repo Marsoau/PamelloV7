@@ -28,11 +28,8 @@ public class CommandSwitcher {
     }
 
     public async Task Toggle(string key) {
-        if (StateOf(key)) {
-            await HideAll();
-        } else {
-            await Show(key);
-        }
+        if (StateOf(key)) await HideAll();
+        else await Show(key);
     }
 
     public async Task Show(string key) {
