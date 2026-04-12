@@ -83,7 +83,8 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         if (Id == 3) {
             //_authorizations.Add(new UserAuthorization(services, this, new PlatformKey("osu", "29347119")));
         }
-        _authorizations.Sort((a, b) => string.Compare(a.PK.Platform, b.PK.Platform, StringComparison.Ordinal));
+        
+        SortAuthorizations(true);
     }
     
     protected override void InitBase() {
@@ -123,6 +124,21 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         databaseUser.Authorizations = Authorizations.Select(authorization => authorization.PK).ToList();
         
         databaseUsers.Save(databaseUser);
+    }
+
+    public void SortAuthorizations(bool onInit = false) {
+        var before = _authorizations.ToList();
+        
+        _authorizations.Sort((a, b) => string.Compare(a.PK.ToString(), b.PK.ToString(), StringComparison.Ordinal));
+        
+        if (onInit || _authorizations.SequenceEqual(before)) return;
+        
+        _sink.Invoke(null, new UserAuthorizationsUpdated() {
+            User = this,
+            AuthorizationsPlatformKeys = Authorizations.Select(a => a.PK.ToString())
+        });
+        
+        Save();
     }
     
     /*
@@ -175,9 +191,31 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
         Save();
     }
-    
-    public void AddAuthorization(UserAuthorization authorization, bool automatic = false) {
-        throw new NotImplementedException();
+
+    public async Task AddAuthorization(string platform, string key) {
+        var platforms = _services.GetRequiredService<IPlatformService>();
+        
+        var userPlatform = platforms.GetUserPlatform(platform);
+        if (userPlatform is null) throw new PamelloException($"Platform \"{userPlatform}\" not found");
+        
+        var userInfo = await userPlatform.GetUserInfo(key);
+        if (userInfo is null) throw new PamelloException($"User with key \"{key}\" not found on \"{platform}\" platform");
+        
+        AddAuthorizationForced(platform, key);
+    }
+
+    public void AddAuthorizationForced(string platform, string key) {
+        var authorization = new UserAuthorization(_services, this, new PlatformKey(platform, key));
+        
+        _authorizations.Add(authorization);
+        SortAuthorizations(true);
+        
+        _sink.Invoke(this, new UserAuthorizationsUpdated() {
+            User = this,
+            AuthorizationsPlatformKeys = Authorizations.Select(a => a.PK.ToString())
+        });
+        
+        Save();
     }
 
     public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false) {

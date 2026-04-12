@@ -30,9 +30,10 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IPamelloPlayer? SelectPlayer(IPamelloPlayer? player, bool autoSelected = false);
     
     public void SelectAuthorization(int index, bool autoSelected = false);
-
-    public void AddAuthorization(UserAuthorization authorization, bool autoAdded = false);
     
+    public Task AddAuthorization(string platform, string key);
+    public void AddAuthorizationForced(string platform, string key);
+
     public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false);
     public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false, bool automatic = false);
     public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition, bool automatic = false);

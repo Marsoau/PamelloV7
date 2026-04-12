@@ -95,31 +95,23 @@ public partial class UserInfo
                 new ComponentSeparatorProperties()
             );
 
+            var authorizationsTextDisplay = new TextDisplayProperties(
+                $"""
+                 ### Authorizations
+                 {(user.Authorizations.Count == 0 ? "-# _None_" : "")}
+                 {authorizationsBuilder}
+                 """
+            );
+
             if (user == ScopeUser) {
                 container.AddComponents(
                     new ComponentSectionProperties(
                         ModalButton<UserAuthorizationSelectModal>("Select", ButtonStyle.Secondary)
-                    ).AddComponents(
-                        new TextDisplayProperties(
-                            $"""
-                             ### Authorizations
-                             {(user.Authorizations.Count == 0 ? "-# _None_" : "")}
-                             {authorizationsBuilder}
-                             """
-                        )
-                    )
+                    ).AddComponents(authorizationsTextDisplay)
                 );
             }
             else {
-                container.AddComponents(
-                    new TextDisplayProperties(
-                        $"""
-                         ### Authorizations
-                         {(user.Authorizations.Count == 0 ? "-# _None_" : "")}
-                         {authorizationsBuilder}
-                         """
-                    )
-                );
+                container.AddComponents(authorizationsTextDisplay);
             }
 
             return container;
