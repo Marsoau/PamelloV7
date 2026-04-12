@@ -25,10 +25,10 @@ public partial class PlayerQueueList
     {
         public IMessageComponentProperties?[] Build(int page, int pageSize) {
             if (SelectedPlayer is null) return [
-                Builder<BasicComponentsBuilder>().Info(null, "No selected player")
+                BasicComponentsBuilder.Info(null, "No selected player")
             ];
             if (Queue is null) return [
-                Builder<BasicComponentsBuilder>().Info(null, "Selected player has no queue")
+                BasicComponentsBuilder.Info(null, "Selected player has no queue")
             ];
 
             var queue = Queue.Entries;

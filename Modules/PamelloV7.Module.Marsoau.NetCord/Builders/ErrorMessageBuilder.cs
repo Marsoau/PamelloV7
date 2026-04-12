@@ -23,7 +23,7 @@ public class ErrorMessageBuilder : DiscordComponentBuilder
             _countdownTask = Task.Run(Countdown);
         }
         
-        return Builder<BasicComponentsBuilder>().Info(header,
+        return BasicComponentsBuilder.Info(header,
             $"""
             {message}
             -# Deletes in {_seconds} seconds

@@ -7,7 +7,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Builders;
 
 public class BasicComponentsBuilder : DiscordComponentBuilder
 {
-    public ComponentContainerProperties Info(string? title, string? content) {
+    public static ComponentContainerProperties Info(string? title, string? content) {
         return new ComponentContainerProperties().AddComponents(
             new TextDisplayProperties(
                 (title?.Length > 0 ? $"### {title}\n" : "") +
@@ -34,7 +34,7 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
         ];
     }
     
-    public TextDisplayProperties Loading() {
+    public static TextDisplayProperties Loading() {
         return new TextDisplayProperties("-# _loading..._");
     }
 }

@@ -17,7 +17,7 @@ public partial class SongFavoriteRemove
         await RespondOneOrManyAsync(
             addedSongs,
             song => [
-                Builder<BasicComponentsBuilder>().Info("Removed from favorite", song.ToDiscordString())
+                BasicComponentsBuilder.Info("Removed from favorite", song.ToDiscordString())
             ],
             $"Removed {DiscordString.Code(addedSongs.Count)} favorite songs"
         );

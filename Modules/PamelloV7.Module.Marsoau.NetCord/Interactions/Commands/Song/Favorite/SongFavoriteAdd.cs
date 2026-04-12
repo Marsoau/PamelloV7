@@ -17,7 +17,7 @@ public partial class SongFavoriteAdd
         await RespondOneOrManyAsync(
             addedSongs,
             song => [
-                Builder<BasicComponentsBuilder>().Info("Added to favorite", song.ToDiscordString())
+                BasicComponentsBuilder.Info("Added to favorite", song.ToDiscordString())
             ],
             $"Added {DiscordString.Code(addedSongs.Count)} favorite songs"
         );

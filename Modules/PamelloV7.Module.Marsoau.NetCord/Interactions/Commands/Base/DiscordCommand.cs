@@ -110,7 +110,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
 
     protected override Task StartLoading() {
         return RespondComponentAsync([
-            Builder<BasicComponentsBuilder>().Loading()
+            BasicComponentsBuilder.Loading()
         ]);
     }
 
@@ -185,7 +185,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         entities ??= () => [];
 
         await RespondAsync(() => [
-            Builder<BasicComponentsBuilder>().Info(getHeader(), getContent())
+            BasicComponentsBuilder.Info(getHeader(), getContent())
         ], entities);
     }
     
