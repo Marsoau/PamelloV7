@@ -38,13 +38,20 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         Tokenizer = services.GetRequiredService<InteractionTokenizationService>();
     }
 
+    private static Func<TType, Task> ActionSync<TType>(Action<TType> action)
+        => value => {
+            action(value);
+            return Task.CompletedTask;
+        };
+
     public StringMenuProperties Select<TType>(
         [Variant(nameof(AutoCallSite))]
         [Variant(nameof(KeyedCallSite))]
         InteractionCallSite callSite,
         TType? defaultValue,
-        Func<TType, Task> action
-    ) => Tokenizer.Select(callSite, defaultValue, action);
+        [Variant(nameof(ActionSync))]
+        Func<TType, Task> actionAsync
+    ) => Tokenizer.Select(callSite, defaultValue, actionAsync);
     
     private static Action<Interaction> OnActionSync(Action onAction)
         => _ => onAction();

@@ -1,8 +1,10 @@
+using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Builders.Help;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
 
@@ -27,18 +29,18 @@ public partial class Help
         public HelpCategory Category { get; private set; } = HelpCategory.Introduction;
         
         public IMessageComponentProperties?[] Build() {
-            var container = new ComponentContainerProperties();
-
-            container.AddComponents(
+            var categoryComponents = Category switch {
+                HelpCategory.Introduction => Builder<HelpIntroductionBuilder>().Build(),
+                HelpCategory.Guides => Builder<HelpGuidesBuilder>().Build(),
+                _ => []
+            };
+            
+            return [
                 Select(Category, async category => {
                     Category = category;
                     await Message.Refresh();
                 }),
-                new TextDisplayProperties(Category.ToString())
-            );
-
-            return [
-                container,
+                ..categoryComponents,
                 Builder<BasicButtonsBuilder>().RefreshButtonRow()
             ];
         }
