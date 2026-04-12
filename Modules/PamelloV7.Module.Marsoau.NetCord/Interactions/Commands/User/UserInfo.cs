@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
@@ -11,6 +12,7 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Playlist.Favorite;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Favorite;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.User.Authorization;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.User;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -29,6 +31,7 @@ public partial class UserInfo
         
         switcher.Add<SongFavoriteList>("songs", favoriteSongs => favoriteSongs.Execute(user));
         switcher.Add<PlaylistFavoriteList>("playlists", favoritePlaylists => favoritePlaylists.Execute(user));
+        switcher.Add<UserAuthorizationList>("authorizations", authorizations => authorizations.Execute(user), true);
         
         await RespondAsync(() => {
             var favoriteSongsButton = Button(switcher.StateOf("songs") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
@@ -37,14 +40,22 @@ public partial class UserInfo
             var favoritePlaylistsButton = Button(switcher.StateOf("playlists") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
                 await switcher.Toggle("playlists");
             });
+            var authorizationsButton = Button(switcher.StateOf("authorizations") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
+                await switcher.Toggle("authorizations");
+            });
             
-            return Builder<Builder>().Build(user, favoriteSongsButton, favoritePlaylistsButton);
+            return Builder<Builder>().Build(user, favoriteSongsButton, favoritePlaylistsButton, authorizationsButton);
         }, () => [user]);
     }
 
     public class Builder : DiscordComponentBuilder
     {
-        public IMessageComponentProperties? Build(IPamelloUser user, ButtonProperties favoriteSongsButton, ButtonProperties favoritePlaylistsButton) {
+        public IMessageComponentProperties? Build(
+            IPamelloUser user,
+            ButtonProperties favoriteSongsButton,
+            ButtonProperties favoritePlaylistsButton,
+            ButtonProperties authorizationsButton
+        ) {
             var clients = Services.GetRequiredService<DiscordClientService>();
 
             var authorizationsBuilder = new StringBuilder();
@@ -106,7 +117,7 @@ public partial class UserInfo
             if (user == ScopeUser) {
                 container.AddComponents(
                     new ComponentSectionProperties(
-                        ModalButton<UserAuthorizationSelectModal>("Select", ButtonStyle.Secondary)
+                        authorizationsButton
                     ).AddComponents(authorizationsTextDisplay)
                 );
             }

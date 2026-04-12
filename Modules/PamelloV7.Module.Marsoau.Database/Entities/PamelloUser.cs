@@ -180,10 +180,11 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         throw new NotImplementedException();
     }
 
-    public void SelectAuthorization(int value, bool autoSelected = false) {
-        if (SelectedAuthorizationIndex == value) return;
+    public void SelectAuthorization(int index, bool autoSelected = false) {
+        if (index < 0 || index >= _authorizations.Count) throw new PamelloException("Invalid index");
+        if (SelectedAuthorizationIndex == index) return;
 
-        SelectedAuthorizationIndex = value;
+        SelectedAuthorizationIndex = index;
         _sink.Invoke(autoSelected ? null : this, new UserSelectedAuthorizationIndexUpdated() {
             User = this,
             SelectedAuthorizationIndex = SelectedAuthorizationIndex
@@ -206,11 +207,35 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
 
     public void AddAuthorizationForced(string platform, string key) {
         var authorization = new UserAuthorization(_services, this, new PlatformKey(platform, key));
+        var currentAuthorization = SelectedAuthorization;
         
         _authorizations.Add(authorization);
         SortAuthorizations(true);
         
         _sink.Invoke(this, new UserAuthorizationsUpdated() {
+            User = this,
+            AuthorizationsPlatformKeys = Authorizations.Select(a => a.PK.ToString())
+        });
+        
+        Save();
+
+        if (currentAuthorization is null) return;
+        
+        var newIndex = _authorizations.IndexOf(currentAuthorization);
+        if (newIndex == SelectedAuthorizationIndex) return;
+            
+        SelectAuthorization(newIndex);
+    }
+
+    public void DeleteAuthorization(int index, bool automatic = false) {
+        if (index < 0 || index >= _authorizations.Count) throw new PamelloException("Invalid index");
+        if (index <= SelectedAuthorizationIndex) {
+            if (SelectedAuthorizationIndex > 0) SelectAuthorization(SelectedAuthorizationIndex - 1);
+        }
+        
+        _authorizations.RemoveAt(index);
+        
+        _sink.Invoke(automatic ? null : this, new UserAuthorizationsUpdated() {
             User = this,
             AuthorizationsPlatformKeys = Authorizations.Select(a => a.PK.ToString())
         });

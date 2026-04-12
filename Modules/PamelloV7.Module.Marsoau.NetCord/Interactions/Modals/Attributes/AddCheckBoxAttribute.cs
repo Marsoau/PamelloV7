@@ -17,7 +17,7 @@ public class AddCheckBoxAttribute : AddModalPropertyAttribute<CheckboxProperties
     }
     
     public override CheckboxProperties AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties) {
-        var properties = new CheckboxProperties(PropertyName);
+        var properties = new CheckboxProperties(PropertyName).WithDefault(DefaultValue);
         
         builder.Properties.AddComponents(new LabelProperties(Label, properties));
         

@@ -6,14 +6,12 @@ namespace PamelloV7.Framework.Commands;
 
 public partial class UserAuthorizationAdd : PamelloCommand
 {
-    public bool Execute(string platform, string key, bool force = false) {
+    public void Execute(string platform, string key, bool force = false) {
         if (force) {
             ScopeUser.AddAuthorizationForced(platform, key);
         }
         else {
             ScopeUser.AddAuthorization(platform, key);
         }
-
-        return true;
     }
 }

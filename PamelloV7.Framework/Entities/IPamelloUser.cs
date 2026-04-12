@@ -33,6 +33,8 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     
     public Task AddAuthorization(string platform, string key);
     public void AddAuthorizationForced(string platform, string key);
+    
+    public void DeleteAuthorization(int index, bool automatic = false);
 
     public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false);
     public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false, bool automatic = false);

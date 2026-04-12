@@ -9,6 +9,7 @@ using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.User;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
@@ -58,9 +59,7 @@ public partial class UserAuthorizationList
                 )}"),
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
-                    Button("Add Authorization", ButtonStyle.Primary, () => {
-                        Command<UserAuthorizationAdd>().Execute("discord", "513759277446594560");
-                    })
+                    ModalButton<UserAuthorizationAddModal>("Add Authorization", ButtonStyle.Primary)
                 ),
                 new ComponentSeparatorProperties()
             );
@@ -80,7 +79,8 @@ public partial class UserAuthorizationList
                                         }).WithDisabled(authorization == ScopeUser.SelectedAuthorization),
                                     AuthorizationListMode.Delete =>
                                         Button(count++, "Delete", ButtonStyle.Danger, () => {
-                                        
+                                            var index = user.Authorizations.ToList().IndexOf(authorization);
+                                            Command<UserAuthorizationDelete>().Execute(index);
                                         }).WithDisabled(authorization == ScopeUser.SelectedAuthorization),
                                     _ => throw new Exception()
                                 }
@@ -97,6 +97,21 @@ public partial class UserAuthorizationList
             }
 
             container.AddComponents(
+                new ComponentSeparatorProperties(),
+                new ActionRowProperties().AddComponents(
+                    Button("Select", _mode == AuthorizationListMode.Select ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                        if (_mode == AuthorizationListMode.Select) return;
+                        
+                        _mode = AuthorizationListMode.Select;
+                        await Message.Refresh();
+                    }),
+                    Button("Delete", _mode == AuthorizationListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                        if (_mode == AuthorizationListMode.Delete) return;
+                        
+                        _mode = AuthorizationListMode.Delete;
+                        await Message.Refresh();
+                    })
+                ),
                 new ComponentSeparatorProperties(),
                 new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({user.Authorizations.Count} authorizations)")
             );

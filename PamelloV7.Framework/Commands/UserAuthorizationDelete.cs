@@ -4,9 +4,9 @@ using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public partial class UserAuthorizationSelect : PamelloCommand
+public partial class UserAuthorizationDelete : PamelloCommand
 {
     public void Execute(int index) {
-        ScopeUser.SelectAuthorization(index);
+        ScopeUser.DeleteAuthorization(index);
     }
 }
