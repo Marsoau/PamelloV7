@@ -37,6 +37,14 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         ComponentBuilders = services.GetRequiredService<DiscordComponentBuilderService>();
         Tokenizer = services.GetRequiredService<InteractionTokenizationService>();
     }
+
+    public StringMenuProperties Select<TType>(
+        [Variant(nameof(AutoCallSite))]
+        [Variant(nameof(KeyedCallSite))]
+        InteractionCallSite callSite,
+        TType? defaultValue,
+        Func<TType, Task> action
+    ) => Tokenizer.Select(callSite, defaultValue, action);
     
     private static Action<Interaction> OnActionSync(Action onAction)
         => _ => onAction();
@@ -131,8 +139,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         where TBuilder : DiscordComponentBuilder
         => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
     
-    private InteractionCallSite AutoCallSite() => GetCallSite(-1);
-    private InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);
+    public InteractionCallSite AutoCallSite() => GetCallSite(-1);
+    public InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite GetCallSite(int key) {

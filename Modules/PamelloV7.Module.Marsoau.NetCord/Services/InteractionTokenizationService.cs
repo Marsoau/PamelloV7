@@ -33,30 +33,35 @@ public partial class InteractionTokenizationService : IPamelloService
         _modals = services.GetRequiredService<DiscordModalsService>();
     }
 
-    public TokenizedInteraction GetRequired(ButtonInteraction buttonInteraction)
-        => Get(buttonInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {buttonInteraction.Data.CustomId}");
-    public TokenizedInteraction GetRequired(ModalInteraction modalInteraction)
-        => Get(modalInteraction) ?? throw new PamelloException($"Interaction not found by token custom id {modalInteraction.Data.CustomId}");
+    public TokenizedInteraction GetRequired(string customId)
+        => Get(customId) ?? throw new PamelloException($"Interaction with custom id \"{customId}\" not found");
     
-    private static string ModalInteractionId(ModalInteraction modalInteraction)
-        => modalInteraction.Data.CustomId;
-    private static string ButtonInteractionId(ButtonInteraction buttonInteraction)
-        => buttonInteraction.Data.CustomId;
-    
-    [RequiredVariant]
-    public TokenizedInteraction? Get(
-        [Variant(nameof(ButtonInteractionId))]
-        [Variant(nameof(ModalInteractionId))]
-        string customId
-    ) {
-        return _interactions.GetValueOrDefault(customId);
-    }
+    public TokenizedInteraction? Get(string customId)
+        => _interactions.GetValueOrDefault(customId);
 
     public ButtonProperties ActionButton(InteractionCallSite callSite, string label, ButtonStyle style, Func<Interaction, Task> action) {
         var tokenizedInteraction = new TokenizedInteraction(callSite, action);
         _interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
         
         return new ButtonProperties(tokenizedInteraction.CustomId, label, style);
+    }
+    
+    public StringMenuProperties Select<TType>(InteractionCallSite callSite, TType? defaultValue, Func<TType, Task> action) {
+        var tokenizedInteraction = new TokenizedSelectInteraction<TType>(callSite, action, _services);
+        _interactions[tokenizedInteraction.CustomId] = tokenizedInteraction;
+        
+        var properties = new StringMenuProperties(tokenizedInteraction.CustomId);
+        
+        if (!typeof(TType).IsAssignableTo(typeof(Enum))) return properties;
+        
+        var values = Enum.GetValues(typeof(TType)).Cast<Enum>();
+        foreach (var value in values) {
+            if (value is null) continue;
+            
+            properties.AddOptions(new StringMenuSelectOptionProperties(value.ToString(), value.ToString("D")).WithDefault(Equals(value, defaultValue as Enum)));
+        }
+        
+        return properties;
     }
 
     public ButtonProperties ModalButton(

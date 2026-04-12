@@ -51,7 +51,7 @@ public class DiscordInteractionsHandler : IPamelloService
                 return;
             case ButtonInteraction buttonInteraction when buttonInteraction.Data.CustomId.StartsWith(InteractionCallSite.CustomIdPrefix):
                 Output.Write($"Received button: {buttonInteraction.Data.CustomId}");
-                tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction);
+                tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction.Data.CustomId);
 
                 _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
                 await tokenizedInteraction.Action(interaction);
@@ -59,8 +59,17 @@ public class DiscordInteractionsHandler : IPamelloService
                 break;
             case ModalInteraction modalInteraction:
                 Output.Write($"Received modal: {modalInteraction.Data.CustomId}");
-                tokenizedInteraction = _tokenizer.GetRequired(modalInteraction);
+                tokenizedInteraction = _tokenizer.GetRequired(modalInteraction.Data.CustomId);
                 
+                _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
+                await tokenizedInteraction.Action(interaction);
+                
+                break;
+            case StringMenuInteraction stringMenuInteraction:
+                Output.Write($"Received string menu: {stringMenuInteraction.Data.CustomId}");
+                tokenizedInteraction = _tokenizer.GetRequired(stringMenuInteraction.Data.CustomId);
+                
+                _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
                 await tokenizedInteraction.Action(interaction);
                 
                 break;

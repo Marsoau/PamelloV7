@@ -17,6 +17,7 @@ using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
+using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using DescriptionAttribute = PamelloV7.Module.Marsoau.NetCord.Attributes.DescriptionAttribute;
 
@@ -198,8 +199,7 @@ public partial class DiscordCommandsService : IPamelloService
         SlashCommandInteraction interaction,
         DiscordCommand? parentCommand
     ) {
-        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
-        if (scopeUser is null) throw new PamelloException("User could not be found/created");
+        var scopeUser = await _users.GetByInteractionRequired(interaction);
         
         var descriptor = commandType is not null ? GetDescriptor(commandType) : GetDescriptor(interaction);
         if (descriptor is null) throw new PamelloException($"Discord command with interaction name \"{interaction.Data.Name}\" not found");

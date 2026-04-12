@@ -9,6 +9,7 @@ using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Differentiation;
+using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
@@ -75,8 +76,7 @@ public class DiscordModalsService : IPamelloService
     }
     
     public async Task<DiscordModal> GetModal(Type modalType, ModalInteraction interaction) {
-        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
-        if (scopeUser is null) throw new PamelloException("User could not be found/created");
+        var scopeUser = await _users.GetByInteractionRequired(interaction);
         
         var descriptor = ModalsDescriptors.FirstOrDefault(d => d.ModalType == modalType);
         if (descriptor is null) throw new PamelloException($"Could not find modal {modalType.FullName}");

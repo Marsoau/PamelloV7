@@ -12,6 +12,7 @@ using PamelloV7.Framework.Services.Base;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Differentiation;
+using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
 
@@ -51,8 +52,7 @@ public class DiscordButtonsService : IPamelloService
         => (TButton)await GetAsync(typeof(TButton), interaction);
     
     public async Task<DiscordButton> GetAsync(Type buttonType, ButtonInteraction interaction) {
-        var scopeUser = await _users.GetByPlatformKey(new PlatformKey("discord", interaction.User.Id.ToString()), ServerConfig.Root.AllowUserCreation);
-        if (scopeUser is null) throw new PamelloException("User could not be found/created");
+        var scopeUser = await _users.GetByInteractionRequired(interaction);
         
         if (Activator.CreateInstance(buttonType) is not DiscordButton button)
             throw new PamelloException($"Discord button with custom id \"{interaction.Data.CustomId}\" was null on creation");
