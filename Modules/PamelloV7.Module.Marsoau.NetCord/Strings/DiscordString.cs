@@ -7,13 +7,21 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
     public static class DiscordString
     {
         public static string User(IPamelloUser? user) {
-            var discordAuthorization = user?.SelectedAuthorization;
+            if (user is null) return "<@0>";
+            
+            var discordAuthorization = user.SelectedAuthorization;
             if (discordAuthorization is not null && discordAuthorization.PK.Platform != "discord") discordAuthorization = null;
             
-            discordAuthorization ??= user?.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord");
-            if (discordAuthorization is null) return "<@0>";
+            discordAuthorization ??= user.Authorizations.FirstOrDefault(auth => auth.PK.Platform == "discord");
+            if (discordAuthorization is null) return user.Name;
+
+            _ = ulong.TryParse(discordAuthorization.PK.Key, out var userId);
+
+            if (user.SelectedAuthorization?.PK.Platform == "discord")
+                return User(userId);
             
-            return User(ulong.Parse(discordAuthorization.PK.Key));
+            return $"{user.Name}";
+            //return $"{user.Name} {User(userId)}";
         }
         public static string User(ulong userId) {
             return $"<@{userId}>";
