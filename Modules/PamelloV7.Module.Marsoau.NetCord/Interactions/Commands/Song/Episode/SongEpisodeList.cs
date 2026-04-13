@@ -120,7 +120,7 @@ public partial class SongEpisodeList
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
                     Button("Clear", ButtonStyle.Secondary, () => {
-                        //remove all episodes from a song
+                        Command<SongEpisodesClear>().Execute(song);
                     }).WithDisabled(song.Episodes.Count == 0)
                 ).AddComponents(
                     new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({song.Episodes.Count} episodes)")

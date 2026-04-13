@@ -91,13 +91,13 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         
         var pamelloSong = (PamelloSong)episode.Song;
         var databaseEpisode = collection.Get(episode.Id)!;
-        
-        pamelloSong._songEpisodes.Remove(episode);
 
-        _events.Invoke(scopeUser, new SongEpisodesUpdated() {
-            Song = pamelloSong,
-            Episodes = IPamelloEntity.GetIds(pamelloSong.Episodes)
-        });
+        if (pamelloSong._songEpisodes.Remove(episode)) {
+            _events.Invoke(scopeUser, new SongEpisodesUpdated() {
+                Song = pamelloSong,
+                Episodes = IPamelloEntity.GetIds(pamelloSong.Episodes)
+            });
+        }
         
         _loaded.Remove(episode);
         collection.Delete(episode.Id);
