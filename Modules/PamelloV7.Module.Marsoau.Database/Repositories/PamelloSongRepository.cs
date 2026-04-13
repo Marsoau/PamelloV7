@@ -43,8 +43,9 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
 
             Output.Write($"About to delete {episodes.Count} episodes from {e.Song}");
             
+            _episodes.DeleteAllFrom(e.Song, e.Invoker);
             //foreach (var playlist in playlists) playlist.RemoveSong(e.Song, scopeUser);
-            foreach (var episode in episodes) _episodes.Delete(episode, e.Invoker);
+            //foreach (var episode in episodes) _episodes.Delete(episode, e.Invoker);
             //foreach (var user in favoriteBy) user.RemoveFavoriteSong(e.Song);
         });
         //we could slaos soubscribe to SongRestore in the way we would execute all inner revert packs inside the subscription

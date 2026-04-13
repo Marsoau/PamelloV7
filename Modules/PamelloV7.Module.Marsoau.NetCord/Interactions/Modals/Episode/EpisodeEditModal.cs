@@ -1,10 +1,9 @@
 using PamelloV7.Core.Audio;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
-using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes;
 
-namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
+namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Episode;
 
 [DiscordModal("Edit episode")]
 
@@ -12,7 +11,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 [AddShortInput<AudioTime>("Start*", "Start")]
 [AddCheckBox("AutoSkip", "Auto Skip")]
 
-public partial class SongEpisodeEditModal
+public partial class EpisodeEditModal
 {
     public partial class Builder
     {

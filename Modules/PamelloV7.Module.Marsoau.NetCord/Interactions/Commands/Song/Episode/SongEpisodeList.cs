@@ -1,10 +1,12 @@
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Episode;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
@@ -18,7 +20,7 @@ public partial class SongEpisodeList
     ) {
         await RespondPageAsync(page =>
             Builder<Builder>().Build(song, page)
-        , () => [song, ..song.Episodes]);
+        , () => [song, ..song.Episodes, SelectedPlayer]);
     }
 
     public class Builder : DiscordComponentBuilder
@@ -32,7 +34,8 @@ public partial class SongEpisodeList
         private EpisodeListMode _mode;
     
         public IMessageComponentProperties?[] Build(IPamelloSong song, int page) {
-            var isCurrentSong = song == ScopeUser.SelectedPlayer?.Queue?.CurrentSong;
+            var isCurrentSong = song == Queue?.CurrentSong;
+            
             if (_mode == EpisodeListMode.Rewind && !isCurrentSong) {
                 _mode = EpisodeListMode.Edit;
             }
@@ -50,8 +53,10 @@ public partial class SongEpisodeList
                 new TextDisplayProperties($"## Episodes of {song.ToDiscordString()}"),
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
-                    Button("Add Episode", ButtonStyle.Primary, () => {}),
-                    Button("Reset", ButtonStyle.Secondary, () => {})
+                    ModalButton<EpisodeCreateModal>("Add Episode", ButtonStyle.Primary, [song]),
+                    Button("Reset", ButtonStyle.Secondary, async () => {
+                        await Command<SongInfoReset>().Execute(song);
+                    })
                 ),
                 new ComponentSeparatorProperties()
             );
@@ -63,15 +68,23 @@ public partial class SongEpisodeList
                         new ComponentSectionProperties(
                             _mode switch {
                                 EpisodeListMode.Edit =>
-                                    ModalButton<SongEpisodeEditModal>(count++, "Edit", ButtonStyle.Secondary, [episode]),
+                                    ModalButton<EpisodeEditModal>(count++, "Edit", ButtonStyle.Secondary, [episode]),
                                 EpisodeListMode.Delete =>
-                                    ModalButton<SongEpisodeEditModal>(count++, "Delete", ButtonStyle.Danger, [episode]),
+                                    Button(count++, "Delete", ButtonStyle.Danger, () => {
+                                        Command<EpisodeDelete>().Execute(episode);
+                                    }),
                                 EpisodeListMode.Rewind =>
-                                    ModalButton<SongEpisodeEditModal>(count++, "Rewind", ButtonStyle.Secondary, [episode])
-                                        .WithDisabled(!isCurrentSong)
+                                    Button(count++, "Rewind", ButtonStyle.Secondary, () => {
+                                        var index = song.Episodes.ToList().IndexOf(episode) + 1;
+                                        Command<PlayerQueueGoToEpisode>().Execute(index.ToString());
+                                    }).WithDisabled(!isCurrentSong)
                             }
                         ).AddComponents(
-                            new TextDisplayProperties($"{DiscordString.Code(count)} : {episode.ToDiscordString(withSongId: false)}")
+                            new TextDisplayProperties(
+                                episode == Queue?.CurrentEpisode
+                                    ? DiscordString.Bold($"{DiscordString.Code(count)} > {episode.ToDiscordString(withSongId: false)}")
+                                    : $"{DiscordString.Code(count)} : {episode.ToDiscordString(withSongId: false)}"
+                            )
                         )
                     );
                 }

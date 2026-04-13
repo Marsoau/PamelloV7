@@ -2,9 +2,11 @@ using PamelloV7.Core.Audio;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Creative;
 using PamelloV7.Framework.Events.Destructive;
+using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.Repositories;
@@ -74,6 +76,13 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
             Episode = episode
         });
         
+        ((PamelloSong)song).SortEpisodes(true);
+
+        _events.Invoke(scopeUser, new SongEpisodesUpdated() {
+            Song = song,
+            Episodes = IPamelloEntity.GetIds(songEpisodes)
+        });
+        
         return episode;
     }
 
@@ -84,6 +93,11 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         var databaseEpisode = collection.Get(episode.Id)!;
         
         pamelloSong._songEpisodes.Remove(episode);
+
+        _events.Invoke(scopeUser, new SongEpisodesUpdated() {
+            Song = pamelloSong,
+            Episodes = IPamelloEntity.GetIds(pamelloSong.Episodes)
+        });
         
         _loaded.Remove(episode);
         collection.Delete(episode.Id);
@@ -122,6 +136,14 @@ public class PamelloEpisodeRepository : PamelloDatabaseRepository<IPamelloEpisod
         
         pamelloSong._songEpisodes.Clear();
         
+        _events.Invoke(scopeUser, new SongEpisodesUpdated() {
+            Song = pamelloSong,
+            Episodes = IPamelloEntity.GetIds(pamelloSong.Episodes)
+        });
+
+        foreach (var episode in pamelloSong.Episodes) {
+            Delete(episode, scopeUser);
+        }
         GetCollection().DeleteMany(e => e.SongId == song.Id);
     }
 }
