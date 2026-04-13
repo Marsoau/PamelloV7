@@ -1,4 +1,3 @@
-
 using Microsoft.CodeAnalysis;
 
 public enum ECategory
@@ -20,5 +19,6 @@ public readonly record struct SafeStoredEntityDescriptor(
     ITypeSymbol EntityType,
     string PropertyName,
     string[] PropertyAttributes,
-    bool IsRequired
+    bool IsRequired,
+    bool IsNotNull
 );

@@ -54,6 +54,9 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             var argument = attribute.ConstructorArguments.FirstOrDefault();
             if (argument.Value is not string propertyName) continue;
             
+            var isNotNull = propertyName.EndsWith("!");
+            if (isNotNull) propertyName = propertyName.Substring(0, propertyName.Length - 1);
+            
             var isRequired = attribute.ConstructorArguments.ElementAtOrDefault(1).Value as bool? ?? false;
 
             var attributes = attribute.ConstructorArguments.ElementAtOrDefault(2);
@@ -61,8 +64,8 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 
             debugOutput += $"Count: {attributesTypes.Length}; {string.Join("; ", attributes.Values.Select(value => value.Value?.GetType()))}";
             
-            if (isMany) manyEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired));
-            if (isSingle) singleEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired));
+            if (isMany) manyEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired, isNotNull));
+            if (isSingle) singleEntitiesInfos.Add(new SafeStoredEntityDescriptor(type, propertyName, attributesTypes, isRequired, isNotNull));
         }
         
         var namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace 
@@ -90,13 +93,15 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             );
         }
         foreach (var propertyInfo in descriptor.SingleEntitiesInfos) {
+            var notNull = propertyInfo.IsNotNull ? "!" : "";
+            var isNull = propertyInfo.IsNotNull ? "" : "?";
             propertiesSb.AppendLine(
                 $$"""
                           public readonly SafeStoredEntity<{{propertyInfo.EntityType.GetFullName()}}> _safe{{propertyInfo.PropertyName}} = new(0);
                           // With {{propertyInfo.PropertyAttributes.Length}} attributes
                           {{string.Join("\n", propertyInfo.PropertyAttributes.Select(attribute => $"[{attribute}]"))}}
-                          public{{(propertyInfo.IsRequired ? " required" : "")}} {{propertyInfo.EntityType.GetFullName()}}? {{propertyInfo.PropertyName}} {
-                              get => _safe{{propertyInfo.PropertyName}}.Entity!;
+                          public{{(propertyInfo.IsRequired ? " required" : "")}} {{propertyInfo.EntityType.GetFullName()}}{{isNull}} {{propertyInfo.PropertyName}} {
+                              get => _safe{{propertyInfo.PropertyName}}.Entity{{notNull}};
                               set => _safe{{propertyInfo.PropertyName}}.Entity = value;
                           }
                   """

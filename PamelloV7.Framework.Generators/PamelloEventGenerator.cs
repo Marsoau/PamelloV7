@@ -194,7 +194,7 @@ public class PamelloEventGenerator : IIncrementalGenerator
                       {{(eventClass.NeedsInvoker ? 
               """
               public readonly SafeStoredEntity<IPamelloUser> _safeInvoker = new(0);
-                      public IPamelloUser? Invoker {
+                      public IPamelloUser Invoker {
                           get => _safeInvoker.Entity!;
                           set => _safeInvoker.Entity = value;
                       }
