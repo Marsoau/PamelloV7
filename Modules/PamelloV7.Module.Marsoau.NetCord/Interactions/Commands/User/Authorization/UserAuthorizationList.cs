@@ -24,8 +24,8 @@ public partial class UserAuthorizationList
         user ??= ScopeUser;
         
         await RespondPageAsync(page => 
-            Builder<Builder>().Build(user, page)
-        , () => [ScopeUser]);
+                Builder<Builder>().Build(user, page)
+            , () => [ScopeUser]);
     }
     
     public class Builder : DiscordComponentBuilder
@@ -67,24 +67,36 @@ public partial class UserAuthorizationList
             if (itemsOnPage.Count > 0) {
                 var count = page * pageSize;
                 foreach (var authorization in itemsOnPage) {
+                    ButtonProperties button;
+
+                    if (authorization == ScopeUser.SelectedAuthorization) {
+                        button = Button(count++, "Selected", ButtonStyle.Secondary, () => { }).WithDisabled();
+                    }
+                    else if (
+                        _mode == AuthorizationListMode.Delete &&
+                        authorization.PK.Platform == "discord" &&
+                        authorization.PK.Key == Message.Command.Interaction.User.Id.ToString()
+                    ) {
+                        button = Button(count++, "Current", ButtonStyle.Secondary, () => { }).WithDisabled();
+                    }
+                    else {
+                        button = _mode switch {
+                            AuthorizationListMode.Select =>
+                                Button(count++, "Select", ButtonStyle.Secondary, () => {
+                                    var index = user.Authorizations.ToList().IndexOf(authorization);
+                                    Command<UserAuthorizationSelect>().Execute(index);
+                                }).WithDisabled(!isOwner),
+                            AuthorizationListMode.Delete =>
+                                Button(count++, "Delete", ButtonStyle.Danger, () => {
+                                    var index = user.Authorizations.ToList().IndexOf(authorization);
+                                    Command<UserAuthorizationDelete>().Execute(index);
+                                }).WithDisabled(!isOwner),
+                            _ => throw new Exception()
+                        };
+                    }
+                    
                     container.AddComponents(
-                        new ComponentSectionProperties(
-                            authorization == ScopeUser.SelectedAuthorization
-                                ? Button(count++, "Selected", ButtonStyle.Secondary, () => {}).WithDisabled()
-                                : _mode switch {
-                                    AuthorizationListMode.Select =>
-                                        Button(count++, "Select", ButtonStyle.Secondary, () => {
-                                            var index = user.Authorizations.ToList().IndexOf(authorization);
-                                            Command<UserAuthorizationSelect>().Execute(index);
-                                        }).WithDisabled(authorization == ScopeUser.SelectedAuthorization),
-                                    AuthorizationListMode.Delete =>
-                                        Button(count++, "Delete", ButtonStyle.Danger, () => {
-                                            var index = user.Authorizations.ToList().IndexOf(authorization);
-                                            Command<UserAuthorizationDelete>().Execute(index);
-                                        }).WithDisabled(authorization == ScopeUser.SelectedAuthorization),
-                                    _ => throw new Exception()
-                                }
-                        ).AddComponents(
+                        new ComponentSectionProperties(button).AddComponents(
                             new TextDisplayProperties($"{DiscordString.Emoji(authorization.PK.Platform, _clients)} {DiscordString.Code(authorization.PK.Key)}")
                         )
                     );
@@ -96,22 +108,27 @@ public partial class UserAuthorizationList
                 );
             }
 
+            if (isOwner) {
+                container.AddComponents(
+                    new ComponentSeparatorProperties(),
+                    new ActionRowProperties().AddComponents(
+                        Button("Select", _mode == AuthorizationListMode.Select ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                            if (_mode == AuthorizationListMode.Select) return;
+                        
+                            _mode = AuthorizationListMode.Select;
+                            await Message.Refresh();
+                        }),
+                        Button("Delete", _mode == AuthorizationListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                            if (_mode == AuthorizationListMode.Delete) return;
+                        
+                            _mode = AuthorizationListMode.Delete;
+                            await Message.Refresh();
+                        })
+                    )
+                );
+            }
+
             container.AddComponents(
-                new ComponentSeparatorProperties(),
-                new ActionRowProperties().AddComponents(
-                    Button("Select", _mode == AuthorizationListMode.Select ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
-                        if (_mode == AuthorizationListMode.Select) return;
-                        
-                        _mode = AuthorizationListMode.Select;
-                        await Message.Refresh();
-                    }),
-                    Button("Delete", _mode == AuthorizationListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
-                        if (_mode == AuthorizationListMode.Delete) return;
-                        
-                        _mode = AuthorizationListMode.Delete;
-                        await Message.Refresh();
-                    })
-                ),
                 new ComponentSeparatorProperties(),
                 new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({user.Authorizations.Count} authorizations)")
             );
