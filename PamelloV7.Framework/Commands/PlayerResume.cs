@@ -1,8 +1,10 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerResume : PamelloCommand
+[PamelloCommand]
+public partial class PlayerResume
 {
     public bool Execute() {
         return RequiredSelectedPlayer.SetPause(false, ScopeUser);

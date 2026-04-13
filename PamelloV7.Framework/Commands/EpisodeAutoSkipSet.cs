@@ -1,9 +1,11 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 
 namespace PamelloV7.Framework.Commands;
 
-public class EpisodeAutoSkipSet : PamelloCommand
+[PamelloCommand]
+public partial class EpisodeAutoSkipSet
 {
     public bool Execute(IPamelloEpisode episode, bool state) {
         return episode.SetAutoSkip(state, ScopeUser);

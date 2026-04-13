@@ -1,8 +1,10 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerQueueIsRandomToggle : PamelloCommand
+[PamelloCommand]
+public partial class PlayerQueueIsRandomToggle
 {
     public bool Execute() {
         RequiredQueue.SetIsRandom(!RequiredQueue.IsRandom, ScopeUser);

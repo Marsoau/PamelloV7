@@ -1,9 +1,11 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerQueueSongAdd : PamelloCommand
+[PamelloCommand]
+public partial class PlayerQueueSongAdd
 {
     public IEnumerable<IPamelloSong> Execute(IEnumerable<IPamelloSong> songs) {
         return RequiredQueue.AddSongs(songs, ScopeUser);

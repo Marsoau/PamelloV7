@@ -1,8 +1,10 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerQueueIsReversedSet : PamelloCommand
+[PamelloCommand]
+public partial class PlayerQueueIsReversedSet
 {
     public bool Execute(bool state) {
         RequiredQueue.SetIsReversed(state, ScopeUser);

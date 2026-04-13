@@ -1,8 +1,10 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerQueueIsRandomSet : PamelloCommand
+[PamelloCommand]
+public partial class PlayerQueueIsRandomSet
 {
     public bool Execute(bool state) {
         RequiredQueue.SetIsRandom(state, ScopeUser);

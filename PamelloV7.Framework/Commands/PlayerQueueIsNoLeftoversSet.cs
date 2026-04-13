@@ -1,8 +1,10 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 
 namespace PamelloV7.Framework.Commands;
 
-public class PlayerQueueIsNoLeftoversSet : PamelloCommand
+[PamelloCommand]
+public partial class PlayerQueueIsNoLeftoversSet
 {
     public bool Execute(bool state) {
         RequiredQueue.SetIsNoLeftovers(state, ScopeUser);
