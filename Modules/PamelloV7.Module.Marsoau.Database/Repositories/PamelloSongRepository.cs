@@ -68,8 +68,11 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         
         //actual search by name here
         
-        var associationSong = _loaded.FirstOrDefault(song => song.Associations.Contains(query));
-        if (associationSong is not null) return associationSong;
+        var song = _loaded.FirstOrDefault(s => s.Associations.Contains(query));
+        if (song is not null) return song;
+        
+        song = _loaded.FirstOrDefault(s => s.Name == query);
+        if (song is not null) return song;
         
         var pk = _platforms.GetSongPlatformKey(query);
         if (pk is null) return null;
