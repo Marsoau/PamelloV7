@@ -57,19 +57,24 @@ public partial class UserAuthorizationList
                 new TextDisplayProperties($"## Authorizations{(
                     isOwner ? "" : $" of {user.ToDiscordString()}"
                 )}"),
-                new ComponentSeparatorProperties(),
-                new ActionRowProperties().AddComponents(
-                    ModalButton<UserAuthorizationAddModal>("Add Authorization", ButtonStyle.Primary)
-                ),
                 new ComponentSeparatorProperties()
             );
+
+            if (isOwner) {
+                container.AddComponents(
+                    new ActionRowProperties().AddComponents(
+                        ModalButton<UserAuthorizationAddModal>("Add Authorization", ButtonStyle.Primary)
+                    ),
+                    new ComponentSeparatorProperties()
+                );
+            }
             
             if (itemsOnPage.Count > 0) {
                 var count = page * pageSize;
                 foreach (var authorization in itemsOnPage) {
                     ButtonProperties button;
 
-                    if (authorization == ScopeUser.SelectedAuthorization) {
+                    if (authorization == user.SelectedAuthorization) {
                         button = Button(count++, "Selected", ButtonStyle.Secondary, () => { }).WithDisabled();
                     }
                     else if (
@@ -104,11 +109,11 @@ public partial class UserAuthorizationList
             }
             else {
                 container.AddComponents(
-                    new TextDisplayProperties($"-# {DiscordString.Italic("No episodes")}")
+                    new TextDisplayProperties($"-# {DiscordString.Italic("No authorizations")}")
                 );
             }
 
-            if (isOwner) {
+            if (isOwner && user.Authorizations.Count > 0) {
                 container.AddComponents(
                     new ComponentSeparatorProperties(),
                     new ActionRowProperties().AddComponents(

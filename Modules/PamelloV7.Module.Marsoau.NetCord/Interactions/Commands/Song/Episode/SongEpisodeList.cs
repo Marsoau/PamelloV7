@@ -94,29 +94,34 @@ public partial class SongEpisodeList
                     new TextDisplayProperties($"-# {DiscordString.Italic("No episodes")}")
                 );
             }
-            
+
+            if (song.Episodes.Count > 0) {
+                container.AddComponents(
+                    new ComponentSeparatorProperties(),
+                    new ActionRowProperties().AddComponents(
+                        Button("Edit", _mode == EpisodeListMode.Edit ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                            if (_mode == EpisodeListMode.Edit) return;
+                        
+                            _mode = EpisodeListMode.Edit;
+                            await Message.Refresh();
+                        }),
+                        Button("Delete", _mode == EpisodeListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                            if (_mode == EpisodeListMode.Delete) return;
+                        
+                            _mode = EpisodeListMode.Delete;
+                            await Message.Refresh();
+                        }),
+                        Button("Rewind", _mode == EpisodeListMode.Rewind ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
+                            if (_mode == EpisodeListMode.Rewind) return;
+                        
+                            _mode = EpisodeListMode.Rewind;
+                            await Message.Refresh();
+                        }).WithDisabled(!isCurrentSong)
+                    )
+                );
+            }
+
             container.AddComponents(
-                new ComponentSeparatorProperties(),
-                new ActionRowProperties().AddComponents(
-                    Button("Edit", _mode == EpisodeListMode.Edit ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
-                        if (_mode == EpisodeListMode.Edit) return;
-                        
-                        _mode = EpisodeListMode.Edit;
-                        await Message.Refresh();
-                    }),
-                    Button("Delete", _mode == EpisodeListMode.Delete ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
-                        if (_mode == EpisodeListMode.Delete) return;
-                        
-                        _mode = EpisodeListMode.Delete;
-                        await Message.Refresh();
-                    }),
-                    Button("Rewind", _mode == EpisodeListMode.Rewind ? ButtonStyle.Primary : ButtonStyle.Secondary, async () => {
-                        if (_mode == EpisodeListMode.Rewind) return;
-                        
-                        _mode = EpisodeListMode.Rewind;
-                        await Message.Refresh();
-                    }).WithDisabled(!isCurrentSong)
-                ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
                     Button("Clear", ButtonStyle.Secondary, () => {
