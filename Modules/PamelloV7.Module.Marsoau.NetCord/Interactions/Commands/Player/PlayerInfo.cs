@@ -5,6 +5,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Player;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player;
@@ -34,7 +35,7 @@ public partial class PlayerInfo
                     new TextDisplayProperties("No player selected")
                 );
             }
-            if (SelectedPlayer.Queue is null) {
+            if (Queue is null) {
                 return container.AddComponents(
                     new TextDisplayProperties("Selected player has no queue")
                 );
@@ -44,18 +45,18 @@ public partial class PlayerInfo
                 new TextDisplayProperties($"## {SelectedPlayer.ToDiscordString()}")
             );
 
-            var currentEntry = SelectedPlayer.Queue.Entries.ElementAtOrDefault(SelectedPlayer.Queue.Position);
+            var currentEntry = Queue.Entries.ElementAtOrDefault(Queue.Position);
             if (currentEntry is not null) {
                 container.AddComponents(
                     new ComponentSeparatorProperties(),
                     new ComponentSectionProperties(
                         new ComponentSectionThumbnailProperties(
-                            new ComponentMediaProperties(SelectedPlayer.Queue.CurrentSong!.CoverUrl)
+                            new ComponentMediaProperties(Queue.CurrentSong!.CoverUrl)
                         )
                     ).AddComponents(
                         new TextDisplayProperties(
                             $"""
-                             ### {SelectedPlayer.Queue.CurrentSong.Name}
+                             ### {Queue.CurrentSong.Name}
                              {(currentEntry.Adder is not null ? $"Added by {currentEntry.Adder.ToDiscordString()}" : "Added automatically")}
                              """
                         )
@@ -68,9 +69,9 @@ public partial class PlayerInfo
                     ).AddComponents(
                         new TextDisplayProperties(
                             $"""
-                             ### {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimePosition.ToShortString())} {
-                                 DiscordString.Progress((double)SelectedPlayer.Queue.CurrentSongTimePosition.TotalSeconds / SelectedPlayer.Queue.CurrentSongTimeTotal.TotalSeconds, 20)
-                             } {DiscordString.Code(SelectedPlayer.Queue.CurrentSongTimeTotal.ToShortString())}
+                             ### {DiscordString.Code(Queue.CurrentSongTimePosition.ToShortString())} {
+                                 DiscordString.Progress((double)Queue.CurrentSongTimePosition.TotalSeconds / Queue.CurrentSongTimeTotal.TotalSeconds, 20)
+                             } {DiscordString.Code(Queue.CurrentSongTimeTotal.ToShortString())}
                              """
                         )
                     )
@@ -83,7 +84,7 @@ public partial class PlayerInfo
                 );
             }
 
-            var currentEpisode = SelectedPlayer.Queue.CurrentEpisode;
+            var currentEpisode = Queue.CurrentEpisode;
 
             if (currentEpisode is not null) {
                 container.AddComponents(
@@ -91,10 +92,10 @@ public partial class PlayerInfo
                     new ComponentSectionProperties(
                         Button("Next Episode", ButtonStyle.Secondary, () => {
                             Command<PlayerQueueGoToEpisode>().Execute("next");
-                        }).WithDisabled((SelectedPlayer.Queue.CurrentSong?.Episodes.Count ?? 0) == 0)
+                        }).WithDisabled((Queue.CurrentSong?.Episodes.Count ?? 0) == 0)
                     ).AddComponents(
                         new TextDisplayProperties(
-                            $"{DiscordString.Code(SelectedPlayer.Queue.EpisodePosition + 1)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
+                            $"{DiscordString.Code(Queue.EpisodePosition + 1)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
                         )
                     )
                 );
@@ -103,32 +104,32 @@ public partial class PlayerInfo
             container.AddComponents(
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    Button("Toggle", ButtonStyle.Secondary, () => {
+                    Button(Queue.IsRandom ? "Enabled" : "Disabled", Queue.IsRandom ? ButtonStyle.Primary : ButtonStyle.Secondary, () => {
                         Command<PlayerQueueIsRandomToggle>().Execute();
                     })
                 ).AddComponents(
-                    new TextDisplayProperties($"Random: {GetEnabledDisabled(SelectedPlayer.Queue.IsRandom)}")
+                    new TextDisplayProperties($"### Random")
                 ),
                 new ComponentSectionProperties(
-                    Button("Toggle", ButtonStyle.Secondary, () => {
+                    Button(Queue.IsReversed ? "Enabled" : "Disabled", Queue.IsReversed ? ButtonStyle.Primary : ButtonStyle.Secondary, () => {
                         Command<PlayerQueueIsReversedToggle>().Execute();
                     })
                 ).AddComponents(
-                    new TextDisplayProperties($"Reversed: {GetEnabledDisabled(SelectedPlayer.Queue.IsReversed)}")
+                    new TextDisplayProperties($"### Reversed")
                 ),
                 new ComponentSectionProperties(
-                    Button("Toggle", ButtonStyle.Secondary, () => {
+                    Button(Queue.IsNoLeftovers ? "Enabled" : "Disabled", Queue.IsNoLeftovers ? ButtonStyle.Primary : ButtonStyle.Secondary, () => {
                         Command<PlayerQueueIsNoLeftoversToggle>().Execute();
                     })
                 ).AddComponents(
-                    new TextDisplayProperties($"No Leftovers: {GetEnabledDisabled(SelectedPlayer.Queue.IsNoLeftovers)}")
+                    new TextDisplayProperties($"### No Leftovers")
                 ),
                 new ComponentSectionProperties(
-                    Button("Toggle", ButtonStyle.Secondary, () => {
+                    Button(Queue.IsFeedRandom ? "Enabled" : "Disabled", Queue.IsFeedRandom ? ButtonStyle.Primary : ButtonStyle.Secondary, () => {
                         Command<PlayerQueueIsFeedRandomToggle>().Execute();
                     })
                 ).AddComponents(
-                    new TextDisplayProperties($"Feed Random: {GetEnabledDisabled(SelectedPlayer.Queue.IsFeedRandom)}")
+                    new TextDisplayProperties($"### Feed Random")
                 )
             );
 
@@ -169,12 +170,13 @@ public partial class PlayerInfo
             container.AddComponents(
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
+                    ModalButton<PlayerQueueSongAddModal>("Add Songs", ButtonStyle.Primary),
+                    Button("Rewind", ButtonStyle.Secondary, () => {
+                        
+                    }).WithDisabled(Queue.CurrentSong is null),
                     Button("Skip", ButtonStyle.Secondary, () => {
                         Command<PlayerQueueSkip>().Execute();
-                    }).WithDisabled(SelectedPlayer.Queue.Entries.Count == 0),
-                    Button("Clear Queue", ButtonStyle.Secondary, () => {
-                        Command<PlayerQueueClear>().Execute();
-                    }).WithDisabled(SelectedPlayer.Queue.Entries.Count == 0)
+                    }).WithDisabled(Queue.Entries.Count == 0)
                 )
             );
 
