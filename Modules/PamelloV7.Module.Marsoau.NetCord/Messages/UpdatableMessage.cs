@@ -14,9 +14,11 @@ public class UpdatableMessage : IDisposable
 
     private readonly TimeSpan _refreshInterval;
     private DateTime _lastRefresh;
+    private DateTime _firstAppearance;
     
     private readonly CancellationTokenSource _cancellation;
-    
+
+    public static int MaximumLifetimeSeconds { get; } = 10 * 60;
     public int LifetimeSeconds { get; }
     public Task LifetimeTask { get; private set; }
     
@@ -43,7 +45,9 @@ public class UpdatableMessage : IDisposable
         _delete = delete;
         
         _refreshInterval = TimeSpan.FromSeconds(1);
+        
         _lastRefresh = DateTime.MinValue;
+        _firstAppearance = DateTime.Now;
         
         _cancellation = new CancellationTokenSource();
         
@@ -64,6 +68,11 @@ public class UpdatableMessage : IDisposable
                 
                 var timePassed = DateTimeOffset.Now - LastTouched.Value;
                 var timeLeft = LifetimeSeconds - (int)timePassed.TotalSeconds;
+                
+                var totalTimePassed = DateTimeOffset.Now - _firstAppearance;
+                var maxTimeLeft = MaximumLifetimeSeconds - (int)totalTimePassed.TotalSeconds;
+                
+                if (maxTimeLeft < timeLeft) timeLeft = maxTimeLeft;
                 
                 if (timeLeft <= 0) break;
 
