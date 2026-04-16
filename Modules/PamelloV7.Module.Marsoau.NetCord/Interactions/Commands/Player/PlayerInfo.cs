@@ -171,9 +171,7 @@ public partial class PlayerInfo
                 new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
                     ModalButton<PlayerQueueSongAddModal>("Add Songs", ButtonStyle.Primary),
-                    Button("Rewind", ButtonStyle.Secondary, () => {
-                        
-                    }).WithDisabled(Queue.CurrentSong is null),
+                    ModalButton<PlayerQueueRewindModal>("Rewind", ButtonStyle.Secondary).WithDisabled(Queue.CurrentSong is null),
                     Button("Skip", ButtonStyle.Secondary, () => {
                         Command<PlayerQueueSkip>().Execute();
                     }).WithDisabled(Queue.Entries.Count == 0)

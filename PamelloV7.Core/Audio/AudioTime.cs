@@ -105,5 +105,6 @@ namespace PamelloV7.Core.Audio
         }
         
         public static implicit operator AudioTime(string strTime) => FromString(strTime);
+        public static AudioTime Zero => new(0);
     }
 }
