@@ -8,5 +8,5 @@ public class RemoteEpisodeDto : PamelloEntityDto
 {
     public required int Start { get; set; }
     public required bool AutoSkip { get; set; }
-    public required SafeStoredEntity<RemoteSong> Song { get; set; }
+    public required Safe<RemoteSong> Song { get; set; }
 }

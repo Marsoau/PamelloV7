@@ -101,7 +101,7 @@ public class DatabaseAccessService : IDatabaseAccessService
                     var entitiesIds = entityString.Length == idsPosition + 1 ? [] :
                         entityString[(idsPosition + 1)..].Split(',').Select(int.Parse);
                     
-                    var safeType = typeof(SafeStoredEntities<>).MakeGenericType(entitiesType);
+                    var safeType = typeof(SafeList<>).MakeGenericType(entitiesType);
                     var safeEntities = Activator.CreateInstance(safeType, entitiesIds);
                     
                     return safeEntities;
@@ -115,7 +115,7 @@ public class DatabaseAccessService : IDatabaseAccessService
                     
                     var entityId = int.Parse(entityString[(idPosition + 1)..]);
                     
-                    var safeType = typeof(SafeStoredEntity<>).MakeGenericType(entityType);
+                    var safeType = typeof(Safe<>).MakeGenericType(entityType);
                     var safeEntity = Activator.CreateInstance(safeType, entityId);
                     
                     return safeEntity;

@@ -6,9 +6,9 @@ namespace PamelloV7.Wrapper.Entities.Dto;
 
 public class RemotePlaylistDto : PamelloEntityDto
 {
-    public required SafeStoredEntity<RemoteUser> Owner { get; set; }
+    public required Safe<RemoteUser> Owner { get; set; }
     public required bool IsProtected { get; set; }
     
-    public required SafeStoredEntities<RemoteSong> Songs { get; set; }
-    public required SafeStoredEntities<RemoteUser> FavoriteBy { get; set; }
+    public required SafeList<RemoteSong> Songs { get; set; }
+    public required SafeList<RemoteUser> FavoriteBy { get; set; }
 }

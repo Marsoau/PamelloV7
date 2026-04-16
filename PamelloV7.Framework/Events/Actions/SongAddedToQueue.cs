@@ -14,7 +14,7 @@ namespace PamelloV7.Framework.Events.Actions;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Action)]
 
-[SafeEntities<IPamelloSong>("AddedSongs")]
+[SafeList<IPamelloSong>("AddedSongs")]
 public partial class SongAddedToQueue : PlayerQueueEntriesUpdated, IRevertiblePamelloEvent
 {
     public partial class Pack

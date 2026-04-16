@@ -7,7 +7,7 @@ using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Entities.Other;
 
-[SafeEntity<IPamelloUser>("User")]
+[Safe<IPamelloUser>("User")]
 public partial class UserAuthorization
 {
     private readonly IPlatformService _platfroms;

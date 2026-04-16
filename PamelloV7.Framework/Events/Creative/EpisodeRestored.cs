@@ -14,7 +14,7 @@ namespace PamelloV7.Framework.Events.Creative;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Creative)]
 
-[SafeEntity<IPamelloEpisode>("Episode")]
+[Safe<IPamelloEpisode>("Episode")]
 public partial class EpisodeRestored : IRevertiblePamelloEvent, IPamelloEvent
 {
     public partial class Pack

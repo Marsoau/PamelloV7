@@ -9,7 +9,7 @@ using PamelloV7.Framework.Exceptions;
 
 namespace PamelloV7.Framework.History.Records;
 
-[SafeEntity<IPamelloUser>("Performer")]
+[Safe<IPamelloUser>("Performer")]
 public partial class HistoryRecord : IHistoryRecord
 {
     public int Id { get; set; }

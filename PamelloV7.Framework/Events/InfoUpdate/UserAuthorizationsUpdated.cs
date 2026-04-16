@@ -10,7 +10,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloUser>("User")]
+[Safe<IPamelloUser>("User")]
 
 [EntityInfoUpdate<IPamelloUser>(nameof(User),
     nameof(PamelloUserDto.AuthorizationsPlatformKeys)

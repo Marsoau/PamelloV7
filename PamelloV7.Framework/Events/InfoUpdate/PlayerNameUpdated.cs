@@ -12,7 +12,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloPlayer>("Player")]
+[Safe<IPamelloPlayer>("Player")]
 
 [EntityInfoUpdate<IPamelloPlayer>(nameof(Player),
     nameof(PamelloPlayerDto.Name)

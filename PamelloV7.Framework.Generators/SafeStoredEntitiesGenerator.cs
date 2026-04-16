@@ -9,6 +9,11 @@ namespace PamelloV7.Framework.Generators;
 [Generator]
 public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 {
+    private const string SafeEntityClassName = "Safe";
+    private const string SafeEntityListClassName = "SafeList";
+    private const string SafeEntityAttributeName = "SafeAttribute";
+    private const string SafeEntityListAttributeName = "SafeListAttribute";
+    
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<SafeStoredEntitiesClassDescriptor> classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
@@ -43,8 +48,8 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             var attributeClass = attribute.AttributeClass;
             if (attributeClass is null) continue;
             
-            var isMany = attributeClass.Name == "SafeEntitiesAttribute";
-            var isSingle = attributeClass.Name == "SafeEntityAttribute";
+            var isMany = attributeClass.Name == SafeEntityListAttributeName;
+            var isSingle = attributeClass.Name == SafeEntityAttributeName;
             
             if (!isMany && !isSingle) continue;
 
@@ -88,7 +93,7 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
         foreach (var propertyInfo in descriptor.ManyEntitiesInfos) {
             propertiesSb.AppendLine(
                 $$"""
-                          public SafeStoredEntities<{{propertyInfo.EntityType.GetFullName()}}> {{propertyInfo.PropertyName}} { get; set; } = new();
+                          public {{SafeEntityListClassName}}<{{propertyInfo.EntityType.GetFullName()}}> {{propertyInfo.PropertyName}} { get; set; } = new();
                   """
             );
         }
@@ -97,7 +102,7 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
             var isNull = propertyInfo.IsNotNull ? "" : "?";
             propertiesSb.AppendLine(
                 $$"""
-                          public readonly SafeStoredEntity<{{propertyInfo.EntityType.GetFullName()}}> _safe{{propertyInfo.PropertyName}} = new(0);
+                          public readonly {{SafeEntityClassName}}<{{propertyInfo.EntityType.GetFullName()}}> _safe{{propertyInfo.PropertyName}} = new(0);
                           // With {{propertyInfo.PropertyAttributes.Length}} attributes
                           {{string.Join("\n", propertyInfo.PropertyAttributes.Select(attribute => $"[{attribute}]"))}}
                           public{{(propertyInfo.IsRequired ? " required" : "")}} {{propertyInfo.EntityType.GetFullName()}}{{isNull}} {{propertyInfo.PropertyName}} {

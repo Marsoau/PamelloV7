@@ -10,14 +10,14 @@ public class RemoteUserDto : PamelloEntityDto
 {
     public required string AvatarUrl { get; set; }
     public required int SelectedAuthorizationIndex { get; set; }
-    public required SafeStoredEntity<RemotePlayer> SelectedPlayer { get; set; }
+    public required Safe<RemotePlayer> SelectedPlayer { get; set; }
 
     public required DateTime JoinedAt { get; set; }
 
-    public required SafeStoredEntities<RemoteSong> AddedSongs { get; set; }
-    public required SafeStoredEntities<RemoteSong> FavoriteSongs { get; set; }
-    public required SafeStoredEntities<RemotePlaylist> AddedPlaylists { get; set; }
-    public required SafeStoredEntities<RemotePlaylist> FavoritePlaylists { get; set; }
+    public required SafeList<RemoteSong> AddedSongs { get; set; }
+    public required SafeList<RemoteSong> FavoriteSongs { get; set; }
+    public required SafeList<RemotePlaylist> AddedPlaylists { get; set; }
+    public required SafeList<RemotePlaylist> FavoritePlaylists { get; set; }
         
     public required IEnumerable<string> AuthorizationsPlatformKeys { get; set; }
         

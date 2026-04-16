@@ -4,7 +4,7 @@ namespace PamelloV7.Wrapper.Entities.Dto.Other;
 
 public class RemoteQueueDto
 {
-    public required SafeStoredEntity<RemoteSong> CurrentSong { get; set; }
+    public required Safe<RemoteSong> CurrentSong { get; set; }
     public required int CurrentSongTimePassed { get; set; }
     public required int CurrentSongTimeTotal { get; set; }
     public required IEnumerable<RemoteQueueEntryDto> Entries { get; set; }

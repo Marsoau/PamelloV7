@@ -28,13 +28,13 @@ public static class SafeStoredExtensions
         return [];
     }
     
-    public static async Task<TEntityType> LoadRequiredAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
+    public static async Task<TEntityType> LoadRequiredAsync<TEntityType>(this Safe<TEntityType> entity)
         where TEntityType : class, IDeletableEntity
         => await entity.LoadAsync() ?? throw new Exception($"Failed to load entity of type {typeof(TEntityType)} with id {entity.Id}");
     public static async Task<IRemoteEntity?> LoadRequiredAsync(this ISafeStoredEntity entity)
         => await entity.LoadAsync() ?? throw new Exception($"Failed to load entity of type {entity.EntityType} with id {entity.Id}");
     
-    public static async Task<TEntityType?> LoadAsync<TEntityType>(this SafeStoredEntity<TEntityType> entity)
+    public static async Task<TEntityType?> LoadAsync<TEntityType>(this Safe<TEntityType> entity)
         where TEntityType : class, IDeletableEntity
         => await ((ISafeStoredEntity)entity).LoadAsync() as TEntityType;
     public static async Task<IRemoteEntity?> LoadAsync(this ISafeStoredEntity entity) {
@@ -44,13 +44,13 @@ public static class SafeStoredExtensions
         return result;
     }
 
-    public static async Task<SafeStoredEntities<TEntityType>> LoadAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities)
+    public static async Task<SafeList<TEntityType>> LoadAsync<TEntityType>(this SafeList<TEntityType> entities)
         where TEntityType : class, IDeletableEntity
     {
         await ((ISafeStoredEntities)entities).LoadAsync();
         return entities;
     }
-    public static async Task<IEnumerable<TEntityType>> LoadPageAsync<TEntityType>(this SafeStoredEntities<TEntityType> entities, int page, int count)
+    public static async Task<IEnumerable<TEntityType>> LoadPageAsync<TEntityType>(this SafeList<TEntityType> entities, int page, int count)
         where TEntityType : class, IDeletableEntity
     {
         await ((ISafeStoredEntities)entities).LoadPageAsync(page, count);

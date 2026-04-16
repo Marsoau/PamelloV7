@@ -10,7 +10,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloSong>("Song")]
+[Safe<IPamelloSong>("Song")]
 public partial class SongSourceDownloadProgressUpdated : IPamelloEvent
 {
     public required int SourceIndex { get; set; }

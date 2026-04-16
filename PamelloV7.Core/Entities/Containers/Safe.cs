@@ -7,20 +7,20 @@ public static class SafeStoredEntityStaticContainer
 {
     public static Func<Type, int, IDeletableEntity?> GetById = (_, _) => null;
 
-    public static SafeStoredEntities<TEntityType> ToSafeEntities<TEntityType>(this IEnumerable<TEntityType> entities)
+    public static SafeList<TEntityType> ToSafeEntities<TEntityType>(this IEnumerable<TEntityType> entities)
         where TEntityType : class, IDeletableEntity
     {
-        return new SafeStoredEntities<TEntityType>(entities);
+        return new SafeList<TEntityType>(entities);
     }
     
-    public static SafeStoredEntities<TEntityType> ToSafeEntities<TEntityType>(this IEnumerable<int> entities)
+    public static SafeList<TEntityType> ToSafeEntities<TEntityType>(this IEnumerable<int> entities)
         where TEntityType : class, IDeletableEntity
     {
-        return new SafeStoredEntities<TEntityType>(entities);
+        return new SafeList<TEntityType>(entities);
     }
 }
 
-public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
+public class Safe<TEntityType> : ISafeStoredEntity
     where TEntityType : class, IDeletableEntity
 {
     private int _id;
@@ -64,11 +64,11 @@ public class SafeStoredEntity<TEntityType> : ISafeStoredEntity
     
     Type ISafeStoredEntity.EntityType => typeof(TEntityType);
     
-    public SafeStoredEntity(int id = 0) {
+    public Safe(int id = 0) {
         Id = id;
     }
 
-    public SafeStoredEntity(TEntityType? entity) {
+    public Safe(TEntityType? entity) {
         Entity = entity;
     }
     

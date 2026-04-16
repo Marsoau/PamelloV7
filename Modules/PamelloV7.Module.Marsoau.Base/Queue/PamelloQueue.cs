@@ -264,7 +264,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
                 Entries = EntriesDto,
-                AddedSongs = new SafeStoredEntities<IPamelloSong>(songs),
+                AddedSongs = new SafeList<IPamelloSong>(songs),
                 InsertPosition = insertPosition
             });
 

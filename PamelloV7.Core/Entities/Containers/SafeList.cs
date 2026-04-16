@@ -3,23 +3,23 @@ using PamelloV7.Core.Entities.Base;
 
 namespace PamelloV7.Framework.Containers;
 
-public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<TEntityType>
+public class SafeList<TEntityType> : ISafeStoredEntities, IEnumerable<TEntityType>
     where TEntityType : class, IDeletableEntity
 {
-    private List<SafeStoredEntity<TEntityType>> _safeEntities;
+    private List<Safe<TEntityType>> _safeEntities;
 
     public IEnumerable<int> InternalIds {
         get => _safeEntities.Select(safeEntity => safeEntity.Id);
-        set => _safeEntities = value.Select(id => new SafeStoredEntity<TEntityType>(id)).ToList();
+        set => _safeEntities = value.Select(id => new Safe<TEntityType>(id)).ToList();
         
     }
 
     public IEnumerable<TEntityType?> InternalEntities {
         get => _safeEntities.Select(safeEntity => safeEntity.Entity);
-        set => _safeEntities = value.Select(entity => new SafeStoredEntity<TEntityType>(entity)).ToList();
+        set => _safeEntities = value.Select(entity => new Safe<TEntityType>(entity)).ToList();
     }
 
-    public IEnumerable<SafeStoredEntity<TEntityType>> InternalSafeEntities => _safeEntities;
+    public IEnumerable<Safe<TEntityType>> InternalSafeEntities => _safeEntities;
 
     IEnumerable<IDeletableEntity?> ISafeStoredEntities.InternalEntities {
         get => InternalEntities;
@@ -32,14 +32,14 @@ public class SafeStoredEntities<TEntityType> : ISafeStoredEntities, IEnumerable<
 
     Type ISafeStoredEntities.EntitiesType => typeof(TEntityType);
 
-    public SafeStoredEntities() {
+    public SafeList() {
         _safeEntities = [];
     }
-    public SafeStoredEntities(IEnumerable<int> ids) {
+    public SafeList(IEnumerable<int> ids) {
         _safeEntities = null!;
         InternalIds = ids;
     }
-    public SafeStoredEntities(IEnumerable<TEntityType?> entities) {
+    public SafeList(IEnumerable<TEntityType?> entities) {
         _safeEntities = null!;
         InternalEntities = entities;
     }

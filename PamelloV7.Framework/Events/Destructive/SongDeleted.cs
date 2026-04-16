@@ -11,5 +11,5 @@ namespace PamelloV7.Framework.Events.Destructive;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Destructive)]
 
-[SafeEntity<IPamelloSong>("Song", true)]
+[Safe<IPamelloSong>("Song", true)]
 public partial class SongDeleted : IRevertiblePamelloEvent, IPamelloEvent;

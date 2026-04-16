@@ -6,15 +6,15 @@ using PamelloV7.Framework.Containers;
 
 namespace PamelloV7.Wrapper.Converters;
 
-public class SafeStoredEntitiesConverter<TEntityType> : JsonConverter<SafeStoredEntities<TEntityType>>
+public class SafeStoredEntitiesConverter<TEntityType> : JsonConverter<SafeList<TEntityType>>
     where TEntityType : class, IDeletableEntity
 {
-    public override SafeStoredEntities<TEntityType>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+    public override SafeList<TEntityType>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         if (reader.TokenType == JsonTokenType.Null)
             return null;
 
         if (reader.TokenType != JsonTokenType.StartArray)
-            throw new JsonException($"Expected an array of IDs for {typeof(SafeStoredEntities<TEntityType>).Name}.");
+            throw new JsonException($"Expected an array of IDs for {typeof(SafeList<TEntityType>).Name}.");
 
         var ids = new List<int>();
 
@@ -27,10 +27,10 @@ public class SafeStoredEntitiesConverter<TEntityType> : JsonConverter<SafeStored
             }
         }
 
-        return new SafeStoredEntities<TEntityType>(ids);
+        return new SafeList<TEntityType>(ids);
     }
 
-    public override void Write(Utf8JsonWriter writer, SafeStoredEntities<TEntityType> value, JsonSerializerOptions options) {
+    public override void Write(Utf8JsonWriter writer, SafeList<TEntityType> value, JsonSerializerOptions options) {
         if (value is null) {
             writer.WriteNullValue();
             return;

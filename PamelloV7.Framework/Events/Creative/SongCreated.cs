@@ -16,7 +16,7 @@ namespace PamelloV7.Framework.Events.Creative;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Creative)]
 
-[SafeEntity<IPamelloSong>("Song")]
+[Safe<IPamelloSong>("Song")]
 public partial class SongCreated : IRevertiblePamelloEvent, IPamelloEvent
 {
     public partial class Pack

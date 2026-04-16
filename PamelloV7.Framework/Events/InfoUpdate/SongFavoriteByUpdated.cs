@@ -11,7 +11,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloSong>("Song")]
+[Safe<IPamelloSong>("Song")]
 
 [EntityInfoUpdate<IPamelloSong>(nameof(Song),
     nameof(PamelloSongDto.FavoriteBy)

@@ -7,7 +7,7 @@ namespace PamelloV7.Wrapper.Entities.Dto;
 
 public class RemotePlayerDto : PamelloEntityDto
 {
-    public required SafeStoredEntity<RemoteUser> Owner { get; set; }
+    public required Safe<RemoteUser> Owner { get; set; }
     public required bool IsProtected { get; set; }
     public required bool IsPaused { get; set; }
     public required RemoteQueueDto Queue { get; set; }

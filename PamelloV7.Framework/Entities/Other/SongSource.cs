@@ -9,7 +9,7 @@ using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Entities.Other;
 
-[SafeEntity<IPamelloSong>("Song")]
+[Safe<IPamelloSong>("Song")]
 public partial class SongSource
 {
     private readonly IServiceProvider _services;

@@ -19,8 +19,8 @@ public class SafeStoredEntitiesConverterFactory : JsonConverterFactory
         var genericType = typeToConvert.GetGenericTypeDefinition();
         
         // Return true if it's EITHER the collection OR the single entity container
-        return genericType == typeof(SafeStoredEntities<>) || 
-               genericType == typeof(SafeStoredEntity<>);
+        return genericType == typeof(SafeList<>) || 
+               genericType == typeof(Safe<>);
     }
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
@@ -30,7 +30,7 @@ public class SafeStoredEntitiesConverterFactory : JsonConverterFactory
         Type converterType;
 
         // Route to the appropriate converter
-        if (genericType == typeof(SafeStoredEntities<>)) {
+        if (genericType == typeof(SafeList<>)) {
             converterType = typeof(SafeStoredEntitiesConverter<>).MakeGenericType(entityType);
         }
         else {

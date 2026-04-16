@@ -11,7 +11,7 @@ namespace PamelloV7.Framework.Events.InfoUpdate;
 [Broadcast]
 [PamelloEventCategory(EEventCategory.InfoUpdate)]
 
-[SafeEntity<IPamelloEpisode>("Episode")]
+[Safe<IPamelloEpisode>("Episode")]
 
 [EntityInfoUpdate<IPamelloEpisode>(nameof(Episode),
     nameof(PamelloEpisodeDto.Start)

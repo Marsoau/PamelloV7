@@ -11,6 +11,6 @@ namespace PamelloV7.Framework.Events.Destructive;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Destructive)]
 
-[SafeEntity<IPamelloEpisode>("Episode")]
+[Safe<IPamelloEpisode>("Episode")]
 public partial class EpisodeDeleted : IRevertiblePamelloEvent, IPamelloEvent;
 
