@@ -119,11 +119,9 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         
         if (DiscordMessage is not null) {
             if (FollowUpIndex != 0) {
-                Output.Write($"Modifying followup {DiscordMessage.Id} in {GetCallSiteInteractionDifferentiator()}");
                 await Interaction.ModifyFollowupMessageAsync(DiscordMessage.Id, properties => properties.Components = messageComponents);
             }
             else {
-                Output.Write($"Modifying original {DiscordMessage.Id} in {GetCallSiteInteractionDifferentiator()}");
                 await Interaction.ModifyResponseAsync(properties => properties.Components = messageComponents);
             }
             

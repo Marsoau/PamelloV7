@@ -18,6 +18,7 @@ using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Extensions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
@@ -248,6 +249,55 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         public IPamelloSong? SongAt(int position)
             => _entries.ElementAtOrDefault(position)?.Song;
 
+        public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser) {
+            var requestedSongsList = songs.ToList();
+            
+            var currentSongsIds = SongsIds.ToList();
+            var requestedSongsIds = requestedSongsList.Select(song => song.Id).ToList();
+
+            var difference = DifferenceResult<int>.From(currentSongsIds, requestedSongsIds);
+
+            var newEntries = _entries.ToList();
+            var newPosition = CurrentSong is not null ? Position : -1;
+            
+            difference.Apply(currentSongsIds,
+                onAdd: (i, songId) => {
+                    Output.Write($"Add: {i} = {songId};");
+                    
+                    newEntries.Insert(i, new PamelloQueueEntry() {
+                        _safeSong = { Id = songId },
+                        Adder = scopeUser
+                    });
+                    
+                    if (newPosition == -1 && songId == CurrentSong?.Id) newPosition = i;
+                    else if (i <= newPosition) newPosition++;
+                },
+                onDelete: (i, songId) => {
+                    Output.Write($"Delete: {i} = {songId};");
+                    newEntries.RemoveAt(i);
+                    
+                    if (i == newPosition) newPosition = -1;
+                    else if (i < newPosition) newPosition--;
+                }
+            );
+            
+            _entries.Clear();
+            _entries.AddRange(newEntries);
+            
+            _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
+                Player = Player,
+                Entries = EntriesDto
+            });
+
+            if (newPosition == -1) {
+                if (Position >= _entries.Count) GoToSong((newPosition + 1).ToString(), scopeUser);
+                else GoToNextSong(scopeUser);
+            }
+            else SetPosition(newPosition, scopeUser);
+
+            return Songs;
+        }
+
         public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? adder)
             => InsertSongs((_entries.Count + 1).ToString(), songs, adder);
         public IEnumerable<IPamelloPlaylist> AddPlaylist(IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? adder)
@@ -463,6 +513,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 		public IPamelloSong? GoToNextSong(IPamelloUser? scopeUser = null, bool forceRemoveCurrentSong = false) {
 			if (_entries.Count == 0)
             {
+                if (CurrentSong is not null) SetCurrent(null, scopeUser);
+                
                 if (!IsFeedRandom) return null;
 
                 var song = _songs.GetRandom(null!).FirstOrDefault();
@@ -486,7 +538,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 			else if (IsReversed) nextPosition = Position - 1;
 			else nextPosition = Position + 1;
 
-			if (forceRemoveCurrentSong || IsNoLeftovers && _songAudio is not null) {
+			if (Position > 0 && Position < _entries.Count && (forceRemoveCurrentSong || IsNoLeftovers && _songAudio is not null)) {
                 _entries.RemoveAt(Position);
 				if (nextPosition > Position) nextPosition--;
 

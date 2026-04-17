@@ -45,6 +45,7 @@ public interface IPamelloQueue
     public int? RequestNextPosition(string? positionValue, IPamelloUser? scopeUser);
 
     public IPamelloSong? SongAt(int position);
+    public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloPlaylist> AddPlaylist(IEnumerable<IPamelloPlaylist> playlists, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloSong> InsertSongs(string positionValue, IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser);
