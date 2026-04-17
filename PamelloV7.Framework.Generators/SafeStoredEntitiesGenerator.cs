@@ -9,10 +9,10 @@ namespace PamelloV7.Framework.Generators;
 [Generator]
 public class SafeStoredEntitiesGenerator : IIncrementalGenerator
 {
-    private const string SafeEntityClassName = "Safe";
-    private const string SafeEntityListClassName = "SafeList";
-    private const string SafeEntityAttributeName = "SafeAttribute";
-    private const string SafeEntityListAttributeName = "SafeListAttribute";
+    public const string SafeEntityClassName = "Safe";
+    public const string SafeEntityListClassName = "SafeList";
+    public const string SafeEntityAttributeName = "SafeAttribute";
+    public const string SafeEntityListAttributeName = "SafeListAttribute";
     
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<SafeStoredEntitiesClassDescriptor> classDeclarations = context.SyntaxProvider
