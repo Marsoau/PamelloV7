@@ -538,9 +538,9 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 			else if (IsReversed) nextPosition = Position - 1;
 			else nextPosition = Position + 1;
 
-			if (Position > 0 && Position < _entries.Count && (forceRemoveCurrentSong || IsNoLeftovers && _songAudio is not null)) {
+			if ((forceRemoveCurrentSong || IsNoLeftovers && _songAudio is not null) && Position >= 0 && Position < _entries.Count) {
                 _entries.RemoveAt(Position);
-				if (nextPosition > Position) nextPosition--;
+                if (nextPosition > Position) nextPosition--;
 
                 //not sure about this invoking
                 _events.Invoke(scopeUser, new PlayerQueueEntriesUpdated() {
