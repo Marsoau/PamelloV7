@@ -55,11 +55,11 @@ public class DownloadService : IDownloadService
         _downloaders.Remove(downloader);
     }
     
-    public bool IsDownloading(SongSource source) {
+    public bool IsDownloading(SongSource? source) {
         return _downloaders.Any(downloader => downloader.Source == source);
     }
     
-    public bool IsDownloaded(SongSource source) {
+    public bool IsDownloaded(SongSource? source) {
         if (IsDownloading(source)) return false;
         
         var file = _files.GetSourceFile(source);

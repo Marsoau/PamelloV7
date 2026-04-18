@@ -8,7 +8,7 @@ public interface IDownloadService : IPamelloService
 {
     public bool DoesSongDownloaderExist(string platform);
     public SongDownloader GetSongDownloader(SongSource source);
-    public bool IsDownloading(SongSource source);
-    public bool IsDownloaded(SongSource source);
+    public bool IsDownloading(SongSource? source);
+    public bool IsDownloaded(SongSource? source);
     public void RemoveDownloader(SongDownloader downloader);
 }
