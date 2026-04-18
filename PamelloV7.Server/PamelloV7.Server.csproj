@@ -27,7 +27,6 @@
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Database\PamelloV7.Module.Marsoau.Database.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.PEQL\PamelloV7.Module.Marsoau.PEQL.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.YouTube\PamelloV7.Module.Marsoau.YouTube.csproj" />
-        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Discord\PamelloV7.Module.Marsoau.Discord.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.NetCord\PamelloV7.Module.Marsoau.NetCord.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Setup\PamelloV7.Module.Marsoau.Setup.csproj" />
