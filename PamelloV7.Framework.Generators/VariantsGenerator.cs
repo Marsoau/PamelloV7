@@ -48,6 +48,12 @@ public class VariantsGenerator : IIncrementalGenerator
                         .FirstOrDefault(m => m.Name == variantMethodName);
                     
                     if (variantMethod is null) continue;
+
+                    if (variantMethod.ReturnType is INamedTypeSymbol { IsTupleType: true } tupleType) {
+                        foreach (var tupleElement in tupleType.TupleElements) {
+                            debug.AppendLine($"Element: {tupleElement.Name}: {tupleElement.Type.GetFullName()}");
+                        }
+                    }
                     
                     variants.Add(new VariantDescriptor(
                         method,
@@ -98,7 +104,8 @@ public class VariantsGenerator : IIncrementalGenerator
         IMethodSymbol Method,
         List<ITypeParameterSymbol> TypeParameters,
         List<IParameterSymbol> InputParameters,
-        List<string> OutputFlow
+        List<string> OutputFlow,
+        StringBuilder OutputCode
     );
 
     public static string? GetDefaultString(IParameterSymbol parameter) {
@@ -121,7 +128,7 @@ public class VariantsGenerator : IIncrementalGenerator
         FinalVariant? final,
         int index
     ) {
-        final ??= new FinalVariant(method, method.TypeParameters.ToList(), [], []);
+        final ??= new FinalVariant(method, method.TypeParameters.ToList(), [], [], new StringBuilder());
         
         var currentVariants = nextVariants.FirstOrDefault();
         if (currentVariants is null) {
@@ -147,8 +154,11 @@ public class VariantsGenerator : IIncrementalGenerator
                 var finalCopy = final with {
                     InputParameters = [..final.InputParameters],
                     OutputFlow = [..final.OutputFlow],
-                    TypeParameters = [..final.TypeParameters]
+                    TypeParameters = [..final.TypeParameters],
+                    OutputCode = new StringBuilder().Append(final.OutputCode)
                 };
+
+                var increment = 1;
 
                 if (variant is null) {
                     finalCopy.InputParameters.Add(parameter);
@@ -165,13 +175,30 @@ public class VariantsGenerator : IIncrementalGenerator
                         
                         finalCopy.InputParameters.Add(variantParameter);
                     }
-                    
-                    finalCopy.OutputFlow.Add($"{variant.VariantMethod.GetFullName()}({
-                        string.Join(", ", variant.VariantMethod.Parameters.Select(p => p.Name))
-                    })");
+
+                    if (variant.VariantMethod.ReturnType is INamedTypeSymbol { IsTupleType: true } tupleType) {
+                        finalCopy.OutputFlow.Add(
+                            string.Join(", ", tupleType.TupleElements.Select(t => t.Name))
+                        );
+
+                        finalCopy.OutputCode.AppendLine(
+                            $"var ({(
+                                string.Join(", ", tupleType.TupleElements.Select(t => $"{t.Name}"))
+                            )}) = {variant.VariantMethod.GetFullName()}({
+                                string.Join(", ", variant.VariantMethod.Parameters.Select(p => p.Name))
+                            });"
+                        );
+                        
+                        increment = tupleType.TupleElements.Length;
+                    }
+                    else {
+                        finalCopy.OutputFlow.Add($"{variant.VariantMethod.GetFullName()}({
+                            string.Join(", ", variant.VariantMethod.Parameters.Select(p => p.Name))
+                        })");
+                    }
                 }
                 
-                foreach (var nextFlow in GetVariantsFlows(method, nextVariants.Skip(1).ToList(), finalCopy, index + 1)) {
+                foreach (var nextFlow in GetVariantsFlows(method, nextVariants.Skip(1).ToList(), finalCopy, index + increment)) {
                     yield return nextFlow;
                 }
             }
@@ -232,6 +259,7 @@ public class VariantsGenerator : IIncrementalGenerator
         sb.Append("    ");
         sb.AppendLine(string.Join(",\n    ", GetFinalMethodInputFlowReversed(final).Reverse().Distinct()));
         sb.AppendLine($") {GetFinalMethodConstraints(final)} {{");
+        sb.AppendLine($"    {(final.OutputCode.Length > 0 ? final.OutputCode : "//no code")}");
         sb.AppendLine($"    {(final.Method.ReturnsVoid ? "" : "return ")}{final.Method.GetFullName()}(");
         sb.Append("        ");
         sb.AppendLine(string.Join(",\n        ", final.OutputFlow));

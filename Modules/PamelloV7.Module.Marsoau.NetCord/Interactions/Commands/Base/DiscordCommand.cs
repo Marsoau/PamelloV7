@@ -16,6 +16,7 @@ using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;
+using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
@@ -171,12 +172,20 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     private static Func<string?> StaticHeader(string header) => () => header;
     private static Func<string?> StaticContent(string content) => () => content;
     private static Func<string?> StandardHeader() => () => null;
+
+    private static (Func<string?> getContent, GetEntities getEntities) ContentForEntity(Func<IPamelloEntity?> getEntity) {
+        return (
+            () => getEntity()?.ToDiscordString() ?? "No entity",
+            () => [getEntity()]
+        );
+    }
     
     public async Task RespondAsync(
         [Variant(nameof(StandardHeader))]
         [Variant(nameof(StaticHeader))]
         Func<string?> getHeader,
         [Variant(nameof(StaticContent))]
+        [Variant(nameof(ContentForEntity))]
         Func<string?> getContent,
         GetEntities? entities = null
     ) {

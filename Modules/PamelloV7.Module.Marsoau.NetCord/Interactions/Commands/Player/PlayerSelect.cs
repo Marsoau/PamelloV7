@@ -20,6 +20,6 @@ public partial class PlayerSelect
         var selectedPlayer = Command<Framework.Commands.PlayerSelect>().Execute(player);
         if (selectedPlayer is null) throw new PamelloException("Failed to select player");
         
-        await RespondAsync("Player Selected", selectedPlayer.ToDiscordString, () => [player]);
+        await RespondAsync("Player Selected", () => selectedPlayer);
     }
 }
