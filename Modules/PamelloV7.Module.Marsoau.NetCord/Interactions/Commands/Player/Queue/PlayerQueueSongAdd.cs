@@ -15,12 +15,13 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 
-[DiscordCommand("add", "Add songs to the queue (/player queue song-add shortcut)")]
-[DiscordCommand("player queue song-add", "Add songs to the queue")]
+[DiscordCommand("add", "Add songs to the queue")]
+[DiscordCommand("player queue song-add", "Add songs to the queue | has shortcut /add")]
 public partial class PlayerQueueSongAdd
 {
     public async Task Execute(
-        [SongsDescription] List<IPamelloSong> songs
+        [SongsDescription] List<IPamelloSong> songs,
+        [Description("position", "Position in queue where to insert songs")] string? position = null
     ) {
         if (NetCordConfig.Root.Commands.AutoConnectOnAddition) {
             if (SelectedPlayer is null || !SelectedPlayer.ConnectedSpeakers.Any()) {
@@ -34,7 +35,7 @@ public partial class PlayerQueueSongAdd
             }
         }
         
-        var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs).ToList();
+        var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs, position).ToList();
 
         await RespondOneOrManyAsync(
             addedSongs,

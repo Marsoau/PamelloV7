@@ -314,7 +314,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _events.Invoke(adder, new SongAddedToQueue() {
                 Player = Player,
                 Entries = EntriesDto,
-                AddedSongs = new SafeList<IPamelloSong>(songs),
+                AddedSongs = songs.ToSafeList(),
                 InsertPosition = insertPosition
             });
 
@@ -322,7 +322,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 				SetCurrent(_entries.FirstOrDefault(), adder);
                 Position = 0;
 			}
-			else if (insertPosition <= Position) Position++;
+			else if (insertPosition <= Position) Position += songs.Count;
 
             return songs;
 		}
