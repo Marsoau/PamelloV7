@@ -1,4 +1,3 @@
-using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Enumerators;
 
@@ -12,7 +11,7 @@ public interface IPamelloModule
     
     public ELoadingStage Stage { get; }
     
-    public IBrush Color => Brushes.White;
+    public int Color => 0xFFFFFF;
     
     public void Configure(IServiceCollection services) { }
 

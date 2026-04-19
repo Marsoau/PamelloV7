@@ -4,14 +4,11 @@ using PamelloV7.Server.Services;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using Avalonia;
-using Consolonia;
 using Microsoft.AspNetCore.SignalR;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Config.Loaders;
 using PamelloV7.Framework.Config.Parts;
-using PamelloV7.Framework.Consolonia;
 using PamelloV7.Framework.Converters;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
@@ -23,13 +20,9 @@ using PamelloV7.Framework.Logging.Services;
 using PamelloV7.Framework.Modules.Loaders;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.Base;
-using PamelloV7.Server.Consolonia;
-using PamelloV7.Server.Consolonia.Screens;
-using PamelloV7.Server.Consolonia.Windows;
 using PamelloV7.Server.Hubs;
 using PamelloV7.Server.Loaders;
 using PamelloV7.Server.Logging;
-using IApplicationLifetime = Avalonia.Controls.ApplicationLifetimes.IApplicationLifetime;
 
 namespace PamelloV7.Server;
 
@@ -42,58 +35,18 @@ public class Program
     private PamelloModulesLoader _modulesLoader = null!;
     private PamelloServerLoader _serverLoader = null!;
         
-    private readonly TaskCompletionSource _consoloniaCreated = new();
-        
-    public ConsoloniaApp Consolonia { get; set; } = null!;
     public WebApplication Asp { get; set; } = null!;
 
-    public static void Main(string[] args) => new Program().ConsoloniaStartup(args);
+    public static Task Main(string[] args) => new Program().MainAsync(args);
 
-    public void ConsoloniaStartup(string[] args) {
+    public async Task MainAsync(string[] args) {
         _logger = new PamelloLogger();
         Output.Logger = _logger;
-            
+        
         _configLoader = new PamelloConfigLoader();
             
         _configLoader.Load();
         _configLoader.FinishForServer();
-
-        AppBuilder consoloniaBuilder;
-            
-        if (ServerConfig.Root.UseConsolonia) {
-            consoloniaBuilder = AppBuilder.Configure<ConsoloniaApp>()
-                .UseConsolonia()
-                .UseAutoDetectedConsole()
-                .ThrowOnErrors()
-                .LogToException();
-
-            consoloniaBuilder.AfterSetup(builder => {
-                Consolonia = (ConsoloniaApp)builder.Instance!;
-                _consoloniaCreated.SetResult();
-            });
-        }
-        else {
-            MainAsync(args).Wait();
-            return;
-        }
-            
-        var asp = Task.Run(async () => {
-            try {
-                await MainAsync(args);
-            }
-            catch (Exception x) {
-                Output.Write($"Server Thread Crushed\n{x}", ELogLevel.Error);
-            }
-        });
-
-        consoloniaBuilder.StartWithConsoleLifetime(args);
-    }
-    public async Task MainAsync(string[] args) {
-        if (ServerConfig.Root.UseConsolonia) {
-            await _consoloniaCreated.Task;
-            await Consolonia.Started.Task;
-            await Consolonia.LogScreen.LoadingCompleted.Task;
-        }
 
         var aspBuilder = WebApplication.CreateBuilder(args);
             
@@ -131,11 +84,6 @@ public class Program
         types.LoadModules(_modulesLoader, _services);
             
         _logger.SetServices(_services);
-            
-        var consolonia = (ConsoloniaService)_services.GetRequiredService<IConsoloniaService>();
-        consolonia.SetApp(Consolonia);
-            
-        //Consolonia.SetMainScreen();
 
         foreach (var stage in Enum.GetValues<ELoadingStage>()) {
             try {
@@ -226,8 +174,6 @@ public class Program
     }
 
     private void OnStopping() {
-        Consolonia.SetLogScreen();
-            
         Output.Write("\n---\nSTOPPING\n---");
             
         _modulesLoader.Shutdown(_services);

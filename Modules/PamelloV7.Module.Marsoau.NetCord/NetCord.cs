@@ -1,4 +1,4 @@
-﻿using Avalonia.Media;
+﻿using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Gateway;
@@ -29,7 +29,7 @@ public class NetCord : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "NetCord test with DAVE";
     public ELoadingStage Stage => ELoadingStage.Default;
-    public IBrush Color => Brushes.MediumTurquoise;
+    public int Color => 0x2D68C4;
 
     public async Task StartupAsync(IServiceProvider services) {
         Output.Write("NetCord setup");
@@ -41,27 +41,28 @@ public class NetCord : IPamelloModule
 
         Output.Write("Properties:");
         foreach (var property in properties) {
-            var message = Output.Write($"{property.Name}");
+            var messageContent = new StringBuilder();
+            messageContent.Append($"{property.Name}");
             
             var options = (property.Options ?? []).ToList();
             if (options.Count == 0) {
-                message.ContentBuilder.Append($" : {property.Description}");
+                messageContent.Append($" : {property.Description}");
                 continue;
             }
             
             foreach (var commandOption in options) {
                 if (commandOption.Type == ApplicationCommandOptionType.SubCommandGroup) {
                     foreach (var groupOption in commandOption.Options ?? []) {
-                        message.ContentBuilder.Append($"\n  {groupOption.Name}");
+                        messageContent.Append($"\n  {groupOption.Name}");
 
                         foreach (var subCommandOption in groupOption.Options ?? []) {
-                            message.ContentBuilder.Append($"\n    {subCommandOption.Name} : {subCommandOption.Description}");
+                            messageContent.Append($"\n    {subCommandOption.Name} : {subCommandOption.Description}");
                         }
                     }
                 }
                 else if (commandOption.Type == ApplicationCommandOptionType.SubCommand) {
                     foreach (var subCommandOption in commandOption.Options ?? []) {
-                        message.ContentBuilder.Append($"\n  {subCommandOption.Name} : {subCommandOption.Description}");
+                        messageContent.Append($"\n  {subCommandOption.Name} : {subCommandOption.Description}");
                     }
                 }
             }

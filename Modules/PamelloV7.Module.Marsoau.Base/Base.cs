@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Data;
 using PamelloV7.Framework.Data.Entities;
@@ -25,7 +24,7 @@ public class Base : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
     public ELoadingStage Stage => ELoadingStage.Early;
-    public IBrush Color => Brushes.MediumVioletRed;
+    public int Color => 0x8479D9;
 
     public async Task StartupAsync(IServiceProvider services) {
         var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();

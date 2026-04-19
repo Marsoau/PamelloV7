@@ -8,14 +8,8 @@ namespace PamelloV7.Framework.Logging.Services;
 
 public interface IPamelloLogger
 {
-    public RefreshableLogMessage Write(
+    public LogMessage Write(
         object? obj = null,
-        ELogLevel level = ELogLevel.Log,
-        Assembly? assembly = null
-    );
-    public RefreshableLogMessage Write(
-        Func<string> getContent,
-        GetEntities getEntities,
         ELogLevel level = ELogLevel.Log,
         Assembly? assembly = null
     );

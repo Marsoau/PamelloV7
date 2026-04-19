@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Modules;
@@ -15,7 +14,7 @@ public class Database : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Basic database repositories and other database functionality";
     public ELoadingStage Stage => ELoadingStage.Earliest;
-    public IBrush Color => Brushes.DeepPink;
+    public int Color => 0xB5A8EF;
 
     public async Task StartupAsync(IServiceProvider services) {
         var peql = services.GetRequiredService<IEntityQueryService>();

@@ -10,7 +10,6 @@
 		<Description>PamelloV7 Framework</Description>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Consolonia" Version="11.3.9" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.4" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.4" />
 	</ItemGroup>

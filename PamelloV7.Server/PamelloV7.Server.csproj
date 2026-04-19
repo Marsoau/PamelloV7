@@ -44,26 +44,4 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Consolonia\ConsoloniaApp.axaml.cs">
-        <DependentUpon>ConsoloniaApp.axaml.axaml</DependentUpon>
-      </Compile>
-      <Compile Update="Consolonia\Windows\MainWindow.axaml.cs">
-        <DependentUpon>LoadingSreen.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Consolonia\Screens\LogScreen.axaml.cs">
-        <DependentUpon>MainWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Consolonia\Screens\MainScreen.axaml.cs">
-        <DependentUpon>MainScreen.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Consolonia\Controls\RefreshableMessageControl.axaml.cs">
-        <DependentUpon>RefreshableMessageControl.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
 </Project>

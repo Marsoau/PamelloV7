@@ -1,6 +1,5 @@
 using System.Reflection;
 using PamelloV7.Core.Exceptions;
-using Vanara.PInvoke;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Attributes;
 

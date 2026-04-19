@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
@@ -84,12 +85,15 @@ public partial class DiscordCommandsService : IPamelloService
             _ => interaction.Data.Options
         } ?? [];
 
-        var message = Output.Write($"Executing command {command.GetType().Name} by {command.ScopeUser}");
-        message.Append(options.Count > 0 ? " with options:" : " with no options");
+        var messageBuilder = new StringBuilder();
+        messageBuilder.Append($"Executing command {command.GetType().Name} by {command.ScopeUser}");
+        messageBuilder.Append(options.Count > 0 ? " with options:" : " with no options");
 
         foreach (var option in options) {
-            message.Append($"\n| {option.Name} : {option.Value}");
+            messageBuilder.Append($"\n| {option.Name} : {option.Value}");
         }
+
+        Output.Write(messageBuilder);
 
         var argumentsTasks = executeMethod.GetParameters().Select(async parameter => {
             var attribute = DescriptionAttribute.GetFromParameter(parameter);

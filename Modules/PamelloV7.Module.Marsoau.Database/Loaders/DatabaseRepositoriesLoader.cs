@@ -10,8 +10,6 @@ namespace PamelloV7.Server.Loaders;
 
 internal static class DatabaseRepositoriesLoader
 {
-    private static RefreshableLogMessage? _currentMessage;
-    
     public static async Task Load(IServiceCollection collection, IServiceProvider services) {
         var repositories = new List<IPamelloDatabaseRepository>();
 
@@ -43,16 +41,14 @@ internal static class DatabaseRepositoriesLoader
     }
 
     private static void RepositoryOnOnLoadingStart(IPamelloDatabaseRepository repository, string message) {
-        _currentMessage = Output.Write($"{message} {repository.CollectionName}");
+        Output.Write($"{message} {repository.CollectionName}");
         //Output.Write($"Loading {repository.CollectionName}                                 ");
     }
     private static void RepositoryOnOnLoadingProgress(IPamelloDatabaseRepository repository, int loaded, int from, string message) {
-        _currentMessage?.ContentBuilder.Clear().Append($"{message} {repository.CollectionName} [{loaded}/{from}]");
-        _currentMessage?.Refresh();
+        Output.Write($"{message} {repository.CollectionName} [{loaded}/{from}]");
         //Output.Write($"Loading {repository.CollectionName} [{loaded}/{from}]");
     }
     private static void RepositoryOnOnLoadingEnd(IPamelloDatabaseRepository repository) {
-        _currentMessage?.ContentBuilder.Append(" Done");
-        _currentMessage?.Refresh();
+        Output.Write("Done");
     }
 }

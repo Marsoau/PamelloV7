@@ -26,7 +26,7 @@ public partial class PlayerQueueSongAdd
 {
     public async Task Execute(
         [SongsDescription] List<IPamelloSong> songs,
-        [Description("position", "Position in queue where to insert songs")] string? position = null
+        [Description("position", "Position in queue where to insert songs")] string position = "last"
     ) {
         if (NetCordConfig.Root.Commands.AutoConnectOnAddition) {
             if (SelectedPlayer is null || !SelectedPlayer.ConnectedSpeakers.Any()) {

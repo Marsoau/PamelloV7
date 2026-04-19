@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
@@ -13,5 +12,5 @@ public class Osu : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Osu! user & song platform integration";
     public ELoadingStage Stage => ELoadingStage.Default;
-    public IBrush Color => Brushes.HotPink;
+    public int Color => 0xFF46A2;
 }

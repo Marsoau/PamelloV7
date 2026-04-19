@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Entities.Base;
@@ -37,7 +36,7 @@ public class Test : IPamelloModule
     public string Author => "Marsoau";
     public string Description => "Test module";
     public ELoadingStage Stage => ELoadingStage.Late;
-    public IBrush Color => Brushes.SpringGreen;
+    public int Color => 0x00FF7F;
 
     private IEntityQueryService _peql = null!;
     private IPamelloUserRepository _users = null!;
