@@ -28,4 +28,8 @@ public class UpdatableMessageService : IPamelloService
         var killTasks = Messages.Select(message => message.Kill());
         Task.WaitAll(killTasks.ToArray());
     }
+
+    public void Shutdown() {
+        KillAll();
+    }
 }

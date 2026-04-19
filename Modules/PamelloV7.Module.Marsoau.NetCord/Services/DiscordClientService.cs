@@ -72,8 +72,12 @@ public class DiscordClientService : IPamelloService
     }
     
     public void Shutdown() {
-        foreach (var client in Clients) {
-            client.Dispose();
+        var tasks = Clients.Select(
+            client => client.CloseAsync()
+        );
+
+        foreach (var task in tasks) {
+            task.GetAwaiter().GetResult();
         }
     }
 }
