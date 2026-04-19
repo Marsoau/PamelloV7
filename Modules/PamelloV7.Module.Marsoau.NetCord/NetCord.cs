@@ -86,10 +86,11 @@ public class NetCord : IPamelloModule
         await Task.WhenAll(starts);
         await Task.WhenAll(completions.Select(c => c.Task));
 
-        //var ping = await clients.Main.Rest.GetGlobalApplicationCommandAsync(clients.Main.Id, 1304142495453548646);
-        //await ping.DeleteAsync();
+        var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => 
+            clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
+        );
         
-        await clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, 1304142495453548646, properties);
+        await Task.WhenAll(registers);
 
         await clients.AfterStartupAsync();
         interactions.AfterStartup();
