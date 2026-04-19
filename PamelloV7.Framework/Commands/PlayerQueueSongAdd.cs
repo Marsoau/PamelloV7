@@ -7,10 +7,7 @@ namespace PamelloV7.Framework.Commands;
 [PamelloCommand]
 public partial class PlayerQueueSongAdd
 {
-    public IEnumerable<IPamelloSong> Execute(IEnumerable<IPamelloSong> songs, string? position = null) {
-        if (position is not null)
-            return RequiredQueue.InsertSongs(position, songs, ScopeUser);
-        
-        return RequiredQueue.AddSongs(songs, ScopeUser);
+    public IEnumerable<IPamelloSong> Execute(IEnumerable<IPamelloSong> songs, string position = "last") {
+        return RequiredQueue.InsertSongs(position, songs, ScopeUser);
     }
 }
