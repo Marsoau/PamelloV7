@@ -307,6 +307,14 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             
             await parentMessage.Refresh();
         }
+        else if (ParentFollowUp is not null) {
+            FollowUpCommands.RemoveAt(FollowUpIndex);
+            
+            var parentFollowUpMessage = ParentFollowUp.UpdatableMessage;
+            if (parentFollowUpMessage is null) return;
+            
+            await parentFollowUpMessage.Refresh();
+        }
         else {
             await DeleteResponseAsync();
         }

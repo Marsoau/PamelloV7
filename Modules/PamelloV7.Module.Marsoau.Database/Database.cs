@@ -13,7 +13,7 @@ public class Database : IPamelloModule
     public string Name => "Database";
     public string Author => "Marsoau";
     public string Description => "Basic database repositories and other database functionality";
-    public ELoadingStage Stage => ELoadingStage.Earliest;
+    public ELoadingStage Stage => ELoadingStage.Database;
     public int Color => 0xB5A8EF;
 
     public async Task StartupAsync(IServiceProvider services) {

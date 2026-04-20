@@ -23,7 +23,7 @@ public class Base : IPamelloModule
     public string Name => "Base";
     public string Author => "Marsoau";
     public string Description => "Base functionality of PamelloV7";
-    public ELoadingStage Stage => ELoadingStage.Early;
+    public ELoadingStage Stage => ELoadingStage.Base;
     public int Color => 0x8479D9;
 
     public async Task StartupAsync(IServiceProvider services) {

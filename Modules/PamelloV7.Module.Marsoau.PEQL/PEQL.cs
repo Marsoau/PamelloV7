@@ -12,6 +12,6 @@ public class PEQL : IPamelloModule
     public string Name => "PEQL";
     public string Author => "Marsoau";
     public string Description => "PEQL language implementation";
-    public ELoadingStage Stage => ELoadingStage.Early;
+    public ELoadingStage Stage => ELoadingStage.Base;
     public int Color => 0x00CC99;
 }

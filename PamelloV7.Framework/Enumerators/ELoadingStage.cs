@@ -3,8 +3,8 @@ namespace PamelloV7.Framework.Enumerators;
 public enum ELoadingStage
 {
     Setup,
-    Earliest,
-    Early,
+    Database,
+    Base,
     Default,
     Late,
 }
