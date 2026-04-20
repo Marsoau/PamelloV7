@@ -19,12 +19,17 @@ namespace PamelloV7.Module.Marsoau.NetCord.Speakers;
 public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAudioDependant
 {
     private readonly IPamelloUserRepository _users;
+
+    private readonly DiscordClientService _clients;
     
+    private TaskCompletionSource _connectCompletion = new();
+    private TaskCompletionSource<(ulong guildId, ulong vcId)> _disconnectCompletion = new();
+   
     private VoiceClient? VoiceClient { get; set; }
     
-    public GatewayClient Client { get; }
+    public GatewayClient? Client { get; private set; }
 
-    public override string Name => Client.Cache.User?.GlobalName ?? $"Speaker-{Id}N";
+    public override string Name => Client?.Cache.User?.GlobalName ?? $"Speaker-{Id}N";
     public override string SetName(string name, IPamelloUser scopeUser) {
         return Name;
     }
@@ -42,19 +47,16 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     
     IAudioModuleWithInput IPamelloSpeaker.InputModule => Buffer;
 
-    public PamelloDiscordSpeaker(int id, GatewayClient client, IPamelloPlayer player, IServiceProvider services)
+    public PamelloDiscordSpeaker(int id, IPamelloPlayer player, IServiceProvider services)
         : base(id, services) {
         _users = services.GetRequiredService<IPamelloUserRepository>();
+        
+        _clients = services.GetRequiredService<DiscordClientService>();
 
         _listeners = [];
         
-        
         Player = player;
-        
-        Client = client;
-        
-        Client.VoiceStateUpdate += ClientOnVoiceStateUpdate;
-        
+
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Buffer = audio.RegisterModule(new AudioBuffer(3840 * 20));
@@ -63,25 +65,18 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     private async ValueTask ClientOnVoiceStateUpdate(VoiceState state) {
-        if (state.UserId == Client.Cache.User?.Id) {
+        if (state.UserId == VoiceClient?.UserId && state.GuildId == VoiceClient.GuildId) {
+            Output.Write("VSU");
             if (!state.ChannelId.HasValue) {
                 Output.Write("Delete this speaker");
                 return;
             }
 
-            return;
-
-            await Client.UpdateVoiceStateAsync(new VoiceStateProperties(VoiceClient.GuildId, null));
-            VoiceClient = await Client.JoinVoiceChannelAsync(state.GuildId, state.ChannelId.Value);
-            
-            VoiceClient.Connect += async () => Output.Write("Connect");
-            VoiceClient.Disconnect += async _ => Output.Write("Disconnect");
-            VoiceClient.Connecting += async () => Output.Write("Connecting");
-            
-            await VoiceClient.StartAsync();
+            _disconnectCompletion.SetResult((state.GuildId, state.ChannelId.Value));
             
             return;
         }
+        return;
         
         if (state.ChannelId.HasValue) {
             if (_listeners.Any(listener => listener.DiscordId == state.UserId))
@@ -97,27 +92,80 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     public async Task ConnectAsync(ulong guildId, ulong vcId) {
+        VoiceClient?.Connect -= VoiceClientOnConnect;
+        VoiceClient?.Connecting -= VoiceClientOnConnecting;
         VoiceClient?.Disconnect -= VoiceClientOnDisconnect;
+        
+        ResetDisconnectCompletion();
+
+        if (Client is null) {
+            Client = _clients.GetAvailableClient(guildId) ?? throw new PamelloException($"No available client");
+        }
+        
+        Client.VoiceStateUpdate -= ClientOnVoiceStateUpdate;
         
         await Client.UpdateVoiceStateAsync(new VoiceStateProperties(guildId, null));
         VoiceClient = await Client.JoinVoiceChannelAsync(guildId, vcId);
         
-        await VoiceClient.StartAsync();
+        Client.VoiceStateUpdate += ClientOnVoiceStateUpdate;
         
-        VoiceClient.Connect += async () => Output.Write("Connect");
+        VoiceClient.Connect += VoiceClientOnConnect;
         VoiceClient.Disconnect += VoiceClientOnDisconnect;
-        VoiceClient.Connecting += async () => Output.Write("Connecting");
+        VoiceClient.Connecting += VoiceClientOnConnecting;
+        
+        await VoiceClient.StartAsync();
         
         Sink.VoiceClient = VoiceClient;
     }
 
+    private async ValueTask VoiceClientOnConnect() {
+        _connectCompletion.SetResult();
+        _connectCompletion = new();
+    }
+
+    private int _connectingTimeout = 1;
+    private int _disconnectTimeout = 1;
+
+    private async ValueTask VoiceClientOnConnecting() {
+        Output.Write("Connecting...");
+
+        await Task.WhenAny(Task.Delay(_connectingTimeout * 1000), _connectCompletion.Task);
+        
+        if (!_connectCompletion.Task.IsCompleted) {
+            Console.WriteLine("WASNT CONNECTED FOR IN A LONG TIME");
+        }
+
+        Output.Write($"Status aftrer: {VoiceClient?.Status}");
+    }
+
     private async ValueTask VoiceClientOnDisconnect(DisconnectEventArgs args) {
-        Output.Write($"Disconnect: {args.Reconnect}");
+        Output.Write($"Disconnect on: {VoiceClient?.SessionId}");
 
         Sink.OpusStream = null;
         Sink.VoiceClient = null;
+        
+        await Task.WhenAny(Task.Delay(_disconnectTimeout * 1000), _disconnectCompletion.Task);
+        if (!_disconnectCompletion.Task.IsCompleted) {
+            _disconnectCompletion.SetResult((0, 0));
+        }
 
-        await ConnectAsync(1463545154894823648, 1495774904065458308);
+        var (guildId, channelId) = _disconnectCompletion.Task.Result;
+        if (guildId == 0 || channelId == 0) {
+            if (VoiceClient is null) return;
+            
+            guildId = VoiceClient.GuildId;
+            channelId = VoiceClient.ChannelId;
+        }
+        
+        await ConnectAsync(guildId, channelId);
+    }
+
+    private void ResetDisconnectCompletion() {
+        if (!_disconnectCompletion.Task.IsCompleted) {
+            _disconnectCompletion.SetResult((0, 0));
+        }
+
+        _disconnectCompletion = new();
     }
 
     public void InitDependant() {
@@ -127,10 +175,10 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         Pump.Output.ConnectedPoint = Sink.Input;
 
         Pump.Condition = () => {
-            if (VoiceClient.Status == WebSocketStatus.Ready) return true;
+            if (VoiceClient?.Status == WebSocketStatus.Ready) return true;
             
-            Output.Write($"Condition: {VoiceClient.Status}");
-            
+            Output.Write($"Condition: {VoiceClient?.Status}");
+
             return false;
         };
 

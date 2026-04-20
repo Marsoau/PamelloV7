@@ -28,7 +28,7 @@ public class SpeakerDiscordConnect : PamelloCommand
         if (availableClient is null) throw new PamelloException("No available clients to connect");
         
         var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
-        var speaker = new PamelloDiscordSpeaker(speakers.NextId, availableClient, ScopeUser.GuaranteedSelectedPlayer, Services);
+        var speaker = new PamelloDiscordSpeaker(speakers.NextId, ScopeUser.GuaranteedSelectedPlayer, Services);
 
         await speaker.ConnectAsync(voiceState.GuildId, voiceState.ChannelId.Value);
         
