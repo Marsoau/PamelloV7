@@ -59,6 +59,10 @@ public class DiscordClientService : IPamelloService
         
         return null;
     }
+    
+    public GatewayClient? GetClient(ulong userId) {
+        return Clients.FirstOrDefault(client => client.Cache.User?.Id == userId);
+    }
 
     public GatewayClient? GetAvailableClient(ulong guildId) {
         foreach (var client in Clients) {

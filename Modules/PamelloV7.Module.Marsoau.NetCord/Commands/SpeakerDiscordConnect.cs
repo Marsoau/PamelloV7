@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using NetCord.Gateway.Voice;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Logging;
@@ -20,13 +21,16 @@ public class SpeakerDiscordConnect : PamelloCommand
             )
         ) throw new PamelloException("Could not find discord id for your user");
         
-        var vc = clients.GetUserVoiceState(discordUserId);
-        if (vc?.ChannelId is null) throw new PamelloException("You have to be in a voice channel to connect a speaker");
+        var voiceState = clients.GetUserVoiceState(discordUserId);
+        if (voiceState?.ChannelId is null) throw new PamelloException("You have to be in a voice channel to connect a speaker");
+        
+        var availableClient = clients.GetAvailableClient(discordUserId);
+        if (availableClient is null) throw new PamelloException("No available clients to connect");
         
         var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
-        var speaker = new PamelloDiscordSpeaker(speakers.NextId, vc.GuildId, ScopeUser.GuaranteedSelectedPlayer, Services);
+        var speaker = new PamelloDiscordSpeaker(speakers.NextId, availableClient, ScopeUser.GuaranteedSelectedPlayer, Services);
 
-        await speaker.ConnectAsync(vc.ChannelId.Value);
+        await speaker.ConnectAsync(voiceState.GuildId, voiceState.ChannelId.Value);
         
         return speakers.Add(speaker);
     }

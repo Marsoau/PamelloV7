@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Gateway;
+using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.Voice;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -39,36 +40,6 @@ public class NetCord : IPamelloModule
         
         var properties = commands.GetProperties().ToList();
 
-        Output.Write("Properties:");
-        foreach (var property in properties) {
-            var messageContent = new StringBuilder();
-            messageContent.Append($"{property.Name}");
-            
-            var options = (property.Options ?? []).ToList();
-            if (options.Count == 0) {
-                messageContent.Append($" : {property.Description}");
-                continue;
-            }
-            
-            foreach (var commandOption in options) {
-                if (commandOption.Type == ApplicationCommandOptionType.SubCommandGroup) {
-                    foreach (var groupOption in commandOption.Options ?? []) {
-                        messageContent.Append($"\n  {groupOption.Name}");
-
-                        foreach (var subCommandOption in groupOption.Options ?? []) {
-                            messageContent.Append($"\n    {subCommandOption.Name} : {subCommandOption.Description}");
-                        }
-                    }
-                }
-                else if (commandOption.Type == ApplicationCommandOptionType.SubCommand) {
-                    foreach (var subCommandOption in commandOption.Options ?? []) {
-                        messageContent.Append($"\n  {subCommandOption.Name} : {subCommandOption.Description}");
-                    }
-                }
-            }
-        }
-
-        //throw new ModuleStartupException(this, "");
         var completions = new List<TaskCompletionSource>();
         var starts = new List<Task>();
         
@@ -88,7 +59,8 @@ public class NetCord : IPamelloModule
         await Task.WhenAll(completions.Select(c => c.Task));
 
         var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => 
-            clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
+            //clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
+            Task.CompletedTask
         );
         
         await Task.WhenAll(registers);
@@ -97,5 +69,30 @@ public class NetCord : IPamelloModule
         interactions.AfterStartup();
         
         Output.Write("Started NetCord");
+        return;
+
+        clients.Main.VoiceServerUpdate += async args => {
+            Output.Write("Server Update");
+            Output.Write($"{args.GuildId}");
+        };
+        clients.Main.VoiceStateUpdate += async state => {
+            Output.Write("VSU");
+            Output.Write($"Channel: {state.ChannelId}");
+        };
+
+        await clients.Main.UpdateVoiceStateAsync(new VoiceStateProperties(1463545154894823648, null));
+        var voiceClient = await clients.Main.JoinVoiceChannelAsync(1463545154894823648, 1463545156451045472);
+        
+        voiceClient.UserConnect += async args => {
+            foreach (var user in args.UserIds) {
+                Output.Write($"Id: {user}");
+            }
+        };
+        voiceClient.UserDisconnect += async args => {
+            Output.Write($"User Connect: {args.UserId}");
+        };
+
+        Output.Write("discord end, 2 second delay");
+        await Task.Delay(2000);
     }
 }

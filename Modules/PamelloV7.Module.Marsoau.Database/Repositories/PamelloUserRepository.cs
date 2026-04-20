@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.History.Records;
@@ -35,6 +36,8 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
     }
 
     public async Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
+        allowCreation = ServerConfig.Root.AllowUserCreation && allowCreation;
+        
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
         Output.Write($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;

@@ -8,21 +8,23 @@ using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.NetCord.Audio;
+using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Speakers;
 
 public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAudioDependant
 {
-    private readonly ulong _guildId;
+    private readonly IPamelloUserRepository _users;
     
-    public DiscordClientService _clients;
+    private VoiceClient? VoiceClient { get; set; }
     
-    private GatewayClient? _client;
-    public GatewayClient Client => _client ?? throw new PamelloException("Client not registered");
+    public GatewayClient Client { get; }
 
-    public override string Name => _client?.Cache.User?.GlobalName ?? $"Speaker-{Id}N";
+    public override string Name => Client.Cache.User?.GlobalName ?? $"Speaker-{Id}N";
     public override string SetName(string name, IPamelloUser scopeUser) {
         return Name;
     }
@@ -30,7 +32,9 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     public override bool IsDeleted { get; set; }
     
     public IPamelloPlayer Player { get; }
-    public IEnumerable<IPamelloListener> Listeners { get; } = [];
+
+    private List<PamelloDiscordSpeakerListener> _listeners;
+    public IEnumerable<IPamelloListener> Listeners => _listeners;
     
     public AudioBuffer Buffer { get; }
     public AudioPump Pump { get; }
@@ -38,13 +42,19 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     
     IAudioModuleWithInput IPamelloSpeaker.InputModule => Buffer;
 
-    public PamelloDiscordSpeaker(int id, ulong guildId, IPamelloPlayer player, IServiceProvider services)
+    public PamelloDiscordSpeaker(int id, GatewayClient client, IPamelloPlayer player, IServiceProvider services)
         : base(id, services) {
-        _guildId = guildId;
+        _users = services.GetRequiredService<IPamelloUserRepository>();
+
+        _listeners = [];
+        
         
         Player = player;
         
-        _clients = services.GetRequiredService<DiscordClientService>();
+        Client = client;
+        
+        Client.VoiceStateUpdate += ClientOnVoiceStateUpdate;
+        
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Buffer = audio.RegisterModule(new AudioBuffer(3840 * 20));
@@ -52,9 +62,77 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         Sink = audio.RegisterModule(new DiscordSpeakerSink());
     }
 
+    private async ValueTask ClientOnVoiceStateUpdate(VoiceState state) {
+        if (state.UserId == Client.Cache.User?.Id) {
+            if (!state.ChannelId.HasValue) {
+                Output.Write("Delete this speaker");
+                return;
+            }
+
+            return;
+
+            await Client.UpdateVoiceStateAsync(new VoiceStateProperties(VoiceClient.GuildId, null));
+            VoiceClient = await Client.JoinVoiceChannelAsync(state.GuildId, state.ChannelId.Value);
+            
+            VoiceClient.Connect += async () => Output.Write("Connect");
+            VoiceClient.Disconnect += async _ => Output.Write("Disconnect");
+            VoiceClient.Connecting += async () => Output.Write("Connecting");
+            
+            await VoiceClient.StartAsync();
+            
+            return;
+        }
+        
+        if (state.ChannelId.HasValue) {
+            if (_listeners.Any(listener => listener.DiscordId == state.UserId))
+                return;
+
+            _listeners.Add(
+                new PamelloDiscordSpeakerListener(this, state.UserId, _services)
+            );
+        }
+        else {
+            _listeners.RemoveAll(listener => listener.DiscordId == state.UserId);
+        }
+    }
+
+    public async Task ConnectAsync(ulong guildId, ulong vcId) {
+        VoiceClient?.Disconnect -= VoiceClientOnDisconnect;
+        
+        await Client.UpdateVoiceStateAsync(new VoiceStateProperties(guildId, null));
+        VoiceClient = await Client.JoinVoiceChannelAsync(guildId, vcId);
+        
+        await VoiceClient.StartAsync();
+        
+        VoiceClient.Connect += async () => Output.Write("Connect");
+        VoiceClient.Disconnect += VoiceClientOnDisconnect;
+        VoiceClient.Connecting += async () => Output.Write("Connecting");
+        
+        Sink.VoiceClient = VoiceClient;
+    }
+
+    private async ValueTask VoiceClientOnDisconnect(DisconnectEventArgs args) {
+        Output.Write($"Disconnect: {args.Reconnect}");
+
+        Sink.OpusStream = null;
+        Sink.VoiceClient = null;
+
+        await ConnectAsync(1463545154894823648, 1495774904065458308);
+    }
+
     public void InitDependant() {
+        Sink.VoiceClient = VoiceClient;
+        
         Pump.Input.ConnectedPoint = Buffer.Output;
         Pump.Output.ConnectedPoint = Sink.Input;
+
+        Pump.Condition = () => {
+            if (VoiceClient.Status == WebSocketStatus.Ready) return true;
+            
+            Output.Write($"Condition: {VoiceClient.Status}");
+            
+            return false;
+        };
 
         Pump.WaitOnInput = false;
         Pump.OnNoInput = () => {
@@ -64,16 +142,6 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         Pump.Start();
         
         Player.AddSpeaker(this);
-    }
-
-    public async Task ConnectAsync(ulong vcId) {
-        _client = _clients.GetAvailableClient(_guildId);
-        if (_client is null) throw new PamelloException("No available client found");
-        
-        var voiceClient = await Client.JoinVoiceChannelAsync(_guildId, vcId);
-        await voiceClient.StartAsync();
-        
-        Sink.VoiceClient = voiceClient;
     }
     
     public bool IsAvailableFor(IPamelloUser user) {
