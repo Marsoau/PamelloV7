@@ -80,10 +80,22 @@ public abstract class AudioModule : IAudioModule
         Outputs.Add(point);
     }
     protected virtual void RemoveInputInternal(int index) {
+        var input = Inputs.ElementAtOrDefault(index);
+        if (input is null) return;
+        
+        input.ProcessAudio = null;
+        input.ConnectedPoint = null;
+        
         Inputs.RemoveAt(index);
     }
     protected virtual void RemoveOutputInternal(int index) {
-        Outputs.RemoveAt(index);
+        var output = Outputs.ElementAtOrDefault(index);
+        if (output is null) return;
+        
+        output.ConnectedPoint = null;
+        output.ProcessAudio = null;
+        
+        Outputs.Remove(output);
     }
 
     protected virtual void InitAudioInternal(IServiceProvider services) { }

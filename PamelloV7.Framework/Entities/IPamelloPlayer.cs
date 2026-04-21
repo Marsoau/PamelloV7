@@ -34,4 +34,5 @@ public interface IPamelloPlayer : IPamelloEntity
     }
 
     public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker);
+    public bool RemoveSpeaker(IPamelloSpeaker speaker);
 }

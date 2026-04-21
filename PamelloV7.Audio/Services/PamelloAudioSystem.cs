@@ -52,7 +52,6 @@ public class PamelloAudioSystem : IPamelloAudioSystem
         
         _modules.Remove(module);
         
-        
         module.Dispose();
     }
 
@@ -64,6 +63,21 @@ public class PamelloAudioSystem : IPamelloAudioSystem
         dependant.InitDependant();
         
         return dependant;
+    }
+
+    public void DeleteDependant<TAudioDependant>(TAudioDependant dependant) where TAudioDependant : class, IAudioDependant {
+        Output.Write($"Deleting dependant: {dependant.GetType().FullName}");
+        
+        _dependants.Remove(dependant);
+        
+        dependant.DeleteDependant();
+
+        foreach (var property in dependant.GetType().GetProperties().Where(p => p.PropertyType.IsAssignableTo(typeof(IAudioModule)))) {
+            var module = property.GetValue(dependant) as IAudioModule;
+            if (module is null) continue;
+            
+            DeleteModule(module);
+        }
     }
 
     public void Shutdown() {

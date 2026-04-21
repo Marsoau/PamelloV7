@@ -13,4 +13,7 @@ public interface IPamelloAudioSystem : IPamelloService
     
     public TAudioDependant RegisterDependant<TAudioDependant>(TAudioDependant dependant)
         where TAudioDependant : class, IAudioDependant;
+    
+    public void DeleteDependant<TAudioDependant>(TAudioDependant dependant)
+        where TAudioDependant : class, IAudioDependant;
 }

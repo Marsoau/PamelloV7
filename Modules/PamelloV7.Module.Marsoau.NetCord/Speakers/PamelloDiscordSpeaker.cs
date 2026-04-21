@@ -21,6 +21,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
 {
     private readonly IPamelloUserRepository _users;
 
+    private readonly IPamelloSpeakerRepository _speakers;
+
     private readonly DiscordClientService _clients;
     
     private TaskCompletionSource _connectCompletion = new();
@@ -51,6 +53,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     public PamelloDiscordSpeaker(int id, IPamelloPlayer player, IServiceProvider services)
         : base(id, services) {
         _users = services.GetRequiredService<IPamelloUserRepository>();
+
+        _speakers = services.GetRequiredService<IPamelloSpeakerRepository>();
         
         _clients = services.GetRequiredService<DiscordClientService>();
 
@@ -69,14 +73,11 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         if (VoiceClient is null) return;
         
         if (state.UserId == VoiceClient.UserId && state.GuildId == VoiceClient.GuildId) {
-            if (!state.ChannelId.HasValue) {
-                Output.Write("Delete this speaker");
-                _disconnectCompletion.SetResult((0, 0));
-                return;
-            }
+            _disconnectCompletion.SetResult(state.ChannelId.HasValue
+                ? (state.GuildId, state.ChannelId.Value)
+                : (0, 0)
+            );
 
-            _disconnectCompletion.SetResult((state.GuildId, state.ChannelId.Value));
-            
             return;
         }
 
@@ -94,19 +95,33 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     }
 
     public async Task ConnectAsync(ulong guildId, ulong vcId) {
-        VoiceClient?.Ready -= VoiceClientOnReady;
-        VoiceClient?.Connect -= VoiceClientOnConnect;
-        VoiceClient?.Connecting -= VoiceClientOnConnecting;
-        VoiceClient?.Disconnect -= VoiceClientOnDisconnect;
+        Unsubscribe();
         
         ResetDisconnectCompletion();
 
         Client ??= _clients.GetAvailableClient(guildId) ?? throw new PamelloException($"No available client");
         
-        Client.VoiceStateUpdate -= ClientOnVoiceStateUpdate;
-        
         await Client.UpdateVoiceStateAsync(new VoiceStateProperties(guildId, null));
         VoiceClient = await Client.JoinVoiceChannelAsync(guildId, vcId);
+        
+        Subscribe();
+        
+        await VoiceClient.StartAsync();
+
+        Sink.VoiceClient = VoiceClient;
+    }
+
+    public void Unsubscribe() {
+        Client?.VoiceStateUpdate -= ClientOnVoiceStateUpdate;
+        
+        VoiceClient?.Ready -= VoiceClientOnReady;
+        VoiceClient?.Connect -= VoiceClientOnConnect;
+        VoiceClient?.Connecting -= VoiceClientOnConnecting;
+        VoiceClient?.Disconnect -= VoiceClientOnDisconnect;
+    }
+
+    public void Subscribe() {
+        if (Client is null || VoiceClient is null) return;
         
         Client.VoiceStateUpdate += ClientOnVoiceStateUpdate;
 
@@ -114,10 +129,6 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         VoiceClient.Connect += VoiceClientOnConnect;
         VoiceClient.Disconnect += VoiceClientOnDisconnect;
         VoiceClient.Connecting += VoiceClientOnConnecting;
-        
-        await VoiceClient.StartAsync();
-
-        Sink.VoiceClient = VoiceClient;
     }
 
     private ValueTask VoiceClientOnReady() {
@@ -188,8 +199,14 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         }
 
         var (guildId, channelId) = _disconnectCompletion.Task.Result;
-        
-        if (guildId == 0 || channelId == 0) return;
+
+        if (guildId == 0 || channelId == 0) {
+            Output.Write("Deleted Should be");
+            
+            _speakers.Delete(this, null);
+            
+            return;
+        }
         if (guildId == 1 || channelId == 1) {
             if (VoiceClient is null) return;
             
@@ -231,7 +248,13 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         
         Player.AddSpeaker(this);
     }
-    
+
+    public void DeleteDependant() {
+        Unsubscribe();
+        
+        Player.RemoveSpeaker(this);
+    }
+
     public bool IsAvailableFor(IPamelloUser user) {
         return true;
     }

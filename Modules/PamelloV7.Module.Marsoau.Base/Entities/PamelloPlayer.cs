@@ -15,6 +15,7 @@ using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.Base.Queue;
 
 namespace PamelloV7.Module.Marsoau.Base.Entities;
@@ -60,11 +61,11 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         return IsPaused;
     }
     
-    private List<IPamelloSpeaker> _connectedSpeakers;
+    private Dictionary<IPamelloSpeaker, AudioPoint> _connectedSpeakers;
 
     public IPamelloQueue? Queue { get; }
     public IPamelloQueue RequiredQueue => Queue ?? throw new PamelloException("Player doesnt have a queue");
-    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers => _connectedSpeakers;
+    public IEnumerable<IPamelloSpeaker> ConnectedSpeakers => _connectedSpeakers.Keys;
 
     [OnAudioMap]
     public AudioPump Pump { get; set; }
@@ -101,15 +102,27 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     }
 
     public bool IsAvailableFor(IPamelloUser user) {
-        return user == Owner || _connectedSpeakers.Any(speaker => speaker.IsAvailableFor(user));
+        return user == Owner || _connectedSpeakers.Keys.Any(speaker => speaker.IsAvailableFor(user));
     }
     
     public IPamelloSpeaker AddSpeaker(IPamelloSpeaker speaker) {
-        Copy.AddOutput().ConnectedPoint = speaker.InputModule.Input;
+        var connectionPoint = Copy.AddOutput();
         
-        _connectedSpeakers.Add(speaker);
+        connectionPoint.ConnectedPoint = speaker.InputModule.Input;
+        
+        _connectedSpeakers.Add(speaker, connectionPoint);
 
         return speaker;
+    }
+
+    public bool RemoveSpeaker(IPamelloSpeaker speaker) {
+        var connectionPoint = _connectedSpeakers.GetValueOrDefault(speaker);
+        if (connectionPoint is null) return false;
+        
+        Copy.RemoveOutput(connectionPoint);
+        _connectedSpeakers.Remove(speaker);
+        
+        return true;
     }
 
     public override PamelloEntityDto GetDto() {

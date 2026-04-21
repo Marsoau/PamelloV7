@@ -16,6 +16,10 @@ public class PamelloPlayerRepository : PamelloRepository<IPamelloPlayer>, IPamel
         _audio = services.GetRequiredService<IPamelloAudioSystem>();
     }
 
+    public void Startup(IServiceProvider services) {
+        StartupRepository();
+    }
+
     private static IPamelloPlayer? ReturnIfAvailable(IPamelloPlayer? player, IPamelloUser scopeUser) {
         if (!player?.IsAvailableFor(scopeUser) ?? false) return null;
         return player;

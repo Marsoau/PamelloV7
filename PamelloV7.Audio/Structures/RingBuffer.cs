@@ -1,4 +1,4 @@
-namespace PamelloV7.Server.Structures;
+namespace PamelloV7.Audio.Structures;
 
 public class AwaitingOperation
 {
@@ -16,7 +16,6 @@ public class RingBuffer<TType> : IDisposable
     private List<AwaitingOperation> AwaitingWrites { get; set; }
     private List<AwaitingOperation> AwaitingReads { get; set; }
 
-    // 1. Added a lock object to synchronize access to the lists
     private readonly object _lock = new();
 
     private bool _afterWrite;
@@ -66,14 +65,12 @@ public class RingBuffer<TType> : IDisposable
         {
             if (!wait) return false;
             
-            // 2. Use RunContinuationsAsynchronously to prevent deadlocks when SetResult is called inside a lock
             var operation = new AwaitingOperation {
                 Size = count, 
                 Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
             };
             token.Register(() => operation.Completion.TrySetResult(false));
             
-            // 3. Lock adding to the list
             lock (_lock)
             {
                 AwaitingWrites.Add(operation);
@@ -96,12 +93,10 @@ public class RingBuffer<TType> : IDisposable
         Head = (Head + count) % capacity;
         _afterWrite = true;
 
-        // Optimization: check count lightly before spawning task (optional but saves overhead)
         bool hasReaders;
         lock (_lock) hasReaders = AwaitingReads.Count > 0;
 
         if (hasReaders) _ = Task.Run(() => {
-            // 4. Lock the iteration and removal
             lock (_lock)
             {
                 foreach (var item in AwaitingReads)
@@ -125,14 +120,12 @@ public class RingBuffer<TType> : IDisposable
         {
             if (!wait) return false;
             
-            // 2. Use RunContinuationsAsynchronously
             var operation = new AwaitingOperation {
                 Size = count, 
                 Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
             };
             token.Register(() => operation.Completion.TrySetResult(false));
             
-            // 3. Lock adding to the list
             lock (_lock)
             {
                 AwaitingReads.Add(operation);
@@ -159,7 +152,6 @@ public class RingBuffer<TType> : IDisposable
         lock (_lock) hasWriters = AwaitingWrites.Count > 0;
 
         if (hasWriters) _ = Task.Run(() => {
-            // 4. Lock the iteration and removal
             lock (_lock)
             {
                 foreach (var item in AwaitingWrites)
@@ -178,7 +170,6 @@ public class RingBuffer<TType> : IDisposable
 
     public void Dispose()
     {
-        // 5. Lock disposal cleanup
         lock (_lock)
         {
             foreach (var item in AwaitingWrites)

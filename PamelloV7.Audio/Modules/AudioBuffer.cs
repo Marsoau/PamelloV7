@@ -1,7 +1,7 @@
 using System.Diagnostics;
+using PamelloV7.Audio.Structures;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
-using PamelloV7.Server.Structures;
 
 namespace PamelloV7.Audio.Modules;
 
@@ -27,5 +27,11 @@ public partial class AudioBuffer : AudioModule, IAudioModuleWithInput, IAudioMod
     }
     private bool ProcessOutput(byte[] buffer, bool wait, CancellationToken token) {
         return _ring.ReadRange(buffer, wait, token);
+    }
+
+    protected override void Dispose(bool isDisposing) {
+        _ring.Dispose();
+        
+        base.Dispose(isDisposing);
     }
 }

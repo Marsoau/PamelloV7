@@ -1,8 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events.Destructive;
 using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.Base.Repositories.Base;
 
@@ -18,6 +21,10 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
         _audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         NextId = 1;
+    }
+
+    public void Startup(IServiceProvider services) {
+        StartupRepository();
     }
     
     private static IPamelloSpeaker? ReturnIfAvailable(IPamelloSpeaker? speaker, IPamelloUser scopeUser) {
@@ -67,6 +74,17 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
     }
 
     public override IHistoryRecord Delete(IPamelloSpeaker speaker, IPamelloUser? scopeUser) {
-        throw new NotImplementedException();
+        if (!_loaded.Remove(speaker)) throw new PamelloException("Cant delete non registered speaker");
+
+        if (speaker is IAudioDependant dependant)
+            _audio.DeleteDependant(dependant);
+
+        var record = _events.Invoke(scopeUser, new SpeakerDeleted {
+            Speaker = speaker
+        })!;
+        
+        speaker.IsDeleted = true;
+
+        return record;
     }
 }

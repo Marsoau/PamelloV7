@@ -1,4 +1,4 @@
-﻿using PamelloV7.Server.Structures;
+﻿using PamelloV7.Audio.Structures;
 using Xunit.Abstractions;
 
 namespace PamelloV7.Tests.Data;

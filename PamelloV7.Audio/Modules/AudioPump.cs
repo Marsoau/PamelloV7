@@ -32,7 +32,7 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
         return _pumpTask = Task.Run(() => {
             while (!_cts.IsCancellationRequested) {
                 try {
-                    while (!Condition()) {
+                    while (!Condition() && !_cts.IsCancellationRequested) {
                         //StaticLogger.Log("PUMP CONDITION");
                         Task.Delay(1000).Wait();
                     }
@@ -48,6 +48,14 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
         });
     }
 
+    public async Task Stop() {
+        if (_pumpTask is null) return;
+        
+        await _cts.CancelAsync();
+
+        await Task.WhenAny(Task.Delay(10000), _pumpTask);
+    }
+
     public void Pump() {
         while (!Input.Pass(_buffer, WaitOnInput, _cts.Token)) {
             OnNoInput();
@@ -59,5 +67,11 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
             Task.Delay(500).Wait();
             //Framework.Logging.Output.Write("No output, waiting");
         }
+    }
+
+    protected override void Dispose(bool isDisposing) {
+        Stop().Wait();
+        
+        base.Dispose(isDisposing);
     }
 }
