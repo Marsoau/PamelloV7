@@ -6,6 +6,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Player;
+using PamelloV7.Module.Marsoau.NetCord.Speakers;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player;
@@ -135,7 +136,6 @@ public partial class PlayerInfo
 
             var speakersBuilder = new StringBuilder();
 
-            /*
             foreach (var speaker in SelectedPlayer.ConnectedSpeakers) {
                 speakersBuilder.AppendLine($"- {speaker switch {
                     IPamelloInternetSpeaker internetSpeaker => internetSpeaker.ToDiscordString(),
@@ -149,7 +149,7 @@ public partial class PlayerInfo
 
                     if (listener.User is null) {
                         if (listener is PamelloDiscordSpeakerListener discordListener) {
-                            discordString = DiscordString.User(discordListener.DiscordUser.Id);
+                            discordString = DiscordString.User(discordListener.DiscordId);
                         }
                         else {
                             unknown++;
@@ -165,7 +165,6 @@ public partial class PlayerInfo
 
                 if (unknown > 0) speakersBuilder.AppendLine($"  - {DiscordString.Italic($"{unknown} Unknown")}");
             }
-            */
 
             container.AddComponents(
                 new ComponentSeparatorProperties(),
