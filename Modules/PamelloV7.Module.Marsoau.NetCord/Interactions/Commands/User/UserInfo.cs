@@ -33,19 +33,12 @@ public partial class UserInfo
         switcher.Add<PlaylistFavoriteList>("playlists", favoritePlaylists => favoritePlaylists.Execute(user));
         switcher.Add<UserAuthorizationList>("authorizations", authorizations => authorizations.Execute(user), true);
         
-        await RespondAsync(() => {
-            var favoriteSongsButton = Button(switcher.StateOf("songs") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
-                await switcher.Toggle("songs");
-            });
-            var favoritePlaylistsButton = Button(switcher.StateOf("playlists") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
-                await switcher.Toggle("playlists");
-            });
-            var authorizationsButton = Button(switcher.StateOf("authorizations") ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
-                await switcher.Toggle("authorizations");
-            });
-            
-            return Builder<Builder>().Build(user, favoriteSongsButton, favoritePlaylistsButton, authorizationsButton);
-        }, () => [user]);
+        await RespondAsync(() => Builder<Builder>().Build(
+            user,
+            Button(switcher, "songs"),
+            Button(switcher, "playlists"),
+            Button(switcher, "authorizations")
+        ), () => [user]);
     }
 
     public class Builder : DiscordComponentBuilder

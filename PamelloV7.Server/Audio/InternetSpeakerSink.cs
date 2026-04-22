@@ -31,7 +31,7 @@ public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
         _response.ContentType = "audio/mpeg";
         _response.Headers.CacheControl = "no-cache";
         
-        await _response.Body.FlushAsync();
+        await _response.Body.FlushAsync(RequestAbortedToken);
     }
     
     private bool ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
@@ -39,21 +39,27 @@ public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
         Debug.WriteLine($"token.IsCancellationRequested: {token.IsCancellationRequested}");
         Debug.WriteLine($"RequestAbortedToken.IsCancellationRequested: {RequestAbortedToken.IsCancellationRequested}");
         
-        if (
-            !IsInitialized ||
-            token.IsCancellationRequested ||
-            RequestAbortedToken.IsCancellationRequested
-        ) return false;
+        var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, RequestAbortedToken).Token;
         
+        if (!IsInitialized || linkedToken.IsCancellationRequested) return false;
+
         try {
-            _response.Body.WriteAsync(audio, 0, audio.Length, token).Wait(token);
-            _response.Body.FlushAsync(token).Wait(token);
+            _response.Body.WriteAsync(audio, 0, audio.Length, linkedToken).Wait(linkedToken);
+            _response.Body.FlushAsync(linkedToken).Wait(linkedToken);
+        }
+        catch (OperationCanceledException) {
+            Framework.Logging.Output.Write("ISL canceled");
+            return false;
         }
         catch (Exception x) {
-            Framework.Logging.Output.Write(x);
+            Framework.Logging.Output.Write($"Exception in internat listener: {x}");
             return false;
         }
         
         return true;
+    }
+
+    protected override void Dispose(bool isDisposing) {
+        base.Dispose(isDisposing);
     }
 }

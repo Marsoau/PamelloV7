@@ -27,4 +27,8 @@ public class PamelloInternetSpeakerListener : IPamelloListener, IAudioDependant
         
         Sink = audio.RegisterModule(new InternetSpeakerSink(response, requestAbortedToken));
     }
+
+    public void DeleteDependant() {
+        Lifetime.TrySetResult();
+    }
 }

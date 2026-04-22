@@ -32,13 +32,21 @@ namespace PamelloV7.Server.Controllers
             var speaker = _speakers.GetByName(User!, value);
             if (speaker is not PamelloInternetSpeaker internetSpeaker) throw new PamelloControllerException(BadRequest($"Speaker \"{value}\" not found"));
             
-            var listener = await internetSpeaker.CreateListener(Response, HttpContext.RequestAborted, User);
+            var listener = (PamelloInternetSpeakerListener)await internetSpeaker.CreateListener(Response, HttpContext.RequestAborted, User);
             Output.Write($"{(User is null ? $"Unknown ISL connection" : $"User {User} connects ISL")} to <{speaker.Name}>");
 
-            await Task.Delay(-1, HttpContext.RequestAborted);
+            try {
+                await listener.Lifetime.Task.WaitAsync(HttpContext.RequestAborted);
+            }
+            catch (OperationCanceledException) {
+                //ignore
+            }
+            
             Output.Write("REQUEST ABORTED");
             Output.Write("REQUEST ABORTED");
             Output.Write("REQUEST ABORTED");
+
+            internetSpeaker.DeleteListener(listener);
         }
     }
 }

@@ -5,9 +5,12 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Player;
 using PamelloV7.Module.Marsoau.NetCord.Speakers;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
+using PlayerQueueSkip = PamelloV7.Framework.Commands.PlayerQueueSkip;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player;
 
@@ -58,7 +61,7 @@ public partial class PlayerInfo
                         new TextDisplayProperties(
                             $"""
                              ### {Queue.CurrentSong.Name}
-                             {(currentEntry.Adder is not null ? $"Added by {currentEntry.Adder.ToDiscordString()}" : "Added automatically")}
+                             {(currentEntry.Adder is not null ? $"Added by {currentEntry.Adder.ToDiscordString()}" : DiscordString.Italic("Added automatically"))}
                              """
                         )
                     ),

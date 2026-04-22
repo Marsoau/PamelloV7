@@ -39,7 +39,7 @@ public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IA
         => ProcessAsync(audio, wait, token).Result;
     private async Task<bool> ProcessAsync(byte[] audio, bool wait, CancellationToken token)
     {
-        if (_ffmpeg is null) return false;
+        if (_ffmpeg?.HasExited ?? true) return false;
 
         try {
             await _ffmpeg.StandardInput.BaseStream.WriteAsync(audio, token);
@@ -69,5 +69,13 @@ public partial class FFmpegMp3Converter : AudioModule, IAudioModuleWithInput, IA
         catch (Exception ex) {
             Framework.Logging.Output.Write($"Stream error: {ex}");
         }
+    }
+
+    protected override void Dispose(bool isDisposing) {
+        _ffmpeg?.Kill();
+        _ffmpeg?.Dispose();
+        _ffmpeg = null;
+        
+        base.Dispose(isDisposing);
     }
 }

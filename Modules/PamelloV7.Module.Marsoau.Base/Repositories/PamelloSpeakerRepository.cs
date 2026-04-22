@@ -65,8 +65,12 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
         if (speaker.Id != NextId) throw new Exception($"Speaker id is out of repository order, was {speaker.Id} instead of {NextId}");
         NextId++;
 
-        if (speaker is IAudioDependant dependant)
-            _audio.RegisterDependant(dependant);
+        if (speaker is IAudioDependant ds)
+            _audio.RegisterDependant(ds);
+        
+        foreach (var listener in speaker.Listeners)
+            if (listener is IAudioDependant dl)
+                _audio.DeleteDependant(dl);
         
         _loaded.Add(speaker);
         
@@ -86,5 +90,11 @@ public class PamelloSpeakerRepository : PamelloRepository<IPamelloSpeaker>, IPam
         speaker.IsDeleted = true;
 
         return record;
+    }
+
+    public void Shutdown() {
+        foreach (var speaker in _loaded.ToList()) {
+            Delete(speaker, null);
+        }
     }
 }

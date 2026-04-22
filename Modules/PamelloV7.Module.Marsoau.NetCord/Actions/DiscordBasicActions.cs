@@ -19,6 +19,7 @@ using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Base;
+using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -62,6 +63,15 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         };
     private static Func<Interaction, Task> OnActionAsync(Func<Task> onActionAsync)
         => _ => onActionAsync();
+
+    public ButtonProperties Button(
+        CommandSwitcher switcher,
+        string key
+    ) {
+        return Button(AutoCallSite(), switcher.StateOf(key) ? "Hide" : "Show", ButtonStyle.Secondary, async () => {
+            await switcher.Toggle(key);
+        });
+    }
     
     public ButtonProperties Button(
         [Variant(nameof(AutoCallSite))]

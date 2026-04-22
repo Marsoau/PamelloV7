@@ -38,7 +38,7 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     
     public IPamelloPlayer Player { get; }
 
-    private readonly List<PamelloInternetSpeakerListener> _listeners;
+    private readonly List<PamelloInternetSpeakerListener> _listeners = [];
     public IEnumerable<IPamelloListener> Listeners => _listeners;
     IAudioModuleWithInput IPamelloSpeaker.InputModule => Buffer;
     
@@ -53,8 +53,6 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
         
         _name = name;
 
-        _listeners = [];
-        
         _audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Buffer = _audio.RegisterModule(new AudioBuffer(102400));
@@ -90,5 +88,17 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
         _listeners.Add(listener);
         
         return listener;
+    }
+
+    public bool DeleteListener(PamelloInternetSpeakerListener listener) {
+        if (!_listeners.Remove(listener)) return true;
+        
+        _audio.DeleteDependant(listener);
+        
+        return true;
+    }
+
+    public void DeleteDependant() {
+        Pump.Stop().Wait();
     }
 }

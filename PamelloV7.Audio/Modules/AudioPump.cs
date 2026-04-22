@@ -57,12 +57,12 @@ public partial class AudioPump : AudioModule, IAudioModuleWithInput, IAudioModul
     }
 
     public void Pump() {
-        while (!Input.Pass(_buffer, WaitOnInput, _cts.Token)) {
+        while (!_cts.Token.IsCancellationRequested && !Input.Pass(_buffer, WaitOnInput, _cts.Token)) {
             OnNoInput();
             Task.Delay(500).Wait();
             //Framework.Logging.Output.Write("No input, waiting");
         }
-        while (!Output.Pass(_buffer, WaitOnOutput, _cts.Token)) {
+        while (!_cts.Token.IsCancellationRequested && !Output.Pass(_buffer, WaitOnOutput, _cts.Token)) {
             OnNoOutput();
             Task.Delay(500).Wait();
             //Framework.Logging.Output.Write("No output, waiting");
