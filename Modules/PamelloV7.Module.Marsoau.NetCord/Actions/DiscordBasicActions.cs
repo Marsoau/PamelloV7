@@ -156,7 +156,10 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         where TBuilder : DiscordComponentBuilder
         => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite AutoCallSite() => GetCallSite(-1);
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);
     
     [MethodImpl(MethodImplOptions.NoInlining)]
