@@ -59,8 +59,8 @@ public class NetCord : IPamelloModule
         await Task.WhenAll(completions.Select(c => c.Task));
 
         var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => 
-            //clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
-            Task.CompletedTask
+            clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
+            //Task.CompletedTask
         );
         
         await Task.WhenAll(registers);
