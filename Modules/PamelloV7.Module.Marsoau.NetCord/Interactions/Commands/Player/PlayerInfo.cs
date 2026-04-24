@@ -5,6 +5,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Commands;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Player;
@@ -184,6 +185,18 @@ public partial class PlayerInfo
                 container.AddComponents(
                     new ComponentSeparatorProperties(),
                     new TextDisplayProperties(speakersBuilder.ToString())
+                );
+            }
+            else {
+                container.AddComponents(
+                    new ComponentSeparatorProperties(),
+                    new ComponentSectionProperties(
+                        Button("Connect Discord", ButtonStyle.Secondary, async () => {
+                            await Command<SpeakerDiscordConnect>().Execute();
+                        })
+                    ).AddComponents(
+                        new TextDisplayProperties($"-# {DiscordString.Italic("No Speakers Connected")}")
+                    )
                 );
             }
 
