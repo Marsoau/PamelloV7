@@ -1,5 +1,6 @@
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
@@ -15,5 +16,11 @@ public partial class Ping
 {
     public async Task Execute() {
         await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
+        TestInterception();
+    }
+
+    [InterceptedParameterInsertion(5, 0)]
+    public void TestInterception() {
+        Output.Write("Test Interception");
     }
 }
