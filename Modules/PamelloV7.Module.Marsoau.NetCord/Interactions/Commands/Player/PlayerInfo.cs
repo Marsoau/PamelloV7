@@ -37,7 +37,13 @@ public partial class PlayerInfo
 
             if (SelectedPlayer is null) {
                 return container.AddComponents(
-                    new TextDisplayProperties("No player selected")
+                    new TextDisplayProperties($"{DiscordString.Italic("No player selected")}"),
+                    new ComponentSeparatorProperties(),
+                    new ActionRowProperties().AddComponents(
+                        Button("Create Player", ButtonStyle.Primary, () => {
+                            Command<Framework.Commands.PlayerCreate>().Execute("Player");
+                        })
+                    )
                 );
             }
             if (Queue is null) {
