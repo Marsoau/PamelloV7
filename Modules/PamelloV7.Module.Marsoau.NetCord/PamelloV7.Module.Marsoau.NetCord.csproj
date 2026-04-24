@@ -4,8 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);PamelloV7.Framework.Generators</InterceptorsNamespaces>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General</InterceptorsNamespaces>
+        <Optimize>false</Optimize>
     </PropertyGroup>
 
     <Import Project="..\PamelloV7.Module.targets" />

@@ -16,11 +16,5 @@ public partial class Ping
 {
     public async Task Execute() {
         await RespondAsync("Pong!", $"Hi {ScopeUser.ToDiscordString()}!");
-        TestInterception();
-    }
-
-    [InterceptedParameterInsertion(5, 0)]
-    public void TestInterception() {
-        Output.Write("Test Interception");
     }
 }

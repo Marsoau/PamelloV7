@@ -12,6 +12,7 @@ namespace PamelloV7.Framework.Generators;
 public class InterceptionGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context) {
+        return;
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: (node, _) => node is InvocationExpressionSyntax, 

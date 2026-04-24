@@ -46,7 +46,6 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
             return Task.CompletedTask;
         };
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public StringMenuProperties Select<TType>(
         [Variant(nameof(AutoCallSite))]
         [Variant(nameof(KeyedCallSite))]
@@ -66,7 +65,6 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     private static Func<Interaction, Task> OnActionAsync(Func<Task> onActionAsync)
         => _ => onActionAsync();
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public ButtonProperties Button(
         CommandSwitcher switcher,
         string key
@@ -76,7 +74,6 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         });
     }
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public ButtonProperties Button(
         [Variant(nameof(AutoCallSite))]
         [Variant(nameof(KeyedCallSite))]
@@ -97,7 +94,6 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
             return Task.CompletedTask;
         };
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public ButtonProperties Button<TButton>(
         [Variant(nameof(AutoCallSite), true)]
         [Variant(nameof(KeyedCallSite), true)]
@@ -137,12 +133,10 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     private static Func<DiscordModal, Task> SubmitModalFromArgs(object?[]? args = null)
         => async modal => await PamelloStaticActions.ExecuteMethodAsync("Submit", modal, args);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     private static Type ModalTypeGeneric<TModal>()
         where TModal : DiscordModal
         => typeof(TModal);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public ButtonProperties ModalButton(
         [Variant(nameof(AutoCallSite))]
         [Variant(nameof(KeyedCallSite))]
@@ -159,18 +153,14 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         Func<DiscordModal, Task> submitModal
     ) => Tokenizer.ModalButton(callSite, modalType, label, style, buildModal, submitModal);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
         => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite AutoCallSite() => GetCallSite(-1);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite KeyedCallSite(int key) => GetCallSite(key);
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public InteractionCallSite GetCallSite(int key) {
         var frame = new StackFrame(3, false);
 
