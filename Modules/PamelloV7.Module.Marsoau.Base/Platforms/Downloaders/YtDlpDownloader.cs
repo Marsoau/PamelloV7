@@ -25,10 +25,7 @@ public abstract class YtDlpDownloader : SongDownloader
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
             RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            EnvironmentVariables = {
-                ["PYTHONPATH"] = "/home/marsoau/.config/yt-dlp/plugins",
-            }
+            RedirectStandardError = true
         };
         
         var currentPath = startInfo.Environment["PATH"] ?? string.Empty;
