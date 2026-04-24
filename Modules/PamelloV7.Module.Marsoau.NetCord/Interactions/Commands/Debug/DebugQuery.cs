@@ -13,7 +13,7 @@ public partial class DebugQuery
     ) {
         var entities = await GetAsync(query);
 
-        await RespondPageAsync(async page => 
+        await RespondPageAsync(() => (entities.Count, 10), page => 
             Builder<BasicComponentsBuilder>().EntitiesList($"Query Result {DiscordString.Code(entities.Count)}", entities, page, displayNames)
         , () => [..entities]);
     }

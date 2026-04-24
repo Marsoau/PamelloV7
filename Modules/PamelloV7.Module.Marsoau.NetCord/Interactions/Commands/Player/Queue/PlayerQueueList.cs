@@ -16,7 +16,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player.Queue;
 public partial class PlayerQueueList
 {
     public async Task Execute() {
-        await RespondPageAsync(page => 
+        await RespondPageAsync(() => (Queue?.Count ?? 0, 10), page => 
             Builder<ContainerBuilder>().Build(page, 10)
         , () => [ScopeUser, SelectedPlayer, ..Queue?.Songs ?? []]);
     }

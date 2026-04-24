@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Messages;
 using PamelloV7.Module.Marsoau.NetCord.Services;

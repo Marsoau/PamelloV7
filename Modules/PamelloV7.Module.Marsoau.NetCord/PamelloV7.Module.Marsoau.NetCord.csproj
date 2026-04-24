@@ -15,7 +15,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <PackageReference Include="NetCord" Version="1.0.0-alpha.480" />
+      <PackageReference Include="NetCord" Version="1.0.0-alpha.485" />
     </ItemGroup>
 
 </Project>

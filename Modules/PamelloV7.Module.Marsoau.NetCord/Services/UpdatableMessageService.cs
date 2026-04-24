@@ -21,7 +21,7 @@ public class UpdatableMessageService : IPamelloService
     }
 
     public UpdatableMessage? Get(Differentiator differentiator) {
-        return Messages.FirstOrDefault(message => message.Command.GetCallSiteInteractionDifferentiator() == differentiator);
+        return Messages.FirstOrDefault(message => message.Command.Differentiator == differentiator);
     }
     
     public void KillAll() {

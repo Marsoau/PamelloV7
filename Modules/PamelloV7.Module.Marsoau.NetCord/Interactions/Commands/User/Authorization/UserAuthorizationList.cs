@@ -23,9 +23,9 @@ public partial class UserAuthorizationList
     ) {
         user ??= ScopeUser;
         
-        await RespondPageAsync(page => 
-                Builder<Builder>().Build(user, page)
-            , () => [ScopeUser]);
+        await RespondPageAsync(() => (user.Authorizations.Count, 5), page => 
+            Builder<Builder>().Build(user, page)
+        , () => [ScopeUser]);
     }
     
     public class Builder : DiscordComponentBuilder

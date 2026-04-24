@@ -13,7 +13,7 @@ public partial class SongFavoriteList
     ) {
         user ??= ScopeUser;
         
-        await RespondPageAsync(page => 
+        await RespondPageAsync(() => (user.FavoriteSongs.Count, 10), page => 
             Builder<FavoriteListBuilder>().Build(user, ESongOrPlaylist.Song, page, 10)
         , () => [ScopeUser, ..ScopeUser.FavoriteSongs]);
     }

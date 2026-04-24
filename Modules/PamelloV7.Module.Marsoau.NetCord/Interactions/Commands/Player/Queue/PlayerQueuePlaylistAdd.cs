@@ -35,14 +35,14 @@ public partial class PlayerQueuePlaylistAdd
         var addedPlaylists = Command<Framework.Commands.PlayerQueuePlaylistAdd>().Execute(playlists, position).ToList();
 
         if (playlists.Count == 1 && playlists.FirstOrDefault() is { } playlist) {
-            await RespondPageAsync(page => Builder<BasicComponentsBuilder>().EntitiesList(
+            await RespondPageAsync(() => (playlist.Songs.Count, 10), page => Builder<BasicComponentsBuilder>().EntitiesList(
                 $"Added {playlist.ToDiscordString()}",
                 playlist.Songs,
                 page
             ), () => [playlist, ..playlist.Songs]);
         }
         else {
-            await RespondPageAsync(page => Builder<BasicComponentsBuilder>().EntitiesList(
+            await RespondPageAsync(() => (playlists.Count, 10), page => Builder<BasicComponentsBuilder>().EntitiesList(
                 $"Added {DiscordString.Code(addedPlaylists.Count)} playlists",
                 addedPlaylists,
                 page

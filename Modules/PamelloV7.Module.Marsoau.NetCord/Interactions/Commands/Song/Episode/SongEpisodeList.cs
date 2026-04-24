@@ -18,7 +18,7 @@ public partial class SongEpisodeList
     public async Task Execute(
         [SongDescription] [DefaultQuery("current")] IPamelloSong song
     ) {
-        await RespondPageAsync(page =>
+        await RespondPageAsync(() => (song.Episodes.Count, 5), page =>
             Builder<Builder>().Build(song, page)
         , () => [song, ..song.Episodes, SelectedPlayer]);
     }

@@ -1,11 +1,12 @@
 using NetCord.Rest;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Messages;
 
 public class UpdatablePageMessage : UpdatableMessage
 {
-    public int Page { get; private set; }
+    public int Page { get; set; }
     
     public UpdatablePageMessage(
         DiscordCommand command,

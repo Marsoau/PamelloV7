@@ -17,7 +17,7 @@ public partial class PlaylistInfo
     public async Task Execute(
         [PlaylistDescription] IPamelloPlaylist playlist
     ) {
-        await RespondPageAsync(page =>
+        await RespondPageAsync(() => (playlist.Songs.Count, 10), page =>
             Builder<Builder>().Build(playlist, page, 10)
         , () => [playlist, ..playlist.Songs, playlist.Owner]);
     }

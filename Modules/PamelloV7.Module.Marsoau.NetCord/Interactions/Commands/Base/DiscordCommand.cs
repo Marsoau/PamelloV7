@@ -25,6 +25,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     public delegate IEnumerable<IMessageComponentProperties?> GetContent();
     public delegate IEnumerable<IMessageComponentProperties?> GetContentForOne<TType>(TType item);
     public delegate IEnumerable<IMessageComponentProperties?> GetPageContent(int page);
+    public delegate (int items, int pageSize) GetPageInfo();
     
     public delegate Task<IEnumerable<IMessageComponentProperties?>> GetContentAsync();
     public delegate Task<IEnumerable<IMessageComponentProperties?>> GetContentForOneAsync<TType>(TType item);
@@ -73,6 +74,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             FollowUpCommands.Add(this);
             
             FollowUpIndex = FollowUpCommands.Count - 1;
+            Output.Write($"With FI: {FollowUpIndex}");
         }
         
         if (ParentPart is null) {
@@ -85,6 +87,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             PartCommands.Add(this);
             
             PartIndex = PartCommands.Count - 1;
+            Output.Write($"With PI: {PartIndex}");
         }
         
         _events = services.GetRequiredService<IEventsService>();
@@ -233,6 +236,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         => page => Task.FromResult(getPageContentSync(page));
 
     public async Task<UpdatablePageMessage> RespondPageAsync(
+        GetPageInfo getPageInfo,
         [Variant(nameof(GetPageContentSync))]
         GetPageContentAsync getPageContentAsync,
         GetEntities entities
@@ -240,6 +244,13 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
         UpdatableMessage = _updatableMessageService.Watch(new UpdatablePageMessage(this, NetCordConfig.Root.Commands.UpdatableCommandsLifetime,
             async message => {
                 if (message is not UpdatablePageMessage updatablePageMessage) return [];
+                
+                var (items, pageSize) = getPageInfo();
+                
+                var totalPages = items / pageSize + (items % pageSize > 0 ? 1 : 0);
+                if (totalPages == 0) totalPages = 1;
+                
+                if (updatablePageMessage.Page >= totalPages) updatablePageMessage.Page = totalPages - 1;
                 
                 return await getPageContentAsync(updatablePageMessage.Page);
             },
@@ -286,10 +297,11 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             await RespondAsync(() => getContentForOneAsync(items.First()), getEntities);
         }
         else {
-            await RespondPageAsync(getContentForManyAsync, getEntities);
+            await RespondPageAsync(() => (items.Count, 10), getContentForManyAsync, getEntities);
         }
     }
-
+    
+    public Differentiator Differentiator => GetCallSiteInteractionDifferentiator();
     public override Differentiator GetCallSiteInteractionDifferentiator() {
         return new Differentiator(
             Interaction.Id,
@@ -299,7 +311,15 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
     }
 
     public async ValueTask DisposeAsync() {
+        if (UpdatableMessage is not null) {
+            _updatableMessageService.Remove(UpdatableMessage);
+        }
+        
         if (ParentPart is not null) {
+            for (var i = PartIndex + 1; i < PartCommands.Count; i++) {
+                PartCommands[i].PartIndex--;
+            }
+            
             PartCommands.RemoveAt(PartIndex);
             
             var parentMessage = ParentPart.UpdatableMessage;
@@ -308,6 +328,10 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
             await parentMessage.Refresh();
         }
         else if (ParentFollowUp is not null) {
+            for (var i = FollowUpIndex + 1; i < FollowUpCommands.Count; i++) {
+                FollowUpCommands[i].FollowUpIndex--;
+            }
+            
             FollowUpCommands.RemoveAt(FollowUpIndex);
             
             var parentFollowUpMessage = ParentFollowUp.UpdatableMessage;
