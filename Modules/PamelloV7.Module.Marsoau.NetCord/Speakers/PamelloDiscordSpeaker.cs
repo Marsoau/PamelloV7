@@ -84,13 +84,22 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         if (state.ChannelId.HasValue && state.ChannelId == VoiceClient.ChannelId) {
             if (_listeners.Any(listener => listener.DiscordId == state.UserId))
                 return;
+
+            var listener = new PamelloDiscordSpeakerListener(this, state.UserId, _services);
             
-            _listeners.Add(
-                new PamelloDiscordSpeakerListener(this, state.UserId, _services)
-            );
+            _listeners.Add(listener);
+            
+            if (listener.User is not null && listener.User.SelectedPlayer is null) {
+                listener.User.SelectPlayer(Player, true);
+            }
         }
-        else {
-            _listeners.RemoveAll(listener => listener.DiscordId == state.UserId);
+        else if (_listeners.FirstOrDefault(l => l.DiscordId == state.UserId) is { } listener) {
+            _listeners.Remove(listener);
+            
+            if (listener.User is not null && listener.User.SelectedPlayer == Player) {
+                //listener.User.SelectPlayer(null, true);
+                //lets not deselect player automatically for now, only select
+            }
         }
     }
 
@@ -146,24 +155,11 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         Output.Write("Voice Users:");
         foreach (var listener in _listeners) {
             Output.Write($"{listener.DiscordId}: {listener.User}");
-        }
-    }
+            if (listener.User is null) continue;
 
-    private void InitializeListenersAsync() {
-        if (Client is null || VoiceClient is null) return;
-
-        var guild = Client.Cache.Guilds.GetValueOrDefault(VoiceClient.GuildId);
-        if (guild is null) return;
-
-        var users = guild.VoiceStates.Values
-            .Where(vs => vs.ChannelId == VoiceClient.ChannelId)
-            .Where(vs => vs.UserId != VoiceClient.UserId)
-            .Select(vs => vs.User)
-            .OfType<GuildUser>();
-
-        Output.Write("LisUsers");
-        foreach (var user in users) {
-            Output.Write(user.GlobalName);
+            if (listener.User.SelectedPlayer is null) {
+                listener.User.SelectPlayer(Player, true);
+            }
         }
     }
 
@@ -251,6 +247,13 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
 
     public void DeleteDependant() {
         Unsubscribe();
+
+        foreach (var listener in _listeners) {
+            if (listener.User is not null && listener.User.SelectedPlayer == Player) {
+                //listener.User.SelectPlayer(null, true);
+                //lets not deselect player automatically for now, only select
+            }
+        }
         
         Player.RemoveSpeaker(this);
     }
