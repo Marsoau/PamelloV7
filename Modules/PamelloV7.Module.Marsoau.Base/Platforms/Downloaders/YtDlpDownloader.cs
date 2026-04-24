@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Enumerators;
@@ -41,6 +42,8 @@ public abstract class YtDlpDownloader : SongDownloader
             return EDownloadResult.CantStart;
         }
 
+        var stderrTask = process.StandardError.ReadToEndAsync();
+        
         var reader = process.StandardOutput;
 
         string? line;
@@ -51,9 +54,13 @@ public abstract class YtDlpDownloader : SongDownloader
         
         await process.WaitForExitAsync();
         
-        var finalResult = process.ExitCode == 0 ? EDownloadResult.Success : EDownloadResult.UnknownError;
+        var stderr = await stderrTask;
         
-        return finalResult;
+        if (process.ExitCode != 0) {
+            throw new PamelloException($"yt-dlp exited with code {process.ExitCode}: {stderr.Trim()}");
+        }
+        
+        return EDownloadResult.Success;
     }
 
     private void ProcessProgressLine(string line) {

@@ -16,15 +16,11 @@ namespace PamelloV7.Module.Marsoau.YouTube.Platforms;
 
 public class YoutubeSongPlatform : ISongPlatform
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-
     private readonly YoutubeInfoGetter _infoGetter;
     
     public string Name => "youtube";
 
     public YoutubeSongPlatform(IServiceProvider services) {
-        _httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
-        
         _infoGetter = new YoutubeInfoGetter(this, services);
     }
 

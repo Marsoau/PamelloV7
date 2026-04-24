@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.NetCord", "Modules\PamelloV7.Module.Marsoau.NetCord\PamelloV7.Module.Marsoau.NetCord.csproj", "{0AB1556F-40C8-4139-AA56-1C75535AB8ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PamelloV7.Module.Marsoau.SoundCloud", "Modules\PamelloV7.Module.Marsoau.SoundCloud\PamelloV7.Module.Marsoau.SoundCloud.csproj", "{50183B83-C719-4922-840A-6F7D8AF89668}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{0AB1556F-40C8-4139-AA56-1C75535AB8ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AB1556F-40C8-4139-AA56-1C75535AB8ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AB1556F-40C8-4139-AA56-1C75535AB8ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50183B83-C719-4922-840A-6F7D8AF89668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50183B83-C719-4922-840A-6F7D8AF89668}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50183B83-C719-4922-840A-6F7D8AF89668}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50183B83-C719-4922-840A-6F7D8AF89668}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,5 +132,6 @@ Global
 		{34D0E519-6376-41DB-8C43-FFD9F3FD4063} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 		{799E9D8C-6B64-426E-ADD1-2AE3FFE892E7} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 		{0AB1556F-40C8-4139-AA56-1C75535AB8ED} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
+		{50183B83-C719-4922-840A-6F7D8AF89668} = {E34EDB6A-6149-4309-B65C-3C518BA143B3}
 	EndGlobalSection
 EndGlobal

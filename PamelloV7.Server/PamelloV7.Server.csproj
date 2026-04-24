@@ -30,6 +30,7 @@
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.NetCord\PamelloV7.Module.Marsoau.NetCord.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Osu\PamelloV7.Module.Marsoau.Osu.csproj" />
         <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.Setup\PamelloV7.Module.Marsoau.Setup.csproj" />
+        <ProjectReference Include="..\Modules\PamelloV7.Module.Marsoau.SoundCloud\PamelloV7.Module.Marsoau.SoundCloud.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Release'">

@@ -96,12 +96,13 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
                 result = await Song.SelectedSource.GetDownloader().DownloadAsync();
             }
             catch (Exception x) {
-                Framework.Logging.Output.Write($"Exception downloading song {Song}: {x}");
+                Framework.Logging.Output.Write($"Exception downloading song {Song}: {x}", ELogLevel.Error);
                 Clean();
                 return false;
             }
             
             if (result != EDownloadResult.Success) {
+                Framework.Logging.Output.Write($"Download failed: {result}", ELogLevel.Error);
                 Clean();
                 return false;
             }
