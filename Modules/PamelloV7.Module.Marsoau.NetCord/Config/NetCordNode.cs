@@ -12,6 +12,7 @@ public partial class NetCordNode
     public partial class CommandsNode {
         public bool AutoConnectOnAddition { get; set; } = true;
         public bool GlobalRegistration { get; set; } = true;
+        public bool SkipRegistration { get; set; } = false;
         public int UpdatableCommandsLifetime { get; set; } = 240;
         public ulong[] GuildsIds { get; set; } = [];
     }

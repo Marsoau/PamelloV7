@@ -29,7 +29,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     private TaskCompletionSource _connectCompletion = new();
     private TaskCompletionSource<(ulong guildId, ulong vcId)> _disconnectCompletion = new();
    
-    private VoiceClient? VoiceClient { get; set; }
+    public VoiceClient? VoiceClient { get; set; }
     
     public GatewayClient? Client { get; private set; }
 
@@ -72,6 +72,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
 
     private async ValueTask ClientOnVoiceStateUpdate(VoiceState state) {
         if (VoiceClient is null) return;
+        
         Output.Write($"VSU: {state.User?.Nickname}: {state.ChannelId}");
         
         if (state.UserId == VoiceClient.UserId && state.GuildId == VoiceClient.GuildId) {
@@ -82,6 +83,9 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
 
             return;
         }
+        
+        var scopeUser = await _users.GetByDiscordId(state.UserId);
+        if (scopeUser is null) return;
 
         if (state.ChannelId.HasValue && state.ChannelId == VoiceClient.ChannelId) {
             if (_listeners.Any(listener => listener.DiscordId == state.UserId))
@@ -95,8 +99,10 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         }
         else if (_listeners.FirstOrDefault(l => l.DiscordId == state.UserId) is { } listener) {
             _listeners.Remove(listener);
-
-            if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && !state.ChannelId.HasValue) {
+            
+            var speakersInChannel = _speakers.GetByVcId(state.ChannelId ?? 0, scopeUser);
+    
+            if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && speakersInChannel.Count == 0) {
                 listener.User?.SelectPlayer(null, true);
             }
         }
