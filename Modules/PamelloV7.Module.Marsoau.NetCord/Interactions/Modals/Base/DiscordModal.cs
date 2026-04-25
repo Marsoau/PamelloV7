@@ -52,6 +52,8 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
             var attribute = attributes.FirstOrDefault(a => a.PropertyName == customIdString);
             if (attribute is null) throw new PamelloException($"Attribute for name of custom id \"{customIdString}\" not found");
 
+            attribute.Initialize(services, scopeUser);
+
             var value = await attribute.GetValueInAsync(component, parentValue, Services, ScopeUser);
             
             if (!attribute.IsChild) {

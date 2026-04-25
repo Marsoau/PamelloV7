@@ -46,6 +46,8 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
         object? parentProperties = null;
 
         foreach (var attribute in Attributes) {
+            attribute.Initialize(Services, ScopeUser);
+            
             if (attribute.AddPropertiesTo(this, parentProperties) is not { } properties) continue;
             
             var property = GetType().GetProperty(attribute.PropertyName);

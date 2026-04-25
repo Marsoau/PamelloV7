@@ -1,5 +1,6 @@
 using NetCord;
 using NetCord.Rest;
+using PamelloV7.Framework.Actions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Base;
 
@@ -7,6 +8,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Attributes.Base;
 
 public interface IAddModalPropertyAttribute
 {
+    public ModalAttributeBasicActions Actions { get; }
+    
     public bool IsChild { get; }
     public string PropertyName { get; }
     public bool IsRequired { get; }
@@ -14,14 +17,20 @@ public interface IAddModalPropertyAttribute
     public Type PropertiesType { get; }
     public Type ValueType { get; }
     
+    public void Initialize(IServiceProvider services, IPamelloUser scopeUser);
+    
     public object AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties);
     public Task<object?> GetValueInAsync(ILabelComponent component, object? parentValue, IServiceProvider services, IPamelloUser scopeUser);
 }
+
+public class ModalAttributeBasicActions : PamelloBasicActions;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute, IAddModalPropertyAttribute
     where TProperties : notnull
 {
+    public ModalAttributeBasicActions Actions { get; } = new();
+
     public bool IsChild { get; protected set; }
     public string PropertyName { get; }
     public bool IsRequired { get; }
@@ -32,6 +41,10 @@ public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute
     protected AddModalPropertyAttribute(string property) {
         IsRequired = property.EndsWith('*');
         PropertyName = IsRequired ? property[..^1] : property;
+    }
+    
+    public void Initialize(IServiceProvider services, IPamelloUser scopeUser) {
+        Actions.InitializeActions(services, scopeUser);
     }
     
     public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties);
