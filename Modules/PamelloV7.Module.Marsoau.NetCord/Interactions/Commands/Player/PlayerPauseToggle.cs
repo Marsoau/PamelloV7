@@ -8,7 +8,7 @@ using PamelloV7.Module.Marsoau.NetCord.Strings;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Player;
 
-[DiscordCommand("player pause-toggle", "Toggle player pause state")]
+[DiscordCommand("player pause-toggle", "Toggle player paused or resumed state")]
 public partial class PlayerPauseToggle
 {
     public async Task Execute() {

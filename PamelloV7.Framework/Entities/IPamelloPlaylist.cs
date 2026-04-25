@@ -16,6 +16,9 @@ public interface IPamelloPlaylist : IPamelloDatabaseEntity
     
     public DateTime AddedAt { get; }
     
+    public bool SetIsProtected(bool state, IPamelloUser? scopeUser);
+    public IPamelloUser TransferOwnership(IPamelloUser newOwner, IPamelloUser? scopeUser);
+    
     public IEnumerable<IPamelloSong> AddSongs(IEnumerable<IPamelloSong> songs, IPamelloUser? scopeUser, int? position = null, bool fromInside = false);
     public IPamelloSong? MoveSong(string fromPosition, string toPosition, IPamelloUser? scopeUser);
     public IEnumerable<IPamelloSong> ReplaceSongs(IEnumerable<IPamelloSong> newSongs, IPamelloUser? scopeUser);

@@ -49,15 +49,14 @@ public partial class PlaylistInfo
                 ),
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    Button("Transfer", ButtonStyle.Secondary, () => {
-                        //transfer a playlist to another user modal
-                    }).WithDisabled(!isOwner)
+                    ModalButton<PlaylistTransferOwnershipModal>("Transfer", ButtonStyle.Secondary, [playlist])
+                        .WithDisabled(!isOwner)
                 ).AddComponents(
                     new TextDisplayProperties($"### Owner: {playlist.Owner.ToDiscordString()}")
                 ),
                 new ComponentSectionProperties(
                     Button("Toggle", ButtonStyle.Secondary, () => {
-                        
+                        Command<PlaylistIsProtectedToggle>().Execute(playlist);
                     }).WithDisabled(!isOwner)
                 ).AddComponents(
                     new TextDisplayProperties($"### Is Protected: {DiscordString.Code(playlist.IsProtected)}")

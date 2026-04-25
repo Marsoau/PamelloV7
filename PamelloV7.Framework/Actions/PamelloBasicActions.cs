@@ -12,6 +12,8 @@ namespace PamelloV7.Framework.Actions;
 
 public abstract class PamelloBasicActions
 {
+    private bool _isInitialized;
+    
     public IServiceProvider Services = null!;
     
     public IPamelloUser ScopeUser = null!;
@@ -31,6 +33,9 @@ public abstract class PamelloBasicActions
     public bool RespondedWithLoading { get; protected set; }
     
     public virtual void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
+        if (_isInitialized) return;
+        _isInitialized = true;
+        
         Services = services;
         
         ScopeUser = scopeUser;

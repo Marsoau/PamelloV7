@@ -43,7 +43,37 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
 
     public bool IsProtected => _isProtected;
 
+    public bool SetIsProtected(bool state, IPamelloUser? scopeUser) {
+        if (_isProtected == state) return _isProtected;
+        
+        _isProtected = state;
+        
+        _sink.Invoke(scopeUser, new PlaylistIsProtectedUpdated() {
+            Playlist = this,
+            IsProtected = _isProtected
+        });
+        
+        Save();
+        
+        return _isProtected;
+    }
+
     public IPamelloUser Owner => _owner;
+
+    public IPamelloUser TransferOwnership(IPamelloUser newOwner, IPamelloUser? scopeUser) {
+        if (Owner == newOwner) return Owner;
+        
+        _owner = newOwner;
+        
+        _sink.Invoke(scopeUser, new PlaylistOwnerUpdated() {
+            Playlist = this,
+            Owner = _owner.Id
+        });
+        
+        Save();
+        
+        return _owner;
+    }
 
     public IReadOnlyList<IPamelloSong> Songs => _playlistSongs;
     public IReadOnlyList<IPamelloUser> FavoriteBy => _favoriteBy;
