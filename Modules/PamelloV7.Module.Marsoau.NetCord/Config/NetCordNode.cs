@@ -15,4 +15,6 @@ public partial class NetCordNode
         public int UpdatableCommandsLifetime { get; set; } = 240;
         public ulong[] GuildsIds { get; set; } = [];
     }
+    
+    public bool AutoDeselectPlayerForLeavingUsers { get; set; } = true;
 }

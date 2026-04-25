@@ -12,6 +12,7 @@ using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Module.Marsoau.NetCord.Audio;
+using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Services;
 
@@ -71,6 +72,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
 
     private async ValueTask ClientOnVoiceStateUpdate(VoiceState state) {
         if (VoiceClient is null) return;
+        Output.Write($"VSU: {state.User?.Nickname}: {state.ChannelId}");
         
         if (state.UserId == VoiceClient.UserId && state.GuildId == VoiceClient.GuildId) {
             _disconnectCompletion.SetResult(state.ChannelId.HasValue
@@ -88,17 +90,14 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
             var listener = new PamelloDiscordSpeakerListener(this, state.UserId, _services);
             
             _listeners.Add(listener);
-            
-            if (listener.User is not null && listener.User.SelectedPlayer is null) {
-                listener.User.SelectPlayer(Player, true);
-            }
+
+            listener.User?.SelectPlayer(Player, true);
         }
         else if (_listeners.FirstOrDefault(l => l.DiscordId == state.UserId) is { } listener) {
             _listeners.Remove(listener);
-            
-            if (listener.User is not null && listener.User.SelectedPlayer == Player) {
-                //listener.User.SelectPlayer(null, true);
-                //lets not deselect player automatically for now, only select
+
+            if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && !state.ChannelId.HasValue) {
+                listener.User?.SelectPlayer(null, true);
             }
         }
     }
@@ -249,9 +248,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         Unsubscribe();
 
         foreach (var listener in _listeners) {
-            if (listener.User is not null && listener.User.SelectedPlayer == Player) {
-                //listener.User.SelectPlayer(null, true);
-                //lets not deselect player automatically for now, only select
+            if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && listener.User?.SelectedPlayer == Player) {
+                listener.User?.SelectPlayer(null, true);
             }
         }
         
