@@ -72,13 +72,6 @@ public class Test : IPamelloModule
         _downloaders = services.GetRequiredService<IDownloadService>();
         _history = services.GetRequiredService<IHistoryService>();
         _dependencies = services.GetRequiredService<IDependenciesService>();
-        
-        var soundcloud = _platforms.GetSongPlatform("soundcloud")!;
-
-        var key = soundcloud.ValueToKey("https://soundcloud.com/rorynearly20s/shihandu-takenu-des?in=kot3-694254000/sets/loly-in-early-20s&utm_source=direct&utm_content=download_button_header&utm_medium=mobi&utm_campaign=no_campaign");
-        var song = await soundcloud.GetSongInfoAsync(key);
-        
-        Output.Write($"Key: {song!.Key}");
     }
 
     public void WriteSongs(IEnumerable<IDeletableEntity> songs) {
