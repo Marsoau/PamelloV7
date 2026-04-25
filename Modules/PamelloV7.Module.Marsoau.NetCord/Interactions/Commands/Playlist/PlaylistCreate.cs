@@ -14,6 +14,6 @@ public partial class PlaylistCreate
         var playlist = Command<Framework.Commands.PlaylistCreate>().Execute(name);
         playlist.AddSongs(songs, ScopeUser);
 
-        await RespondAsync("Playlist Created", playlist.ToDiscordString, () => [playlist]);
+        await RespondAsync("Playlist Created", () => playlist);
     }
 }

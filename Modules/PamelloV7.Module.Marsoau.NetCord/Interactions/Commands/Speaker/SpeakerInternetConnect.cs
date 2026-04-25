@@ -16,6 +16,6 @@ public partial class SpeakerInternetConnect
         );
         if (speakerObject is not IPamelloInternetSpeaker internetSpeaker) throw new PamelloException("Speaker is not internet speaker");
 
-        await RespondAsync("Internet Speaker Connected", internetSpeaker.ToDiscordString(), () => [internetSpeaker]);
+        await RespondAsync("Internet Speaker Connected", () => internetSpeaker);
     }
 }

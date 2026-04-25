@@ -10,8 +10,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Speaker;
 public partial class SpeakerDiscordConnect
 {
     public async Task Execute() {
-        await Command<Marsoau.NetCord.Commands.SpeakerDiscordConnect>().Execute(Interaction.User.Id);
+        var speaker = await Command<Marsoau.NetCord.Commands.SpeakerDiscordConnect>().Execute(Interaction.User.Id);
         
-        await RespondAsync("executed");
+        await RespondAsync("Discord Speaker Connected", () => speaker);
     }
 }
