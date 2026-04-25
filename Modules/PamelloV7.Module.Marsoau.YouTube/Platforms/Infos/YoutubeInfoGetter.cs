@@ -17,7 +17,7 @@ public class YoutubeInfoGetter : YtDlpInfoGetter
         $@"--no-warnings",
         $@"--skip-download",
         $@"--dump-json",
-        $@"https://www.youtube.com/watch?v={key}"
+        YoutubeSongPlatform.GetYoutubeUrl(key)
     );
     
     public async Task<YoutubeSongInfo> GetSongInfo(string key) {

@@ -60,8 +60,10 @@ public class YoutubeSongPlatform : ISongPlatform
 
         return await _infoGetter.GetSongInfo(youtubeId);
     }
+    
+    public string GetSongUrl(string key)
+        => GetYoutubeUrl(key);
 
-    public string GetSongUrl(string key) {
-        return $"https://www.youtube.com/watch?v={key}";
-    }
+    public static string GetYoutubeUrl(string key)
+        => $"https://www.youtube.com/watch?v={key}";
 }

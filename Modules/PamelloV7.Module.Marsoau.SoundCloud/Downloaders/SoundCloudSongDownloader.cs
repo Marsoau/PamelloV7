@@ -11,10 +11,7 @@ public class SoundCloudSongDownloader : YtDlpDownloader
     public SoundCloudSongDownloader(IServiceProvider services, SongSource source) : base(services, source) { }
 
     public override string GetArguments(FileInfo file) => string.Join(' ',
-        //$@"--plugin-dirs ""/home/marsoau/.config/yt-dlp/plugins""",
-        //$@"--extractor-args ""youtube:player_client=android""",
         $@"--quiet",
-        //$@"--verbose",
         $@"--newline",
         $@"--progress",
         $@"--no-playlist",
