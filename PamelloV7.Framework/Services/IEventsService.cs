@@ -10,6 +10,8 @@ public delegate IPamelloEntity?[] GetEntities();
 
 public interface IEventsService : IPamelloService
 {
+    public static AsyncLocal<IHistoryRecord?> CurrentRecord = new();
+    
     public IEventSubscription Subscribe<TEventType>(Action<TEventType> handler)
         where TEventType : IPamelloEvent;
 
@@ -17,4 +19,21 @@ public interface IEventsService : IPamelloService
     
     public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e);
     public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action);
+
+    public static IHistoryRecord? FirstRecordIn(Action action) {
+        IHistoryRecord? newRecord;
+        
+        var previousRecord = CurrentRecord.Value;
+        CurrentRecord.Value = null;
+        
+        try {
+            action();
+        }
+        finally {
+            newRecord = CurrentRecord.Value;
+            CurrentRecord.Value = previousRecord;
+        }
+        
+        return newRecord;
+    }
 }

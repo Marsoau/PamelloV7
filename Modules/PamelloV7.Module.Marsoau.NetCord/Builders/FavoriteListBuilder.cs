@@ -3,6 +3,8 @@ using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.History.Records;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
@@ -26,12 +28,16 @@ public static class ESongOrPlaylistExtensions
 
 public class FavoriteListBuilder : DiscordComponentBuilder
 {
+    public IHistoryRecord? ClearRecord { get; private set; }
+    
     public IMessageComponentProperties?[] Build(IPamelloUser user, ESongOrPlaylist songOrPlaylist, int page, int pageSize) {
         IReadOnlyList<IPamelloEntity> items = songOrPlaylist switch {
             ESongOrPlaylist.Song => user.FavoriteSongs,
             ESongOrPlaylist.Playlist => user.FavoritePlaylists,
             _ => throw new ArgumentOutOfRangeException(nameof(songOrPlaylist))
         };
+        
+        if (ClearRecord is not null && items.Count > 0) ClearRecord = null;
 
         var title = user == ScopeUser
             ? $"Favorite {songOrPlaylist.ToShortString()}s"
@@ -61,9 +67,19 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                 songOrPlaylist == ESongOrPlaylist.Song
                     ? new ActionRowProperties().AddComponents(
                         ModalButton<SongFavoriteEditModal>("Edit", ButtonStyle.Secondary),
-                        Button("Clear", ButtonStyle.Secondary, () => {
-                            Command<SongFavoritesClear>().Execute();
-                        })
+                        ClearRecord is null
+                            ? Button("Clear", ButtonStyle.Secondary, async () => {
+                                ClearRecord = Command<SongFavoritesClear>().Execute();
+                                await Message.Refresh();
+                            })
+                            : Button("Revert", ButtonStyle.Secondary, () => {
+                                try {
+                                    Command<HistoryRecordRevert>().Execute(ClearRecord);
+                                }
+                                finally {
+                                    ClearRecord = null;
+                                }
+                            })
                     )
                     : new ActionRowProperties().AddComponents(
                         ModalButton<PlaylistFavoriteEditModal>("Edit", ButtonStyle.Secondary),
