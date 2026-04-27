@@ -68,8 +68,12 @@ public partial class SongSource
     
     public bool IsDownloaded()
         => _downloads.IsDownloaded(this);
-    public SongDownloader GetDownloader()
+    
+    public SongDownloader GetDownloaderRequired()
         => _downloads.GetSongDownloader(this);
+    public SongDownloader? GetDownloader()
+        => _downloads.GetSongDownloader(this);
+    
     public FileInfo GetFile()
         => _files.GetSourceFile(this);
 }

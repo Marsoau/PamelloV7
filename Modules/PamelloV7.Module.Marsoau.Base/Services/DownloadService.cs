@@ -37,13 +37,16 @@ public class DownloadService : IDownloadService
     public bool DoesSongDownloaderExist(string platform) {
         return _downloaderTypes.ContainsKey(platform);
     }
+    
+    public SongDownloader GetSongDownloaderRequired(SongSource source)
+        => GetSongDownloader(source) ?? throw new PamelloException($"Downloader for {source.PK.Platform} not found");
 
-    public SongDownloader GetSongDownloader(SongSource source) {
+    public SongDownloader? GetSongDownloader(SongSource source) {
         var downloader = _downloaders.FirstOrDefault(downloader => downloader.Source == source);
         if (downloader is not null) return downloader;
         
         var downloaderType = _downloaderTypes.GetValueOrDefault(source.PK.Platform);
-        if (downloaderType is null) throw new PamelloException($"Downloader for platform {source.PK.Platform} not found");
+        if (downloaderType is null) return null;
         
         downloader = (SongDownloader)Activator.CreateInstance(downloaderType, _services, source)!;
         _downloaders.Add(downloader);
