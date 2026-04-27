@@ -83,7 +83,6 @@ public class DatabaseAccessService : IDatabaseAccessService
             
             memberMapper.Serialize = (getterValue, bm) => {
                 if (getterValue is string stringData) {
-                    Output.Write($"Mapping: {stringData}");
                     return new BsonValue(stringData); 
                 }
                 return BsonValue.Null;

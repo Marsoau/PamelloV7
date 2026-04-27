@@ -4,6 +4,7 @@ using PamelloV7.Core.Dto;
 using PamelloV7.Core.Dto.Entities;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Commands;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Data.Entities;
 using PamelloV7.Framework.Difference;
 using PamelloV7.Framework.Dto;
@@ -11,6 +12,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Platforms;
@@ -246,13 +248,17 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false) {
         if (_favoriteSongs.Contains(song)) return null;
         
-        _favoriteSongs.Insert(position ?? _favoriteSongs.Count, song);
+        var insertPosition = position ?? _favoriteSongs.Count;
+        
+        _favoriteSongs.Insert(insertPosition, song);
 
         if (!fromInside) song.MakeFavorite(this, true, automatic);
         
-        _sink.Invoke(this, new UserFavoriteSongsUpdated() {
+        _sink.Invoke(this, new UserFavoriteSongsAdded {
             User = this,
-            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
+            AddedSongs = new SafeList<IPamelloSong>([song]),
+            InsertPosition = insertPosition
         });
         
         Save();

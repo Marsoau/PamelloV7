@@ -45,4 +45,6 @@ public partial class HistoryRecord : IHistoryRecord
             CreatedAt = CreatedAt
         };
     }
+
+    public override string ToString() => $"[{Id}] {Name}";
 }

@@ -65,7 +65,11 @@ public class HistoryService : IHistoryService
         var databaseRecord = new HistoryRecord(nested, scopeUser);
         collection.Add(databaseRecord);
         
-        return Load(databaseRecord);
+        var record = Load(databaseRecord);
+
+        Output.Write($"New record: {record}");
+        
+        return record;
     }
 
     public IHistoryRecord? Get(IPamelloUser scopeUser, int id) {
