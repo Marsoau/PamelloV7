@@ -112,13 +112,12 @@ public class EventsService : IEventsService
             _signal.Broadcast(e);
         }
 
-        if (eventType.GetCustomAttribute<PamelloEventCategory>() is not { Category: EEventCategory.InfoUpdate }) return record;
-
-        var infoUpdateAttributeData = eventType.GetCustomAttributesData()
-            .FirstOrDefault(attr => attr.AttributeType.IsGenericType 
-                 && attr.AttributeType.GetGenericTypeDefinition() == typeof(EntityInfoUpdateAttribute<>)
-            );
-        if (infoUpdateAttributeData is null || eventType.GetCustomAttribute(infoUpdateAttributeData.AttributeType) is not IEntityInfoUpdateAttribute infoUpdateAttribute) return record;
+        var infoUpdateAttribute = TypeAndItsParents(eventType)
+            .SelectMany(type => type.GetCustomAttributes())
+            .FirstOrDefault(attribute => attribute is IEntityInfoUpdateAttribute)
+            as IEntityInfoUpdateAttribute;
+        
+        if (infoUpdateAttribute is null) return record;
         
         var property = eventType.GetProperties().FirstOrDefault(p => p.Name == infoUpdateAttribute.EntityPropertyName);
         if (property is null || !property.PropertyType.IsAssignableTo(typeof(IPamelloEntity))) return record;
@@ -137,5 +136,12 @@ public class EventsService : IEventsService
         }
         
         return record;
+    }
+    
+    private static IEnumerable<Type> TypeAndItsParents(Type? type) {
+        while (type is not null && type != typeof(object)) {
+            yield return type;
+            type = type.BaseType;
+        }
     }
 }
