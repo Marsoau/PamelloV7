@@ -36,10 +36,10 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     
     public void DeleteAuthorization(int index, bool automatic = false);
 
-    public IPamelloSong? AddFavoriteSong(IPamelloSong song, int? position = null, bool fromInside = false, bool automatic = false);
-    public IPamelloSong? RemoveFavoriteSong(IPamelloSong song, bool fromInside = false, bool automatic = false);
+    public IEnumerable<IPamelloSong> AddFavoriteSongs(IEnumerable<IPamelloSong> songs, int? position = null, bool fromInside = false, bool automatic = false);
+    public IEnumerable<IPamelloSong> RemoveFavoriteSongs(IEnumerable<IPamelloSong> songs, bool fromInside = false, bool automatic = false);
     public IPamelloSong? MoveFavoriteSong(int fromPosition, int toPosition, bool automatic = false);
-    public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs);
+    public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs, bool automatic = false);
     public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false);
     
     public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist song, int? position = null, bool fromInside = false, bool automatic = false);

@@ -221,7 +221,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         
         _favoriteBy.Add(user);
         
-        if (!fromInside) user.AddFavoriteSong(this, null, true);
+        if (!fromInside) user.AddFavoriteSongs([this], null, true);
 
         _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
@@ -234,7 +234,7 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
     public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false) {
         if (!_favoriteBy.Remove(user)) return;
         
-        if (!fromInside) user.RemoveFavoriteSong(this, true);
+        if (!fromInside) user.RemoveFavoriteSongs([this], true);
 
         _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
             Song = this,
