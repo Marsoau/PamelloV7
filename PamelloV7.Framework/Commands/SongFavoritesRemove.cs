@@ -8,17 +8,6 @@ namespace PamelloV7.Framework.Commands;
 public partial class SongFavoritesRemove
 {
     public List<IPamelloSong> Execute(IEnumerable<IPamelloSong> songs) {
-        var removedSongs = new List<IPamelloSong>();
-        
-        ScopeUser.StartChanges();
-        foreach (var song in songs) {
-            if (!ScopeUser.FavoriteSongs.Contains(song)) continue;
-            
-            song.UnmakeFavorite(ScopeUser);
-            removedSongs.Add(song);
-        }
-        ScopeUser.EndChanges();
-        
-        return removedSongs;
+        return ScopeUser.RemoveFavoriteSongs(songs).ToList();
     }
 }

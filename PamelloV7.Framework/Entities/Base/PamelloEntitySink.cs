@@ -5,6 +5,12 @@ using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Framework.Entities.Base;
 
+public record EntitySinkEvent(
+    IPamelloUser? Invoker,
+    IPamelloEvent Event,
+    Action? Action
+);
+
 public class PamelloEntitySink
 {
     private readonly IServiceProvider _services;
@@ -13,7 +19,7 @@ public class PamelloEntitySink
     
     private readonly IPamelloDynamicEntity _entity;
     
-    private readonly Dictionary<Type, KeyValuePair<IPamelloUser?, IPamelloEvent>> _savedEvents;
+    private readonly List<EntitySinkEvent> _savedEvents;
     
     public PamelloEntitySink(IServiceProvider services, IPamelloDynamicEntity entity) {
         _services = services;
@@ -25,24 +31,19 @@ public class PamelloEntitySink
         _savedEvents = [];
     }
 
-    public void Invoke<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e)
+    public void Invoke<TPamelloEvent>(IPamelloUser? invoker, TPamelloEvent e, Action? action = null)
         where TPamelloEvent : IPamelloEvent
     {
         if (!_entity.IsChangesGoing) {
-            _events.Invoke(invoker, e);
+            _events.Invoke(invoker, e, action);
         }
         
-        if (_savedEvents.ContainsKey(e.GetType())) {
-            _savedEvents[e.GetType()] = new KeyValuePair<IPamelloUser?, IPamelloEvent>(invoker, e);
-        }
-        else {
-            _savedEvents.Add(e.GetType(), new KeyValuePair<IPamelloUser?, IPamelloEvent>(invoker, e));
-        }
+        _savedEvents.Add(new EntitySinkEvent(invoker, e, action));
     }
 
     public void Flush() {
-        foreach (var (type, e) in _savedEvents) {
-            _events.Invoke(e.Key, e.Value);
+        foreach (var eventInfo in _savedEvents) {
+            _events.Invoke(eventInfo.Invoker, eventInfo.Event, eventInfo.Action);
         }
         
         _savedEvents.Clear();

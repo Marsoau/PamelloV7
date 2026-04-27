@@ -262,14 +262,15 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         _favoriteSongs.InsertRange(insertPosition, songsToAdd);
 
-        if (!fromInside)
-            foreach (var song in songsToAdd)
-                song.MakeFavorite(this, true, automatic);
-        
         _sink.Invoke(automatic ? null : this, new UserFavoriteSongsAdded {
             User = this,
             FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
             AddedSongs = songsToAdd.ToSafeList()
+        }, () => {
+            if (fromInside) return;
+            
+            foreach (var song in songsToAdd)
+                song.MakeFavorite(this, true, automatic);
         });
         
         Save();
@@ -288,19 +289,27 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
             .ToList();
         
         if (songsToRemove.Count == 0) return [];
+        
+        var removedSongs = new Dictionary<int, IPamelloSong>();
 
         foreach (var song in songsToRemove) {
-            _favoriteSongs.Remove(song);
+            var index = _favoriteSongs.IndexOf(song);
+            
+            removedSongs[index] = song;
         }
         
-        if (!fromInside)
-            foreach (var song in songsToRemove)
-                song.UnmakeFavorite(this, true, automatic);
+        foreach (var song in songsToRemove)
+            _favoriteSongs.Remove(song);
         
         _sink.Invoke(automatic ? null : this, new UserFavoriteSongsRemoved() {
             User = this,
             FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
             RemovedSongs = songsToRemove.ToSafeList()
+        }, () => {
+            if (fromInside) return;
+            
+            foreach (var (index, song) in removedSongs)
+                song.UnmakeFavorite(this, index, automatic);
         });
         
         Save();
@@ -330,7 +339,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         
         var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, filteredSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
         
-        foreach (var (_, song) in difference.Deleted) song.UnmakeFavorite(this, true);
+        foreach (var (index, song) in difference.Deleted) song.UnmakeFavorite(this, index);
         foreach (var (_, song) in difference.Added) song.MakeFavorite(this, true);
         
         _favoriteSongs = filteredSongs;
@@ -346,7 +355,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     }
 
     public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false) {
-        return RemoveFavoriteSongs(_favoriteSongs, true, automatic);
+        return RemoveFavoriteSongs(_favoriteSongs, false, automatic);
     }
 
     public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false, bool automatic = false) {

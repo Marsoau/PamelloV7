@@ -8,6 +8,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Platforms.Infos;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
@@ -220,25 +221,36 @@ public class PamelloSong : PamelloDatabaseEntity<DatabaseSong>, IPamelloSong
         if (_favoriteBy.Contains(user)) return;
         
         _favoriteBy.Add(user);
-        
-        if (!fromInside) user.AddFavoriteSongs([this], null, true);
 
-        _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
+        _sink.Invoke(automatic ? null : user, new SongFavoriteByAdded {
             Song = this,
-            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy),
+            AddedUser = user,
+        }, () => {
+            if (fromInside) return;
+            
+            user.AddFavoriteSongs([this], null, true);
         });
         
         Save();
     }
 
-    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false) {
+    public void UnmakeFavorite(IPamelloUser user, int fromInsidePosition = -1, bool automatic = false) {
         if (!_favoriteBy.Remove(user)) return;
-        
-        if (!fromInside) user.RemoveFavoriteSongs([this], true);
 
-        _sink.Invoke(automatic ? null : user, new SongFavoriteByUpdated() {
+        var position = fromInsidePosition == -1
+            ? user.FavoriteSongs.ToList().IndexOf(this)
+            : fromInsidePosition;
+
+        _sink.Invoke(automatic ? null : user, new SongFavoriteByRemoved {
             Song = this,
-            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy),
+            RemovedFromPosition = position,
+            RemovedUser = user
+        }, () => {
+            if (fromInsidePosition == -1) return;
+            
+            user.RemoveFavoriteSongs([this], true);
         });
         
         Save();

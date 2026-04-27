@@ -34,7 +34,7 @@ public interface IPamelloSong : IPamelloDatabaseEntity
     public bool AddAssociation(string association, IPamelloUser? scopeUser);
     public bool RemoveAssociation(string association, IPamelloUser? scopeUser);
     public void MakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);
-    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);
+    public void UnmakeFavorite(IPamelloUser user, int fromInsidePosition = -1, bool automatic = false);
     public IPamelloEpisode AddEpisode(AudioTime start, string name, bool autoSkip, IPamelloUser scopeUser);
     public IPamelloEpisode AddEpisode(IEpisodeInfo episodeInfo, bool autoSkip, IPamelloUser scopeUser);
     public void RemoveEpisode(IPamelloEpisode episode, IPamelloUser scopeUser);
