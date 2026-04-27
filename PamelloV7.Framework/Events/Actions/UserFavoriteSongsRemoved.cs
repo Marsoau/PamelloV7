@@ -12,16 +12,16 @@ namespace PamelloV7.Framework.Events.Actions;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Action)]
 
-[SafeList<IPamelloSong>("AddedSongs", true)]
-public partial class UserFavoriteSongsAdded : UserFavoriteSongsUpdated, IRevertiblePamelloEvent
+[SafeList<IPamelloSong>("RemovedSongs", true)]
+public partial class UserFavoriteSongsRemoved : UserFavoriteSongsUpdated, IRevertiblePamelloEvent
 {
     public partial class Pack
     {
         protected override bool DidNotExpireInternal(IPamelloUser scopeUser) {
-            return Event.AddedSongs.Any(song => scopeUser.FavoriteSongs.Contains(song));
+            return Event.RemovedSongs.Any(song => !scopeUser.FavoriteSongs.Contains(song));
         }
         protected override void RevertInternal(IPamelloUser scopeUser) {
-            scopeUser.RemoveFavoriteSongs(Event.AddedSongs);
+            scopeUser.AddFavoriteSongs(Event.RemovedSongs);
         }
     }
 }

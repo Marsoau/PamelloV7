@@ -269,8 +269,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         _sink.Invoke(automatic ? null : this, new UserFavoriteSongsAdded {
             User = this,
             FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
-            AddedSongs = songsToAdd.ToSafeList(),
-            InsertPosition = insertPosition
+            AddedSongs = songsToAdd.ToSafeList()
         });
         
         Save();
@@ -285,18 +284,23 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     ) {
         var songsToRemove = songs
             .Distinct()
-            .Where(song => !_favoriteSongs.Contains(song))
+            .Where(song => _favoriteSongs.Contains(song))
             .ToList();
         
         if (songsToRemove.Count == 0) return [];
+
+        foreach (var song in songsToRemove) {
+            _favoriteSongs.Remove(song);
+        }
         
         if (!fromInside)
             foreach (var song in songsToRemove)
                 song.UnmakeFavorite(this, true, automatic);
         
-        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsRemoved() {
             User = this,
-            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
+            RemovedSongs = songsToRemove.ToSafeList()
         });
         
         Save();
@@ -342,21 +346,7 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     }
 
     public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false) {
-        var before = new List<IPamelloSong>(_favoriteSongs);
-        foreach (var song in before) {
-            song.UnmakeFavorite(this, true);
-        }
-        
-        _favoriteSongs.Clear();
-        
-        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
-            User = this,
-            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
-        });
-        
-        Save();
-        
-        return FavoriteSongs;
+        return RemoveFavoriteSongs(_favoriteSongs, true, automatic);
     }
 
     public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist playlist, int? position = null, bool fromInside = false, bool automatic = false) {
