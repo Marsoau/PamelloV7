@@ -11,12 +11,12 @@ public static class PamelloUserRepositoryExtensions
 {
     extension(IPamelloUserRepository users)
     {
-        public async Task<IPamelloUser> GetByInteractionRequired(Interaction interaction, bool allowCreation = false)
+        public async Task<IPamelloUser> GetByInteractionRequired(Interaction interaction, bool? allowCreation = null)
             => await users.GetByInteraction(interaction, allowCreation) ?? throw new PamelloException("User could not be found/created");
-        public async Task<IPamelloUser?> GetByInteraction(Interaction interaction, bool allowCreation = false)
+        public async Task<IPamelloUser?> GetByInteraction(Interaction interaction, bool? allowCreation = null)
             => await users.GetByDiscordId(interaction.User.Id, allowCreation);
         
-        public async Task<IPamelloUser?> GetByDiscordId(ulong discordId, bool allowCreation = false)
+        public async Task<IPamelloUser?> GetByDiscordId(ulong discordId, bool? allowCreation = null)
             => await users.GetByPlatformKey(new PlatformKey("discord", discordId.ToString()), allowCreation);
     }
 }

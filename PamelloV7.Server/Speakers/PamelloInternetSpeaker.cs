@@ -45,7 +45,10 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     public bool IsAvailableFor(IPamelloUser user) => true;
     
     public string GetUrl() {
-        return $"https://{ServerConfig.Root.HostName}/Audio/Out/{Name}";
+        return $"{(ServerConfig.Root.HostName.Split(":").FirstOrDefault() == "localhost"
+            ? "http"
+            : "https"
+        )}://{ServerConfig.Root.HostName}/Audio/Out/{Name}";
     }
 
     public PamelloInternetSpeaker(int id, string name, IPamelloPlayer player, IServiceProvider services) : base(id, services) {

@@ -31,7 +31,7 @@ public interface IPamelloUserRepository : IPamelloDatabaseRepository<IPamelloUse
     
     public IPamelloUser? GetByToken(Guid token);
     
-    public Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool allowCreation = false);
+    public Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool? allowCreation = null);
     
     public IPamelloUser Add(IUserInfo info);
 }

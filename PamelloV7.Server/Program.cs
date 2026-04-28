@@ -48,6 +48,10 @@ public class Program
         _configLoader.Load();
         _configLoader.FinishForServer();
 
+        if (string.IsNullOrWhiteSpace(ServerConfig.Root.HostName)) {
+            ServerConfig.Root.HostName = $"localhost:{ServerConfig.Root.Host.Split(':').Last()}";
+        }
+
         var aspBuilder = WebApplication.CreateBuilder(args);
             
         _serverLoader = new PamelloServerLoader(_configLoader);

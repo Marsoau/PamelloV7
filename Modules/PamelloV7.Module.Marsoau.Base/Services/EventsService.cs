@@ -129,8 +129,6 @@ public class EventsService : IEventsService
         
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 
-        Output.Write($"Update for: {entity}");
-
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
             subscription.InvokeAsync(e);
         }

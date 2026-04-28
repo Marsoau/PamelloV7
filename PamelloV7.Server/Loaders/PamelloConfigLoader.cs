@@ -31,10 +31,13 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     }
 
     public void Load() {
-        if (!FileAccessService.ConfigDirectory.Exists) FileAccessService.ConfigDirectory.Create();
-        var configFile = new FileInfo(
-            Path.Combine(FileAccessService.ConfigDirectory.FullName, "config.jsonc")
-        );
+        #if DEBUG
+        var configFile = new FileInfo(Path.Combine(Path.Combine(AppContext.BaseDirectory, "Config", "config.jsonc")));
+        #elif RELEASE
+        var configFile = new FileInfo(IPamelloConfigLoader.DefaultConfigFilePath);
+        #endif
+        
+        if (!(configFile.Directory?.Exists ?? true)) configFile.Directory.Create();
 
         if (!configFile.Exists || configFile.Length == 0) {
             _json = new JsonObject();

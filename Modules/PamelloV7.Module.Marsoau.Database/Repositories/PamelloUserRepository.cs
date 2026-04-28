@@ -35,14 +35,14 @@ public class PamelloUserRepository : PamelloDatabaseRepository<IPamelloUser, Dat
         return null;
     }
 
-    public async Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool allowCreation = false) {
-        allowCreation = ServerConfig.Root.AllowUserCreation && allowCreation;
+    public async Task<IPamelloUser?> GetByPlatformKey(PlatformKey pk, bool? allowCreation = null) {
+        allowCreation = (allowCreation ?? true) && ServerConfig.Root.AllowUserCreation;
         
         var user = _loaded.FirstOrDefault(s => s.Authorizations.Any(authorization => authorization.PK == pk));
         Output.Write($"User by pk {(user is not null ? $"found: {user}" : "not found")}");
         if (user is not null) return user;
         
-        if (!allowCreation) return null;
+        if (!allowCreation.Value) return null;
         
         var platform = _platforms.GetUserPlatform(pk.Platform);
         if (platform is null) return null;
