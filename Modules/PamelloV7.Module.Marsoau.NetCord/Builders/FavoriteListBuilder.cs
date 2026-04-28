@@ -5,6 +5,7 @@ using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events.Actions;
+using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
@@ -38,7 +39,11 @@ public class FavoriteListBuilder : DiscordComponentBuilder
         base.InitializeComponentBuilder(differentiator, services, scopeUser);
         
         var events = services.GetRequiredService<IEventsService>();
+        
         events.Subscribe<UserFavoriteSongsRemoved>(_ => {
+            IEventsService.OnRecordHere(SaveClearRecord);
+        });
+        events.Subscribe<UserFavoriteSongsUpdated>(_ => {
             IEventsService.OnRecordHere(SaveClearRecord);
         });
         

@@ -338,15 +338,19 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
         var filteredSongs = newSongs.Distinct().ToList();
         
         var difference = DifferenceResult<IPamelloSong>.From(_favoriteSongs, filteredSongs, (oldSong, newSong) => oldSong.Id == newSong.Id, true);
-        
-        foreach (var (index, song) in difference.Deleted) song.UnmakeFavorite(this, index);
-        foreach (var (_, song) in difference.Added) song.MakeFavorite(this, true);
-        
+
+        var previousFavoriteSongs = _favoriteSongs.ToSafeList();
         _favoriteSongs = filteredSongs;
         
-        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsUpdated() {
+        _sink.Invoke(automatic ? null : this, new UserFavoriteSongsReplaced() {
             User = this,
-            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs)
+            FavoriteSongs = IPamelloEntity.GetIds(FavoriteSongs),
+            PreviousFavoriteSongs = previousFavoriteSongs,
+            AddedSongs = difference.Added.Values.ToSafeList(),
+            RemovedSongs = difference.Deleted.Values.ToSafeList()
+        }, () => {
+            foreach (var (index, song) in difference.Deleted) song.UnmakeFavorite(this, index);
+            foreach (var (_, song) in difference.Added) song.MakeFavorite(this, true);
         });
         
         Save();
