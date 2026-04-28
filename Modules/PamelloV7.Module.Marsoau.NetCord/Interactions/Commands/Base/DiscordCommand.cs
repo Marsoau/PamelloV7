@@ -255,6 +255,7 @@ public abstract partial class DiscordCommand : DiscordInteraction<SlashCommandIn
                 return await getPageContentAsync(updatablePageMessage.Page);
             },
             async components => {
+                Output.Write("REFRESH");
                 await RespondComponentAsync(components);
             }, async () => {
                 await DisposeAsync();

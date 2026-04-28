@@ -27,5 +27,5 @@ public interface IPamelloPlaylist : IPamelloDatabaseEntity
     public IPamelloSong? RemoveAt(string position, IPamelloUser? scopeUser);
     
     public void MakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);
-    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false);
+    public void UnmakeFavorite(IPamelloUser user, int fromInsidePosition = -1, bool automatic = false);
 }

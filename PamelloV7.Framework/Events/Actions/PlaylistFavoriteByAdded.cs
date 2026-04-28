@@ -11,4 +11,4 @@ namespace PamelloV7.Framework.Events.Actions;
 [PamelloEventCategory(EEventCategory.Action)]
 
 [Safe<IPamelloUser>("AddedUser", true)]
-public partial class SongFavoriteByAdded : SongFavoriteByUpdated;
+public partial class PlaylistFavoriteByAdded : PlaylistFavoriteByUpdated;

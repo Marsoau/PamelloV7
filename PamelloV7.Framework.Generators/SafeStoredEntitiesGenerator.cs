@@ -93,8 +93,8 @@ public class SafeStoredEntitiesGenerator : IIncrementalGenerator
         foreach (var propertyInfo in descriptor.ManyEntitiesInfos) {
             propertiesSb.AppendLine(
                 $$"""
-                          public {{SafeEntityListClassName}}<{{propertyInfo.EntityType.GetFullName()}}> {{propertyInfo.PropertyName}} { get; set; } = new();
-                  """
+                        public{{(propertyInfo.IsRequired ? " required" : "")}} {{SafeEntityListClassName}}<{{propertyInfo.EntityType.GetFullName()}}> {{propertyInfo.PropertyName}} { get; set; } = new();
+                """
             );
         }
         foreach (var propertyInfo in descriptor.SingleEntitiesInfos) {

@@ -10,6 +10,7 @@ using PamelloV7.Framework.Events.Enumerators;
 using PamelloV7.Framework.Events.RestorePacks.Base;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.History.Services;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.Base.Events.Base;
 
@@ -127,6 +128,8 @@ public class EventsService : IEventsService
         }
         
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
+
+        Output.Write($"Update for: {entity}");
 
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
             subscription.InvokeAsync(e);

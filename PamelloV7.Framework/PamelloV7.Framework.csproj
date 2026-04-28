@@ -15,8 +15,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PamelloV7.Core\PamelloV7.Core.csproj"/>
-		<ProjectReference Include="..\PamelloV7.Framework.Generators\PamelloV7.Framework.Generators.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
 	</ItemGroup>
 </Project>

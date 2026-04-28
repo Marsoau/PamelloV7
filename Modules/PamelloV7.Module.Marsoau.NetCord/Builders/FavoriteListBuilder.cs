@@ -34,30 +34,28 @@ public static class ESongOrPlaylistExtensions
 public class FavoriteListBuilder : DiscordComponentBuilder
 {
     public IHistoryRecord? LastRecord { get; private set; }
-
-    public override void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
-        base.InitializeComponentBuilder(differentiator, services, scopeUser);
-        
-        var events = services.GetRequiredService<IEventsService>();
-        
-        events.Subscribe<UserFavoriteSongsUpdated>(_ => {
-            IEventsService.OnRecordHere(SaveLastRecord);
-        });
-        events.Subscribe<UserFavoriteSongsRemoved>(_ => {
-            IEventsService.OnRecordHere(SaveLastRecord);
-        });
-        events.Subscribe<UserFavoriteSongsAdded>(_ => {
-            IEventsService.OnRecordHere(SaveLastRecord);
-        });
-        
-        return;
-        
-        void SaveLastRecord(IHistoryRecord? record) {
-            LastRecord = record;
-        }
-    }
+    
+    private bool _subscribed;
 
     public IMessageComponentProperties?[] Build(IPamelloUser user, ESongOrPlaylist songOrPlaylist, int page, int pageSize) {
+        Output.Write("Fucking builder");
+        if (!_subscribed) {
+            var events = Services.GetRequiredService<IEventsService>();
+
+            if (songOrPlaylist == ESongOrPlaylist.Song) {
+                events.Subscribe<UserFavoriteSongsUpdated>(_ => IEventsService.OnRecordHere(SaveLastRecord));
+            }
+            else {
+                events.Subscribe<UserFavoritePlaylistsUpdated>(_ => IEventsService.OnRecordHere(SaveLastRecord));
+            }
+            
+            _subscribed = true;
+            
+            void SaveLastRecord(IHistoryRecord? record) {
+                LastRecord = record;
+            }
+        }
+        
         IReadOnlyList<IPamelloEntity> items = songOrPlaylist switch {
             ESongOrPlaylist.Song => user.FavoriteSongs,
             ESongOrPlaylist.Playlist => user.FavoritePlaylists,
@@ -121,33 +119,36 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                     LastRecord switch {
                         { Nested.Event: UserFavoriteSongsAdded added } =>
                             GetAddedTextDisplay(added.AddedSongs.Count()),
+                        { Nested.Event: UserFavoritePlaylistsAdded added } =>
+                            GetAddedTextDisplay(added.AddedPlaylists.Count()),
                         { Nested.Event: UserFavoriteSongsRemoved removed } =>
                             GetRemovedTextDisplay(removed.RemovedSongs.Count()),
+                        { Nested.Event: UserFavoritePlaylistsRemoved removed } =>
+                            GetRemovedTextDisplay(removed.RemovedPlaylists.Count()),
                         { Nested.Event: UserFavoriteSongsReplaced replaced } => 
-                            GetReplacedTextDisplay(replaced),
+                            GetReplacedTextDisplay(replaced.AddedSongs.Count(), replaced.RemovedSongs.Count()),
+                        { Nested.Event: UserFavoritePlaylistsReplaced replaced } => 
+                            GetReplacedTextDisplay(replaced.AddedPlaylists.Count(), replaced.RemovedPlaylists.Count()),
                         _ => throw new ArgumentOutOfRangeException()
                     }
                 )
             );
 
             TextDisplayProperties GetAddedTextDisplay(int count) {
-                return new TextDisplayProperties($"-# Added {count} songs");
+                return new TextDisplayProperties($"-# Added {count} {songOrPlaylist.ToShortString()}s");
             }
             TextDisplayProperties GetRemovedTextDisplay(int count) {
-                return new TextDisplayProperties($"-# Removed {count} songs");
+                return new TextDisplayProperties($"-# Removed {count} {songOrPlaylist.ToShortString()}s");
             }
-            TextDisplayProperties GetReplacedTextDisplay(UserFavoriteSongsReplaced replaced) {
-                var addedSongsCount = replaced.AddedSongs.Count();
-                var removedSongsCount = replaced.RemovedSongs.Count();
-
-                if (addedSongsCount > 0 && removedSongsCount == 0) {
-                    return GetAddedTextDisplay(addedSongsCount);
+            TextDisplayProperties GetReplacedTextDisplay(int addedCount, int removedCount) {
+                if (addedCount > 0 && removedCount == 0) {
+                    return GetAddedTextDisplay(addedCount);
                 }
-                if (removedSongsCount > 0 && addedSongsCount == 0) {
-                    return GetRemovedTextDisplay(removedSongsCount);
+                if (removedCount > 0 && addedCount == 0) {
+                    return GetRemovedTextDisplay(removedCount);
                 }
                 
-                return new TextDisplayProperties($"-# {addedSongsCount} songs added and {removedSongsCount} removed");
+                return new TextDisplayProperties($"-# {addedCount} {songOrPlaylist.ToShortString()}s added and {removedCount} removed");
             }
         }
 
@@ -159,14 +160,14 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                         Command<PlayerQueueSongAdd>().Execute(user.FavoriteSongs);
                     }).WithDisabled(songOrPlaylist != ESongOrPlaylist.Song)
                 ).AddComponents(
-                    new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} songs)")
+                    new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} {songOrPlaylist.ToShortString()}s)")
                 )
             );
         }
         else {
             container.AddComponents(
                 new ComponentSeparatorProperties(),
-                new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} songs)")
+                new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} {songOrPlaylist.ToShortString()}s)")
             );
         }
 

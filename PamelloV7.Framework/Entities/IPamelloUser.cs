@@ -42,8 +42,8 @@ public interface IPamelloUser : IPamelloDatabaseEntity
     public IEnumerable<IPamelloSong> ReplaceFavoriteSongs(List<IPamelloSong> newSongs, bool automatic = false);
     public IEnumerable<IPamelloSong> ClearFavoriteSongs(bool automatic = false);
     
-    public IPamelloPlaylist? AddFavoritePlaylist(IPamelloPlaylist song, int? position = null, bool fromInside = false, bool automatic = false);
-    public IPamelloPlaylist? RemoveFavoritePlaylist(IPamelloPlaylist playlist, bool fromInside = false, bool automatic = false);
+    public IEnumerable<IPamelloPlaylist> AddFavoritePlaylists(IEnumerable<IPamelloPlaylist> playlists, int? position = null, bool fromInside = false, bool automatic = false);
+    public IEnumerable<IPamelloPlaylist> RemoveFavoritePlaylists(IEnumerable<IPamelloPlaylist> playlists, bool fromInside = false, bool automatic = false);
     public IPamelloPlaylist? MoveFavoritePlaylist(int fromPosition, int toPosition, bool automatic = false);
     public IEnumerable<IPamelloPlaylist> ReplaceFavoritePlaylists(List<IPamelloPlaylist> newPlaylists, bool automatic = false);
     public IEnumerable<IPamelloPlaylist> ClearFavoritePlaylists(bool automatic = false);

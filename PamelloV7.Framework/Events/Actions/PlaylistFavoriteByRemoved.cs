@@ -10,5 +10,8 @@ namespace PamelloV7.Framework.Events.Actions;
 [HistoricalEvent]
 [PamelloEventCategory(EEventCategory.Action)]
 
-[Safe<IPamelloUser>("AddedUser", true)]
-public partial class SongFavoriteByAdded : SongFavoriteByUpdated;
+[Safe<IPamelloUser>("RemovedUser", true)]
+public partial class PlaylistFavoriteByRemoved : PlaylistFavoriteByUpdated
+{
+    public required int RemovedFromPosition { get; set; }
+}

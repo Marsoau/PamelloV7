@@ -7,6 +7,7 @@ using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Module.Marsoau.Base.Repositories.Database;
 using PamelloV7.Module.Marsoau.Database.Entities.Base;
@@ -212,24 +213,35 @@ public class PamelloPlaylist : PamelloDatabaseEntity<DatabasePlaylist>, IPamello
         
         _favoriteBy.Add(user);
         
-        if (!fromInside) user.AddFavoritePlaylist(this, null, true, automatic);
-
-        _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
+        _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByAdded() {
             Playlist = this,
-            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy),
+            AddedUser = user,
+        }, () => {
+            if (fromInside) return;
+            
+            user.AddFavoritePlaylists([this], null, true);
         });
         
         Save();
     }
 
-    public void UnmakeFavorite(IPamelloUser user, bool fromInside = false, bool automatic = false) {
+    public void UnmakeFavorite(IPamelloUser user, int fromInsidePosition = -1, bool automatic = false) {
         if (!_favoriteBy.Remove(user)) return;
         
-        if (!fromInside) user.RemoveFavoritePlaylist(this, true, automatic);
+        var position = fromInsidePosition == -1
+            ? user.FavoritePlaylists.ToList().IndexOf(this)
+            : fromInsidePosition;
 
-        _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByUpdated() {
+        _sink.Invoke(automatic ? null : user, new PlaylistFavoriteByRemoved {
             Playlist = this,
-            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy)
+            FavoriteBy = IPamelloEntity.GetIds(_favoriteBy),
+            RemovedFromPosition = position,
+            RemovedUser = user
+        }, () => {
+            if (fromInsidePosition == -1) return;
+            
+            user.RemoveFavoritePlaylists([this], true);
         });
         
         Save();

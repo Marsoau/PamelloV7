@@ -26,7 +26,16 @@ public partial class UserFavoriteSongsReplaced : UserFavoriteSongsUpdated, IReve
                 Event.AddedSongs.Any(song => scopeUser.FavoriteSongs.Contains(song));
         }
         protected override void RevertInternal(IPamelloUser scopeUser) {
-            scopeUser.ReplaceFavoriteSongs(Event.PreviousFavoriteSongs.ToList());
+            if (scopeUser.FavoriteSongs
+                .Select(song => song.Id)
+                .SequenceEqual(Event.FavoriteSongs)
+            ) {
+                scopeUser.ReplaceFavoriteSongs(Event.PreviousFavoriteSongs.ToList());
+            }
+            else {
+                scopeUser.AddFavoriteSongs(Event.AddedSongs);
+                scopeUser.RemoveFavoriteSongs(Event.RemovedSongs);
+            }
         }
     }
 }
