@@ -23,7 +23,7 @@ public abstract class DiscordComponentBuilder : DiscordBasicActions
     
     public UpdatableMessage Message { get; private set; } = null!;
     
-    public void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
+    public virtual void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
         InitializeActions(services, scopeUser);
         
         var messages = services.GetRequiredService<UpdatableMessageService>();

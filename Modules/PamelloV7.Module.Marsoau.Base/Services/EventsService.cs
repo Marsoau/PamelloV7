@@ -108,7 +108,7 @@ public class EventsService : IEventsService
             }
         }
         
-        IEventsService.CurrentRecord.Value = record;
+        IEventsService.SetCurrentRecord(record);
 
         if (eventType.GetCustomAttribute<BroadcastAttribute>() is not null) {
             _signal.Broadcast(e);

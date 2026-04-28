@@ -1,11 +1,15 @@
+using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
+using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Song;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -29,7 +33,24 @@ public static class ESongOrPlaylistExtensions
 public class FavoriteListBuilder : DiscordComponentBuilder
 {
     public IHistoryRecord? ClearRecord { get; private set; }
-    
+
+    public override void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
+        base.InitializeComponentBuilder(differentiator, services, scopeUser);
+        
+        var events = services.GetRequiredService<IEventsService>();
+        events.Subscribe<UserFavoriteSongsRemoved>(_ => {
+            IEventsService.OnRecordHere(SaveClearRecord);
+        });
+        
+        return;
+        
+        void SaveClearRecord(IHistoryRecord? record) {
+            if (ScopeUser.FavoriteSongs.Count != 0) return;
+
+            ClearRecord = record;
+        }
+    }
+
     public IMessageComponentProperties?[] Build(IPamelloUser user, ESongOrPlaylist songOrPlaylist, int page, int pageSize) {
         IReadOnlyList<IPamelloEntity> items = songOrPlaylist switch {
             ESongOrPlaylist.Song => user.FavoriteSongs,
@@ -70,15 +91,10 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                         ClearRecord is null
                             ? Button("Clear", ButtonStyle.Secondary, async () => {
                                 ClearRecord = Command<SongFavoritesClear>().Execute();
-                                await Message.Refresh();
+                                //await Message.Refresh();
                             })
                             : Button("Revert", ButtonStyle.Secondary, () => {
-                                try {
-                                    Command<HistoryRecordRevert>().Execute(ClearRecord);
-                                }
-                                finally {
-                                    ClearRecord = null;
-                                }
+                                Command<HistoryRecordRevert>().Execute(ClearRecord);
                             })
                     )
                     : new ActionRowProperties().AddComponents(
