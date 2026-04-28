@@ -23,7 +23,8 @@ public partial class UserFavoriteSongsReplaced : UserFavoriteSongsUpdated, IReve
         protected override bool DidNotExpireInternal(IPamelloUser scopeUser) {
             return 
                 Event.RemovedSongs.Any(song => !scopeUser.FavoriteSongs.Contains(song)) ||
-                Event.AddedSongs.Any(song => scopeUser.FavoriteSongs.Contains(song));
+                Event.AddedSongs.Any(song => scopeUser.FavoriteSongs.Contains(song)) ||
+                scopeUser.FavoriteSongs.Select(song => song.Id).SequenceEqual(Event.FavoriteSongs);
         }
         protected override void RevertInternal(IPamelloUser scopeUser) {
             if (scopeUser.FavoriteSongs

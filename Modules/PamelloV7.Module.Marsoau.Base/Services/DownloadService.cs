@@ -59,7 +59,7 @@ public class DownloadService : IDownloadService
     }
     
     public bool IsDownloading(SongSource? source) {
-        return _downloaders.Any(downloader => downloader.Source == source);
+        return _downloaders.Any(downloader => downloader.Source == source && downloader.Progress < 1);
     }
     
     public bool IsDownloaded(SongSource? source) {

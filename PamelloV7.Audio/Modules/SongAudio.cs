@@ -101,6 +101,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
                 Clean();
                 return false;
             }
+
+            Framework.Logging.Output.Write($"Is downloaded after: {Song.SelectedSource.IsDownloaded()}");
             
             if (result != EDownloadResult.Success) {
                 Framework.Logging.Output.Write($"Download failed: {result}", ELogLevel.Error);

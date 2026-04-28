@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Events;
@@ -56,7 +57,7 @@ public abstract class SongDownloader
     protected abstract Task<EDownloadResult> InternalDownloadAsync(FileInfo file);
     
     public async Task<EDownloadResult> DownloadAsync(bool forceDownload = false) {
-        if (_downloadTask is not null) return await _downloadTask;
+        if (_downloadTask is not null) return await ProperDownloadReturn();
         
         var file = _files.GetSourceFile(Source);
         if (file.Exists) {
@@ -67,11 +68,26 @@ public abstract class SongDownloader
         _downloadTask = InternalDownloadAsync(file);
 
         try {
-            return await _downloadTask;
+            return await ProperDownloadReturn();
         }
         finally {
             _downloadTask = null;
-            _downloads.RemoveDownloader(this);
+        }
+
+        async Task<EDownloadResult> ProperDownloadReturn() {
+            Debug.Assert(_downloadTask is not null);
+            
+            var result = EDownloadResult.UnknownError;
+
+            try {
+                result = await _downloadTask;
+            }
+            finally {
+                _downloadTask = null;
+                _downloads.RemoveDownloader(this);
+            }
+            
+            return result;
         }
     }
 }

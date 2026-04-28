@@ -12,6 +12,6 @@ public class NetCordLogger : IGatewayLogger
     }
     
     public bool IsEnabled(LogLevel logLevel) {
-        return logLevel > LogLevel.Information;
+        return logLevel >= LogLevel.Trace;
     }
 }

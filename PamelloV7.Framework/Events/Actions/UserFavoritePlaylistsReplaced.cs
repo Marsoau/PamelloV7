@@ -23,7 +23,8 @@ public partial class UserFavoritePlaylistsReplaced : UserFavoritePlaylistsUpdate
         protected override bool DidNotExpireInternal(IPamelloUser scopeUser) {
             return 
                 Event.RemovedPlaylists.Any(playlist => !scopeUser.FavoritePlaylists.Contains(playlist)) ||
-                Event.AddedPlaylists.Any(playlist => scopeUser.FavoritePlaylists.Contains(playlist));
+                Event.AddedPlaylists.Any(playlist => scopeUser.FavoritePlaylists.Contains(playlist)) ||
+                scopeUser.FavoritePlaylists.Select(playlist => playlist.Id).SequenceEqual(Event.FavoritePlaylists);
         }
         protected override void RevertInternal(IPamelloUser scopeUser) {
             if (scopeUser.FavoritePlaylists

@@ -47,25 +47,46 @@ public class NetCord : IPamelloModule
             var completion = new TaskCompletionSource();
             completions.Add(completion);
 
+            client.Resume += () => {
+                completion.TrySetResult();
+                return ValueTask.CompletedTask;
+            };
             client.Ready += _ => {
-                completion.SetResult();
+                completion.TrySetResult();
                 return ValueTask.CompletedTask;
             };
             
             starts.Add(client.StartAsync().AsTask());
         }
-        
+
+        Output.Write("Waiting for clients to start");
         await Task.WhenAll(starts);
-        await Task.WhenAll(completions.Select(c => c.Task));
+        Output.Write("asd");
+        try {
+            await Task.WhenAll(completions.Select(c => c.Task));
+        }
+        catch {
+            Output.Write("cartchlk");
+        }
+        Output.Write("Clients started");
 
         if (!NetCordConfig.Root.Commands.SkipRegistration) {
+            Output.Write("Registering commands");
             if (NetCordConfig.Root.Commands.GlobalRegistration) {
+                Output.Write("Global registration");
                 await clients.Main.Rest.BulkOverwriteGlobalApplicationCommandsAsync(clients.Main.Id, properties);
             }
             else {
-                var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => 
-                    clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(clients.Main.Id, id, properties)
-                );
+                Output.Write("Guild registration");
+                var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => {
+                    Output.Write($"| {id}");
+                    
+                    return clients.Main.Rest.BulkOverwriteGuildApplicationCommandsAsync(
+                        clients.Main.Id,
+                        id,
+                        properties
+                    );
+                });
         
                 await Task.WhenAll(registers);
             }

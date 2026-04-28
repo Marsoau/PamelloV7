@@ -44,7 +44,7 @@ public partial class PlayerQueueSongAdd
 
         var events = Services.GetRequiredService<IEventsService>();
         
-        events.Subscribe<SongSourceDownloadProgressUpdated>(_ => {
+        events.Subscribe<SongSourceDownloadProgressUpdated>(ev => {
             UpdatableMessage?.Refresh();
         });
 
