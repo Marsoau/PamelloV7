@@ -33,26 +33,27 @@ public static class ESongOrPlaylistExtensions
 
 public class FavoriteListBuilder : DiscordComponentBuilder
 {
-    public IHistoryRecord? ClearRecord { get; private set; }
+    public IHistoryRecord? LastRecord { get; private set; }
 
     public override void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
         base.InitializeComponentBuilder(differentiator, services, scopeUser);
         
         var events = services.GetRequiredService<IEventsService>();
         
-        events.Subscribe<UserFavoriteSongsRemoved>(_ => {
-            IEventsService.OnRecordHere(SaveClearRecord);
-        });
         events.Subscribe<UserFavoriteSongsUpdated>(_ => {
-            IEventsService.OnRecordHere(SaveClearRecord);
+            IEventsService.OnRecordHere(SaveLastRecord);
+        });
+        events.Subscribe<UserFavoriteSongsRemoved>(_ => {
+            IEventsService.OnRecordHere(SaveLastRecord);
+        });
+        events.Subscribe<UserFavoriteSongsAdded>(_ => {
+            IEventsService.OnRecordHere(SaveLastRecord);
         });
         
         return;
         
-        void SaveClearRecord(IHistoryRecord? record) {
-            if (ScopeUser.FavoriteSongs.Count != 0) return;
-
-            ClearRecord = record;
+        void SaveLastRecord(IHistoryRecord? record) {
+            LastRecord = record;
         }
     }
 
@@ -62,8 +63,6 @@ public class FavoriteListBuilder : DiscordComponentBuilder
             ESongOrPlaylist.Playlist => user.FavoritePlaylists,
             _ => throw new ArgumentOutOfRangeException(nameof(songOrPlaylist))
         };
-        
-        if (ClearRecord is not null && items.Count > 0) ClearRecord = null;
 
         var title = user == ScopeUser
             ? $"Favorite {songOrPlaylist.ToShortString()}s"
@@ -93,14 +92,9 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                 songOrPlaylist == ESongOrPlaylist.Song
                     ? new ActionRowProperties().AddComponents(
                         ModalButton<SongFavoriteEditModal>("Edit", ButtonStyle.Secondary),
-                        ClearRecord is null
-                            ? Button("Clear", ButtonStyle.Secondary, async () => {
-                                ClearRecord = Command<SongFavoritesClear>().Execute();
-                                //await Message.Refresh();
-                            })
-                            : Button("Revert", ButtonStyle.Secondary, () => {
-                                Command<HistoryRecordRevert>().Execute(ClearRecord);
-                            })
+                        Button("Clear", ButtonStyle.Secondary, async () => {
+                            Command<SongFavoritesClear>().Execute();
+                        }).WithDisabled(user.FavoriteSongs.Count == 0)
                     )
                     : new ActionRowProperties().AddComponents(
                         ModalButton<PlaylistFavoriteEditModal>("Edit", ButtonStyle.Secondary),
@@ -113,12 +107,53 @@ public class FavoriteListBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             new ComponentSeparatorProperties(),
-            new TextDisplayProperties(content),
-            new ComponentSeparatorProperties()
+            new TextDisplayProperties(content)
         );
+
+        if (LastRecord is not null) {
+            container.AddComponents(
+                new ComponentSeparatorProperties(),
+                new ComponentSectionProperties(
+                    Button("Revert", ButtonStyle.Secondary, () => {
+                        Command<HistoryRecordRevert>().Execute(LastRecord);
+                    })
+                ).AddComponents(
+                    LastRecord switch {
+                        { Nested.Event: UserFavoriteSongsAdded added } =>
+                            GetAddedTextDisplay(added.AddedSongs.Count()),
+                        { Nested.Event: UserFavoriteSongsRemoved removed } =>
+                            GetRemovedTextDisplay(removed.RemovedSongs.Count()),
+                        { Nested.Event: UserFavoriteSongsReplaced replaced } => 
+                            GetReplacedTextDisplay(replaced),
+                        _ => throw new ArgumentOutOfRangeException()
+                    }
+                )
+            );
+
+            TextDisplayProperties GetAddedTextDisplay(int count) {
+                return new TextDisplayProperties($"Added {count} songs");
+            }
+            TextDisplayProperties GetRemovedTextDisplay(int count) {
+                return new TextDisplayProperties($"Removed {count} songs");
+            }
+            TextDisplayProperties GetReplacedTextDisplay(UserFavoriteSongsReplaced replaced) {
+                var addedSongsCount = replaced.AddedSongs.Count();
+                var removedSongsCount = replaced.RemovedSongs.Count();
+
+                if (addedSongsCount > 0 && removedSongsCount == 0) {
+                    return GetAddedTextDisplay(addedSongsCount);
+                }
+                if (removedSongsCount > 0 && addedSongsCount == 0) {
+                    return GetRemovedTextDisplay(removedSongsCount);
+                }
+                
+                return new TextDisplayProperties($"{addedSongsCount} songs added and {removedSongsCount} removed");
+            }
+        }
 
         if (items.Count > 0) {
             container.AddComponents(
+                new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
                     Button("Add all to queue", ButtonStyle.Primary, () => {
                         Command<PlayerQueueSongAdd>().Execute(user.FavoriteSongs);
@@ -130,6 +165,7 @@ public class FavoriteListBuilder : DiscordComponentBuilder
         }
         else {
             container.AddComponents(
+                new ComponentSeparatorProperties(),
                 new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} songs)")
             );
         }
