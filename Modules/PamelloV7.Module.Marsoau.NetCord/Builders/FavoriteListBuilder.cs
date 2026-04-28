@@ -135,10 +135,10 @@ public class FavoriteListBuilder : DiscordComponentBuilder
             );
 
             TextDisplayProperties GetAddedTextDisplay(int count) {
-                return new TextDisplayProperties($"-# Added {count} {songOrPlaylist.ToShortString()}s");
+                return new TextDisplayProperties($"-# Added {DiscordString.Code(count)} {songOrPlaylist.ToShortString()}s");
             }
             TextDisplayProperties GetRemovedTextDisplay(int count) {
-                return new TextDisplayProperties($"-# Removed {count} {songOrPlaylist.ToShortString()}s");
+                return new TextDisplayProperties($"-# Removed {DiscordString.Code(count)} {songOrPlaylist.ToShortString()}s");
             }
             TextDisplayProperties GetReplacedTextDisplay(int addedCount, int removedCount) {
                 if (addedCount > 0 && removedCount == 0) {
@@ -147,8 +147,11 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                 if (removedCount > 0 && addedCount == 0) {
                     return GetRemovedTextDisplay(removedCount);
                 }
+                if (removedCount == 0 && addedCount == 0) {
+                    return new TextDisplayProperties($"-# Moved some {songOrPlaylist.ToShortString()}s around");
+                }
                 
-                return new TextDisplayProperties($"-# {addedCount} {songOrPlaylist.ToShortString()}s added and {removedCount} removed");
+                return new TextDisplayProperties($"-# {DiscordString.Code(addedCount)} {songOrPlaylist.ToShortString()}s added and {DiscordString.Code(removedCount)} removed");
             }
         }
 
@@ -157,8 +160,13 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
                     Button("Add all to queue", ButtonStyle.Primary, () => {
-                        Command<PlayerQueueSongAdd>().Execute(user.FavoriteSongs);
-                    }).WithDisabled(songOrPlaylist != ESongOrPlaylist.Song)
+                        if (songOrPlaylist == ESongOrPlaylist.Playlist) {
+                            Command<PlayerQueuePlaylistAdd>().Execute(user.FavoritePlaylists);
+                        }
+                        else {
+                            Command<PlayerQueueSongAdd>().Execute(user.FavoriteSongs);
+                        }
+                    })
                 ).AddComponents(
                     new TextDisplayProperties($"-# Page {page + 1}/{totalPages} ({items.Count} {songOrPlaylist.ToShortString()}s)")
                 )
