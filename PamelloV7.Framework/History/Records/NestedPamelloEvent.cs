@@ -13,7 +13,7 @@ public class NestedPamelloEvent
     
     private bool _isPropagated;
     
-    public bool IsRevertible() => Event is IRevertiblePamelloEvent { RevertPack.IsActivated: true };
+    public bool IsRevertible() => Event is IRevertiblePamelloEvent { RevertPack.IsInitialized: true };
     public bool IsPropagated() => _isPropagated;
     
     [JsonPropertyName("event")]
@@ -38,12 +38,7 @@ public class NestedPamelloEvent
             return false;
         }
         
-        if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
-            servicesProperty.SetValue(revertibleEvent.RevertPack, services);
-        }
-        if (revertibleEvent.RevertPack.GetType().GetField("Event") is { } eventProperty) {
-            eventProperty.SetValue(revertibleEvent.RevertPack, Event);
-        }
+        revertibleEvent.RevertPack.InitializePack(services, Event, this);
 
         foreach (var nestedEvent in NestedEvents) {
             nestedEvent.ActivateRestorePacks(services);

@@ -4,11 +4,16 @@ using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Commands;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Events.Actions;
+using PamelloV7.Framework.Events.InfoUpdate;
+using PamelloV7.Framework.History.Records;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Descriptions;
+using PamelloV7.Module.Marsoau.NetCord.Differentiation;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Buttons.Other;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Song.Episode;
@@ -40,6 +45,8 @@ public partial class SongInfo
 
     public class Builder : DiscordComponentBuilder
     {
+        public IHistoryRecord? FavoriteRemoveRecord { get; private set; }
+
         public ComponentContainerProperties Build(IPamelloSong song, ButtonProperties episodesButton) {
             Uri coverUrl;
             try {
@@ -108,10 +115,17 @@ public partial class SongInfo
                 new ComponentSectionProperties(
                     Button(song.FavoriteBy.Contains(ScopeUser) ? "Remove" : "Add", ButtonStyle.Secondary, () => {
                         if (song.FavoriteBy.Contains(ScopeUser)) {
-                            Command<SongFavoritesRemove>().Execute([song]);
+                            FavoriteRemoveRecord = IEventsService.FirstRecordIn(() => 
+                                Command<SongFavoritesRemove>().Execute([song])
+                            );
                         }
                         else {
-                            Command<SongFavoritesAdd>().Execute([song]);
+                            if (FavoriteRemoveRecord is not null) {
+                                Command<HistoryRecordRevert>().Execute(FavoriteRemoveRecord);
+                            }
+                            else {
+                                Command<SongFavoritesAdd>().Execute([song]);
+                            }
                         }
                     })
                 ).AddComponents(
@@ -165,6 +179,7 @@ public partial class SongInfo
             }
 
             container.AddComponents(
+                new ComponentSeparatorProperties(),
                 new ActionRowProperties().AddComponents(
                     Button("Add to queue", ButtonStyle.Primary, () => {
                         Command<PlayerQueueSongAdd>().Execute([song]);

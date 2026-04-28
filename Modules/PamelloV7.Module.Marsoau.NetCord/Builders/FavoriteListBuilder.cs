@@ -131,10 +131,10 @@ public class FavoriteListBuilder : DiscordComponentBuilder
             );
 
             TextDisplayProperties GetAddedTextDisplay(int count) {
-                return new TextDisplayProperties($"Added {count} songs");
+                return new TextDisplayProperties($"-# Added {count} songs");
             }
             TextDisplayProperties GetRemovedTextDisplay(int count) {
-                return new TextDisplayProperties($"Removed {count} songs");
+                return new TextDisplayProperties($"-# Removed {count} songs");
             }
             TextDisplayProperties GetReplacedTextDisplay(UserFavoriteSongsReplaced replaced) {
                 var addedSongsCount = replaced.AddedSongs.Count();
@@ -147,7 +147,7 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                     return GetRemovedTextDisplay(removedSongsCount);
                 }
                 
-                return new TextDisplayProperties($"{addedSongsCount} songs added and {removedSongsCount} removed");
+                return new TextDisplayProperties($"-# {addedSongsCount} songs added and {removedSongsCount} removed");
             }
         }
 

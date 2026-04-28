@@ -88,13 +88,8 @@ public class EventsService : IEventsService
 
         additionalAction?.Invoke();
         
-        if (e is IRevertiblePamelloEvent { RevertPack.IsActivated: false } revertibleEvent) {
-            if (revertibleEvent.RevertPack.GetType().GetField("Services") is { } servicesProperty) {
-                servicesProperty.SetValue(revertibleEvent.RevertPack, _services);
-            }
-            if (revertibleEvent.RevertPack.GetType().GetField("Event") is { } eventProperty) {
-                eventProperty.SetValue(revertibleEvent.RevertPack, e);
-            }
+        if (e is IRevertiblePamelloEvent { RevertPack.IsInitialized: false } revertibleEvent) {
+            revertibleEvent.RevertPack.InitializePack(_services, e);
         }
 
         IHistoryRecord? record = null;
