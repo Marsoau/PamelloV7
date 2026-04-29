@@ -165,16 +165,30 @@ public class UpdatableMessage : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public async Task PauseRefreshIn(Action action) {
+
+    public async Task<T> PauseRefreshIn<T>(Func<Task<T>> genericFunc) {
+        var task = genericFunc();
+        
+        await PauseRefreshIn(Task () => task);
+        
+        return await task;
+    }
+
+    private static Func<Task> RefreshFuncSync(Action action) => () => {
+        action();
+        return Task.CompletedTask;
+    };
+
+    public async Task PauseRefreshIn(Func<Task> func) {
         if (_pauseInfo.Value is not null) {
-            action();
+            await func();
             return;
         }
         
         _pauseInfo.Value = new UpdatableMessagePauseInfo();
 
         try {
-            action();
+            await func();
         }
         finally {
             var refreshAfter = _pauseInfo.Value.RefreshAfter;
