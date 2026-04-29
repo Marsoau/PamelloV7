@@ -4,8 +4,15 @@ using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Messages;
 
+public record UpdatableMessagePauseInfo
+{
+    public bool RefreshAfter { get; set; }
+}
+
 public class UpdatableMessage : IDisposable
 {
+    private static readonly AsyncLocal<UpdatableMessagePauseInfo?> _pauseInfo = new();
+    
     public readonly DiscordCommand Command;
     
     private readonly Func<UpdatableMessage, Task<IEnumerable<IMessageComponentProperties?>>> _getContent;
@@ -110,6 +117,11 @@ public class UpdatableMessage : IDisposable
     }
 
     public async Task Refresh() {
+        if (_pauseInfo.Value is { } pauseInfo) {
+            pauseInfo.RefreshAfter = true;
+            return;
+        }
+        
         if (_scheduledRefresh is not null) return;
         
         var currentTime = DateTime.Now;
@@ -151,5 +163,27 @@ public class UpdatableMessage : IDisposable
         Kill().Wait();
         
         GC.SuppressFinalize(this);
+    }
+
+    public async Task PauseRefreshIn(Action action) {
+        if (_pauseInfo.Value is not null) {
+            action();
+            return;
+        }
+        
+        _pauseInfo.Value = new UpdatableMessagePauseInfo();
+
+        try {
+            action();
+        }
+        finally {
+            var refreshAfter = _pauseInfo.Value.RefreshAfter;
+            
+            _pauseInfo.Value = null;
+            
+            if (refreshAfter) {
+                await Refresh();
+            }
+        }
     }
 }
