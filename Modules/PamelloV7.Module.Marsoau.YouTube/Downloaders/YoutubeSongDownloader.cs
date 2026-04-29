@@ -18,16 +18,16 @@ public class YoutubeSongDownloader : YtDlpDownloader
     public YoutubeSongDownloader(IServiceProvider services, SongSource source) : base(services, source) { }
 
     public override string GetArguments(FileInfo file) => string.Join(' ',
-        $@"--extractor-args ""youtube:player_client=android""",
         $@"--quiet",
         $@"--newline",
         $@"--progress",
-        $@"--no-wait-for-video",
-        $@"--no-keep-video",
-        $@"--no-audio-multistreams",
+        $@"--no-playlist",
         $@"--extract-audio",
-        $@"--output ""{file.FullName}""",
         $@"--audio-format opus",
+        $@"--audio-quality 0",
+        $@"--no-overwrites",
+        $@"--no-continue",
+        $@"--output ""{Path.Combine(file.DirectoryName ?? "", Path.GetFileNameWithoutExtension(file.Name))}.%(ext)s""",
         $@"--progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s""",
         YoutubeSongPlatform.GetYoutubeUrl(Source.PK.Key)
     );

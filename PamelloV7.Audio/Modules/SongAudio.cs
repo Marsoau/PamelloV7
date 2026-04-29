@@ -86,10 +86,14 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     }
 
     public async Task<bool> TryInitialize(CancellationToken token = default) {
+        Framework.Logging.Output.Write("Try Initialize");
         if (IsInitialized) return true;
 
         if (!(Song.SelectedSource?.IsDownloaded() ?? false)) { //if (!Song.SelectedSource.IsDownloaded) {
-            if (Song.SelectedSource is null) return false;
+            if (Song.SelectedSource is null) {
+                Framework.Logging.Output.Write("Song source is null");
+                return false;
+            }
 
             EDownloadResult result;
             try {
@@ -103,6 +107,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
             }
 
             Framework.Logging.Output.Write($"Is downloaded after: {Song.SelectedSource.IsDownloaded()}");
+
+            Framework.Logging.Output.Write($"Result: {result}");
             
             if (result != EDownloadResult.Success) {
                 Framework.Logging.Output.Write($"Download failed: {result}", ELogLevel.Error);
@@ -112,6 +118,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         }
 
         Duration.TotalSeconds = GetSongDuration(Song, _dependencies)?.TotalSeconds ?? 0;
+
+        Framework.Logging.Output.Write($"Duration: {Duration}");
 
         await LoadChunksAtAsync(0, token);
         if (_currentChunk is null) {
@@ -378,6 +386,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 
     public static AudioTime? GetSongDuration(IPamelloSong song, IDependenciesService dependencies) {
         if (!(song.SelectedSource?.IsDownloaded() ?? false)) {
+            Framework.Logging.Output.Write("Duration fail, song is not downloaded");
             return null;
         }
         
@@ -394,6 +403,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         if (ffprobeStream is null) return null;
 
         var durationStr = new StreamReader(ffprobeStream).ReadToEnd();
+
+        Framework.Logging.Output.Write($"Duration: {durationStr}");
 
         if (int.TryParse(durationStr.Split('.').First(), out var duration)) {
             return new AudioTime(duration);

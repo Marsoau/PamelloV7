@@ -19,7 +19,8 @@ public abstract class SongDownloader
 
     protected readonly IDependenciesService _dependencies;
     
-    private Task<EDownloadResult>? _downloadTask;
+    private readonly object _taskLock = new();
+    public Task<EDownloadResult>? DownloadTask;
 
     public SongSource Source { get; init; }
     
@@ -42,6 +43,8 @@ public abstract class SongDownloader
         }
     }
     
+    public EDownloadResult? Result { get; protected set; }
+    
     public SongDownloader(IServiceProvider services, SongSource source) {
         _services = services;
         
@@ -56,38 +59,38 @@ public abstract class SongDownloader
 
     protected abstract Task<EDownloadResult> InternalDownloadAsync(FileInfo file);
     
-    public async Task<EDownloadResult> DownloadAsync(bool forceDownload = false) {
-        if (_downloadTask is not null) return await ProperDownloadReturn();
-        
-        var file = _files.GetSourceFile(Source);
-        if (file.Exists) {
-            if (!forceDownload) return EDownloadResult.Success;
-            file.Delete();
+    public Task<EDownloadResult> DownloadAsync(bool forceDownload = false) {
+        lock (_taskLock) {
+            if (DownloadTask is null) {
+                DownloadTask = RunDownloadAsync(forceDownload);
+            }
+            return DownloadTask;
         }
-        
-        _downloadTask = InternalDownloadAsync(file);
+    }
 
+    private async Task<EDownloadResult> RunDownloadAsync(bool forceDownload) {
         try {
-            return await ProperDownloadReturn();
+            var file = _files.GetSourceFile(Source);
+            if (file.Exists) {
+                if (!forceDownload) {
+                    Result = EDownloadResult.Success;
+                    return EDownloadResult.Success;
+                }
+                file.Delete();
+            }
+
+            Result = await InternalDownloadAsync(file);
+            return Result.Value;
+        }
+        catch {
+            Result ??= EDownloadResult.UnknownError;
+            throw;
         }
         finally {
-            _downloadTask = null;
-        }
-
-        async Task<EDownloadResult> ProperDownloadReturn() {
-            Debug.Assert(_downloadTask is not null);
-            
-            var result = EDownloadResult.UnknownError;
-
-            try {
-                result = await _downloadTask;
+            lock (_taskLock) {
+                DownloadTask = null;
             }
-            finally {
-                _downloadTask = null;
-                _downloads.RemoveDownloader(this);
-            }
-            
-            return result;
+            _downloads.RemoveDownloader(this);
         }
     }
 }

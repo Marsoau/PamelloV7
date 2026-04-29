@@ -90,13 +90,13 @@ public class FavoriteListBuilder : DiscordComponentBuilder
                 songOrPlaylist == ESongOrPlaylist.Song
                     ? new ActionRowProperties().AddComponents(
                         ModalButton<SongFavoriteEditModal>("Edit", ButtonStyle.Secondary),
-                        Button("Clear", ButtonStyle.Secondary, () => Message.PauseRefreshIn(() => {
+                        Button("Clear", ButtonStyle.Secondary, Task () => Message.PauseRefreshIn(() => {
                             Command<SongFavoritesClear>().Execute();
                         })).WithDisabled(user.FavoriteSongs.Count == 0)
                     )
                     : new ActionRowProperties().AddComponents(
                         ModalButton<PlaylistFavoriteEditModal>("Edit", ButtonStyle.Secondary),
-                        Button("Clear", ButtonStyle.Secondary, () => Message.PauseRefreshIn(() => {
+                        Button("Clear", ButtonStyle.Secondary, Task () => Message.PauseRefreshIn(() => {
                             Command<PlaylistFavoriteClear>().Execute();
                         }))
                     )
@@ -112,7 +112,7 @@ public class FavoriteListBuilder : DiscordComponentBuilder
             container.AddComponents(
                 new ComponentSeparatorProperties(),
                 new ComponentSectionProperties(
-                    Button("Revert", ButtonStyle.Secondary, () => Message.PauseRefreshIn(() => {
+                    Button("Revert", ButtonStyle.Secondary, Task () => Message.PauseRefreshIn(() => {
                         Command<HistoryRecordRevert>().Execute(LastRecord);
                     }))
                 ).AddComponents(

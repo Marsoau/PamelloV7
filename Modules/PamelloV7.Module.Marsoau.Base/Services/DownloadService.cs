@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
@@ -6,6 +7,7 @@ using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 
 namespace PamelloV7.Module.Marsoau.Base.Services;
@@ -16,7 +18,8 @@ public class DownloadService : IDownloadService
     
     private readonly IFileAccessService _files;
     
-    private readonly List<SongDownloader> _downloaders;
+    private readonly ConcurrentDictionary<SongSource, SongDownloader> _downloaders;
+    
     private Dictionary<string, Type> _downloaderTypes;
     
     public DownloadService(IServiceProvider services) {
@@ -42,28 +45,30 @@ public class DownloadService : IDownloadService
         => GetSongDownloader(source) ?? throw new PamelloException($"Downloader for {source.PK.Platform} not found");
 
     public SongDownloader? GetSongDownloader(SongSource source) {
-        var downloader = _downloaders.FirstOrDefault(downloader => downloader.Source == source);
-        if (downloader is not null) return downloader;
-        
         var downloaderType = _downloaderTypes.GetValueOrDefault(source.PK.Platform);
         if (downloaderType is null) return null;
         
-        downloader = (SongDownloader)Activator.CreateInstance(downloaderType, _services, source)!;
-        _downloaders.Add(downloader);
-        
-        return downloader;
+        return _downloaders.GetOrAdd(source, s =>
+            (SongDownloader)Activator.CreateInstance(downloaderType, _services, s)!
+        );
     }
 
     public void RemoveDownloader(SongDownloader downloader) {
-        _downloaders.Remove(downloader);
+        _downloaders.Remove(downloader.Source, out _);
     }
     
     public bool IsDownloading(SongSource? source) {
-        return _downloaders.Any(downloader => downloader.Source == source && downloader.Progress < 1);
+        if (source is null) return false;
+        
+        return _downloaders.GetValueOrDefault(source) is {
+            DownloadTask: not null,
+            Result: null
+        };
     }
     
     public bool IsDownloaded(SongSource? source) {
-        if (IsDownloading(source)) return false;
+        Output.Write($"IsISnss: {IsDownloading(source)}");
+        if (IsDownloading(source) || source is null) return false;
         
         var file = _files.GetSourceFile(source);
         return file.Exists;

@@ -1,4 +1,5 @@
 using NetCord.Rest;
+using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 
@@ -9,7 +10,7 @@ public record UpdatableMessagePauseInfo
     public bool RefreshAfter { get; set; }
 }
 
-public class UpdatableMessage : IDisposable
+public partial class UpdatableMessage : IDisposable
 {
     private static readonly AsyncLocal<UpdatableMessagePauseInfo?> _pauseInfo = new();
     
@@ -179,7 +180,10 @@ public class UpdatableMessage : IDisposable
         return Task.CompletedTask;
     };
 
-    public async Task PauseRefreshIn(Func<Task> func) {
+    public async Task PauseRefreshIn(
+        [Variant(nameof(RefreshFuncSync))]
+        Func<Task> func
+    ) {
         if (_pauseInfo.Value is not null) {
             await func();
             return;
