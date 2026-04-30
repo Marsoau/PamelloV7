@@ -159,7 +159,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         
         TotalTimePlayed.TimeValue += audio.Length;
         
-        foreach (var user in GetUsersListening()) {
+        foreach (var user in GetUsersListening().Distinct()) {
             var time = UserTimeListened.GetValueOrDefault(user.Id);
                 
             time.TimeValue += audio.Length;

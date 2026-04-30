@@ -88,10 +88,12 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         if (scopeUser is null) return;
 
         if (state.ChannelId.HasValue && state.ChannelId == VoiceClient.ChannelId) {
-            if (_listeners.Any(listener => listener.DiscordId == state.UserId))
+            if (_listeners.FirstOrDefault(listener => listener.DiscordId == state.UserId) is { } existingListener) {
+                existingListener.VoiceState = state;
                 return;
+            }
 
-            var listener = new PamelloDiscordSpeakerListener(this, state.UserId, _services);
+            var listener = new PamelloDiscordSpeakerListener(this, state, _services);
             
             _listeners.Add(listener);
 
@@ -153,8 +155,17 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     private void UpdateListeners() {
         if (VoiceClient is null) return;
 
-        _listeners = VoiceClient.Cache.Users.Select(userId => 
-            new PamelloDiscordSpeakerListener(this, userId, _services)
+        var userIds = VoiceClient.Cache.Users.ToList();
+        
+        var guild = Client?.Cache.Guilds.GetValueOrDefault(VoiceClient.GuildId);
+        if (guild is null) return;
+
+        var states = guild.VoiceStates
+            .Where(kvp => userIds.Contains(kvp.Key))
+            .Select(kvp => kvp.Value);
+        
+        _listeners = states.Select(state =>
+            new PamelloDiscordSpeakerListener(this, state, _services)
         ).ToList();
         
         Output.Write("Voice Users:");

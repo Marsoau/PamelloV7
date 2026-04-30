@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using NetCord.Gateway;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Other;
@@ -10,19 +11,24 @@ namespace PamelloV7.Module.Marsoau.NetCord.Speakers;
 
 public class PamelloDiscordSpeakerListener : IPamelloListener
 {
-    public ulong DiscordId { get; }
+    public ulong DiscordId => VoiceState.UserId;
+    public VoiceState VoiceState { get; set; }
+    
     public IPamelloSpeaker Speaker { get; }
     public IPamelloUser? User { get; }
 
-    public PamelloDiscordSpeakerListener(IPamelloSpeaker speaker, ulong discordUserId, IServiceProvider services) {
+    public bool IsListening => !(VoiceState.IsSelfDeafened || VoiceState.IsDeafened);
+
+    public PamelloDiscordSpeakerListener(IPamelloSpeaker speaker, VoiceState state, IServiceProvider services) {
+        VoiceState = state;
+        
         var users = services.GetRequiredService<IPamelloUserRepository>();
-        var userTask = users.GetByDiscordId(discordUserId);
+        var userTask = users.GetByDiscordId(DiscordId);
         if (!userTask.IsCompleted) {
             Output.Write("Waiting for user in discord listener constructor, this shouldnt happen", ELogLevel.Warning);
             userTask.Wait();
         }
         
-        DiscordId = discordUserId;
         Speaker = speaker;
         User = userTask.Result;
     }

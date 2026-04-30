@@ -16,6 +16,7 @@ public class PamelloInternetSpeakerListener : IPamelloListener, IAudioDependant
     
     public TaskCompletionSource Lifetime { get; }
     
+    public bool IsListening => true;
 
     public PamelloInternetSpeakerListener(HttpResponse response, CancellationToken requestAbortedToken, IPamelloSpeaker speaker, IPamelloUser? user, IServiceProvider services) {
         Speaker = speaker;

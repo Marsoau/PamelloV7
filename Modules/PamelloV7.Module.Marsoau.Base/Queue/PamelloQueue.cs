@@ -234,6 +234,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             _songAudio.OnEnded = Current_OnEnded;
             _songAudio.GetUsersListening = () => Player.ConnectedSpeakers
                 .SelectMany(s => s.Listeners)
+                .Where(l => l.IsListening)
                 .Select(l => l.User)
                 .OfType<IPamelloUser>();
         }
