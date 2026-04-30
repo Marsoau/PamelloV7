@@ -1,6 +1,6 @@
 namespace PamelloV7.Wrapper.Events.Base;
 
-public interface IRemoteEvent
+public class RemoteEvent
 {
     public int? Invoker { get; set; }
 }

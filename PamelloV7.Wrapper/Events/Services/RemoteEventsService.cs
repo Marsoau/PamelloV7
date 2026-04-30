@@ -53,7 +53,7 @@ public class RemoteEventsService
     }
     
     public EventSubscription<TEventType> Subscribe<TEventType>(Action<TEventType> handler)
-        where TEventType : IRemoteEvent
+        where TEventType : RemoteEvent
     {
         var subscription = new EventSubscription<TEventType>(handler);
         
@@ -62,13 +62,16 @@ public class RemoteEventsService
         return subscription;
     }
 
-    protected void UpdateFromEvent(ReceivedEventJsonDto eventDto, IRemoteEvent ev) {
+    protected void UpdateFromEvent(ReceivedEventJsonDto eventDto, RemoteEvent ev) {
         foreach (var typeInfo in eventDto.Types.Where(typeInfo => !string.IsNullOrEmpty(typeInfo.EntityTypeName))) {
             Debug.WriteLine($"EntityTypeName: {typeInfo.EntityTypeName}");
             Debug.WriteLine($"EntityPropertyName: {typeInfo.EntityPropertyName}");
             Debug.WriteLine($"UpdatePropertyName: {typeInfo.UpdatePropertyName}");
             
-            if (ev.GetType().GetProperty(typeInfo.EntityPropertyName)?.GetValue(ev) is not int id) continue;
+            var property = eventDto.Data.GetProperty(typeInfo.EntityPropertyName);
+            var id = property.GetInt32();
+
+            Debug.WriteLine($"Found entity id: {id}");
             
             var parts = typeInfo.UpdatePropertyName.Split('.'); //Queue.Position
             
@@ -119,15 +122,15 @@ public class RemoteEventsService
     }
     
     internal void Invoke(ReceivedEventJsonDto eventDto) {
-        var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(type => eventDto.Types.FirstOrDefault()?.Name is { } name && type.Name == name);
-        if (type is null) return;
-
-        if (eventDto.Data.Deserialize(type) is not IRemoteEvent ev) return;
+        if (eventDto.Data.Deserialize<RemoteEvent>() is not { } ev) return;
         
         UpdateFromEvent(eventDto, ev);
         
+        var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(type => eventDto.Types.FirstOrDefault()?.Name is { } name && type.Name == name);
+        if (type is null) return;
+        
         foreach (var subscription in _eventSubscriptions.Where(subscription =>
-            subscription.EventType == typeof(IRemoteEvent) ||
+            subscription.EventType == typeof(RemoteEvent) ||
             type.IsAssignableTo(subscription.EventType)
         )) {
             subscription.Invoke(ev);

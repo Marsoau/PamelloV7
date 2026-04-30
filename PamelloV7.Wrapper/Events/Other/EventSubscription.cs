@@ -3,7 +3,7 @@ using PamelloV7.Wrapper.Events.Base;
 namespace PamelloV7.Wrapper.Events.Other;
 
 public class EventSubscription<TEventType> : IEventSubscription
-    where TEventType : IRemoteEvent
+    where TEventType : RemoteEvent
 {
     public Type EventType => typeof(TEventType);
     
@@ -13,7 +13,7 @@ public class EventSubscription<TEventType> : IEventSubscription
         Handler = handler;
     }
 
-    public void Invoke(IRemoteEvent e) {
+    public void Invoke(RemoteEvent e) {
         Handler((TEventType)e);
     }
 }

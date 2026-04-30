@@ -6,5 +6,5 @@ public interface IEventSubscription
 {
     public Type EventType { get; }
 
-    public void Invoke(IRemoteEvent e);
+    public void Invoke(RemoteEvent e);
 }
