@@ -27,8 +27,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     private MemoryStream? _currentChunk;
     private MemoryStream? _nextChunk;
 
-    public AudioTime TotalTimeListened;
-    public Dictionary<IPamelloUser, AudioTime> UserTimeListened;
+    public AudioTime TotalTimePlayed;
+    public Dictionary<int, AudioTime> UserTimeListened;
     
     public AudioTime Position;
     public AudioTime Duration;
@@ -53,6 +53,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     public Action? OnEnded;
 
     public Func<IEnumerable<IPamelloUser>> GetUsersListening { get; set; } = () => [];
+    public IPamelloUser? AddedBy { get; set; }
 
     public bool IsDisposed { get; private set; }
 
@@ -65,7 +66,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         
         Song = song;
 
-        TotalTimeListened = new AudioTime(0);
+        TotalTimePlayed = new AudioTime(0);
         UserTimeListened = [];
         
         Position = new AudioTime(0);
@@ -77,10 +78,11 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     }
 
     public void Clean() {
-        _events.Invoke(null, new SongEnded() {
+        if (TotalTimePlayed.TotalSeconds > 0) _events.Invoke(null, new SongEnded() {
             Song = Song,
-            TotalTimeListened = TotalTimeListened,
-            UserTimeListened = UserTimeListened
+            TotalTime = Duration.TotalSeconds,
+            TotalTimePlayed = TotalTimePlayed.TotalSeconds,
+            UserTimeListened = UserTimeListened.ToDictionary(x => x.Key, x => x.Value.TotalSeconds)
         });
         
         _currentChunk?.Close();
@@ -155,14 +157,14 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         var result = NextBytesAsync(audio, wait, token).Result;
         if (!result) return result;
         
-        TotalTimeListened.TimeValue += audio.Length;
+        TotalTimePlayed.TimeValue += audio.Length;
         
         foreach (var user in GetUsersListening()) {
-            var time = UserTimeListened.GetValueOrDefault(user);
+            var time = UserTimeListened.GetValueOrDefault(user.Id);
                 
             time.TimeValue += audio.Length;
                 
-            UserTimeListened[user] = time;
+            UserTimeListened[user.Id] = time;
         }
 
         return result;

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Data;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Events.Base;
@@ -34,6 +35,10 @@ public class HistoryService : IHistoryService
     private IDatabaseCollection<HistoryRecord> GetCollection() => _database.GetCollection<HistoryRecord>("history");
 
     public void Startup(IServiceProvider services) {
+        if (ServerConfig.Root.FullResetHistory) {
+            FullReset();
+        }
+        
         GetCollection().GetAll().ToList().ForEach(databaseRecord => Load(databaseRecord));
     }
 

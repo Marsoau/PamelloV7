@@ -10,4 +10,5 @@ public partial class ServerNode
     public string HostName { get; set; } = "";
     public string DataPath { get; set; } = IPamelloConfigLoader.DefaultDataPath;
     public bool AllowUserCreation { get; set; } = true;
+    public bool FullResetHistory { get; set; } = false;
 }

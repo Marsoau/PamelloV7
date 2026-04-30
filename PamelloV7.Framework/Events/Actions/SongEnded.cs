@@ -14,6 +14,9 @@ namespace PamelloV7.Framework.Events.Actions;
 [Safe<IPamelloSong>("Song")]
 public partial class SongEnded : IPamelloEvent
 {
-    public required AudioTime TotalTimeListened { get; set; }
-    public required Dictionary<IPamelloUser, AudioTime> UserTimeListened { get; set; }
+    public required int TotalTime { get; set; }
+    public required int TotalTimePlayed { get; set; }
+    
+    //userId, timeSeconds
+    public required Dictionary<int, int> UserTimeListened { get; set; }
 }
