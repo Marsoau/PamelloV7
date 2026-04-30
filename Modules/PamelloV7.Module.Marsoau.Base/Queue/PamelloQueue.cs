@@ -308,8 +308,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             });
 
             if (newPosition == -1) {
-                if (Position >= _entries.Count) GoToSong((newPosition + 1).ToString(), scopeUser);
-                else GoToNextSong(scopeUser);
+                GoToSong(Position >= _entries.Count ? "1" : Position.ToString(), scopeUser);
             }
             else SetPosition(newPosition, scopeUser);
 

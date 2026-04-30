@@ -11,8 +11,8 @@ public partial class SongFavoritesToggle
     public void Execute(IEnumerable<IPamelloSong> songs) {
         var songsList = songs.ToList();
 
-        var songsToAdd = songsList.Where(song => !song.FavoriteBy.Contains(ScopeUser));
-        var songsToRemove = songsList.Where(song => song.FavoriteBy.Contains(ScopeUser));
+        var songsToAdd = songsList.Where(song => !song.FavoriteBy.Contains(ScopeUser)).ToList();
+        var songsToRemove = songsList.Where(song => song.FavoriteBy.Contains(ScopeUser)).ToList();
         
         ScopeUser.AddFavoriteSongs(songsToAdd);
         ScopeUser.RemoveFavoriteSongs(songsToRemove);
