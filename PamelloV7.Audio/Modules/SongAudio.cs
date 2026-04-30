@@ -8,8 +8,10 @@ using PamelloV7.Framework.Dependencies.Service;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
+using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Services;
 using PamelloV7.Server.Extensions;
 
 namespace PamelloV7.Audio.Modules;
@@ -17,6 +19,7 @@ namespace PamelloV7.Audio.Modules;
 public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 {
     private readonly IDependenciesService _dependencies;
+    private readonly IEventsService _events;
 
     public IPamelloSong Song { get; }
 
@@ -24,6 +27,9 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     private MemoryStream? _currentChunk;
     private MemoryStream? _nextChunk;
 
+    public AudioTime TotalTimeListened;
+    public Dictionary<IPamelloUser, AudioTime> UserTimeListened;
+    
     public AudioTime Position;
     public AudioTime Duration;
 
@@ -46,6 +52,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     public bool IsEnded { get; private set; }
     public Action? OnEnded;
 
+    public Func<IEnumerable<IPamelloUser>> GetUsersListening { get; set; } = () => [];
+
     public bool IsDisposed { get; private set; }
 
     public SongAudio(
@@ -53,9 +61,13 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         IServiceProvider services
     ) {
         _dependencies = services.GetRequiredService<IDependenciesService>();
+        _events = services.GetRequiredService<IEventsService>();
         
         Song = song;
 
+        TotalTimeListened = new AudioTime(0);
+        UserTimeListened = [];
+        
         Position = new AudioTime(0);
         Duration = new AudioTime(0);
 
@@ -65,6 +77,12 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     }
 
     public void Clean() {
+        _events.Invoke(null, new SongEnded() {
+            Song = Song,
+            TotalTimeListened = TotalTimeListened,
+            UserTimeListened = UserTimeListened
+        });
+        
         _currentChunk?.Close();
         _currentChunk?.Dispose();
         _currentChunk = null;
@@ -97,8 +115,7 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
 
             EDownloadResult result;
             try {
-                var downloader = Song.SelectedSource.GetDownloaderRequired();
-                result = await downloader.DownloadAsync();
+                result = await Song.SelectedSource.GetDownloaderRequired().DownloadAsync();
             }
             catch (Exception x) {
                 Framework.Logging.Output.Write($"Exception downloading song {Song}: {x}", ELogLevel.Error);
@@ -134,8 +151,21 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
         return true;
     }
 
-    private bool NextBytes(byte[] result, bool wait, CancellationToken token) {
-        return NextBytesAsync(result, wait, token).Result;
+    private bool NextBytes(byte[] audio, bool wait, CancellationToken token) {
+        var result = NextBytesAsync(audio, wait, token).Result;
+        if (!result) return result;
+        
+        TotalTimeListened.TimeValue += audio.Length;
+        
+        foreach (var user in GetUsersListening()) {
+            var time = UserTimeListened.GetValueOrDefault(user);
+                
+            time.TimeValue += audio.Length;
+                
+            UserTimeListened[user] = time;
+        }
+
+        return result;
     }
     private async Task<bool> NextBytesAsync(byte[] audio, bool wait, CancellationToken token) {
         if (_rewinding is not null) await _rewinding;
