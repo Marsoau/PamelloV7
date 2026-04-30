@@ -17,7 +17,11 @@ public class JsonEntitiesFactory : JsonConverterFactory
         _scopeUser = scopeUser;
     }
     
-    public static readonly JsonSerializerOptions Options = new() {Converters = {new JsonEntitiesFactory(), new PamelloEventConverter()}, UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement};
+    public static readonly JsonSerializerOptions Options = new() { Converters = {
+        new JsonEntitiesFactory(),
+        new PamelloEventConverter(),
+        new PamelloAudioTimeConverter()
+    }, UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement};
     public static JsonSerializerOptions GetOptions(IServiceProvider services, IPamelloUser scopeUser)
         => new JsonSerializerOptions {Converters = {new JsonEntitiesFactory(services, scopeUser)}, UnknownTypeHandling = JsonUnknownTypeHandling.JsonElement};
 

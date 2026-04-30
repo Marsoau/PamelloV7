@@ -26,7 +26,7 @@ public interface IPamelloQueue
     void SetPosition(int position, IPamelloUser? scopeUser);
     
     
-    public int? EpisodePosition { get; }
+    public int? CurrentEpisodePosition { get; }
     
     public IPamelloSong? CurrentSong { get; }
     public IPamelloEpisode? CurrentEpisode { get; }

@@ -106,7 +106,7 @@ public partial class PlayerInfo
                         }).WithDisabled((Queue.CurrentSong?.Episodes.Count ?? 0) == 0)
                     ).AddComponents(
                         new TextDisplayProperties(
-                            $"{DiscordString.Code(Queue.EpisodePosition + 1)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
+                            $"{DiscordString.Code(Queue.CurrentEpisodePosition + 1)} : {DiscordString.Code(currentEpisode.Start.ToShortString())} - {currentEpisode.Name}"
                         )
                     )
                 );

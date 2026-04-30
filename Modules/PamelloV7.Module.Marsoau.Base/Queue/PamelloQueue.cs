@@ -129,7 +129,17 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             });
         }
 
-        public int? EpisodePosition => _songAudio?.GetCurrentEpisodePosition();
+        public int? CurrentEpisodePosition { get; private set; }
+        private void SetCurrentEpisodePosition(int? episodePosition) {
+            if (CurrentEpisodePosition == episodePosition) return;
+            
+            CurrentEpisodePosition = episodePosition;
+
+            _events.Invoke(null, new PlayerQueueCurrentEpisodePositionUpdated {
+                Player = Player,
+                CurrentEpisodePosition = CurrentEpisodePosition ?? -1,
+            });
+        }
 
         private SongAudio? _songAudio;
         public IPamelloSong? CurrentSong => _songAudio?.Song;
@@ -220,7 +230,12 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _songAudio.Position.OnSecondTick = Current_Position_OnSecondTick;
             _songAudio.Duration.OnSecondTick = Current_Duration_OnSecondTick;
+            
             _songAudio.OnEnded = Current_OnEnded;
+            _songAudio.GetUsersListening = () => Player.ConnectedSpeakers
+                .SelectMany(s => s.Listeners)
+                .Select(l => l.User)
+                .OfType<IPamelloUser>();
         }
 
         private void Current_Duration_OnSecondTick() {
@@ -234,6 +249,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
                 Player = Player,
                 CurrentSongTimePassed = _songAudio?.Position.TotalSeconds ?? 0
             });
+            
+            SetCurrentEpisodePosition(_songAudio?.GetCurrentEpisodePosition());
         }
         private void Current_OnEnded()
         {
