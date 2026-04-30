@@ -96,7 +96,9 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
     public void InitDependant() {
         Pump.Output.ConnectedPoint = Copy.Input;
         
-        Pump.Condition = () => !IsPaused;
+        Pump.Condition = () => !IsPaused && ConnectedSpeakers
+            .SelectMany(speaker => speaker.Listeners)
+            .Any(listener => listener.IsListening);
         
         Pump.Start();
     }
