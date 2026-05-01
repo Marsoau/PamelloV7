@@ -10,8 +10,6 @@ namespace PamelloV7.Framework.Events.RestorePacks.Base;
 public abstract class RevertPack<TEventType> : IRevertPack
     where TEventType : class, IRevertiblePamelloEvent, IPamelloEvent
 {
-    public bool IsExpired { get; set; }
-    
     public IServiceProvider Services = null!;
     public TEventType Event = null!;
 
@@ -20,7 +18,7 @@ public abstract class RevertPack<TEventType> : IRevertPack
     [JsonIgnore]
     IPamelloEvent IRevertPack.Event => Event;
     
-    public bool IsInitialized => Services is not null && Event is not null;
+    public bool IsInitialized { get; private set; }
 
     public void InitializePack(
         IServiceProvider services, IPamelloEvent eventInstance, NestedPamelloEvent? nestedEvent = null
@@ -34,6 +32,7 @@ public abstract class RevertPack<TEventType> : IRevertPack
         NestedEvent = nestedEvent;
         
         if (IsInitialized) return;
+        IsInitialized = true;
         
         Services = services;
         Event = eventInstance;
@@ -47,7 +46,6 @@ public abstract class RevertPack<TEventType> : IRevertPack
     }
 
     public bool DidNotExpire(IPamelloUser scopeUser) {
-        if (IsExpired) return true;
         return DidNotExpireInternal(scopeUser);
     }
 
