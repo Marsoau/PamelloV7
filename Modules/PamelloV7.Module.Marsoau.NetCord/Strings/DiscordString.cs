@@ -71,7 +71,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
                     sb.Append(ProgressChars.Last());
                     continue;
                 }
-                if (i == filled / ProgressChars.Length && i != 0) {
+                if (i == filled / ProgressChars.Length && filled != 0) {
                     sb.Append(ProgressChars[filled % ProgressChars.Length]);
                     continue;
                 }
