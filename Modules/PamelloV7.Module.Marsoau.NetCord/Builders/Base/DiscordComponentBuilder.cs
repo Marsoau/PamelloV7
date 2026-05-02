@@ -23,8 +23,8 @@ public abstract class DiscordComponentBuilder : DiscordBasicActions
     
     public UpdatableMessage Message { get; private set; } = null!;
     
-    public virtual void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services, IPamelloUser scopeUser) {
-        InitializeActions(services, scopeUser);
+    public virtual void InitializeComponentBuilder(Differentiator differentiator, IServiceProvider services) {
+        InitializeActions(services);
         
         var messages = services.GetRequiredService<UpdatableMessageService>();
         Message = messages.Get(differentiator) ?? throw new PamelloException($"Message for component {GetType().Name} by {differentiator} differentiator not found");

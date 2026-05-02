@@ -3,6 +3,7 @@ using NetCord.Rest;
 using PamelloV7.Framework.Attributes.Variants;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Scope;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
 using PamelloV7.Module.Marsoau.NetCord.Builders;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;

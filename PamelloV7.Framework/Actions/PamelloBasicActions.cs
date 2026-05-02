@@ -5,6 +5,7 @@ using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Scope;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 
@@ -32,13 +33,13 @@ public abstract class PamelloBasicActions
     
     public bool RespondedWithLoading { get; protected set; }
     
-    public virtual void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
+    public virtual void InitializeActions(IServiceProvider services) {
         if (_isInitialized) return;
         _isInitialized = true;
         
         Services = services;
         
-        ScopeUser = scopeUser;
+        ScopeUser = PamelloScope.RequiredUser;
         
         PEQL = services.GetRequiredService<IEntityQueryService>();
         Commands = services.GetRequiredService<IPamelloCommandsService>();

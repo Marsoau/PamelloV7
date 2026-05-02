@@ -28,7 +28,7 @@ public abstract class DiscordModalBuilder : DiscordComponentBuilder
     public virtual void InitializeModalBuilder(InteractionCallSite callSite, IServiceProvider services, IPamelloUser scopeUser) {
         ModalId = callSite.ToCustomId();
         
-        InitializeComponentBuilder(callSite.Differentiator, services, scopeUser);
+        InitializeComponentBuilder(callSite.Differentiator, services);
         InitializeProperties();
     }
 

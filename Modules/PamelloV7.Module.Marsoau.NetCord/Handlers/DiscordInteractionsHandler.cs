@@ -2,8 +2,11 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Scope;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Differentiation;
+using PamelloV7.Module.Marsoau.NetCord.Extensions;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.Base;
 using PamelloV7.Module.Marsoau.NetCord.Interactions.Commands.General;
@@ -15,6 +18,8 @@ namespace PamelloV7.Module.Marsoau.NetCord.Handlers;
 public class DiscordInteractionsHandler : IPamelloService
 {
     private readonly IServiceProvider _services;
+    
+    private readonly IPamelloUserRepository _users;
     
     private readonly DiscordClientService _clients;
     
@@ -28,6 +33,8 @@ public class DiscordInteractionsHandler : IPamelloService
     public DiscordInteractionsHandler(IServiceProvider services) {
         _services = services;
         
+        _users = services.GetRequiredService<IPamelloUserRepository>();
+        
         _clients = services.GetRequiredService<DiscordClientService>();
         
         _messages = services.GetRequiredService<UpdatableMessageService>();
@@ -39,9 +46,18 @@ public class DiscordInteractionsHandler : IPamelloService
     }
 
     public void AfterStartup() {
-        _clients.Main.InteractionCreate += MainOnInteractionCreate;
+        _clients.Main.InteractionCreate += MainOnInteractionCreateUnscoped;
     }
 
+    private async ValueTask MainOnInteractionCreateUnscoped(Interaction interaction) {
+        var user = await _users.GetByDiscordId(interaction.User.Id);
+        if (user is null) return;
+
+        await PamelloScope.SetUserIn(user, () =>
+            MainOnInteractionCreate(interaction)
+        );
+    }
+    
     private async ValueTask MainOnInteractionCreate(Interaction interaction) {
         TokenizedInteraction tokenizedInteraction;
         

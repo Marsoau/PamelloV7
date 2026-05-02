@@ -30,7 +30,7 @@ public abstract class DiscordInteraction : DiscordBasicActions
         IServiceProvider services,
         IPamelloUser scopeUser
     ) {
-        InitializeActions(services, scopeUser);
+        InitializeActions(services);
         
         _interaction = interaction;
     }

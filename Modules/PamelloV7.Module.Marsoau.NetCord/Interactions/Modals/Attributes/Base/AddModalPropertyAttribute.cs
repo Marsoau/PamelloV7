@@ -44,7 +44,7 @@ public abstract class AddModalPropertyAttribute<TProperties, TValue> : Attribute
     }
     
     public void Initialize(IServiceProvider services, IPamelloUser scopeUser) {
-        Actions.InitializeActions(services, scopeUser);
+        Actions.InitializeActions(services);
     }
     
     public abstract TProperties AddPropertiesTo(DiscordModalBuilder builder, object? parentProperties);

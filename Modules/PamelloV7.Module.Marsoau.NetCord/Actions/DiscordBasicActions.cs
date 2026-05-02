@@ -14,6 +14,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Scope;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
@@ -32,8 +33,8 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
     public DiscordComponentBuilderService ComponentBuilders = null!;
     public InteractionTokenizationService Tokenizer = null!;
     
-    public override void InitializeActions(IServiceProvider services, IPamelloUser scopeUser) {
-        base.InitializeActions(services, scopeUser);
+    public override void InitializeActions(IServiceProvider services) {
+        base.InitializeActions(services);
         
         Clients = services.GetRequiredService<DiscordClientService>();
         ComponentBuilders = services.GetRequiredService<DiscordComponentBuilderService>();
@@ -152,10 +153,12 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
         [Variant(nameof(SubmitModalFromArgs))]
         Func<DiscordModal, Task> submitModal
     ) => Tokenizer.ModalButton(callSite, modalType, label, style, buildModal, submitModal);
-    
+
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
-        => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
+        => PamelloScope.SetUserIn(ScopeUser, () =>
+            ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser)
+        );
     
     public InteractionCallSite AutoCallSite() => GetCallSite(-1);
     

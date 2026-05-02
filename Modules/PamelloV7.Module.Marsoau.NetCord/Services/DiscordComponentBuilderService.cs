@@ -30,7 +30,7 @@ public class DiscordComponentBuilderService : IPamelloService
         var builder = _builders.GetValueOrDefault(callSite);
         builder ??= _builders[callSite] = (DiscordComponentBuilder)constructor.Invoke([]);
         
-        builder.InitializeComponentBuilder(callSite.Differentiator, _services, scopeUser);
+        builder.InitializeComponentBuilder(callSite.Differentiator, _services);
         
         return builder;
     }
