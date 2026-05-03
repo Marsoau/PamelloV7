@@ -156,9 +156,7 @@ public abstract partial class DiscordBasicActions : PamelloBasicActions
 
     public TBuilder Builder<TBuilder>()
         where TBuilder : DiscordComponentBuilder
-        => PamelloScope.SetUserIn(ScopeUser, () =>
-            ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser)
-        );
+        => ComponentBuilders.Get<TBuilder>(AutoCallSite(), ScopeUser);
     
     public InteractionCallSite AutoCallSite() => GetCallSite(-1);
     

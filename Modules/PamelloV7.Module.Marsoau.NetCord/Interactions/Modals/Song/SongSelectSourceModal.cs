@@ -18,10 +18,17 @@ public partial class SongSelectSourceModal
         public void Build(IPamelloSong song) {
             var counter = 0;
             
-            SourceIndex.Options = song.Sources.Select(source =>
-                new StringMenuSelectOptionProperties(source.PK.Key, counter.ToString())
-                    .WithEmoji(EmojiProperties.Custom(Clients.Emojis.FirstOrDefault(e => e.Name == source.PK.Platform)?.Id ?? 0))
-                    .WithDefault(counter++ == song.SelectedSourceIndex)
+            SourceIndex.Options = song.Sources.Select(source => {
+                    var emoji = Clients.Emojis.FirstOrDefault(e => e.Name == source.PK.Platform);
+                    var properties = new StringMenuSelectOptionProperties(source.PK.Key, counter.ToString())
+                        .WithDefault(counter++ == song.SelectedSourceIndex);
+                        
+                    if (emoji is null) return properties;
+                    
+                    properties.WithEmoji(EmojiProperties.Custom(emoji.Id));
+                    
+                    return properties;
+                }
             ).ToList();
         }
     }
