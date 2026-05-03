@@ -12,6 +12,7 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Scope;
 using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 
@@ -52,15 +53,12 @@ public class PamelloCommandsService : IPamelloCommandsService
         var commandType = CommandTypes.FirstOrDefault(type => type == requestedType);
         if (commandType is null) throw new PamelloException($"Command {requestedType.Name} not found");
         
-        var scopeUserField = typeof(PamelloCommand).GetField("ScopeUser");
-        var servicesField = typeof(PamelloCommand).GetField("Services");
-        if (scopeUserField is null || servicesField is null) throw new PamelloException($"Command {requestedType.Name} should have ScopeUser and Services fields");
-        
         var command = Activator.CreateInstance(commandType) as PamelloCommand;
         Debug.Assert(command is not null, "Command cannot be null here");
-        
-        scopeUserField.SetValue(command, scopeUser);
-        servicesField.SetValue(command, _services);
+
+        PamelloScope.SetUserIn(scopeUser, () => {
+            command.InitializeActions(_services);
+        });
         
         return command;
     }

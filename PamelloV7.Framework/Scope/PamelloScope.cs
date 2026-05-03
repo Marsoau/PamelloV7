@@ -1,5 +1,6 @@
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Exceptions;
 
 namespace PamelloV7.Framework.Scope;
 
@@ -7,13 +8,11 @@ public static class PamelloScope
 {
     private static readonly AsyncLocal<IPamelloUser?> CurrentScopeUser = new();
     
-    private static PamelloException NoUserException => new PamelloException("User is required for this operation");
-    
     public static void RequireUser() {
-        if (User is null) throw NoUserException;
+        if (User is null) throw new NoPamelloUserException();
     }
 
-    public static IPamelloUser RequiredUser => User ?? throw NoUserException;
+    public static IPamelloUser RequiredUser => User ?? throw new NoPamelloUserException();
     public static IPamelloUser? User => CurrentScopeUser.Value;
     
     public static void SetUser(IPamelloUser? user) => CurrentScopeUser.Value = user;
