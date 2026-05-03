@@ -15,6 +15,7 @@ using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Exceptions;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Platforms;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
@@ -208,7 +209,18 @@ public class PamelloUser : PamelloDatabaseEntity<DatabaseUser>, IPamelloUser
     }
 
     public void AddAuthorizationForced(string platform, string key) {
-        var authorization = new UserAuthorization(_services, this, new PlatformKey(platform, key));
+        var pk = new PlatformKey(platform, key);
+
+        var existingUserTask = _users.GetByPlatformKey(pk);
+        if (!existingUserTask.IsCompleted) {
+            Output.Write("AddAuthorizationForced - existing user went async, this should not happen", ELogLevel.Warning);
+            existingUserTask.Wait();
+        }
+        
+        var existingUser = existingUserTask.Result;
+        if (existingUser is not null) throw new PamelloException("This authorization is not available");
+        
+        var authorization = new UserAuthorization(_services, this, pk);
         var currentAuthorization = SelectedAuthorization;
         
         _authorizations.Add(authorization);
