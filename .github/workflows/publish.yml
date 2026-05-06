@@ -1,14 +1,13 @@
-name: Build and publish NuGet packages
+name: Publish NuGet packages
+
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version string (e.g., 2026.310.0-dev)'
-        required: true
-        type: string
+  push:
+    tags:
+      - '*'
 
 jobs:
-  build-and-publish:
+  publish:
+    name: Pack and push to NuGet.org
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +26,13 @@ jobs:
         run: dotnet restore PamelloV7.sln
 
       - name: Build Solution
-        run: dotnet build PamelloV7.sln --configuration Release /p:Version=${{ inputs.version }}
+        run: dotnet build PamelloV7.sln --configuration Release /p:Version=${{ github.ref_name }}
 
       - name: Pack PamelloV7.Core
-        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build /p:Version=${{ inputs.version }} --output nupkgs
+        run: dotnet pack PamelloV7.Core/PamelloV7.Core.csproj --configuration Release --no-build /p:Version=${{ github.ref_name }} --output nupkgs
 
       - name: Pack PamelloV7.Wrapper
-        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build /p:Version=${{ inputs.version }} --output nupkgs
+        run: dotnet pack PamelloV7.Wrapper/PamelloV7.Wrapper.csproj --configuration Release --no-build /p:Version=${{ github.ref_name }} --output nupkgs
 
       - name: Push to NuGet.org
-        shell: bash
-        run: dotnet nuget push nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push "nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
