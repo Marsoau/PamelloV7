@@ -25,21 +25,19 @@ public class YoutubeSongPlatform : ISongPlatform
     }
 
     public string ValueToKey(string value) {
-        var id = value;
-
-        if (id.StartsWith("https://")) {
-            Uri uri;
-
-            uri = new Uri(value);
-            var query = HttpUtility.ParseQueryString(uri.Query);
-
-            id = uri.Host switch {
-                "www.youtube.com" => query["v"],
-                "youtu.be" => uri.Segments[1][..11],
-                "i.ytimg.com" => uri.Segments[2][..11],
-                _ => null
-            };
+        if (!(value.StartsWith("https://") || value.StartsWith("http://"))) {
+            value = $"https://{value}";
         }
+        
+        var uri = new Uri(value);
+        var query = HttpUtility.ParseQueryString(uri.Query);
+
+        var id = uri.Host switch {
+            "www.youtube.com" or "youtube.com" or "music.youtube.com" => query["v"],
+            "youtu.be" => uri.Segments[1][..11],
+            "i.ytimg.com" => uri.Segments[2][..11],
+            _ => null
+        };
 
         if (id is null || id.Length != 11 || !id.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_')) {
             throw new PamelloException($"Cant find a valid youtube id in value \"{value}\"");
@@ -48,17 +46,8 @@ public class YoutubeSongPlatform : ISongPlatform
         return id;
     }
     
-    public async Task<ISongInfo?> GetSongInfoAsync(string value) {
-        string youtubeId;
-        
-        try {
-            youtubeId = ValueToKey(value);
-        }
-        catch {
-            return null;
-        }
-
-        return await _infoGetter.GetSongInfo(youtubeId);
+    public async Task<ISongInfo?> GetSongInfoAsync(string key) {
+        return await _infoGetter.GetSongInfo(key);
     }
     
     public string GetSongUrl(string key)
