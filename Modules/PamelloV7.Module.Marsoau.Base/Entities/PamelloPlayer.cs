@@ -7,6 +7,7 @@ using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Audio.Services;
+using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
@@ -114,6 +115,11 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         
         _connectedSpeakers.Add(speaker, connectionPoint);
 
+        _sink.Invoke(Owner, new PlayerConnectedSpeakersUpdated() {
+            Player = this,
+            ConnectedSpeakers = ConnectedSpeakers.ToSafeList()
+        });
+
         return speaker;
     }
 
@@ -123,6 +129,11 @@ public class PamelloPlayer : PamelloDynamicEntity, IPamelloPlayer, IAudioDependa
         
         Copy.RemoveOutput(connectionPoint);
         _connectedSpeakers.Remove(speaker);
+
+        _sink.Invoke(Owner, new PlayerConnectedSpeakersUpdated() {
+            Player = this,
+            ConnectedSpeakers = ConnectedSpeakers.ToSafeList()
+        });
         
         return true;
     }
