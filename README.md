@@ -1,6 +1,6 @@
 # PamelloV7
-A feature-rich, multi-platform, modular audio server, which acts and feels like a **music bot**
+Multi-platform, modular **music bot** with API
 
 ## First Release
 
-Still in development, with first release expected about **May 2026**
+Still in development, with first release expected about **June-July 2026**
