@@ -42,7 +42,8 @@ public partial class PlayerInfo
                     new ActionRowProperties().AddComponents(
                         Button("Create Player", ButtonStyle.Primary, () => {
                             Command<Framework.Commands.PlayerCreate>().Execute("Player");
-                        })
+                        }),
+                        ModalButton<PlayerSelectAvailableModal>("Select Available", ButtonStyle.Secondary)
                     )
                 );
             }

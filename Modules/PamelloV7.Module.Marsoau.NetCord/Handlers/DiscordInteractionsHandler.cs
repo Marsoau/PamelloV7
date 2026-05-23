@@ -50,7 +50,7 @@ public class DiscordInteractionsHandler : IPamelloService
     }
 
     private async ValueTask MainOnInteractionCreateUnscoped(Interaction interaction) {
-        var user = await _users.GetByDiscordId(interaction.User.Id);
+        var user = await _users.GetByDiscordId(interaction.User.Id, true);
         if (user is null) return;
 
         await PamelloScope.SetUserIn(user, () =>
