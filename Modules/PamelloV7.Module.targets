@@ -3,7 +3,7 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
-    <Target Name="PackagePv7m" AfterTargets="Build">
+    <Target Name="PackagePv7m" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
         <PropertyGroup>
             <ServerModulesDir>$(MSBuildThisFileDirectory)..\PamelloV7.Server\bin\$(Configuration)\$(TargetFramework)\Modules\</ServerModulesDir>
             <StagingDir>$(OutDir)Pv7mStaging\</StagingDir>

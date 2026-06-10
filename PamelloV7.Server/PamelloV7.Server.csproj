@@ -37,6 +37,7 @@
         <ProjectReference Update="..\Modules\PamelloV7.Module.Marsoau.*\*.csproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
             <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+            <UndefineProperties>RuntimeIdentifier;SelfContained;PublishReadyToRun</UndefineProperties>
         </ProjectReference>
     </ItemGroup>
 
@@ -45,4 +46,23 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+
+    <Target Name="IncludePv7mModulesInPublish"
+            BeforeTargets="ComputeFilesToPublish"
+            Condition="'$(Configuration)' == 'Release'">
+        <PropertyGroup>
+            <Pv7mModulesDir>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Modules\</Pv7mModulesDir>
+        </PropertyGroup>
+        <ItemGroup>
+            <_Pv7mModuleFiles Include="$(Pv7mModulesDir)*.pv7m" />
+            <ResolvedFileToPublish Include="@(_Pv7mModuleFiles)">
+                <RelativePath>Modules\%(Filename)%(Extension)</RelativePath>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+        <Warning Condition="'@(_Pv7mModuleFiles)' == ''"
+                 Text="No .pv7m files found in $(Pv7mModulesDir) — publish will not contain any modules." />
+        <Message Importance="High"
+                 Condition="'@(_Pv7mModuleFiles)' != ''"
+                 Text="Including @(_Pv7mModuleFiles->Count()) .pv7m module(s) in publish output." />
+    </Target>
 </Project>
