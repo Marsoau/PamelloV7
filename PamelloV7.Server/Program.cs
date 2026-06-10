@@ -42,6 +42,15 @@ public class Program
     public async Task MainAsync(string[] args) {
         _logger = new PamelloLogger();
         Output.Logger = _logger;
+
+        var customName = args.ElementAtOrDefault(0);
+    
+        IPamelloConfigLoader.DefaultDataPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            customName ?? "PamelloV7"
+        );
+
+        Output.Write($"Default data path: {IPamelloConfigLoader.DefaultDataPath}");
         
         _configLoader = new PamelloConfigLoader();
             
