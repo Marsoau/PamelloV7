@@ -44,6 +44,11 @@
     <ItemGroup>
       <None Update="Config\config.jsonc">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </None>
+      <None Update="Config\configEXAMPLE.jsonc">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </None>
     </ItemGroup>
 
