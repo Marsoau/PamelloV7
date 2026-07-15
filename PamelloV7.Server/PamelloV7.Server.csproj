@@ -48,6 +48,11 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Config\configEXAMPLE.jsonc" />
+      <EmbeddedResource Include="Config\configEXAMPLE.jsonc" />
+    </ItemGroup>
+
     <Target Name="IncludePv7mModulesInPublish"
             BeforeTargets="ComputeFilesToPublish"
             Condition="'$(Configuration)' == 'Release'">

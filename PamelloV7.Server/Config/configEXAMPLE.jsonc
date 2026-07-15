@@ -1,0 +1,58 @@
+/*
+IMPORTANT: READ THIS WHOLE SECTION
+
+There are two mandatory changes you have to make:
+1. Replace "YOUR DISCORD BOT TOKEN HERE" with your discord bot token
+2. Choose between:
+- Replace "APP ID" and "APP SECRET" with your osu! api application id and secret
+- Remove "PamelloV7.Module.Marsoau.Osu.pv7m" file from /Modules directory in your bot installation directory
+
+After you've done that, you can rename this file to "config.jsonc" (without the "EXAMPLE" part) and start the bot
+*/
+
+{
+    "Server": {
+        "Host": "http://*:41630", // the API host, you can leave it as is or replace it if you know what you're doing
+        "HostName": "localhost" // used in links, you can leave it as is or replace it with your public ip / domain
+    },
+    "Marsoau/NetCord": {
+        "Tokens": {
+            "Main": "YOUR DISCORD BOT TOKEN HERE", // replace text in "" with your bot token (yes, you have to leave the "")
+            "SpeakerTokens": [
+                // add more tokens for speaker bots here, all in "" and separated by comma
+            ]
+        },
+        "Commands": {
+            "AutoConnectOnAddition": true,
+                // true: the bot will connect to the VC automatically on song addition
+                // false: you have to connect the speaker yourself
+            "GlobalRegistration": true,
+                // true: register all commands globally
+                // false: register commands only in the guilds specified in GuildsIds
+                //
+                // guild id registration is faster than global registration,
+                // you can try it out if global registration doesn't work for you for some reason
+            "SkipRegistration": false,
+                // if you already have commands registered and your bot stalls on startup, try setting this to true
+            "GuildsIds": [
+                // add guild ids here, without "", just numbers separated by comma
+            ],
+            "UpdatableCommandsLifetime": 240
+                // minimum lifetime of updatable messages in seconds
+                // by interacting with the message, its lifetime will be extended up to the specified time from the last interaction
+                //
+                // the maximum lifetime in discord is 900 seconds, but reaching it is not great
+                // so the max pamello will do is 600 seconds
+        }
+    },
+    "Marsoau/Osu": {
+        // if you don't want to use osu! module,
+        // you can remove "PamelloV7.Module.Marsoau.Osu.pv7m" file
+        // from /Modules directory in your bot installation directory
+        
+        "Authorization": {
+            "ApplicationId": "APP ID", // replace text in "" with your osu! api application id
+            "Token": "APP SECRET" // replace text in "" with your osu! api application secret
+        }
+    }
+}
