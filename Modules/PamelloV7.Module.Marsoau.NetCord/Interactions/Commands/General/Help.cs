@@ -31,7 +31,7 @@ public partial class Help
         public IMessageComponentProperties?[] Build() {
             var categoryComponents = Category switch {
                 HelpCategory.Introduction => Builder<HelpIntroductionBuilder>().Build(),
-                HelpCategory.Guides => Builder<HelpGuidesBuilder>().Build(),
+                //HelpCategory.Guides => Builder<HelpGuidesBuilder>().Build(),
                 _ => []
             };
             

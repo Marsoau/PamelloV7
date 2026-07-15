@@ -11,11 +11,7 @@ public class HelpIntroductionBuilder : DiscordComponentBuilder
         container.AddComponents(
             new TextDisplayProperties(
                 """
-                # Welcome to PamelloV7!
-                
-                ### **PamelloV7** is a feature rich audio server, which acts and feels like a **music bot!**
-                
-                You can start from selecting a **`Guides`** category in the top of this message, and adding a song for the first time!
+                ## The help menu is in development!
                 """
             )
         );
