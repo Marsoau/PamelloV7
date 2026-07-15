@@ -33,18 +33,38 @@ public class PamelloConfigLoader : IPamelloConfigLoader
     public void Load() {
         #if DEBUG
         var configFile = new FileInfo(Path.Combine(Path.Combine(AppContext.BaseDirectory, "Config", "config.jsonc")));
+        var exampleFile = new FileInfo(Path.Combine(Path.Combine(AppContext.BaseDirectory, "Config", "configEXAMPLE.jsonc")));
         #elif RELEASE
         var configFile = new FileInfo(IPamelloConfigLoader.DefaultConfigFilePath);
+        var exampleFile = new FileInfo(IPamelloConfigLoader.DefaultConfigExampleFilePath);
         #endif
         
         if (!(configFile.Directory?.Exists ?? true)) configFile.Directory.Create();
 
-        if (!configFile.Exists || configFile.Length == 0) {
+        if (!configFile.Exists) {
+            if (!exampleFile.Exists) {
+                var exampleConfigStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("PamelloV7.Server.Config.configEXAMPLE.jsonc");
+                if (exampleConfigStream is null) throw new PamelloLoadingException("Example config resource not found");
+
+                using var fileStream = exampleFile.OpenWrite();
+                exampleConfigStream.CopyTo(fileStream);
+            
+                Output.Write($"Created config file example at \"{exampleFile.FullName}\", please read its IMPORTANT section, edit it accordingly, and restart the app");
+            }
+            else {
+                Output.Write($"Please go to \"{exampleFile.FullName}\", read its IMPORTANT section, edit it accordingly, and restart the app");
+            }
+
+            throw new PamelloExampleConfigException();
+        }
+
+        if (configFile.Length == 0) {
             _json = new JsonObject();
         }
-        else using (var fs = configFile.OpenRead()) {
+        else {
+            using var fs = configFile.OpenRead();
             _json = JsonSerializer.Deserialize<JsonObject>(fs, _jsoncProperties);
-        };
+        }
 
         foreach (var (partName, partJson) in Json) {
             if (partJson is null) continue;

@@ -11,6 +11,7 @@ public interface IPamelloConfigLoader
     );
     
     public static string DefaultConfigFilePath => Path.Combine(DefaultDataPath, "Config", "config.jsonc");
+    public static string DefaultConfigExampleFilePath => Path.Combine(DefaultDataPath, "Config", "configEXAMPLE.jsonc");
     
     public List<PamelloConfigPart> Parts { get; }
 }

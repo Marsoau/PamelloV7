@@ -53,8 +53,15 @@ public class Program
         Output.Write($"Default data path: {IPamelloConfigLoader.DefaultDataPath}");
         
         _configLoader = new PamelloConfigLoader();
-            
-        _configLoader.Load();
+
+        try {
+            _configLoader.Load();
+        }
+        catch (PamelloExampleConfigException x) {
+            Output.Write(x.Message, ELogLevel.Error);
+            return;
+        }
+        
         _configLoader.FinishForServer();
 
         if (string.IsNullOrWhiteSpace(ServerConfig.Root.HostName)) {
