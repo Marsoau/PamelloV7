@@ -3,6 +3,7 @@ using NetCord.Gateway;
 using NetCord.Rest;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services.Base;
 using PamelloV7.Module.Marsoau.NetCord.Config;
 using PamelloV7.Module.Marsoau.NetCord.Logger;
@@ -17,7 +18,7 @@ public class DiscordClientService : IPamelloService
     public IReadOnlyList<ApplicationEmoji> Emojis { get; private set; } = [];
 
     public void Startup(IServiceProvider services) {
-        var main = new GatewayClient(new BotToken(NetCordConfig.Root.Tokens.Main), new GatewayClientConfiguration() {
+        var main = new GatewayClient(CreateSafeToken(NetCordConfig.Root.Tokens.Main), new GatewayClientConfiguration() {
             Logger = new NetCordLogger(),
             RestClientConfiguration = new RestClientConfiguration() {
                 Version = ApiVersion.V10,
@@ -25,10 +26,22 @@ public class DiscordClientService : IPamelloService
         });
         
         var speakerClients = NetCordConfig.Root.Tokens.SpeakerTokens.Select(
-            token => new GatewayClient(new BotToken(token))
+            token => new GatewayClient(CreateSafeToken(token))
         );
         
         Clients = [main, ..speakerClients];
+        
+        return;
+
+        BotToken CreateSafeToken(string token) {
+            try {
+                return new BotToken(token);
+            }
+            catch (Exception) {
+                Output.Write($"Failed to recognize discord bot token in: {token}", ELogLevel.Error);
+                throw;
+            }
+        }
     }
 
     public async Task AfterStartupAsync() {
