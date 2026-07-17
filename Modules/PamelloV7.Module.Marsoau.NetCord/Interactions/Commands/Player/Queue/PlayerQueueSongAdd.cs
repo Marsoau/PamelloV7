@@ -42,12 +42,6 @@ public partial class PlayerQueueSongAdd
         
         var addedSongs = Command<Framework.Commands.PlayerQueueSongAdd>().Execute(songs, position).ToList();
 
-        var events = Services.GetRequiredService<IEventsService>();
-        
-        events.Subscribe<SongSourceDownloadProgressUpdated>(ev => {
-            UpdatableMessage?.Refresh();
-        });
-
         await RespondOneOrManyAsync(
             addedSongs,
             song => Builder<Builder>().Build(song),
@@ -74,7 +68,7 @@ public partial class PlayerQueueSongAdd
                     new TextDisplayProperties(
                         $"""
                          ## Song Added
-                         {song.ToDiscordString()}
+                         {song.ToDiscordString(true)}
                          """
                     )
                 )

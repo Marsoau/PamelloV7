@@ -60,7 +60,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
             '\u2840', '\u2844', '\u2846', '\u2847', '\u28C7', '\u28E7', '\u28F7', '\u28FF'
         ];
         
-        public static string Progress(double progress, int length, bool percent = false) {
+        public static string Progress(double progress, int length, bool percent = false, bool formatting = true) {
             var sb = new StringBuilder();
             
             var size = length * ProgressChars.Length;
@@ -78,9 +78,13 @@ namespace PamelloV7.Module.Marsoau.NetCord.Strings
                 
                 sb.Append(NoChar);
             }
-            
-            if (!percent) return Code($"[{sb}]");
-            return Code($"[{sb}] {progress * 100:0.00}%");
+
+            return (percent, formatting) switch {
+                (false, false) => sb.ToString(),
+                (false, true) => Code($"[{sb}]"),
+                (true, false) => $"[{sb}] {progress * 100:0.00}%",
+                (true, true) => Code($"[{sb}] {progress * 100:0.00}%")
+            };
         }
         
         public static string Emoji(string name, DiscordClientService clients) {

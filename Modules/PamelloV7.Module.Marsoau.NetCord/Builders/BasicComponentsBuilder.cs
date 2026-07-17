@@ -1,4 +1,5 @@
 using NetCord.Rest;
+using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
 using PamelloV7.Module.Marsoau.NetCord.Strings;
@@ -35,7 +36,14 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
             Info(title, entities.Count == 0
                 ? noResultsMessage
                 : string.Join("\n", entities.Skip(page * pageSize).Take(pageSize).Select(entity =>
-                    $"{(displayEntityName ? $"{DiscordString.Code(entity.GetType().Name)} " : "")}{entity.ToDiscordString()}"
+                    $"{(displayEntityName ? $"{DiscordString.Code(entity.GetType().Name)} " : "")}{entity switch {
+                        IPamelloSong song => song.ToDiscordString(),
+                        IPamelloPlaylist playlist => playlist.ToDiscordString(),
+                        IPamelloInternetSpeaker speaker => speaker.ToDiscordString(),
+                        IPamelloEpisode episode => episode.ToDiscordString(),
+                        IPamelloUser user => user.ToDiscordString(),
+                        _ => entity.ToDiscordString()
+                    }}"
                 ))
             ),
             Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, entities.Count)

@@ -21,6 +21,8 @@ public interface IEventsService : IPamelloService
     public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e);
     public IHistoryRecord? Invoke(IPamelloUser? invoker, IPamelloEvent e, Action? action);
 
+    public void TriggerUpdateFor(IPamelloEntity entity, IPamelloEvent triggerEvent);
+
     public static void SetCurrentRecord(IHistoryRecord? record) {
         CurrentRecord.Value = record;
         CurrentRecordSubscriptions.Value?.ForEach(s => s(record));

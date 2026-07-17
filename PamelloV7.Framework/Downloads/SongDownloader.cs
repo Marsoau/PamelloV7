@@ -35,11 +35,15 @@ public abstract class SongDownloader
         set {
             _progress = value;
 
-            _events.Invoke(null, new SongSourceDownloadProgressUpdated() {
+            var e = new SongSourceDownloadProgressUpdated() {
                 Song = Source.Song,
                 SourceIndex = SourceIndex,
                 Progress = _progress
-            });
+            };
+            
+            _events.Invoke(null, e);
+            
+            if (Source.Song is not null) _events.TriggerUpdateFor(Source.Song, e);
         }
     }
     
@@ -79,6 +83,7 @@ public abstract class SongDownloader
                 file.Delete();
             }
 
+            Progress = 0;
             Result = await InternalDownloadAsync(file);
             return Result.Value;
         }

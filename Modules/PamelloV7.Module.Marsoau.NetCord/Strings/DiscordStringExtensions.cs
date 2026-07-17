@@ -1,3 +1,4 @@
+using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 
@@ -8,6 +9,13 @@ public static class DiscordStringExtensions
     public static string ToDiscordString(this IPamelloEntity entity)
     {
         return $"{DiscordString.Bold(DiscordString.Code($"[{entity.Id}]"))} {DiscordString.Ecranate(entity.Name)}";
+    }
+    public static string ToDiscordString(this IPamelloSong song, bool hideDownload = false) {
+        var downloader = song.SelectedSource?.IsDownloading() ?? false ? song.SelectedSource.GetDownloader() : null;
+        
+        return $"{DiscordString.Bold(DiscordString.Code($"[{song.Id}{(
+            hideDownload || downloader is null || downloader is { Progress: 1 } ? "" : $" {DiscordString.Progress(downloader.Progress, 5, formatting: false)}"
+        )}]"))} {DiscordString.Ecranate(song.Name)}";
     }
     public static string ToDiscordString(this IPamelloInternetSpeaker internetSpeaker)
     {
