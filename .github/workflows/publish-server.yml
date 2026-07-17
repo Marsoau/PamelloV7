@@ -34,22 +34,22 @@ jobs:
             -p:Version=${{ github.ref_name }} \
             -o "$OUT_DIR"
 
-    - name: Add scripts
-        env:
-          OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
-        run: |
-          os_key="${{ matrix.runtime }}"
-          os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
-          script_dir="scripts/$os_key"
-          if [ -d "$script_dir" ]; then
-          cp "$script_dir"/. "$OUT_DIR"/ -R
-          chmod +x "$OUT_DIR"/*.sh 2>/dev/null || true
-          echo "Added scripts from $script_dir"
-          else
-          echo "::warning::No launcher scripts found for '$os_key' ($script_dir)"
-          fi
-      
-      - name: Create zip
+      - name: Add scripts
+          env:
+            OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
+          run: |
+            os_key="${{ matrix.runtime }}"
+            os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
+            script_dir="scripts/$os_key"
+            if [ -d "$script_dir" ]; then
+            cp "$script_dir"/. "$OUT_DIR"/ -R
+            chmod +x "$OUT_DIR"/*.sh 2>/dev/null || true
+            echo "Added scripts from $script_dir"
+            else
+            echo "::warning::No launcher scripts found for '$os_key' ($script_dir)"
+            fi
+
+            - name: Create zip
         env:
           OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
         run: zip -r "$OUT_DIR.zip" "$OUT_DIR"
