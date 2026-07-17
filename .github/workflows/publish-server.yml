@@ -1,10 +1,8 @@
 name: Publish Server
-
 on:
   push:
     tags:
       - '*'
-
 jobs:
   publish:
     name: Publish ${{ matrix.runtime }}
@@ -16,12 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
-
       - name: Publish
         env:
           OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
@@ -33,34 +29,30 @@ jobs:
             -p:PublishSingleFile=true \
             -p:Version=${{ github.ref_name }} \
             -o "$OUT_DIR"
-
       - name: Add scripts
-          env:
-            OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
-          run: |
-            os_key="${{ matrix.runtime }}"
-            os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
-            script_dir="scripts/$os_key"
-            if [ -d "$script_dir" ]; then
+        env:
+          OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
+        run: |
+          os_key="${{ matrix.runtime }}"
+          os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
+          script_dir="scripts/$os_key"
+          if [ -d "$script_dir" ]; then
             cp "$script_dir"/. "$OUT_DIR"/ -R
             chmod +x "$OUT_DIR"/*.sh 2>/dev/null || true
             echo "Added scripts from $script_dir"
-            else
+          else
             echo "::warning::No launcher scripts found for '$os_key' ($script_dir)"
-            fi
-
-            - name: Create zip
+          fi
+      - name: Create zip
         env:
           OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
         run: zip -r "$OUT_DIR.zip" "$OUT_DIR"
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PamelloV7.Server-${{ matrix.runtime }}
           path: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}.zip
           if-no-files-found: error
-
   release:
     name: Create GitHub Release
     needs: publish
@@ -73,7 +65,6 @@ jobs:
         with:
           pattern: PamelloV7.Server-*
           merge-multiple: true
-
       - name: Detect prerelease
         id: prerelease
         run: |
@@ -82,7 +73,6 @@ jobs:
           else
             echo "value=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
