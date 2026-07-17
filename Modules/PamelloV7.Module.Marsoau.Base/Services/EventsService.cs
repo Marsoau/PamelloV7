@@ -127,13 +127,17 @@ public class EventsService : IEventsService
             }
         }
         
+        TriggerUpdateFor(entity, e);
+        
+        return record;
+    }
+
+    public void TriggerUpdateFor(IPamelloEntity entity, IPamelloEvent triggerEvent) {
         _updateSubscriptions.RemoveAll(subscription => subscription.IsDisposed);
 
         foreach (var subscription in _updateSubscriptions.Where(subscription => subscription.WatchedEntities.Invoke().Contains(entity))) {
-            subscription.InvokeAsync(e);
+            subscription.InvokeAsync(triggerEvent);
         }
-        
-        return record;
     }
     
     private static IEnumerable<Type> TypeAndItsParents(Type? type) {
