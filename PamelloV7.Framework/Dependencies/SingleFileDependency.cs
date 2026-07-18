@@ -59,7 +59,7 @@ public abstract class SingleFileDependency : Dependency
         var fileBytes = await client.GetByteArrayAsync(url);
         await File.WriteAllBytesAsync(file.FullName, fileBytes);
 
-        if (IsExecutable && OperatingSystem.IsLinux()) {
+        if (IsExecutable && (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())) {
             File.SetUnixFileMode(file.FullName, File.GetUnixFileMode(file.FullName) | UnixFileMode.UserExecute);
         }
     }

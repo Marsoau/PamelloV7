@@ -9,6 +9,6 @@ if [ "$code" -eq 0 ]; then
   echo "PamelloV7.Server exited normally (code 0)."
 else
   echo "PamelloV7.Server exited with code $code."
+  printf "Press Enter to close... "
+  read _
 fi
-printf "Press Enter to close... "
-read _
