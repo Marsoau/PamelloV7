@@ -14,6 +14,7 @@ public abstract class SingleFileDependency : Dependency
     
     protected abstract string DownloadUrlLinux { get; }
     protected abstract string DownloadUrlWindows { get; }
+    protected abstract string DownloadUrlMacOs { get; }
 
     protected SingleFileDependency(IServiceProvider services) : base(services) {
         _clientFactory = services.GetRequiredService<IHttpClientFactory>();
@@ -49,6 +50,9 @@ public abstract class SingleFileDependency : Dependency
         }
         else if (OperatingSystem.IsLinux()) {
             url = DownloadUrlLinux;
+        }
+        else if (OperatingSystem.IsMacOS()) {
+            url = DownloadUrlMacOs;
         }
         else return;
 

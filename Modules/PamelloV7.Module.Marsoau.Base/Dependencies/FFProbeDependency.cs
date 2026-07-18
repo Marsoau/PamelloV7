@@ -15,6 +15,7 @@ public class FFProbeDependency : SingleFileDependency
     protected override string VersionUrl => "https://api.github.com/repos/shaka-project/static-ffmpeg-binaries/releases/latest";
     protected override string DownloadUrlLinux => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffprobe-linux-x64";
     protected override string DownloadUrlWindows => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffprobe-win-x64.exe";
+    protected override string DownloadUrlMacOs => "https://github.com/shaka-project/static-ffmpeg-binaries/releases/latest/download/ffprobe-osx-x64";
     public override bool IsExecutable => true;
 
     public FFProbeDependency(IServiceProvider services) : base(services) { }

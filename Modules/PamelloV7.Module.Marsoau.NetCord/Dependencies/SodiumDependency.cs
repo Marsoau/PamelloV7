@@ -7,7 +7,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Dependencies;
 public class SodiumDependency : MarsoauLibDependency
 {
     public override string Name => "sodium";
-    public override string InternalFilePath => "libsodium.so";
+    public override string InternalFilePath => "libsodium";
     protected override string[] DllNames => ["sodium", "libsodium"];
 
     public override Assembly DllAssembly => typeof(GatewayClient).Assembly;

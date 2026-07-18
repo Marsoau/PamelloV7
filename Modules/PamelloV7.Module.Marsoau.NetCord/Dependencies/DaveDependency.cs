@@ -7,7 +7,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Dependencies;
 public class DaveDependency : MarsoauLibDependency
 {
     public override string Name => "dave";
-    public override string InternalFilePath => "libdave.so";
+    public override string InternalFilePath => "libdave";
     protected override string[] DllNames => ["dave", "libdave"];
     
     public override Assembly DllAssembly => typeof(GatewayClient).Assembly;

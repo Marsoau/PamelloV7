@@ -7,7 +7,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Dependencies;
 public class OpusDependency : MarsoauLibDependency
 {
     public override string Name => "opus";
-    public override string InternalFilePath => "libopus.so";
+    public override string InternalFilePath => "libopus";
     protected override string[] DllNames => ["opus", "libopus"];
 
     public override Assembly DllAssembly => typeof(GatewayClient).Assembly;

@@ -56,7 +56,7 @@ public class FileAccessService : IFileAccessService
             if (OperatingSystem.IsWindows()) {
                 extension = ".exe";
             }
-            else if (OperatingSystem.IsLinux()) {
+            else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS()) {
                 extension = "";
             }
             else {
@@ -69,6 +69,9 @@ public class FileAccessService : IFileAccessService
             }
             else if (OperatingSystem.IsLinux()) {
                 extension = ".so";
+            }
+            else if (OperatingSystem.IsMacOS()) {
+                extension = ".dylib";
             }
             else {
                 throw new PamelloException("Unsupported operating system");
