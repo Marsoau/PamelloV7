@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Attributes;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Exceptions;
@@ -14,8 +15,15 @@ using PamelloV7.Module.Marsoau.PEQL.Model;
 
 namespace PamelloV7.Module.Marsoau.PEQL.Services;
 
+public class EntityQueryComplexity
+{
+    public int Current { get; set; }
+}
+
 public class EntityQueryService : IEntityQueryService
 {
+    private static readonly AsyncLocal<EntityQueryComplexity?> CurrentComplexity = new();
+    
     private readonly IServiceProvider _services;
     
     public readonly List<EntityProviderContainer> Providers;
@@ -75,10 +83,28 @@ public class EntityQueryService : IEntityQueryService
         Output.Write($"Loaded {Operators.Count} operators");
     }
 
-    public async Task<List<IPamelloEntity>> GetAsync(string query, IPamelloUser scopeUser)
-        => (await InternalGetAsync(query, scopeUser))
+    public async Task<List<IPamelloEntity>> GetAsync(string query, IPamelloUser scopeUser) {
+        var wasNull = CurrentComplexity.Value is null;
+        if (wasNull) CurrentComplexity.Value = new EntityQueryComplexity();
+        
+        var result = (await InternalGetAsync(query, scopeUser))
             .Where(e => e is not null)
             .ToList();
+        
+        if (wasNull) CurrentComplexity.Value = null;
+        
+        return result;
+    }
+
+    public static void AddComplexity(int complexity) {
+        CurrentComplexity.Value ??= new EntityQueryComplexity();
+
+        if (ServerConfig.Root.MaximumComplexityPEQL < CurrentComplexity.Value.Current + complexity) {
+            throw new PamelloException($"PEQL maximum query complexity of {ServerConfig.Root.MaximumComplexityPEQL} reached");
+        }
+        
+        CurrentComplexity.Value.Current += complexity;
+    }
 
     public IPamelloEntity? GetById(Type entityType, int id) {
         var attribute = entityType.GetCustomAttribute<PamelloEntityAttribute>();
@@ -92,6 +118,7 @@ public class EntityQueryService : IEntityQueryService
     }
 
     private async Task<List<IPamelloEntity>> InternalGetAsync(string query, IPamelloUser scopeUser) {
+        AddComplexity(1);
         if (scopeUser is null) throw new PamelloException("User is required to execute PEQL queries");
         
         var splitAt = -1;
