@@ -14,7 +14,9 @@ After you've done that, you can rename this file to "config.jsonc" (without the 
 {
     "Server": {
         "Host": "http://*:41630", // the API host, you can leave it as is or replace it if you know what you're doing
-        "HostName": "localhost" // used in links, you can leave it as is or replace it with your public ip / domain
+        "HostName": "localhost", // used in links, you can leave it as is or replace it with your public ip / domain
+        "AllowUserCreation": true, // if false, no new users can be created. only existing users can continue using the bot
+        "MaximumQueryComplexity": 100 // the maximum number of sub-queries that can be caused by one query
     },
     "Marsoau/NetCord": {
         "Tokens": {
