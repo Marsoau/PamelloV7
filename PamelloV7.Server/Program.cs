@@ -40,6 +40,11 @@ public class Program
     public static Task Main(string[] args) => new Program().MainAsync(args);
 
     public async Task MainAsync(string[] args) {
+        if (args is ["--version"]) {
+            Console.Write(Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+            return;
+        }
+        
         _logger = new PamelloLogger();
         Output.Logger = _logger;
 
