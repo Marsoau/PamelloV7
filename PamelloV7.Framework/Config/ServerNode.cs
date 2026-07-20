@@ -11,5 +11,5 @@ public partial class ServerNode
     public string DataPath { get; set; } = IPamelloConfigLoader.DefaultDataPath;
     public bool AllowUserCreation { get; set; } = true;
     public bool FullResetHistory { get; set; } = false;
-    public int MaximumComplexityPEQL { get; set; } = 100;
+    public int MaximumQueryComplexity { get; set; } = 100;
 }

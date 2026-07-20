@@ -99,8 +99,8 @@ public class EntityQueryService : IEntityQueryService
     public static void AddComplexity(int complexity) {
         CurrentComplexity.Value ??= new EntityQueryComplexity();
 
-        if (ServerConfig.Root.MaximumComplexityPEQL < CurrentComplexity.Value.Current + complexity) {
-            throw new PamelloException($"PEQL maximum query complexity of {ServerConfig.Root.MaximumComplexityPEQL} reached");
+        if (ServerConfig.Root.MaximumQueryComplexity < CurrentComplexity.Value.Current + complexity) {
+            throw new PamelloException($"PEQL maximum query complexity of {ServerConfig.Root.MaximumQueryComplexity} reached");
         }
         
         CurrentComplexity.Value.Current += complexity;

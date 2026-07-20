@@ -5,7 +5,7 @@ namespace PamelloV7.Module.Marsoau.NetCord.Interactions.Modals.Player;
 
 [DiscordModal("Set next song")]
 
-[AddShortInput("Position*", "Position")]
+[AddShortInput("Position", "Position")]
 
 public partial class PlayerQueueSetNextModal
 {

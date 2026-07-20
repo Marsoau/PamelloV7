@@ -218,11 +218,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         }
 
         public int? RequestNextPosition(string? positionValue, IPamelloUser? scopeUser) {
-            if (positionValue is null) {
-                return NextPositionRequest = null;
-            }
-            
-            return NextPositionRequest = TranslateQueuePosition(positionValue);
+            SetNextPositionRequest(positionValue is null ? null : TranslateQueuePosition(positionValue), scopeUser);
+            return NextPositionRequest;
         }
 
         public void SubscribeCurrentAudioEvents() {
