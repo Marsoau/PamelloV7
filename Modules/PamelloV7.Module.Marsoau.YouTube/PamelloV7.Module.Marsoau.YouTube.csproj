@@ -13,8 +13,4 @@
       <ProjectReference Include="..\PamelloV7.Module.Marsoau.Base\PamelloV7.Module.Marsoau.Base.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="AngleSharp" Version="1.4.1-beta.506" />
-    </ItemGroup>
-
 </Project>

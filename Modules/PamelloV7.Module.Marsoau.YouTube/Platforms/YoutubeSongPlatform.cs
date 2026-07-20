@@ -2,8 +2,6 @@ using System.Diagnostics;
 using System.Web;
 using System.Net.Http;
 using System.Text.Json;
-using AngleSharp;
-using AngleSharp.Dom;
 using Microsoft.Extensions.DependencyInjection;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Entities;
