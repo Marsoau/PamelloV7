@@ -41,7 +41,12 @@ public class Program
 
     public async Task MainAsync(string[] args) {
         if (args is ["--version"]) {
-            Console.Write(Assembly.GetExecutingAssembly().GetName().Version?.ToString());
+            var attribute = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (attribute is null) return;
+            
+            var version = attribute.InformationalVersion.Split('+')[0];
+            Console.WriteLine(version);
+            
             return;
         }
         
