@@ -35,7 +35,7 @@ jobs:
         run: |
           os_key="${{ matrix.runtime }}"
           os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
-          script_dir="scripts/$os_key"
+          script_dir="Scripts/$os_key"
           if [ -d "$script_dir" ]; then
             cp "$script_dir"/. "$OUT_DIR"/ -R
             chmod +x "$OUT_DIR"/*.sh 2>/dev/null || true
