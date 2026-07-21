@@ -264,6 +264,10 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     public void DeleteDependant() {
         Unsubscribe();
 
+        if (VoiceClient is not null && Client is not null) {
+            Client.UpdateVoiceStateAsync(new VoiceStateProperties(VoiceClient.GuildId, null)).GetAwaiter().GetResult();
+        }
+        
         foreach (var listener in _listeners) {
             if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && listener.User?.SelectedPlayer == Player) {
                 listener.User?.SelectPlayer(null, true);

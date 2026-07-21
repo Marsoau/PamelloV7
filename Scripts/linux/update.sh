@@ -1,9 +1,9 @@
 set -euo pipefail
 
 REPO="Marsoau/PamelloV7"
-RID="linux-x64"                                   # the only published Linux build
-PRERELEASES=true                                  # true  = update to newest release, INCLUDING pre-releases
-                                                  # false = update to newest STABLE release only
+RID="linux-x64"
+PRERELEASES=true
+
 
 DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 

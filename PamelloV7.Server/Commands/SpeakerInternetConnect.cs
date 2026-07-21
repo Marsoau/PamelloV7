@@ -1,10 +1,12 @@
+using PamelloV7.Framework.Attributes;
 using PamelloV7.Framework.Commands.Base;
 using PamelloV7.Framework.Repositories;
 using PamelloV7.Server.Speakers;
 
 namespace PamelloV7.Server.Commands;
 
-public class SpeakerInternetConnect : PamelloCommand
+[PamelloCommand]
+public partial class SpeakerInternetConnect
 {
     public PamelloInternetSpeaker Execute(string? name = null) {
         name ??= Guid.NewGuid().ToString();
