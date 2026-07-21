@@ -178,6 +178,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
             IsNoLeftovers = true;
 
             _entries = [];
+
+            _episodesWatchSubscription = _events.Watch(async (e) => {
+                _songAudio?.UpdatePlaybackPoints();
+            }, () => []);
         }
 
         public void SetCurrent(PamelloQueueEntry? entry, IPamelloUser? scopeUser) {
@@ -230,10 +234,6 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _songAudio.Position.OnSecondTick = Current_Position_OnSecondTick;
             _songAudio.Duration.OnSecondTick = Current_Duration_OnSecondTick;
-
-            _episodesWatchSubscription = _events.Watch(async (e) => {
-                _songAudio.UpdatePlaybackPoints();
-            }, () => []);
             
             _songAudio.OnEnded = Current_OnEnded;
             _songAudio.GetUsersListening = () => Player.ConnectedSpeakers
