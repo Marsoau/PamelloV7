@@ -16,6 +16,7 @@ using PamelloV7.Framework.Entities.Other;
 using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Events.Actions;
+using PamelloV7.Framework.Events.Base;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Extensions;
 using PamelloV7.Framework.Logging;
@@ -160,6 +161,8 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
         
         public IEnumerable<int> SongsIds => Songs.Select(song => song.Id);
 
+        private IUpdateSubscription? _episodesWatchSubscription;
+
         public PamelloQueue(
             IPamelloPlayer player,
             IServiceProvider services
@@ -227,6 +230,10 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _songAudio.Position.OnSecondTick = Current_Position_OnSecondTick;
             _songAudio.Duration.OnSecondTick = Current_Duration_OnSecondTick;
+
+            _episodesWatchSubscription = _events.Watch(async (e) => {
+                _songAudio.UpdatePlaybackPoints();
+            }, () => []);
             
             _songAudio.OnEnded = Current_OnEnded;
             _songAudio.GetUsersListening = () => Player.ConnectedSpeakers
