@@ -17,6 +17,8 @@ using PamelloV7.Framework.Events;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Events.Actions;
 using PamelloV7.Framework.Events.Base;
+using PamelloV7.Framework.Events.Creative;
+using PamelloV7.Framework.Events.Destructive;
 using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.Extensions;
 using PamelloV7.Framework.Logging;
@@ -179,6 +181,16 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _entries = [];
 
+            _events.Subscribe<EpisodeCreated>((e) => {
+                if (e.Episode?.Song != CurrentSong) return;
+                
+                _songAudio?.UpdatePlaybackPoints();
+            });
+            _events.Subscribe<EpisodeDeleted>((e) => {
+                if (e.Episode?.Song != CurrentSong) return;
+                
+                _songAudio?.UpdatePlaybackPoints();
+            });
             _episodesWatchSubscription = _events.Watch(async (e) => {
                 _songAudio?.UpdatePlaybackPoints();
             }, () => [..CurrentSong?.Episodes ?? []]);
