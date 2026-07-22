@@ -33,8 +33,8 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
     public AudioTime Position;
     public AudioTime Duration;
 
-    private int? _nextBreakPoint;
-    private int? _nextJumpPoint;
+    private AudioTime? _nextBreakPoint;
+    private AudioTime? _nextJumpPoint;
 
     private Process? _ffmpeg;
     private long _ffmpegPosition;
@@ -181,26 +181,36 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
             return false;
         }
 
-        if (Position.TotalSeconds == _nextBreakPoint) {
-            if (_nextJumpPoint is null) {
-                await RewindTo(Duration, true, token);
-                // StaticLogger.Log("false 2");
-                return false;
-            }
-
-            await RewindTo(new AudioTime(_nextJumpPoint.Value), true, token);
-        }
-
         int count;
         var totalCount = 0;
+        int breakPointCut;
         while (totalCount < audio.Length && Position.TimeValue < Duration.TimeValue) {
-            totalCount += count = await _currentChunk.ReadAsync(audio, totalCount, audio.Length - totalCount, token);
+            breakPointCut = (
+                _nextBreakPoint.HasValue &&
+                Position.TimeValue < _nextBreakPoint.Value.TimeValue &&
+                Position.TimeValue + audio.Length > _nextBreakPoint.Value.TimeValue
+            ) ? (int)(_nextBreakPoint.Value.TimeValue - Position.TimeValue) : 0;
+            
+            if (breakPointCut > audio.Length) return false;
+            
+            totalCount += count = await _currentChunk.ReadAsync(audio, totalCount, audio.Length - totalCount - breakPointCut, token);
             
             Position.TimeValue += count;
             
             if (totalCount >= audio.Length) return true;
-            
-            await MoveForwardAsync(token);
+
+            if (breakPointCut == 0) {
+                await MoveForwardAsync(token);
+            }
+            else {
+                if (_nextJumpPoint is null) {
+                    await RewindTo(Duration, true, token);
+                    // StaticLogger.Log("false 2");
+                    return false;
+                }
+                
+                await RewindTo(_nextJumpPoint.Value, true, token);
+            }
         }
 
         return false;
@@ -229,10 +239,21 @@ public partial class SongAudio : AudioModule, IAudioModuleWithOutput
             }
         }
 
-        _nextBreakPoint = closestBreakPoint;
-        _nextJumpPoint = closestJumpPoint;
+        if (closestBreakPoint.HasValue && closestBreakPoint.Value is var breakSeconds) {
+            _nextBreakPoint = new AudioTime(breakSeconds);
+        }
+        else {
+            _nextBreakPoint = null;
+        }
 
-        //StaticLogger.Log($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
+        if (closestJumpPoint.HasValue && closestJumpPoint.Value is var jumpSeconds) {
+            _nextJumpPoint = new AudioTime(jumpSeconds);
+        }
+        else {
+            _nextJumpPoint = null;
+        }
+
+        Framework.Logging.Output.Write($"Updated playback points: [{_nextBreakPoint}] | [{_nextJumpPoint}]");
     }
 
     public async Task RewindTo(AudioTime time, bool forceEpisodePlayback = true, CancellationToken token = default) {

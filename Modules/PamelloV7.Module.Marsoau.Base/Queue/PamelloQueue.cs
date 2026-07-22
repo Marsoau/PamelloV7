@@ -181,7 +181,7 @@ namespace PamelloV7.Module.Marsoau.Base.Queue
 
             _episodesWatchSubscription = _events.Watch(async (e) => {
                 _songAudio?.UpdatePlaybackPoints();
-            }, () => []);
+            }, () => [..CurrentSong?.Episodes ?? []]);
         }
 
         public void SetCurrent(PamelloQueueEntry? entry, IPamelloUser? scopeUser) {
