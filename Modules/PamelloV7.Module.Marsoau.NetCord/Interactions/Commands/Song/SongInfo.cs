@@ -40,7 +40,7 @@ public partial class SongInfo
             });
             
             return Builder<Builder>().Build(song, episodesButton);
-        }, () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists]);
+        }, () => [song, song.AddedBy, ..song.FavoriteBy, ..song.Playlists, SelectedPlayer]);
     }
 
     public class Builder : DiscordComponentBuilder
@@ -183,7 +183,7 @@ public partial class SongInfo
                 new ActionRowProperties().AddComponents(
                     Button("Add to queue", ButtonStyle.Primary, () => {
                         Command<PlayerQueueSongAdd>().Execute([song]);
-                    })
+                    }).WithDisabled(Queue is null)
                 )
             );
 
