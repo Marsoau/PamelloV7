@@ -143,37 +143,132 @@ First release is planned on **27.07.2026**
 ## Discord Usage Guides
 
 <details open>
-<summary><h4>Adding songs</h4></summary>
+<summary><h3>Adding songs</h3></summary>
 
-//todo
+`/add` `{songs}`: **Add songs to your queue**
 
-</details>
+`/add-playlist` `{playlists}`: **Add songs from playlists to your queue**
 
-<details>
-<summary><h4>Managing a player</h4></summary>
+For songs you can use their ids, associtiations, urls, or PEQL points like favorite
 
-//todo
+For playlists you can use their ids, names, and favorite point too
 
-</details>
+#### Some Examples Are
 
-<details>
-<summary><h4>Managing a queue</h4></summary>
+`/add` `https://www.youtube.com/watch?v=nnmIzzCLmrU`
 
-//todo
+`/add` `5`
 
-</details>
+`/add` `35,14,22`
 
-<details>
-<summary><h4>Managing songs</h4></summary>
+`/add` `some,associations`
 
-//todo
+`/add` `alot,together,35,https://www.youtube.com/watch?v=nnmIzzCLmrU,14,favorite,22,playlist(teto)`
 
 </details>
 
 <details>
-<summary><h4>Managing playlists</h4></summary>
+<summary><h3>Managing a player</h3></summary>
 
-//todo
+`/player info`: **Bring up real-time interactive player info**
+
+Here you can see your selected player playback time, current song, episode, queue modes, and a few actions buttons
+
+If you dont have a selected player, you can create one with a button inside of a message, or choose an available one the same way
+
+What do buttons do:
+
+- `Pause`: Pauses/Resumes the playback
+- `Next Episode`: Skips to the next episode in a song, only appears if song has episodes
+- `Add Songs`: Brings up a modal for you to query more songs, you can paste urls there or any other PEQL queries
+- `Rewind`: Brings up a modal in which you can enter a time you want to rewind the currently playing song to
+- `Skip`: Just skips current song
+
+Queue modes:
+
+- `Random`: Play queue songs in a random order
+- `Reversed`: Play queue songs in a reversed order
+- `No Leftovers`: Remove songs from the queue after they are played
+- `Feed Random`: Feed queue with random songs from the database when it gets empty
+
+Also at the bottom you can see currently connected players, and who is listening to them
+
+There is also `/player pause-toggle` command that just toggles its pause state, and responds with interactive message to switch it back when you want
+
+</details>
+
+<details>
+<summary><h3>Managing a queue</h3></summary>
+  
+`/queue`: **Bring up real-time interactive queue**
+
+Here you can see your selected players queue songs, as well as some actions buttons:
+
+- `Add Songs`: Brings up a modal for you to query more songs, you can paste urls there or any other PEQL queries
+- `Edit`: Brings up a modal with which you can edit the queue by changing songs order, removing songs, or adding new ones with PEQL (so ids, urls, points, etc..) into any position
+- `Go-To`: Brings up a modal to select a position to jump to right now, and has an option to get back to current song after new one ends
+- `Set Next`: Brings up a modal to select a position that will be played after current song ends
+
+> You can browse pages with `Prev`, `Page`, `Next` buttons, a `Page` buttons in particular brings up a modal to select the specific page number
+
+</details>
+
+<details>
+<summary><h3>Managing songs</h3></summary>
+
+`/song info` `{song?}`: **Bring up real-time interactive song info**
+
+> Accepts song as a parameter, when not specified uses your `current` song
+
+Here you can see song name, cover, id, addition date, adder user, some actions buttons and dedicated sections
+
+What do buttons do:
+
+- `Rename`: Brings up a modal for you to input the new name
+- `Change Cover`: Not implemented yet
+- `Reset`: Reset the song basic info like name, cover, and episodes to its source
+- `Add to queue`: Adds this song to your current queue, not available if you dont have one
+
+And about sections:
+
+**Associactions**: A list of associations for that song
+
+`Edit`: Brings up a modal for you to change/add/remove associations
+
+**Favorite By Users**: A list of users that added this song to their favorites
+
+`Add`: Add this song to your favorites
+
+**Included In Playlists**: A list of playlists this song is included in
+
+`Remove All`: Remove this song from all playlists
+
+**Sources**: A list of sources for that song
+
+`Select`: Brings up a modal to select the main source for that song, this source will be used in resetting its info
+
+**Episodes**: Displays a count of episodes that song has, hidden if song doesnt have any
+
+`Show`: Sends the same message as `/song episodes list` command, more about it in [Managing song episodes](#managing-song-episodes)
+
+</details>
+
+<details>
+<summary><h3>Managing playlists</h3></summary>
+
+`/playlist info` `{playlist}`: **Bring up real-time interactive playlist info**
+
+> Accepts playlist as a required parameter
+
+Here you can see the playlist id, name, addition date, owner user, protection state, and all of it songs, as well as some actions buttons
+
+What do buttons do:
+
+- `Add to queue`: Adds this playlist songs to your current queue, not available if you dont have one
+- `Rename`: Brings up a modal for you to input the new name
+- `Edit`: Brings up a modal with which you can edit the playlist by changing songs order, removing songs, or adding new ones with PEQL (so ids, urls, points, etc..) into any position
+
+
 
 Playlists have only one owner, but can be browsed / used by everyone. You can also protect your playlist from changes by other users, or leave it public
 
@@ -182,24 +277,84 @@ Playlists have only one owner, but can be browsed / used by everyone. You can al
 </details>
 
 <details>
-<summary><h4>Managing song episodes</h4></summary>
+<summary><h3>Managing song episodes</h3></summary>
 
-//todo
+`/song episode list` `{song?}`: **Bring up real-time interactive song episodes list**
+
+> Accepts song as a parameter, when not specified uses your `current` song
+
+Here you can see all of the song episodes, their start positions, start time, and episode action button, as well as some general actions buttons and mode switch buttons
+
+There is 3 mods `song episode list` can be in, which determines what each episode action button does:
+- `Edit`: Edit the epsisode info, like its name, start time, and its auto skip status
+- `Delete`: Delete the episode from the song
+- `Rewind`: Rewinds playback to the episode, only available if this is the current song
+
+The buttons to switch modes are located below the episodes list itself
+
+Other actions buttons:
+- `Add Episode`: Create a new episode and add it to the song
+- `Reset`: Reset episodes of this song to its selected source
+
+> You can browse pages with `Prev`, `Page`, `Next` buttons, a `Page` buttons in particular brings up a modal to select the specific page number
 
 </details>
 
-
 <details>
-<summary><h4>Managing favorite songs & playlists</h4></summary>
+<summary><h3>Managing favorite songs & playlists</h3></summary>
 
-//todo
+`/song favorite list` `{user?}`: **Bring up real-time interactive favorite songs list**
+
+> Accepts user as a parameter, when not specified uses your `current` user
+
+Here you can see all of your or other user favorite songs, and a few actions buttons
+
+Actions buttons:
+- `Edit`: Edit your favorite songs like, move/remove/add songs with PEQL (so ids, urls, points, etc..). Not available if its not your favorites
+- `Clear`: Clear your favorite songs. Not available if its not your favorites
+- `Add all to queue`: Add all of your favorite songs to your current queue, not available if you dont have one
+
+> You can browse pages with `Prev`, `Page`, `Next` buttons, a `Page` buttons in particular brings up a modal to select the specific page number
 
 </details>
 
 <details>
-<summary><h4>Managing your user</h4></summary>
+<summary><h3>Managing your user</h3></summary>
 
-//todo
+`/user info` `{user?}`: **Brings up real-time interactive user info**
+
+> Accepts user as a parameter, when not specified uses your `current` user
+
+Here you can see the user join date (the first time user interacted with pamello), favorite songs and playlists count, and authorizations preview
+
+"Show" Buttons:
+- **For Favorite Songs**: Sends the same message as `/song favorite list` does
+- **For Favorite Playlists** Sends the same message as `/plyalist favorite list` does
+- **For Authorizations** Sends the same message as `/user authorization list` does
+
+`/user authorization list` `{user?}`: **Brings up real-time user authorizations list**
+
+> Accepts user as a parameter, when not specified uses your `current` user
+
+Here you can see all authorizations of the user, each with its action button, as well as some general actions buttons
+
+Adding authorizations to your user you are giving that authorization right to be recognised as your user
+
+By adding multiple discord authorizations you can bind multiple discord accounts to one pamello user, and have all of your data syncronised between them, because they will be recognised as the same user
+
+> Adding authorization doesnt require any confirmations from its side
+
+There is 2 mods `user authorization list` can be in, which determines what each authorization action button does:
+- `Select`: Select an authorization for the user
+- `Delete`: Delete the authrorization from the user
+
+The buttons to switch modes are located below the authorization list itself
+
+Other actions buttons:
+- `Add Authorization`: Create a new episode and add it to the song
+- `Reset`: Reset episodes of this song to its selected source
+
+> You can browse pages with `Prev`, `Page`, `Next` buttons, a `Page` buttons in particular brings up a modal to select the specific page number
 
 </details>
 
@@ -216,6 +371,8 @@ Before playing the song for the first time bot **downloads and saves it locally*
 On playback itself instead of loading full song **pamello will load it in small chunks**, drastically **optimising load time and memory usage** during playback
 
 **Players & Speakers** are separated, and the players arent bound to any discord guild, **they are global entities**
+
+You can have as many speakers connected in one guild as many you will to create accounts for them, discord doesnt allow one bot to be in many voice channels of a single guild, so pamello will use other speakers accounts in that case 
 
 <details>
 <summary>More about Players & Speakers use cases</summary>
