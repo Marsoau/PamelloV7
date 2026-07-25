@@ -147,13 +147,13 @@ The first release is planned for **27.07.2026**
 
 `/add` `{songs}`: **Adds songs to your queue**
 
+> For songs you can use their ids, associations, urls, or PEQL points like favorite
+
 `/add-playlist` `{playlists}`: **Adds songs from playlists to your queue**
 
-For songs you can use their ids, associations, urls, or PEQL points like favorite
+> For playlists you can use their ids, names, and the favorite point too
 
-For playlists you can use their ids, names, and the favorite point too
-
-#### Some Examples Are
+#### Some examples
 
 `/add` `https://www.youtube.com/watch?v=nnmIzzCLmrU`
 
@@ -172,9 +172,11 @@ For playlists you can use their ids, names, and the favorite point too
 
 `/player info`: **Brings up real-time interactive player info**
 
-Here you can see your selected player's playback time, current song, episode, queue modes, and a few action buttons
+Here you can see your selected player's playback time, current song, episode, queue modes, and some action buttons
 
-If you don't have a selected player, you can create one with a button inside of the message, or choose an available one the same way
+Also at the bottom you can see the currently connected players, and who is listening to them
+
+> If you don't have a selected player, you can create one with a button inside of the message, or choose an available one the same way
 
 What the buttons do:
 
@@ -184,22 +186,22 @@ What the buttons do:
 - `Rewind`: Brings up a modal in which you can enter the time you want to rewind the currently playing song to
 - `Skip`: Just skips the current song
 
-Queue modes:
+What the queue modes do:
 
-- `Random`: Play queue songs in a random order
-- `Reversed`: Play queue songs in a reversed order
-- `No Leftovers`: Remove songs from the queue after they are played
-- `Feed Random`: Feed the queue with random songs from the database when it gets empty
+- `Random`: Plays queue songs in a random order
+- `Reversed`: Plays queue songs in a reversed order
+- `No Leftovers`: Removes songs from the queue after they are played
+- `Feed Random`: Feeds the queue with random songs from the database when it gets empty
 
-Also at the bottom you can see the currently connected players, and who is listening to them
+`/player pause-toggle`: **Toggles the pause state of your player**
 
-There is also the `/player pause-toggle` command that just toggles the pause state, and responds with an interactive message to switch it back when you want
+> Responds with an interactive message to switch it back when you want
 
 </details>
 
 <details>
 <summary><h3>Managing a queue</h3></summary>
-  
+
 `/queue`: **Brings up a real-time interactive queue**
 
 Here you can see your selected player's queue songs, as well as some action buttons
@@ -228,30 +230,56 @@ What the buttons do:
 
 - `Rename`: Brings up a modal for you to input the new name
 - `Change Cover`: Not implemented yet
-- `Reset`: Reset the song basic info like name, cover, and episodes to its source
+- `Reset`: Resets the song basic info like name, cover, and episodes to its source
 - `Add to queue`: Adds this song to your current queue, not available if you don't have one
 
 And about the sections:
 
 **Associations**: A list of associations for that song
 
-`Edit`: Brings up a modal for you to change/add/remove associations
+- `Edit`: Brings up a modal for you to change/add/remove associations
 
 **Favorite By Users**: A list of users that added this song to their favorites
 
-`Add`: Add this song to your favorites
+- `Add`: Adds this song to your favorites
 
 **Included In Playlists**: A list of playlists this song is included in
 
-`Remove All`: Remove this song from all playlists
+- `Remove All`: Removes this song from all playlists
 
 **Sources**: A list of sources for that song
 
-`Select`: Brings up a modal to select the main source for that song, this source will be used when resetting its info
+- `Select`: Brings up a modal to select the main source for that song, this source will be used when resetting its info
 
 **Episodes**: Displays the count of episodes that song has, hidden if the song doesn't have any
 
-`Show`: Sends the same message as the `/song episode list` command, more about it in [Managing song episodes](#managing-song-episodes)
+- `Show`: Sends the same message as the `/song episode list` command, more about it in [Managing song episodes](#managing-song-episodes)
+
+</details>
+
+<details>
+<summary><h3>Managing song episodes</h3></summary>
+
+`/song episode list` `{song?}`: **Brings up a real-time interactive song episodes list**
+
+> Accepts a song as a parameter, when not specified uses your `current` song
+
+Here you can see all of the song episodes, their start positions, start time, and an episode action button, as well as some general action buttons and mode switch buttons
+
+There are 3 modes `/song episode list` can be in, which determine what each episode action button does:
+
+- `Edit`: Edits the episode info, like its name, start time, and its auto skip status
+- `Delete`: Deletes the episode from the song
+- `Rewind`: Rewinds the playback to the episode, only available if this is the current song
+
+> The buttons to switch modes are located below the episodes list itself
+
+Other action buttons:
+
+- `Add Episode`: Creates a new episode and adds it to the song
+- `Reset`: Resets the episodes of this song to its selected source
+
+> You can browse pages with the `Prev`, `Page`, `Next` buttons, the `Page` button in particular brings up a modal to select a specific page number
 
 </details>
 
@@ -266,35 +294,11 @@ Here you can see the playlist id, name, addition date, owner user, protection st
 
 What the buttons do:
 
-- `Add to queue`: Adds this playlist songs to your current queue, not available if you don't have one
+- `Add to queue`: Adds this playlist's songs to your current queue, not available if you don't have one
 - `Rename`: Brings up a modal for you to input the new name
 - `Edit`: Brings up a modal with which you can edit the playlist by changing the songs order, removing songs, or adding new ones with PEQL (so ids, urls, points, etc.) into any position
 
 Playlists have only one owner, but can be browsed / used by everyone. You can also protect your playlist from changes by other users, or leave it public
-
-</details>
-
-<details>
-<summary><h3>Managing song episodes</h3></summary>
-
-`/song episode list` `{song?}`: **Brings up a real-time interactive song episodes list**
-
-> Accepts a song as a parameter, when not specified uses your `current` song
-
-Here you can see all of the song episodes, their start positions, start time, and an episode action button, as well as some general action buttons and mode switch buttons
-
-There are 3 modes `song episode list` can be in, which determine what each episode action button does:
-- `Edit`: Edit the episode info, like its name, start time, and its auto skip status
-- `Delete`: Delete the episode from the song
-- `Rewind`: Rewinds the playback to the episode, only available if this is the current song
-
-The buttons to switch modes are located below the episodes list itself
-
-Other action buttons:
-- `Add Episode`: Create a new episode and add it to the song
-- `Reset`: Reset the episodes of this song to its selected source
-
-> You can browse pages with the `Prev`, `Page`, `Next` buttons, the `Page` button in particular brings up a modal to select a specific page number
 
 </details>
 
@@ -305,14 +309,21 @@ Other action buttons:
 
 > Accepts a user as a parameter, when not specified uses your `current` user
 
-Here you can see all of your or another user's favorite songs, and a few action buttons
+Here you can see all of your or another user's favorite songs, as well as some action buttons
 
 What the buttons do:
-- `Edit`: Edit your favorite songs, so move/remove/add songs with PEQL (so ids, urls, points, etc.). Not available if these are not your favorites
-- `Clear`: Clear your favorite songs. Not available if these are not your favorites
-- `Add all to queue`: Add all of your favorite songs to your current queue, not available if you don't have one
+
+- `Edit`: Edits your favorite songs, so you can move/remove/add songs with PEQL (so ids, urls, points, etc.). Not available if these are not your favorites
+- `Clear`: Clears your favorite songs. Not available if these are not your favorites
+- `Add all to queue`: Adds all of your favorite songs to your current queue, not available if you don't have one
 
 > You can browse pages with the `Prev`, `Page`, `Next` buttons, the `Page` button in particular brings up a modal to select a specific page number
+
+`/playlist favorite list` `{user?}`: **Brings up a real-time interactive favorite playlists list**
+
+> Accepts a user as a parameter, when not specified uses your `current` user
+
+//todo this command is referenced here and in Managing your user, but it is never documented
 
 </details>
 
@@ -326,6 +337,7 @@ What the buttons do:
 Here you can see the user join date (the first time the user interacted with Pamello), favorite songs and playlists count, and an authorizations preview
 
 What the "Show" buttons do:
+
 - **For Favorite Songs**: Sends the same message as `/song favorite list` does
 - **For Favorite Playlists**: Sends the same message as `/playlist favorite list` does
 - **For Authorizations**: Sends the same message as `/user authorization list` does
@@ -336,21 +348,23 @@ What the "Show" buttons do:
 
 Here you can see all authorizations of the user, each with its action button, as well as some general action buttons
 
+There are 2 modes `/user authorization list` can be in, which determine what each authorization action button does:
+
+- `Select`: Selects an authorization for the user
+- `Delete`: Deletes the authorization from the user
+
+> The buttons to switch modes are located below the authorizations list itself
+
+Other action buttons:
+
+- `Add Authorization`: Creates a new authorization and adds it to your user
+- `Reset`: //todo describe this button, the old text here was copy-pasted from the episodes section
+
 By adding an authorization to your user, you give it the right to be recognized as your user
 
 By adding multiple Discord authorizations you can bind multiple Discord accounts to one Pamello user, and have all of your data synchronized between them, because they will be recognized as the same user
 
 > Adding an authorization doesn't require any confirmation from its side
-
-There are 2 modes `user authorization list` can be in, which determine what each authorization action button does:
-- `Select`: Select an authorization for the user
-- `Delete`: Delete the authorization from the user
-
-The buttons to switch modes are located below the authorizations list itself
-
-Other action buttons:
-- `Add Authorization`: Create a new authorization and add it to your user
-- `Reset`: //todo describe this button, the old text here was copy-pasted from the episodes section
 
 > You can browse pages with the `Prev`, `Page`, `Next` buttons, the `Page` button in particular brings up a modal to select a specific page number
 
