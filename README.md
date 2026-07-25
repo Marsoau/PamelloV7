@@ -72,7 +72,49 @@ This is the token you need to paste into a config, if you haven't installed the 
 <details>
 <summary><h4>How to install PamelloV7</h4></summary>
 
-//todo
+Go to [download](#download) section and download your system release (this tutorial is for windows, but its pretty much the same on other systems too)
+
+After .zip archive is downloaded, extract it into any directory you'd like
+
+<img width="667" height="277" alt="image_2026-07-25_10-26-29" src="https://github.com/user-attachments/assets/4afd53a3-01ac-4289-bc10-964173bc219a" />
+
+Go to extracted directory, locate `start.bat` (or `start.sh`) file, and run it
+
+<img width="615" height="342" alt="image_2026-07-25_10-29-00" src="https://github.com/user-attachments/assets/64cf66e4-b6b1-4a49-aa2c-dcbd87c22907" />
+
+The console will open, with pamello saying it created a config example and where is it, copy that file path 
+
+<img width="1048" height="115" alt="image_2026-07-25_10-32-53" src="https://github.com/user-attachments/assets/6a6f7b89-70dc-4251-969f-d958449ac082" />
+
+Paste that path into the path input at the top of your explorer, and press Enter
+
+<img width="1002" height="182" alt="image_2026-07-25_10-39-42" src="https://github.com/user-attachments/assets/19f9b8ec-4917-4a2c-814b-e0d92627632f" />
+
+This will either open the file in your text editor, or ask you to select the app to open it with, select any text editor you want
+
+For now you can basically just replace `YOUR DISCORD BOT TOKEN HERE` with your discord bot token, but still **dont forget to read the IMPORTANT section** at the top for full instructions!
+
+<img width="1092" height="599" alt="image_2026-07-25_10-43-31" src="https://github.com/user-attachments/assets/c73bc832-760e-4161-8afc-c3c31daf5c03" />
+
+Your token should look like this
+
+<img width="737" height="134" alt="image_2026-07-25_10-55-08" src="https://github.com/user-attachments/assets/6870dfa7-892c-49e6-b740-163037479960" />
+
+After you done the edits, be sure to save the file, and close it
+
+(Though you can read some more if youre curious what else you can configure there)
+
+<img width="263" height="286" alt="image_2026-07-25_10-48-20" src="https://github.com/user-attachments/assets/583acca1-b1b7-4eb9-ab1c-0d291f4fba59" />
+
+And lastly, rename your `configEXAMPLE.jsonc` to `config.jsonc`
+
+<img width="444" height="96" alt="image_2026-07-25_10-49-04" src="https://github.com/user-attachments/assets/d4e01886-fd22-4e08-ae3a-1a5d082427e3" />
+
+This is how it should look like
+
+<img width="400" height="58" alt="image" src="https://github.com/user-attachments/assets/d01db416-7db2-447d-8399-1f79a5742534" />
+
+Thats it, now you can start the `start.bat` once more, this time pamello should start normally
 
 </details>
 
