@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using NetCord;
 using NetCord.Rest;
@@ -58,10 +59,24 @@ public partial class InteractionTokenizationService : IPamelloService
         foreach (var value in values) {
             if (value is null) continue;
             
-            properties.AddOptions(new StringMenuSelectOptionProperties(value.ToString(), value.ToString("D")).WithDefault(Equals(value, defaultValue as Enum)));
+            properties.AddOptions(new StringMenuSelectOptionProperties(SplitCamelCase(value.ToString()), value.ToString("D")).WithDefault(Equals(value, defaultValue as Enum)));
         }
         
         return properties;
+        
+        string SplitCamelCase(string input) {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < input.Length; i++) {
+                if (i > 0 && char.IsUpper(input[i])) {
+                    sb.Append(' ');
+                }
+                
+                sb.Append(input[i]);
+            }
+
+            return sb.ToString();
+        }
     }
 
     public ButtonProperties ModalButton(
