@@ -1,22 +1,30 @@
 using NetCord.Rest;
 using PamelloV7.Module.Marsoau.NetCord.Builders.Base;
+using PamelloV7.Module.Marsoau.NetCord.Builders.Help.Guides;
 
 namespace PamelloV7.Module.Marsoau.NetCord.Builders.Help;
 
 public class HelpGuidesBuilder : DiscordComponentBuilder
 {
+    public enum GuideCategory
+    {
+        AddingSongs,
+    }
+    
+    public GuideCategory Category { get; private set; } = GuideCategory.AddingSongs;
+    
     public IMessageComponentProperties?[] Build() {
-        var container = new ComponentContainerProperties();
-
-        container.AddComponents(
-            MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/share/video/adding.mp4"))
-            ]),
-            new TextDisplayProperties("g")
-        );
+        var categoryComponents = Category switch {
+            GuideCategory.AddingSongs => Builder<HelpGuideAddingSongsBuilder>().Build(),
+            _ => []
+        };
 
         return [
-            container
+            ..categoryComponents,
+            Select(Category, async category => {
+                Category = category;
+                await Message.Refresh();
+            })
         ];
     }
 }
