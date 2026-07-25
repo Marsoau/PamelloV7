@@ -116,6 +116,12 @@ This is how it should look like
 
 Thats it, now you can start the `start.bat` once more, this time pamello should start normally
 
+Optionally, you can also Drag & Drop `start.bat` on your desctop **while holding the `alt` key**, this will create a shortcut to it
+
+<img width="499" height="163" alt="image_2026-07-25_11-47-53" src="https://github.com/user-attachments/assets/60d1317a-376c-4fd1-a747-8bbb711775b2" />
+
+(Make sure to hold `alt` when youre doing that, if you dont, you will move/copy the `start.bat` and it won't work)
+
 </details>
 
 ### Download
