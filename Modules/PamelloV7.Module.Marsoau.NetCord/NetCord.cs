@@ -77,7 +77,7 @@ public class NetCord : IPamelloModule
                 await clients.Main.Rest.BulkOverwriteGlobalApplicationCommandsAsync(clients.Main.Id, properties);
             }
             else {
-                Output.Write("Guild registration");
+                Output.Write("Guild registration (this can take a long time sometimes, you can skip this by setting SkipRegistration to true in config)");
                 var registers = NetCordConfig.Root.Commands.GuildsIds.Select(id => {
                     Output.Write($"| {id}");
                     

@@ -4,25 +4,27 @@
 There are two mandatory changes you have to make:
 1. Replace "YOUR DISCORD BOT TOKEN HERE" with your discord bot token
 2. Choose between:
-- Ignoring osu! module, through app with crush if you try to interact with this module
+- Ignoring osu! module, but then you will have bugs if you interact with osu!
 - Replacing "OSU APP ID" and "OSU APP SECRET" with your osu! api application id and secret
-- Removing "PamelloV7.Module.Marsoau.Osu.pv7m" file from the /Modules directory in your bot installation directory
+- Removing "PamelloV7.Module.Marsoau.Osu.pv7m" file from the /Modules directory in your bot installation
 
 After you've done that, you can rename this file to "config.jsonc" (without the "EXAMPLE" part) and start the bot
 */
 
 {
     "Server": {
-        "Host": "http://*:41630", // the API host, you can leave it as is or replace it if you know what you're doing
+        "Host": "http://*:41630", // the API host, you can leave it as is or change it if you know what you're doing
         "HostName": "localhost", // used in links, you can leave it as is or replace it with your public ip / domain
         "AllowUserCreation": true, // if false, no new users can be created. only existing users can continue using the bot
         "MaximumQueryComplexity": 100 // the maximum number of sub-queries that can be caused by one query
     },
     "Marsoau/NetCord": {
         "Tokens": {
-            "Main": "YOUR DISCORD BOT TOKEN HERE", // replace text in "" with your bot token (yes, you have to leave the "")
+            "Main": "YOUR DISCORD BOT TOKEN HERE", // IMPORTANT: replace text in "" with your bot token (yes, you have to leave the "")
             "SpeakerTokens": [
-                // add more tokens for speaker bots here, all in "" and separated by comma
+                // you can add more tokens for speaker bots here, all in "" and separated by comma
+                //
+                // these bots will be used as additional accounts to connect to multiple voice channels in one guild (discord server)
             ]
         },
         "Commands": {
@@ -34,11 +36,12 @@ After you've done that, you can rename this file to "config.jsonc" (without the 
                 // false: register commands only in the guilds specified in GuildsIds
                 //
                 // guild id registration is faster than global registration,
-                // you can try it out if global registration doesn't work for you for some reason
+                // you can try it out if global registration doesn't work for you for some reason or takes a long time
             "SkipRegistration": false,
                 // if you already have commands registered and your bot stalls on startup, try setting this to true
             "GuildsIds": [
-                // add guild ids here, without "", just numbers separated by comma
+                // you can add guild ids here for guild commands registration
+                // without "", just numbers separated by comma
             ],
             "UpdatableCommandsLifetime": 240
                 // minimum lifetime of updatable messages in seconds
@@ -49,9 +52,8 @@ After you've done that, you can rename this file to "config.jsonc" (without the 
         }
     },
     "Marsoau/Osu": {
-        // if you don't want to use osu! module, you can ignore this
-        // or you can remove "PamelloV7.Module.Marsoau.Osu.pv7m" file
-        // from /Modules directory in your bot installation directory
+        // if you don't want to use osu! module, you can ignore this, but then you will have bugs interacting with osu!
+        // or you can remove "PamelloV7.Module.Marsoau.Osu.pv7m" file from /Modules directory in your bot installation directory
         
         "Authorization": {
             "ApplicationId": "OSU APP ID", // replace text in "" with your osu! api application id
