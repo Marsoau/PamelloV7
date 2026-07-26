@@ -145,9 +145,13 @@ https://github.com/user-attachments/assets/2922f150-c030-4485-ac30-eafdd17d2d52
 <details open>
 <summary><h3>Adding songs</h3></summary>
 
+<img width="358" height="125" alt="image_2026-07-26_19-48-41" src="https://github.com/user-attachments/assets/f2057a7c-1467-4038-a758-79acf260e7bc" />
+
 `/add` `{songs}`: **Adds songs to your queue**
 
 > For songs you can use their ids, associations, urls, or PEQL points like favorite
+
+<img width="298" height="224" alt="image_2026-07-26_19-48-41 (2)" src="https://github.com/user-attachments/assets/a8c9acdf-635e-48a0-a3d6-6f2d85da3e7e" />
 
 `/add-playlist` `{playlists}`: **Adds songs from playlists to your queue**
 
@@ -169,6 +173,8 @@ https://github.com/user-attachments/assets/2922f150-c030-4485-ac30-eafdd17d2d52
 
 <details open>
 <summary><h3>Managing a player</h3></summary>
+
+<img width="439" height="553" alt="image_2026-07-26_19-39-08" src="https://github.com/user-attachments/assets/db21276e-5c6f-4bf7-9010-757bf6bb093f" />
 
 `/player info`: **Brings up real-time interactive player info**
 
@@ -202,6 +208,8 @@ What the queue modes do:
 <details open>
 <summary><h3>Managing a queue</h3></summary>
 
+<img width="433" height="362" alt="image_2026-07-26_19-44-18" src="https://github.com/user-attachments/assets/12589070-e2b8-4c94-b0b9-0c8a23697fc2" />
+
 `/queue`: **Brings up a real-time interactive queue**
 
 Here you can see your selected player's queue songs, as well as some action buttons
@@ -219,6 +227,8 @@ What the buttons do:
 
 <details>
 <summary><h3>Managing songs</h3></summary>
+
+<img width="409" height="565" alt="image_2026-07-26_19-53-22" src="https://github.com/user-attachments/assets/5dc078f1-b519-4e29-b744-19fc79200f39" />
 
 `/song info` `{song?}`: **Brings up real-time interactive song info**
 
@@ -242,6 +252,7 @@ And about the sections:
 **Favorite By Users**: A list of users that added this song to their favorites
 
 - `Add`: Adds this song to your favorites
+- `Remove`: Remove this song from your favorites
 
 **Included In Playlists**: A list of playlists this song is included in
 
@@ -260,7 +271,7 @@ And about the sections:
 <details>
 <summary><h3>Managing song episodes</h3></summary>
 
-https://github.com/user-attachments/assets/6d8f4ed5-527f-4313-8e5b-74ddc5cd32f3
+<img width="482" height="468" alt="image_2026-07-26_19-51-51" src="https://github.com/user-attachments/assets/fba52017-7fa8-466c-8ea6-298bfd577594" />
 
 `/song episode list` `{song?}`: **Brings up a real-time interactive song episodes list**
 
@@ -288,6 +299,8 @@ Other action buttons:
 <details>
 <summary><h3>Managing playlists</h3></summary>
 
+<img width="321" height="470" alt="image_2026-07-26_19-56-27" src="https://github.com/user-attachments/assets/b550e6b1-4c31-40b5-94fd-907f551f1006" />
+
 `/playlist info` `{playlist}`: **Brings up real-time interactive playlist info**
 
 > Accepts a playlist as a required parameter
@@ -307,9 +320,17 @@ Playlists have only one owner, but can be browsed / used by everyone. You can al
 <details>
 <summary><h3>Managing favorite songs & playlists</h3></summary>
 
+<img width="403" height="419" alt="image_2026-07-26_20-00-04" src="https://github.com/user-attachments/assets/df6add2a-431a-4246-bdbc-eebb0a5b9d35" />
+
 `/song favorite list` `{user?}`: **Brings up a real-time interactive favorite songs list**
 
 > Accepts a user as a parameter, when not specified uses your `current` user
+
+`/playlist favorite list` `{user?}`: **Brings up a real-time interactive favorite playlists list**
+
+> Accepts a user as a parameter, when not specified uses your `current` user
+
+Playlists & Songs favorites are baiscally the same, so i'll describe songs variant here
 
 Here you can see all of your or another user's favorite songs, as well as some action buttons
 
@@ -321,16 +342,12 @@ What the buttons do:
 
 > You can browse pages with the `Prev`, `Page`, `Next` buttons, the `Page` button in particular brings up a modal to select a specific page number
 
-`/playlist favorite list` `{user?}`: **Brings up a real-time interactive favorite playlists list**
-
-> Accepts a user as a parameter, when not specified uses your `current` user
-
-//todo this command is referenced here and in Managing your user, but it is never documented
-
 </details>
 
 <details>
 <summary><h3>Managing your user</h3></summary>
+
+<img width="287" height="382" alt="image_2026-07-26_20-07-41" src="https://github.com/user-attachments/assets/7921bb74-e682-4f0b-9db3-7fa0b354cc9c" />
 
 `/user info` `{user?}`: **Brings up real-time interactive user info**
 
@@ -343,6 +360,8 @@ What the "Show" buttons do:
 - **For Favorite Songs**: Sends the same message as `/song favorite list` does
 - **For Favorite Playlists**: Sends the same message as `/playlist favorite list` does
 - **For Authorizations**: Sends the same message as `/user authorization list` does
+
+<img width="287" height="368" alt="image_2026-07-26_20-07-41 (2)" src="https://github.com/user-attachments/assets/d71e8fdc-8efd-4dd2-ae2d-cb3ec80d04c0" />
 
 `/user authorization list` `{user?}`: **Brings up a real-time interactive user authorizations list**
 
