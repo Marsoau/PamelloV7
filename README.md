@@ -4,8 +4,6 @@ A **modern, functional, easy to use** Music Bot
 
 > _Note: This README is currently in an unfinished state until the release date on 27.07.2026_
 
-> *Note: PamelloV7 is still in very active development, but is already in a **good enough state** to use. Please join the [PamelloV7 Development]() Discord server to give your feedback, suggestions, or report your problem. You can also always just [DM me]()*
-
 ## Features
 
 - [Simple setup](#setup), **no Lavalink**, just paste your token into a config
@@ -128,11 +126,13 @@ Optionally, you can also Drag & Drop `start.bat` onto your desktop **while holdi
 
 The first release is planned for **27.07.2026**
 
+> *Note: PamelloV7 is still in very active development, but is already in a **good enough state** to use. Please join the [PamelloV7 Development]() Discord server to give your feedback, suggestions, or report your problem. You can also always just [DM me]()*
+
 ## Discord
 
-**Fewer commands - more buttons**
+**Always updated interactive messages**
 
-//todo video here
+https://github.com/user-attachments/assets/2922f150-c030-4485-ac30-eafdd17d2d52
 
 **PamelloV7** uses **ComponentsV2 and Modals** for much better interactive messages, with markdown formatting, containers, sections, modals, and **buttons right inside of a message** instead of them being stacked below it like with the old components
 
@@ -167,7 +167,7 @@ The first release is planned for **27.07.2026**
 
 </details>
 
-<details>
+<details open>
 <summary><h3>Managing a player</h3></summary>
 
 `/player info`: **Brings up real-time interactive player info**
@@ -199,7 +199,7 @@ What the queue modes do:
 
 </details>
 
-<details>
+<details open>
 <summary><h3>Managing a queue</h3></summary>
 
 `/queue`: **Brings up a real-time interactive queue**
@@ -259,6 +259,8 @@ And about the sections:
 
 <details>
 <summary><h3>Managing song episodes</h3></summary>
+
+https://github.com/user-attachments/assets/6d8f4ed5-527f-4313-8e5b-74ddc5cd32f3
 
 `/song episode list` `{song?}`: **Brings up a real-time interactive song episodes list**
 
