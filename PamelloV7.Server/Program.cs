@@ -39,15 +39,15 @@ public class Program
 
     public static Task Main(string[] args) => new Program().MainAsync(args);
 
-    public async Task MainAsync(string[] args) {
+    public async Task<int> MainAsync(string[] args) {
         if (args is ["--version"]) {
             var attribute = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            if (attribute is null) return;
+            if (attribute is null) return 0;
             
             var version = attribute.InformationalVersion.Split('+')[0];
             Console.WriteLine(version);
             
-            return;
+            return 0;
         }
         
         _logger = new PamelloLogger();
@@ -69,7 +69,7 @@ public class Program
         }
         catch (PamelloExampleConfigException x) {
             Output.Write(x.Message, ELogLevel.Error);
-            return;
+            return -1;
         }
         
         _configLoader.FinishForServer();
@@ -86,12 +86,12 @@ public class Program
         _serverLoader.Load();
         _modulesLoader.Load();
             
-        if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return;
+        if (!_modulesLoader.EnsureDependenciesAreSatisfied()) return -2;
             
         _serverLoader.ConfigureAssemblyServices(aspBuilder.Services);
         _modulesLoader.Configure(aspBuilder.Services);
             
-        if (!EnsureServicesIsImplemented(aspBuilder.Services)) return;
+        if (!EnsureServicesIsImplemented(aspBuilder.Services)) return -3;
             
         _serverLoader.ConfigureApiServices(aspBuilder.Services);
             
@@ -121,11 +121,13 @@ public class Program
             }
             catch (ModuleStartupException x) {
                 Output.Write($"Module [{x.Module.Author}/{x.Module.Name}] failed to start: {x.Message}", ELogLevel.Error);
-                return;
+                return -4;
             }
         }
         
         await StartupApp();
+        
+        return 0;
     }
 
     private bool EnsureServicesIsImplemented(IServiceCollection services) {

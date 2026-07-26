@@ -23,7 +23,7 @@ public partial class Help
         {
             Introduction,
             Guides,
-            Commands,
+            //Commands,
         }
         
         public HelpCategory Category { get; private set; } = HelpCategory.Introduction;
