@@ -10,13 +10,17 @@ public class HelpGuideManagingFavoritesBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/share/video/managing-favorites.mp4"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/df6add2a-431a-4246-bdbc-eebb0a5b9d35"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/song favorite list` `{user?}`: **Brings up a real-time interactive favorite songs list**
                 > Accepts a user as a parameter, when not specified uses your `current` user
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
 
                 Here you can see all of your or another user's favorite songs, as well as some action buttons
                 ## What the buttons do

@@ -10,13 +10,17 @@ public class HelpGuideManagingSongEpisodesBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/share/readme/videos/pamello-episode-list.mp4"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/fba52017-7fa8-466c-8ea6-298bfd577594"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/song episode list` `{song?}`: **Brings up a real-time interactive song episodes list**
                 > Accepts a song as a parameter, when not specified uses your `current` song
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
                 
                 Here you can see all of the song episodes, their start positions, start time, and an episode action button, as well as some general action buttons and mode switch buttons
                 ## Modes

@@ -10,12 +10,17 @@ public class HelpGuideManagingPlayerBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/share/video/managing-queue.mp4"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/db21276e-5c6f-4bf7-9010-757bf6bb093f"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/player info`: **Brings up real-time interactive player info**
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
+                
                 Here you can see your selected player's playback time, current song, episode, queue modes, and some action buttons
                 
                 Also at the bottom you can see the currently connected speakers, and who is listening to them

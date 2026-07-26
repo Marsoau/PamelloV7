@@ -10,12 +10,16 @@ public class HelpGuideManagingQueueBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/published/readme/images/copy-token.png"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/12589070-e2b8-4c94-b0b9-0c8a23697fc2"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/queue`: **Brings up a real-time interactive queue**
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
                 Here you can see your selected player's queue songs, as well as some action buttons
                 ## What the buttons do
                 - `Add Songs`: Brings up a modal for you to query more songs, you can paste urls there or any other PEQL queries

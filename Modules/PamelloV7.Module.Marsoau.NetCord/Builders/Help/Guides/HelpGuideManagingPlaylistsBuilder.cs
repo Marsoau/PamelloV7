@@ -10,13 +10,17 @@ public class HelpGuideManagingPlaylistsBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/published/readme/images/copy-token.png"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/b550e6b1-4c31-40b5-94fd-907f551f1006"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/playlist info` `{playlist}`: **Brings up real-time interactive playlist info**
                 > Accepts a playlist as a required parameter
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
 
                 Here you can see the playlist id, name, addition date, owner user, protection state, and all of its songs, as well as some action buttons
                 ## What the buttons do

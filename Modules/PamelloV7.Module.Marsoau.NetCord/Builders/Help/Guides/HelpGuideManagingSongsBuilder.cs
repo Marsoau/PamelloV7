@@ -10,13 +10,17 @@ public class HelpGuideManagingSongsBuilder : DiscordComponentBuilder
 
         container.AddComponents(
             MediaGalleryProperties.Create([
-                new MediaGalleryItemProperties(new ComponentMediaProperties("https://storage.marsoau.com/share/video/managing-songs.mp4"))
+                new MediaGalleryItemProperties(new ComponentMediaProperties("https://github.com/user-attachments/assets/5dc078f1-b519-4e29-b744-19fc79200f39"))
             ]),
-            new ComponentSeparatorProperties(),
             new TextDisplayProperties(
                 """
                 ### `/song info` `{song?}`: **Brings up real-time interactive song info**
                 > Accepts a song as a parameter, when not specified uses your `current` song
+                """
+            ),
+            new ComponentSeparatorProperties(),
+            new TextDisplayProperties(
+                """
                 
                 Here you can see the song name, cover, id, addition date, adder user, some action buttons and dedicated sections
                 ## What the buttons do
