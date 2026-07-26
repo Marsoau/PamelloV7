@@ -16,7 +16,8 @@ A **modern, functional, easy to use** Music Bot
 - [Browse all songs](#database), playlists, and favorites of **any user**
 - [PEQL](#peql) to query multiple songs or other entities with a single query
 - [Play To Radio](#radio) to listen in games like Euro Truck Simulator 2, or **any other app** that supports internet radio *(HTTP MP3 audio stream)*
-- Supports multiple music platforms: **YouTube**, **SoundCloud**, **osu!**, and more like Spotify and others in the future
+- Supports multiple music platforms: **YouTube**, **SoundCloud**, **osu!**, thats not much but more like Spotify and others will be added in the future
+- [Easy updates](#updates), just run one file and new version will be installed. Also dependencies like `yt-dlp`, `dave`, and others update automatically on each startup
 
 ## Planned Features
 
