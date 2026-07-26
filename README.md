@@ -36,7 +36,7 @@ A **modern, functional, easy to use** Music Bot
 ## Setup
 
 <details>
-<summary><h4>How to create your Discord bot account</h4></summary>
+<summary><h3>How to create your Discord bot account</h3></summary>
 
 Go to https://discord.com/developers/applications, log into your account, and click "New Application", you can give it any name you want
 
@@ -70,7 +70,7 @@ This is the token you need to paste into a config. If you haven't installed the 
 </details>
 
 <details>
-<summary><h4>How to install PamelloV7</h4></summary>
+<summary><h3>How to install PamelloV7</h3></summary>
 
 Go to the [download](#download) section and download the release for your system (this tutorial is for Windows, but it's pretty much the same on other systems too)
 
@@ -358,7 +358,6 @@ There are 2 modes `/user authorization list` can be in, which determine what eac
 Other action buttons:
 
 - `Add Authorization`: Creates a new authorization and adds it to your user
-- `Reset`: //todo describe this button, the old text here was copy-pasted from the episodes section
 
 By adding an authorization to your user, you give it the right to be recognized as your user
 
