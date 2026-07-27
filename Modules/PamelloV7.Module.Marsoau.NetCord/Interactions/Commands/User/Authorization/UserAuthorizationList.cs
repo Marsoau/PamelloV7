@@ -140,8 +140,8 @@ public partial class UserAuthorizationList
 
             return [
                 container,
-                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, user.Authorizations.Count),
-                Builder<BasicButtonsBuilder>().RefreshButtonRow()
+                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, user.Authorizations.Count)
+                //Builder<BasicButtonsBuilder>().RefreshButtonRow()
             ];
         }
     }

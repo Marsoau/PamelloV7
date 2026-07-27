@@ -40,8 +40,8 @@ public partial class Help
                     Category = category;
                     await Message.Refresh();
                 }),
-                ..categoryComponents,
-                Builder<BasicButtonsBuilder>().RefreshButtonRow()
+                ..categoryComponents
+                //Builder<BasicButtonsBuilder>().RefreshButtonRow()
             ];
         }
     }

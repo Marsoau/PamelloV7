@@ -134,8 +134,8 @@ public partial class SongEpisodeList
 
             return [
                 container,
-                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, song.Episodes.Count),
-                Builder<BasicButtonsBuilder>().RefreshButtonRow()
+                Builder<BasicButtonsBuilder>().PageButtons(page, pageSize, song.Episodes.Count)
+                //Builder<BasicButtonsBuilder>().RefreshButtonRow()
             ];
         }
     }
