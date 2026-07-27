@@ -60,6 +60,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -73,11 +77,58 @@ jobs:
           else
             echo "value=false" >> "$GITHUB_OUTPUT"
           fi
+      - name: Build changelog
+        run: |
+          TAG="${{ github.ref_name }}"
+          REPO_URL="https://github.com/${{ github.repository }}"
+
+          if [[ "$TAG" == *-* ]]; then
+            # Pre-release: compare against the nearest previous tag of any kind
+            PREV=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+          else
+            # Stable release: compare against the previous stable tag only,
+            # so everything released in the pre-releases since then is included
+            PREV=$(git describe --tags --abbrev=0 --exclude '*-*' "$TAG^" 2>/dev/null || true)
+          fi
+
+          echo "Current tag:  $TAG"
+          echo "Previous tag: ${PREV:-<none, using full history>}"
+
+          RANGE="${PREV:+$PREV..}$TAG"
+          git log --no-merges --format='%s (%h)' "$RANGE" > commits.txt
+
+          grep -iE '^(feature|feat) *:' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > features.txt || true
+          grep -iE '^fix *:' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > fixes.txt || true
+
+          {
+            if [ -s features.txt ]; then
+              echo "### Features"
+              echo
+              cat features.txt
+              echo
+            fi
+            if [ -s fixes.txt ]; then
+              echo "### Bug Fixes"
+              echo
+              cat fixes.txt
+              echo
+            fi
+            if [ ! -s features.txt ] && [ ! -s fixes.txt ]; then
+              echo "_No user-facing changes in this release._"
+              echo
+            fi
+            if [ -n "$PREV" ]; then
+              echo "**Full Changelog**: $REPO_URL/compare/$PREV...$TAG"
+            fi
+          } > RELEASE_NOTES.md
+
+          cat RELEASE_NOTES.md
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           prerelease: ${{ steps.prerelease.outputs.value }}
+          body_path: RELEASE_NOTES.md
           files: '*.zip'
           fail_on_unmatched_files: true
