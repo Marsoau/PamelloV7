@@ -128,30 +128,58 @@ jobs:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
+          IS_PRERELEASE: ${{ steps.prerelease.outputs.value }}
+          RELEASE_ROLE_ID: "1531251674214174740"
+          PRERELEASE_ROLE_ID: "1531251822382288938"
         run: |
           if [ -z "$WEBHOOK" ]; then
             echo "DISCORD_WEBHOOK secret not set, skipping notification"
             exit 0
           fi
 
-          DESC=$(head -c 3800 RELEASE_NOTES.md)
+          if [ -s changes.txt ]; then
+            CHANGES=$(printf "## What's Changed\n%s" "$(head -c 3000 changes.txt)")
+          else
+            CHANGES="## What's Changed"$'\n'"_No user-facing changes in this release_"
+          fi
+
+          FULL=$(grep '^\*\*Full Changelog\*\*' RELEASE_NOTES.md || true)
+
+          BASE="https://github.com/$REPO/releases/download/$TAG/PamelloV7.Server-$TAG"
+          DOWNLOADS=$(printf '## Downloads\n* [Windows](%s-win-x64.zip)\n* [Linux](%s-linux-x64.zip)\n* [macOS](%s-osx-x64.zip)' "$BASE" "$BASE" "$BASE")
+
+          UPDATE='Run your `update.bat`/`update.sh` to update'
+
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            ROLE_IDS="$PRERELEASE_ROLE_ID"
+          else
+            ROLE_IDS="$RELEASE_ROLE_ID $PRERELEASE_ROLE_ID"
+          fi
 
           jq -n \
-            --arg title "PamelloV7 $TAG" \
-            --arg url "https://github.com/$REPO/releases/tag/$TAG" \
-            --arg desc "$DESC" \
-            '{
-              username: "PamelloV7",
-              embeds: [{
-                title: $title,
-                url: $url,
-                description: $desc,
-                color: 5793266
-              }],
-              allowed_mentions: { parse: [] }
-            }' > discord.json
+            --arg title "# PamelloV7 $TAG" \
+            --arg changes "$CHANGES" \
+            --arg full "$FULL" \
+            --arg downloads "$DOWNLOADS" \
+            --arg update "$UPDATE" \
+            --arg roles "$ROLE_IDS" \
+            'def sep: { type: 14, divider: true, spacing: 1 };
+             def text($c): { type: 10, content: $c };
+             ($roles | split(" ") | map(select(. != "" and . != "000000000000000000"))) as $ids |
+             {
+               username: "PamelloV7",
+               flags: 32768,
+               allowed_mentions: { parse: [], roles: $ids },
+               components: (
+                 [ text($title), sep, text($changes) ]
+                 + (if $full == "" then [] else [ sep, text($full) ] end)
+                 + [ sep, text($downloads), sep, text($update) ]
+                 + (if ($ids | length) == 0 then []
+                    else [ sep, text($ids | map("<@&" + . + ">") | join(" ")) ] end)
+               )
+             }' > discord.json
 
           curl -sS -f -X POST \
             -H "Content-Type: application/json" \
             -d @discord.json \
-            "$WEBHOOK"
+            "$WEBHOOK?with_components=true"
