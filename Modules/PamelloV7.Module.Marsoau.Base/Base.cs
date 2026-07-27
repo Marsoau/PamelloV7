@@ -36,9 +36,21 @@ public class Base : IPamelloModule
             if (dependency.IsInstalled) continue;
             
             Output.Write("Downloading...");
+            
+            Console.CursorVisible = false;
             await dependency.DownloadOrUpdateAsync((downloaded, from) => {
-                Output.Write($"Downloaded {downloaded} from {from}");
+                const int length = 24;
+                
+                var progress = (float)downloaded / from;
+                
+                var filled = (int)(length * progress);
+                var empty = length - filled;
+                
+                Console.Write($"\r<{new string('-', filled)}{new string(' ', empty)}> {progress * 100:0}%");
             });
+            Console.WriteLine();
+            Console.CursorVisible = true;
+            
             Output.Write($"Done, Now installed: {dependency.IsInstalled}");
         }
     }
