@@ -34,7 +34,7 @@ jobs:
           OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
         run: |
           os_key="${{ matrix.runtime }}"
-          os_key="${os_key%%-*}"          # win-x64 -> win, linux-x64 -> linux, osx-x64 -> osx
+          os_key="${os_key%%-*}"
           script_dir="Scripts/$os_key"
           if [ -d "$script_dir" ]; then
             cp "$script_dir"/. "$OUT_DIR"/ -R
@@ -83,11 +83,8 @@ jobs:
           REPO_URL="https://github.com/${{ github.repository }}"
 
           if [[ "$TAG" == *-* ]]; then
-            # Pre-release: compare against the nearest previous tag of any kind
             PREV=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
           else
-            # Stable release: compare against the previous stable tag only,
-            # so everything released in the pre-releases since then is included
             PREV=$(git describe --tags --abbrev=0 --exclude '*-*' "$TAG^" 2>/dev/null || true)
           fi
 
@@ -95,11 +92,11 @@ jobs:
           echo "Previous tag: ${PREV:-<none, using full history>}"
 
           RANGE="${PREV:+$PREV..}$TAG"
-          # --reverse: oldest first, same ordering GitHub uses
           git log --no-merges --reverse --format='%s (%h)' "$RANGE" > commits.txt
 
-          # Keep only "change:" commits, strip the prefix, turn into bullets
-          grep -iE '^change *: *' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > changes.txt || true
+          grep -iE '^change *: *' commits.txt \
+            | sed -E 's/^[^:]*: *//; s/^/* /' \
+            | LC_ALL=C sort -f -s -k2,2 > changes.txt || true
 
           {
             if [ -s changes.txt ]; then
