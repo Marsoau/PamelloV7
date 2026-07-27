@@ -21,6 +21,7 @@ A **modern, functional, easy to use** Music Bot
 
 ## Planned Features
 
+- [Song Search & Recommendations](), so you can find new music right from the bot, with recommendations from platforms like YouTube
 - [Client App](#client-app) to control playback, browse songs and **listen to music directly**, even without a platform like Discord
 - [Launcher App](#launcher-app) **to automate installation, configuration, and updates** of the Server *(bot)*, Client, and Modules
 - [Extensions](#modules) using modules or scripts *(aka plugins, mods)*
