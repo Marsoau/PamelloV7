@@ -37,7 +37,7 @@ public class Program
         
     public WebApplication Asp { get; set; } = null!;
 
-    public static Task Main(string[] args) => new Program().MainAsync(args);
+    public static Task<int> Main(string[] args) => new Program().MainAsync(args);
 
     public async Task<int> MainAsync(string[] args) {
         if (args is ["--version"]) {
