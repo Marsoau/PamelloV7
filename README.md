@@ -2,8 +2,6 @@
 
 A **modern, functional, easy to use** Music Bot
 
-> _Note: This README is currently in an unfinished state until the release date on 27.07.2026_
-
 ## Features
 
 - [Simple setup](#setup), **no Lavalink**, just paste your token into a config
@@ -128,7 +126,7 @@ Optionally, you can also Drag & Drop `start.bat` onto your desktop **while holdi
 
 The first release is planned for **27.07.2026**
 
-> *Note: PamelloV7 is still in very active development, but is already in a **good enough state** to use. Please join the [PamelloV7 Development]() Discord server to give your feedback, suggestions, or report your problem. You can also always just [DM me]()*
+> ***Important Note**: PamelloV7 is still in very active development, and it needs your feedback! Join the [PamelloV7 Discord]() server to report problems, suggest features, or just tell me what you think*
 
 ## Discord
 
@@ -539,7 +537,7 @@ I don't use AI to write any significant code, documentation (like this whole REA
 
 I understand that my goals will take a lot of time, but this is what i want to do. These features are what i want PamelloV7 to have. This is my vision of it
 
-## Goals
+## Long Term Goals
 
 ### Framework 3.0
 
