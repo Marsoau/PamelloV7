@@ -22,7 +22,7 @@ public class BasicComponentsBuilder : DiscordComponentBuilder
         IEnumerable<TPamelloEntity> entitiesEnumerable,
         int page,
         bool displayEntityName = false,
-        string noResultsMessage = "Nema rezultata"
+        string noResultsMessage = "No results"
     )
         where TPamelloEntity : IPamelloEntity
     {
