@@ -54,9 +54,9 @@ public abstract class Dependency
     }
     public abstract Task<string?> GetLatestVersionAsync();
 
-    protected abstract Task DownloadOrUpdateInternalAsync(DirectoryInfo directory);
+    protected abstract Task DownloadOrUpdateInternalAsync(DirectoryInfo directory, Action<int, int>? progressCallback);
 
-    public async Task DownloadOrUpdateAsync() {
+    public async Task DownloadOrUpdateAsync(Action<int, int>? progressCallback = null) {
         if (_downloadTask is not null) {
             await _downloadTask;
             return;
@@ -64,7 +64,7 @@ public abstract class Dependency
         
         var directory = GetDirectory();
         
-        _downloadTask = DownloadOrUpdateInternalAsync(directory);
+        _downloadTask = DownloadOrUpdateInternalAsync(directory, progressCallback);
 
         var version = await GetLatestVersionAsync();
         

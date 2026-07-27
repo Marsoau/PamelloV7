@@ -38,7 +38,7 @@ public abstract class SingleFileDependency : Dependency
         }
     }
 
-    protected override async Task DownloadOrUpdateInternalAsync(DirectoryInfo directory) {
+    protected override async Task DownloadOrUpdateInternalAsync(DirectoryInfo directory, Action<int, int>? progressCallback) {
         if (string.IsNullOrWhiteSpace(DownloadUrlLinux)) return;
         
         var client = _clientFactory.CreateClient();
@@ -55,9 +55,28 @@ public abstract class SingleFileDependency : Dependency
             url = DownloadUrlMacOs;
         }
         else return;
+        
+        const int maxProgress = 100;
 
-        var fileBytes = await client.GetByteArrayAsync(url);
-        await File.WriteAllBytesAsync(file.FullName, fileBytes);
+        using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+
+        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+
+        await using var httpStream = await response.Content.ReadAsStreamAsync();
+        await using var fileStream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
+
+        var buffer = new byte[81920];
+        var totalRead = 0;
+        int bytesRead;
+        
+        while ((bytesRead = await httpStream.ReadAsync(buffer)) > 0) {
+            await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+            
+            totalRead += bytesRead;
+            
+            progressCallback?.Invoke((int)((float)totalRead / totalBytes * maxProgress), maxProgress);
+        }
 
         if (IsExecutable && (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())) {
             File.SetUnixFileMode(file.FullName, File.GetUnixFileMode(file.FullName) | UnixFileMode.UserExecute);

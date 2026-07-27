@@ -36,7 +36,9 @@ public class Base : IPamelloModule
             if (dependency.IsInstalled) continue;
             
             Output.Write("Downloading...");
-            await dependency.DownloadOrUpdateAsync();
+            await dependency.DownloadOrUpdateAsync((downloaded, from) => {
+                Output.Write($"Downloaded {downloaded} from {from}");
+            });
             Output.Write($"Done, Now installed: {dependency.IsInstalled}");
         }
     }
