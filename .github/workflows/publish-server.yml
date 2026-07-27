@@ -95,30 +95,24 @@ jobs:
           echo "Previous tag: ${PREV:-<none, using full history>}"
 
           RANGE="${PREV:+$PREV..}$TAG"
-          git log --no-merges --format='%s (%h)' "$RANGE" > commits.txt
+          # --reverse: oldest first, same ordering GitHub uses
+          git log --no-merges --reverse --format='%s (%h)' "$RANGE" > commits.txt
 
-          grep -iE '^(feature|feat) *:' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > features.txt || true
-          grep -iE '^fix *:' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > fixes.txt || true
+          # Keep only "change:" commits, strip the prefix, turn into bullets
+          grep -iE '^change *: *' commits.txt | sed -E 's/^[^:]*: *//; s/^/* /' > changes.txt || true
 
           {
-            if [ -s features.txt ]; then
-              echo "### Features"
+            if [ -s changes.txt ]; then
+              echo "## What's Changed"
               echo
-              cat features.txt
+              cat changes.txt
               echo
-            fi
-            if [ -s fixes.txt ]; then
-              echo "### Bug Fixes"
-              echo
-              cat fixes.txt
-              echo
-            fi
-            if [ ! -s features.txt ] && [ ! -s fixes.txt ]; then
+            else
               echo "_No user-facing changes in this release_"
               echo
             fi
             if [ -n "$PREV" ]; then
-              echo "**Full Changelog**: $REPO_URL/compare/$PREV...$TAG"
+              echo "**Full Changelog**: [$PREV...$TAG]($REPO_URL/compare/$PREV...$TAG)"
             fi
           } > RELEASE_NOTES.md
 
