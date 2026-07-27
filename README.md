@@ -533,9 +533,7 @@ Pamello automatically updates dependencies on each startup, specifically: `yt-dl
 
 ## Approaches
 
-I started development of PamelloV7 back in 11.2024, and it also has 6 previous iterations starting from 05.2022. So i was working on Pamello for a long time just for myself and my friends, and now i want to try making it for other people too. This isn't some side project, so you can be sure i won't abandon it
-
-I don't use AI to write any significant code, documentation (like this whole README), or to design any architecture. I do all of that myself out of principle
+I started development of PamelloV7 back in 11.2024, and it has 6 previous iterations before that, starting from 05.2022. So i've been working on Pamello for a long time just for myself and my friends, and now i want to try making it for other people too. This isn't some side project i will abandon
 
 I understand that my goals will take a lot of time, but this is what i want to do. These features are what i want PamelloV7 to have. This is my vision of it
 
@@ -545,15 +543,17 @@ I understand that my goals will take a lot of time, but this is what i want to d
 
 A full rewrite of the current framework, which i'm doing right now
 
-**PamelloV7 2.0** already has a lot of features, but there are also a lot of features planned, and many of them are really huge, like the ones i list as the other goals here
+**PamelloV7 2.0** already has a lot of features, but there are even more planned, and some of them are really huge, like the other goals i list here
 
-All of these features are a lot of work, and implementing them requires a great and reliable framework at the base. The 2.0 version of the framework has a lot of problems that will specifically backfire in the long run, and that's why i'm fully rewriting it, and will rewrite Pamello itself as 3.0 too, revising all of the past mistakes and designing the new framework in a more resilient and future proof way
+Big features like those need a great and reliable framework at the base, and the 2.0 one has problems that will backfire in the long run. So i'm rewriting it fully as 3.0, revising my past mistakes and designing the new framework in a more resilient and future proof way
 
-That is also why Modules & API won't be "released" in 2.0. The framework and the API will change a lot in 3.0, and 3.0 is the version i want to focus on writing the documentation for
+That is also why Modules & API won't be "released" in 2.0. Both of them will change completely in the rewrite, and the new version is the one i want to focus on writing the documentation for
 
-The reason why i'm releasing 2.0 before 3.0 is that 3.0 will take a lot of time, and i have been putting the release off for long enough already, i just want to release it. But that's not the whole reason, i also plan on getting feedback from the released 2.0 version, and fixing anything i can in 2.X.X. And not only fixes, any new features that i consider reasonable to add in 2.0, i will add in 2.0
+I'm releasing 2.0 first because 3.0 will take a long time. And 2.0 is quite alright itself, so i want to get some feedback on it already
 
-3.0 will change a lot on the code side, and will add some features and fix some bugs just by replacing 2.0, but you as a user don't have to worry about anything breaking, i'm working on migrating all of the data from 2.0 to 3.0 without any changes. Though as a developer who was using the unreleased API & Modules, you do have something to worry about, the framework and the API change completely, and you will have to rewrite everything
+I will be working on Framework 3.0 and Pamello 2.X.X at the same time, fixing anything i can and adding any new features that i consider reasonable before the rewrite, and i will only start moving Pamello itself to the new framework after Framework 3.0 is done. All of your user data from 2.X.X will be migrated to 3.0.0 just fine
+
+3.0 should add more features and fix some bugs just by replacing 2.0, but a lot will change on the code side. So if you were using the unreleased API & Modules, you will most likely have to rewrite everything, because both of them will change completely
 
 ### Launcher App
 
@@ -561,7 +561,7 @@ A launcher to manage installations / updates / configuration of the Server, Clie
 
 ### Modules
 
-C# Modules that can be written by the community, published, and available for everyone to discover & install in the **Launcher**
+C# Modules that can be written by the community, published, and made available for everyone to discover & install in the **Launcher**
 
 ### API
 
@@ -577,4 +577,4 @@ An interactive audio system, the map of which you can look at in the GUI of the 
 
 ### History
 
-History that you can easily browse, recall basically any significant actions, revert some of them, and view a "Spotify like" rewind
+History that you can easily browse, where you can recall basically any significant action, revert some of them, and view a "Spotify like" rewind
