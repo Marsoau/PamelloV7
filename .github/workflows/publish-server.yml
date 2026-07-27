@@ -123,3 +123,35 @@ jobs:
           body_path: RELEASE_NOTES.md
           files: '*.zip'
           fail_on_unmatched_files: true
+      - name: Notify Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK secret not set, skipping notification"
+            exit 0
+          fi
+
+          DESC=$(head -c 3800 RELEASE_NOTES.md)
+
+          jq -n \
+            --arg title "PamelloV7 $TAG" \
+            --arg url "https://github.com/$REPO/releases/tag/$TAG" \
+            --arg desc "$DESC" \
+            '{
+              username: "PamelloV7",
+              embeds: [{
+                title: $title,
+                url: $url,
+                description: $desc,
+                color: 5793266
+              }],
+              allowed_mentions: { parse: [] }
+            }' > discord.json
+
+          curl -sS -f -X POST \
+            -H "Content-Type: application/json" \
+            -d @discord.json \
+            "$WEBHOOK"
