@@ -1,0 +1,54 @@
+name: Star Notification
+on:
+  watch:
+    types: [started]
+jobs:
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_STARS_WEBHOOK }}
+          USER_LOGIN: ${{ github.event.sender.login }}
+          USER_URL: ${{ github.event.sender.html_url }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          REPO_URL: ${{ github.event.repository.html_url }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "DISCORD_STARS_WEBHOOK secret not set, skipping notification"
+            exit 0
+          fi
+
+          jq -n \
+            --arg title "# New star added :dizzy:" \
+            --arg line "### [$USER_LOGIN]($USER_URL) starred [$REPO_NAME]($REPO_URL)" \
+            --arg avatar "https://github.com/$USER_LOGIN.png" \
+            '{
+               username: "GitHub Stars",
+               flags: 32768,
+               allowed_mentions: { parse: [] },
+               components: [
+                 {
+                   type: 17,
+                   components: [
+                     {
+                       type: 9,
+                       components: [
+                         { type: 10, content: $title },
+                         { type: 10, content: $line }
+                       ],
+                       accessory: {
+                         type: 11,
+                         media: { url: $avatar }
+                       }
+                     }
+                   ]
+                 }
+               ]
+             }' > discord.json
+
+          curl -sS -f -X POST \
+            -H "Content-Type: application/json" \
+            -d @discord.json \
+            "$WEBHOOK?with_components=true"
