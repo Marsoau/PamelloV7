@@ -51,6 +51,10 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     
     IAudioModuleWithInput IPamelloSpeaker.InputModule => Buffer;
 
+    private CancellationTokenSource? _lonelyDeathCts;
+    
+    public const int LonelySpeakersThreshold = 120;
+
     public PamelloDiscordSpeaker(int id, IPamelloPlayer player, IServiceProvider services)
         : base(id, services) {
         _users = services.GetRequiredService<IPamelloUserRepository>();
@@ -63,6 +67,8 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
         
         Player = player;
 
+        _lonelyDeathCts = null;
+
         var audio = services.GetRequiredService<IPamelloAudioSystem>();
         
         Buffer = audio.RegisterModule(new AudioBuffer(3840 * 20));
@@ -73,7 +79,7 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
     private async ValueTask ClientOnVoiceStateUpdate(VoiceState state) {
         if (VoiceClient is null) return;
         
-        Output.Write($"VSU: {state.User?.Nickname}: {state.ChannelId}");
+        Output.Write($"VSU: {state.User?.GlobalName}: {state.ChannelId}");
         
         if (state.UserId == VoiceClient.UserId && state.GuildId == VoiceClient.GuildId) {
             _disconnectCompletion.SetResult(state.ChannelId.HasValue
@@ -107,6 +113,41 @@ public class PamelloDiscordSpeaker : PamelloDynamicEntity, IPamelloSpeaker, IAud
             if (NetCordConfig.Root.AutoDeselectPlayerForLeavingUsers && speakersInChannel.Count == 0) {
                 listener.User?.SelectPlayer(null, true);
             }
+        }
+
+        if (_listeners.Count == 0) {
+            Output.Write($"Speaker {this} was left alone");
+            
+            if (_lonelyDeathCts is not null) await _lonelyDeathCts.CancelAsync();
+            
+            _lonelyDeathCts = new CancellationTokenSource();
+            var token = _lonelyDeathCts.Token;
+            
+            _ = Task.Run(async () => {
+                try {
+                    await Task.Delay(TimeSpan.FromSeconds(LonelySpeakersThreshold), token);
+
+                    if (_listeners.Count > 0) {
+                        Output.Write("Speaker is not actually lonely, skipping");
+                        return;
+                    }
+                    
+                    Output.Write($"Speaker {this} died from loneliness");
+
+                    _speakers.Delete(this, null);
+                }
+                catch (TaskCanceledException) {
+                    Output.Write($"Speaker {this} saved");
+                }
+                catch (Exception e) {
+                    Output.Write($"Exception killing lonely speaker: {e}");
+                }
+            }, token);
+        }
+        else {
+            Output.Write($"Speaker {this} is not lonely anymore");
+            if (_lonelyDeathCts is not null) await _lonelyDeathCts.CancelAsync();
+            _lonelyDeathCts = null;
         }
     }
 
