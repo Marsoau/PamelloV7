@@ -167,7 +167,7 @@ jobs:
              def text($c): { type: 10, content: $c };
              ($roles | split(" ") | map(select(. != "" and . != "000000000000000000"))) as $ids |
              {
-               username: "PamelloV7",
+               username: "GitHub Actions",
                flags: 32768,
                allowed_mentions: { parse: [], roles: $ids },
                components: (
