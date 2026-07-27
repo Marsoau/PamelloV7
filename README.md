@@ -2,6 +2,8 @@
 
 A **modern, functional, easy to use** Music Bot
 
+> _Note: This README is currently in an unfinished state until the release date on 27.07.2026_
+
 ## Features
 
 - [Simple setup](#setup), **no Lavalink**, just paste your token into a config
@@ -14,8 +16,8 @@ A **modern, functional, easy to use** Music Bot
 - [Browse all songs](#database), playlists, and favorites of **any user**
 - [PEQL](#peql) to query multiple songs or other entities with a single query
 - [Play To Radio](#radio) to listen in games like Euro Truck Simulator 2, or **any other app** that supports internet radio *(HTTP MP3 audio stream)*
-- Supports multiple music platforms: **YouTube**, **SoundCloud**, **osu!**, thats not much but more like Spotify and others will be added in the future
-- [Easy updates](#updates), just run one file and new version will be installed. Also dependencies like `yt-dlp`, `dave`, and others update automatically on each startup
+- Supports multiple music platforms: **YouTube**, **SoundCloud**, **osu!**. That's not a lot for now, but more of them like Spotify will be added in the future
+- [Easy updates](#updates), just run one file and the new version will be installed. Dependencies like `yt-dlp`, `dave`, and others also update automatically on each startup
 
 ## Planned Features
 
@@ -23,7 +25,7 @@ A **modern, functional, easy to use** Music Bot
 - [Client App](#client-app) to control playback, browse songs and **listen to music directly**, even without a platform like Discord
 - [Launcher App](#launcher-app) **to automate installation, configuration, and updates** of the Server *(bot)*, Client, and Modules
 - [Extensions](#modules) using modules or scripts *(aka plugins, mods)*
-- [Integrations](#api) using SignalR / REST API 
+- [Integrations](#api) using SignalR / REST API
 - [Audio Routing System](#interactive-audio) that can be **viewed and edited** in live mode
 - [Actions History](#history) with a **yearly rewind** like in Spotify and other apps
 
@@ -80,7 +82,7 @@ Go to the extracted directory, locate the `start.bat` (or `start.sh`) file, and 
 
 <img width="615" height="342" alt="image_2026-07-25_10-29-00" src="https://github.com/user-attachments/assets/64cf66e4-b6b1-4a49-aa2c-dcbd87c22907" />
 
-The console will open, with Pamello saying that it created a config example and where it is, copy that file path 
+The console will open, with Pamello saying that it created a config example and where it is, copy that file path
 
 <img width="1048" height="115" alt="image_2026-07-25_10-32-53" src="https://github.com/user-attachments/assets/6a6f7b89-70dc-4251-969f-d958449ac082" />
 
@@ -126,7 +128,7 @@ Optionally, you can also Drag & Drop `start.bat` onto your desktop **while holdi
 
 The first release is planned for **27.07.2026**
 
-> ***Important Note**: PamelloV7 is still in very active development, and it needs your feedback! Join the [PamelloV7 Discord]() server to report problems, suggest features, or just tell me what you think*
+> *Note: PamelloV7 is still in very active development, and it **needs** your feedback! Join the [PamelloV7 Discord]() server to report problems, suggest features, or just tell me what you think*
 
 ## Discord
 
@@ -138,7 +140,7 @@ https://github.com/user-attachments/assets/2922f150-c030-4485-ac30-eafdd17d2d52
 
 **All messages are constantly updated**. When you run a command like `/player info`, you will see the current time, song, episode, and all the other info updated in real time. This works with all commands and their messages, **so you should never see outdated info**
 
-**All command responses are ephemeral** and visible only to the user who called them, so your messages are both private and don't clutter the chats 
+**All command responses are ephemeral** and visible only to the user who called them, so your messages are both private and don't clutter the chats
 
 ## Discord Usage Guides
 
@@ -180,7 +182,7 @@ https://github.com/user-attachments/assets/2922f150-c030-4485-ac30-eafdd17d2d52
 
 Here you can see your selected player's playback time, current song, episode, queue modes, and some action buttons
 
-Also at the bottom you can see the currently connected players, and who is listening to them
+Also at the bottom you can see the currently connected speakers, and who is listening to them
 
 > If you don't have a selected player, you can create one with a button inside of the message, or choose an available one the same way
 
@@ -252,7 +254,7 @@ And about the sections:
 **Favorite By Users**: A list of users that added this song to their favorites
 
 - `Add`: Adds this song to your favorites
-- `Remove`: Remove this song from your favorites
+- `Remove`: Removes this song from your favorites
 
 **Included In Playlists**: A list of playlists this song is included in
 
@@ -330,7 +332,7 @@ Playlists have only one owner, but can be browsed / used by everyone. You can al
 
 > Accepts a user as a parameter, when not specified uses your `current` user
 
-Playlists & Songs favorites are baiscally the same, so i'll describe songs variant here
+Playlist & song favorites are basically the same, so i'll describe the songs variant here
 
 Here you can see all of your or another user's favorite songs, as well as some action buttons
 
@@ -404,12 +406,12 @@ During the playback itself, instead of loading the full song, **Pamello will loa
 
 **Players & Speakers** are separated, and the players aren't bound to any Discord guild, **they are global entities**
 
-You can have as many speakers connected in one guild as you are willing to create accounts for. Discord doesn't allow one bot to be in many voice channels of a single guild, so Pamello will use other speaker accounts in that case 
+You can have as many speakers connected in one guild as you are willing to create accounts for. Discord doesn't allow one bot to be in many voice channels of a single guild, so Pamello will use other speaker accounts in that case
 
 <details>
 <summary>More about Players & Speakers use cases</summary>
 
-Some of the examples of what you can do with it:
+Some examples of what you can do with it:
 
 - Listen to music in one guild, switch to another, and bring back your old player
 - Connect many speakers to many voice channels with the same player, and you can have the same music playing and controllable from all of them
