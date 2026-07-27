@@ -114,7 +114,7 @@ jobs:
               echo
             fi
             if [ ! -s features.txt ] && [ ! -s fixes.txt ]; then
-              echo "_No user-facing changes in this release._"
+              echo "_No user-facing changes in this release_"
               echo
             fi
             if [ -n "$PREV" ]; then
