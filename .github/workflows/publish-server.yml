@@ -20,7 +20,7 @@ jobs:
           dotnet-version: "10.0.x"
       - name: Publish
         env:
-          OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
+          OUT_DIR: PamelloV7.Server-${{ matrix.runtime }}
         run: |
           dotnet publish PamelloV7.Server/PamelloV7.Server.csproj \
             --configuration Release \
@@ -31,7 +31,7 @@ jobs:
             -o "$OUT_DIR"
       - name: Add scripts
         env:
-          OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
+          OUT_DIR: PamelloV7.Server-${{ matrix.runtime }}
         run: |
           os_key="${{ matrix.runtime }}"
           os_key="${os_key%%-*}"
@@ -45,13 +45,13 @@ jobs:
           fi
       - name: Create zip
         env:
-          OUT_DIR: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}
+          OUT_DIR: PamelloV7.Server-${{ matrix.runtime }}
         run: zip -r "$OUT_DIR.zip" "$OUT_DIR"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PamelloV7.Server-${{ matrix.runtime }}
-          path: PamelloV7.Server-${{ github.ref_name }}-${{ matrix.runtime }}.zip
+          path: PamelloV7.Server-${{ matrix.runtime }}.zip
           if-no-files-found: error
   release:
     name: Create GitHub Release
@@ -145,7 +145,7 @@ jobs:
 
           FULL=$(grep '^\*\*Full Changelog\*\*' RELEASE_NOTES.md || true)
 
-          BASE="https://github.com/$REPO/releases/download/$TAG/PamelloV7.Server-$TAG"
+          BASE="https://github.com/$REPO/releases/download/$TAG/PamelloV7.Server"
           DOWNLOADS=$(printf '## Downloads\n* [Windows](%s-win-x64.zip)\n* [Linux](%s-linux-x64.zip)\n* [macOS](%s-osx-x64.zip)' "$BASE" "$BASE" "$BASE")
 
           UPDATE='Run your `update.bat`/`update.sh` to update'

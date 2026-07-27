@@ -126,7 +126,8 @@ Optionally, you can also Drag & Drop `start.bat` onto your desktop **while holdi
 
 ### Download
 
-The first release is planned for **27.07.2026**
+| [Windows 10+ (x64)](https://github.com/Marsoau/PamelloV7/releases/latest/download/PamelloV7.Server-win-x64.zip) | [Linux (x64)](https://github.com/Marsoau/PamelloV7/releases/latest/download/PamelloV7.Server-linux-x64.zip) | [macOS 14+ (x64)](https://github.com/Marsoau/PamelloV7/releases/latest/download/PamelloV7.Server-osx-x64.zip) |
+|---|---|---|
 
 > *Note: PamelloV7 is still in very active development, and it **needs** your feedback! Join the [PamelloV7 Discord]() server to report problems, suggest features, or just tell me what you think*
 
