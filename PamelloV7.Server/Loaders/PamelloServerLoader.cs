@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Converters;
@@ -99,6 +101,18 @@ public class PamelloServerLoader
                 .AllowAnyMethod()
                 .AllowCredentials()
             );
+        });
+        
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            options.AddFixedWindowLimiter("limit", opt => {
+                opt.PermitLimit = 10;
+                opt.Window = TimeSpan.FromSeconds(60);
+                opt.QueueLimit = 0;
+                opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
         });
             
         services.AddHttpContextAccessor();

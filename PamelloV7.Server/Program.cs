@@ -160,6 +160,7 @@ public class Program
         Asp.MapHub<SignalHub>("/Signal");
         Asp.MapControllers();
         Asp.UseCors();
+        Asp.UseRateLimiter();
 
         var lifetime = Asp.Services.GetRequiredService<IHostApplicationLifetime>();
 

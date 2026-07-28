@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Primitives;
 using PamelloV7.Core.Exceptions;
 using PamelloV7.Server.Controllers.Base;
@@ -13,6 +14,7 @@ namespace PamelloV7.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [EnableRateLimiting("limit")]
     public class AuthorizationController : ControllerBase
     {
         private readonly ICodeAuthorizationService _authorization;
