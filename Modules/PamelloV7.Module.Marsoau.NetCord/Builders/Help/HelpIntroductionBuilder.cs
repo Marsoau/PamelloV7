@@ -15,7 +15,7 @@ public class HelpIntroductionBuilder : DiscordComponentBuilder
                 
                 You can check out **Guides** by selecting them at the top of this message
                 
-                Also if you need any help, feel free to join the [discord server]()
+                Feel free to join the [Discord server](https://discord.gg/JCgXM2ARFV) if you need any additional help, or to give your feedback / suggestion / report a problem
                 """
             )
         );
