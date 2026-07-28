@@ -125,15 +125,26 @@ jobs:
           fail_on_unmatched_files: true
       - name: Notify Discord
         env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RELEASE_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          PRERELEASE_WEBHOOK: ${{ secrets.DISCORD_PRERELEASE_WEBHOOK }}
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
           IS_PRERELEASE: ${{ steps.prerelease.outputs.value }}
           RELEASE_ROLE_ID: "1531251674214174740"
           PRERELEASE_ROLE_ID: "1531251822382288938"
         run: |
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            WEBHOOK="$PRERELEASE_WEBHOOK"
+            ROLE_IDS="$PRERELEASE_ROLE_ID"
+            SECRET_NAME="DISCORD_PRERELEASE_WEBHOOK"
+          else
+            WEBHOOK="$RELEASE_WEBHOOK"
+            ROLE_IDS="$RELEASE_ROLE_ID"
+            SECRET_NAME="DISCORD_WEBHOOK"
+          fi
+
           if [ -z "$WEBHOOK" ]; then
-            echo "DISCORD_WEBHOOK secret not set, skipping notification"
+            echo "$SECRET_NAME secret not set, skipping notification"
             exit 0
           fi
 
@@ -149,12 +160,6 @@ jobs:
           DOWNLOADS=$(printf '## Downloads\n* [Windows](%s-win-x64.zip)\n* [Linux](%s-linux-x64.zip)\n* [macOS](%s-osx-x64.zip)' "$BASE" "$BASE" "$BASE")
 
           UPDATE='Run your `update.bat`/`update.sh` to update'
-
-          if [ "$IS_PRERELEASE" = "true" ]; then
-            ROLE_IDS="$PRERELEASE_ROLE_ID"
-          else
-            ROLE_IDS="$RELEASE_ROLE_ID"
-          fi
 
           jq -n \
             --arg title "# PamelloV7 $TAG" \
