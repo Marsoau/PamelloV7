@@ -200,9 +200,11 @@ What the queue modes do:
 - `No Leftovers`: Removes songs from the queue after they are played
 - `Feed Random`: Feeds the queue with random songs from the database when it gets empty
 
+<img width="240" height="109" alt="image_2026-07-30_19-40-32" src="https://github.com/user-attachments/assets/63b62322-2fa1-476f-9d87-13b88e6fe052" />
+
 `/player pause-toggle`: **Toggles the pause state of your player**
 
-> Responds with an interactive message to switch it back when you want
+Toggles the player pause state on command & responds with an interactive message to switch it back when you want
 
 </details>
 
