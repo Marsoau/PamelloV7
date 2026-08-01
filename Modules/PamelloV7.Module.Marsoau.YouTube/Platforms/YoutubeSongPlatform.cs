@@ -37,7 +37,7 @@ public class YoutubeSongPlatform : ISongPlatform
             _ => null
         };
 
-        if (id is null || id.Length != 11 || !id.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_')) {
+        if (id is null || id.Length != 11 || !id.All(c => char.IsLetterOrDigit(c) || c is '-' or '_')) {
             throw new PamelloException($"Cant find a valid youtube id in value \"{value}\"");
         }
 

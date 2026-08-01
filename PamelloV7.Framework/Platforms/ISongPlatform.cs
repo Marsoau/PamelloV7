@@ -9,8 +9,11 @@ public interface ISongPlatform
     public string Name { get; }
     
     public string ValueToKey(string value);
-    public Task<ISongInfo?> GetSongInfoAsync(string key);
+    public bool IsPlaylistValue(string value);
     public string GetSongUrl(string key);
+    
+    public Task<ISongInfo?> GetSongInfoAsync(string key);
+    public IAsyncEnumerable<ISongInfo> GetPlaylistSongsInfoAsync(string value);
     
     public void Startup() { }
     public void Shutdown() { }
