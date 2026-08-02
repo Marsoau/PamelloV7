@@ -15,7 +15,7 @@ public class SoundCloudSongPlatform : ISongPlatform
         _infoGetter = new SoundCloudInfoGetter(this, services);
     }
     
-    public string ValueToKey(string value) {
+    public string ValueToKeyRequired(string value) {
         if (!value.StartsWith("https://")) throw new PamelloException($"Link expected as soundcloud platform value");
     
         var uri = new Uri(value);
@@ -45,12 +45,25 @@ public class SoundCloudSongPlatform : ISongPlatform
     
         return $"{artist}/{track}";
     }
+
+    public string ValueToPlaylistKeyRequired(string value) {
+        throw new NotImplementedException();
+    }
+
     public async Task<ISongInfo?> GetSongInfoAsync(string key) {
         return await _infoGetter.GetSongInfo(key);
     }
-    
+
+    public IAsyncEnumerable<ISongInfo> GetPlaylistSongsInfoAsync(string playlistKey) {
+        throw new NotImplementedException();
+    }
+
     public string GetSongUrl(string key)
         => GetSoundCloudUrl(key);
+
+    public string GetPlaylistUrl(string playlistKey) {
+        throw new NotImplementedException();
+    }
 
     public static string GetSoundCloudUrl(string key)
         => $"https://soundcloud.com/{key}";

@@ -18,9 +18,10 @@ public abstract class YtDlpInfoGetter
         _dependencies = services.GetRequiredService<IDependenciesService>();
     }
     
-    public abstract string GetArguments(string key);
+    public abstract string GetSongArguments(string songKey);
+    public abstract string GetPlaylistSongsArguments(string playlistKey);
 
-    public async Task<YtDlpInfo> GetInfo(string key) {
+    public async Task RunYtDlp(string arguments, Func<StreamReader, Task>? outputHandler = null) {
         var ytDlp = _dependencies.ResolveRequired("yt-dlp");
         var ffmpeg = _dependencies.ResolveRequired("ffmpeg");
         var ffprobe = _dependencies.ResolveRequired("ffprobe");
@@ -28,7 +29,7 @@ public abstract class YtDlpInfoGetter
         using var process = new Process();
         var startInfo = new ProcessStartInfo {
             FileName = ytDlp.GetFile().FullName,
-            Arguments = GetArguments(key),
+            Arguments = arguments,
             StandardOutputEncoding = Encoding.UTF8,
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -47,23 +48,28 @@ public abstract class YtDlpInfoGetter
         }
     
         var stderrTask = process.StandardError.ReadToEndAsync();
-        var stdout = await process.StandardOutput.ReadToEndAsync();
+
+        if (outputHandler is not null) {
+            await outputHandler(process.StandardOutput);
+        }
     
         await process.WaitForExitAsync();
         var stderr = await stderrTask;
     
         if (process.ExitCode != 0) {
             throw new InvalidOperationException(
-                $"yt-dlp exited with code {process.ExitCode} for key '{key}', stderr: {stderr}"
+                $"yt-dlp exited with code {process.ExitCode}, stderr: {stderr}"
             );
         }
+    }
     
-        if (string.IsNullOrWhiteSpace(stdout)) {
-            throw new InvalidOperationException(
-                $"yt-dlp returned no output for key '{key}'. stderr: {stderr}"
-            );
-        }
-    
+    public async Task<YtDlpInfo> GetInfo(string key) {
+        var stdout = "";
+        
+        await RunYtDlp(GetSongArguments(key), async reader => {
+            stdout = await reader.ReadToEndAsync();
+        });
+        
         var info = JsonSerializer.Deserialize<YtDlpInfo>(stdout, new JsonSerializerOptions {
             PropertyNameCaseInsensitive = true,
         });
@@ -71,5 +77,31 @@ public abstract class YtDlpInfoGetter
         if (info is null) throw new InvalidOperationException($"Failed to deserialize yt-dlp output for key '{key}'.");
     
         return info;
+    }
+
+    public async IAsyncEnumerable<YtDlpInfo> GetPlaylistSongsInfos(string playlistKey) {
+        StreamReader? ytReader = null;
+        TaskCompletionSource tcs = new();
+        
+        var ytTask = RunYtDlp(GetPlaylistSongsArguments(playlistKey), reader => {
+            ytReader = reader;
+            tcs.SetResult();
+            
+            return Task.CompletedTask;
+        });
+        
+        await tcs.Task;
+        
+        if (ytReader is null) throw new InvalidOperationException("Failed to start yt-dlp process");
+
+        string? line;
+        while ((line = await ytReader.ReadLineAsync()) is not null) {
+            var info = JsonSerializer.Deserialize<YtDlpInfo>(line);
+            if (info is null) continue;
+            
+            yield return info;
+        }
+        
+        await ytTask;
     }
 }

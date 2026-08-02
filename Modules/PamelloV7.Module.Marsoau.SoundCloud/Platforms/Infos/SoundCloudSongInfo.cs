@@ -18,7 +18,7 @@ public class SoundCloudSongInfo : ISongInfo
     public SoundCloudSongInfo(ISongPlatform platform, YtDlpInfo dlpInfo) {
         Platform = platform;
         
-        Key = Platform.ValueToKey(dlpInfo.WebpageUrl ?? "");
+        Key = Platform.ValueToKeyRequired(dlpInfo.WebpageUrl ?? "");
         
         _dlpInfo = dlpInfo;
     }

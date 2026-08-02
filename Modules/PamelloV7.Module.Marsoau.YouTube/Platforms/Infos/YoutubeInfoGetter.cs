@@ -11,18 +11,35 @@ public class YoutubeInfoGetter : YtDlpInfoGetter
         _platform = platform;
     }
 
-    public override string GetArguments(string key) => string.Join(' ',
+    public override string GetSongArguments(string songKey) => string.Join(' ',
         $@"--extractor-args ""youtube:player_client=android""",
         $@"--quiet",
         $@"--no-warnings",
         $@"--skip-download",
         $@"--dump-json",
-        YoutubeSongPlatform.GetYoutubeUrl(key)
+        YoutubeSongPlatform.GetYoutubeSongUrl(songKey)
     );
     
-    public async Task<YoutubeSongInfo> GetSongInfo(string key) {
+    public override string GetPlaylistSongsArguments(string playlistKey) => string.Join(' ',
+        $@"--extractor-args ""youtube:player_client=android""",
+        $@"--quiet",
+        $@"--no-warnings",
+        $@"--skip-download",
+        $@"--dump-json",
+        $@"--yes-playlist",
+        $@"--ignore-errors",
+        YoutubeSongPlatform.GetYoutubePlaylistUrl(playlistKey)
+    );
+    
+    public async Task<YoutubeSongInfo> GetSongInfoAsync(string key) {
         var info = await GetInfo(key);
         
         return new YoutubeSongInfo(_platform, info);
+    }
+
+    public async IAsyncEnumerable<YoutubeSongInfo> GetPlaylistSongsInfoAsync(string playlistKey) {
+        await foreach (var info in GetPlaylistSongsInfos(playlistKey)) {
+            yield return new YoutubeSongInfo(_platform, info);
+        }
     }
 }

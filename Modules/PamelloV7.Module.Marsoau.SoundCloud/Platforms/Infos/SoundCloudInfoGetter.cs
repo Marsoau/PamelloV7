@@ -11,14 +11,18 @@ public class SoundCloudInfoGetter : YtDlpInfoGetter
         _platform = platform;
     }
     
-    public override string GetArguments(string key) => string.Join(' ',
+    public override string GetSongArguments(string songKey) => string.Join(' ',
         $@"--extractor-args ""youtube:player_client=android""",
         $@"--quiet",
         $@"--no-warnings",
         $@"--skip-download",
         $@"--dump-json",
-        SoundCloudSongPlatform.GetSoundCloudUrl(key)
+        SoundCloudSongPlatform.GetSoundCloudUrl(songKey)
     );
+
+    public override string GetPlaylistSongsArguments(string playlistKey) {
+        throw new NotImplementedException();
+    }
 
     public async Task<SoundCloudSongInfo> GetSongInfo(string key) {
         var info = await GetInfo(key);

@@ -55,7 +55,7 @@ public class PlatformService : IPlatformService
         string? key;
         foreach (var platform in _songPlatforms) {
             try {
-                key = platform.ValueToKey(value);
+                key = platform.ValueToKeyRequired(value);
             }
             catch {
                 key = null;

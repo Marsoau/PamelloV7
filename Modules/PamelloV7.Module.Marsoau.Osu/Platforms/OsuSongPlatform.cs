@@ -17,7 +17,7 @@ public class OsuSongPlatform : ISongPlatform
         _client = services.GetRequiredService<OsuClientService>();
     }
     
-    public string ValueToKey(string value) {
+    public string ValueToKeyRequired(string value) {
         if (!value.StartsWith("https://")) throw new PamelloException($"Link expected as osu platform value");
         
         var uri = new Uri(value);
@@ -30,6 +30,10 @@ public class OsuSongPlatform : ISongPlatform
         return id;
     }
 
+    public string ValueToPlaylistKeyRequired(string value) {
+        throw new NotImplementedException();
+    }
+
     public async Task<ISongInfo?> GetSongInfoAsync(string key) {
         if (!int.TryParse(key, out var id)) return null;
         
@@ -39,7 +43,15 @@ public class OsuSongPlatform : ISongPlatform
         return new OsuSongInfo(this, set);
     }
 
+    public IAsyncEnumerable<ISongInfo> GetPlaylistSongsInfoAsync(string playlistKey) {
+        throw new NotImplementedException();
+    }
+
     public string GetSongUrl(string key) {
         return $"https://osu.ppy.sh/beatmapsets/{key}";
+    }
+
+    public string GetPlaylistUrl(string playlistKey) {
+        throw new NotImplementedException();
     }
 }

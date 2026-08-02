@@ -29,6 +29,6 @@ public class YoutubeSongDownloader : YtDlpDownloader
         $@"--no-continue",
         $@"--output ""{Path.Combine(file.DirectoryName ?? "", Path.GetFileNameWithoutExtension(file.Name))}.%(ext)s""",
         $@"--progress-template ""download:%(progress.downloaded_bytes)s/%(progress.total_bytes)s""",
-        YoutubeSongPlatform.GetYoutubeUrl(Source.PK.Key)
+        YoutubeSongPlatform.GetYoutubeSongUrl(Source.PK.Key)
     );
 }
