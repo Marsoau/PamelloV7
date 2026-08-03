@@ -47,6 +47,10 @@ public class OsuSongPlatform : ISongPlatform
         throw new NotImplementedException();
     }
 
+    public IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey) {
+        throw new NotImplementedException();
+    }
+
     public string GetSongUrl(string key) {
         return $"https://osu.ppy.sh/beatmapsets/{key}";
     }

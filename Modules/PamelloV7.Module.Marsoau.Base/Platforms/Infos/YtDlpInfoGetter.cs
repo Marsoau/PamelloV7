@@ -20,6 +20,7 @@ public abstract class YtDlpInfoGetter
     
     public abstract string GetSongArguments(string songKey);
     public abstract string GetPlaylistSongsArguments(string playlistKey);
+    public abstract string GetPlaylistSongsKeysArguments(string playlistKey);
 
     public async Task RunYtDlp(string arguments, Func<StreamReader, Task>? outputHandler = null) {
         var ytDlp = _dependencies.ResolveRequired("yt-dlp");
@@ -62,6 +63,28 @@ public abstract class YtDlpInfoGetter
             );
         }
     }
+
+    public async IAsyncEnumerable<string> GetYtDlpLines(string arguments) {
+        StreamReader? ytReader = null;
+        TaskCompletionSource tcs = new();
+        
+        var ytTask = RunYtDlp(arguments, reader => {
+            ytReader = reader;
+            tcs.SetResult();
+            
+            return Task.CompletedTask;
+        });
+        
+        await tcs.Task;
+        
+        if (ytReader is null) throw new InvalidOperationException("Failed to start yt-dlp process");
+
+        while (await ytReader.ReadLineAsync() is { } line) {
+            yield return line;
+        }
+        
+        await ytTask;
+    }
     
     public async Task<YtDlpInfo> GetInfo(string key) {
         var stdout = "";
@@ -80,28 +103,17 @@ public abstract class YtDlpInfoGetter
     }
 
     public async IAsyncEnumerable<YtDlpInfo> GetPlaylistSongsInfos(string playlistKey) {
-        StreamReader? ytReader = null;
-        TaskCompletionSource tcs = new();
-        
-        var ytTask = RunYtDlp(GetPlaylistSongsArguments(playlistKey), reader => {
-            ytReader = reader;
-            tcs.SetResult();
-            
-            return Task.CompletedTask;
-        });
-        
-        await tcs.Task;
-        
-        if (ytReader is null) throw new InvalidOperationException("Failed to start yt-dlp process");
-
-        string? line;
-        while ((line = await ytReader.ReadLineAsync()) is not null) {
+        await foreach (var line in GetYtDlpLines(GetPlaylistSongsArguments(playlistKey))) {
             var info = JsonSerializer.Deserialize<YtDlpInfo>(line);
             if (info is null) continue;
             
             yield return info;
         }
-        
-        await ytTask;
+    }
+    
+    public async IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey) {
+        await foreach (var line in GetYtDlpLines(GetPlaylistSongsKeysArguments(playlistKey))) {
+            yield return line;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Services;
 using PamelloV7.Module.Marsoau.NetCord.Attributes;
@@ -13,7 +14,9 @@ public partial class DebugYoutubePlaylistTest
         [Description("playlist-value", "Youtube playlist url")] string playlistValue
     ) {
         var platforms = Services.GetRequiredService<IPlatformService>();
-        var youtube = platforms.GetSongPlatform("youtube");
+        var youtube = platforms.GetSongPlatform(
+            platforms.GetSongPlatformKey(playlistValue)?.Platform ?? throw new PamelloException("Platform not found")
+        );
 
         if (youtube is null) {
             await RespondAsync("Youtube platform not found");
@@ -24,7 +27,7 @@ public partial class DebugYoutubePlaylistTest
 
         var infos = keys.playlistId is not null
             ? await WithLoadingAsync(
-                youtube.GetPlaylistSongsInfoAsync(keys.playlistId).ToListAsync().AsTask()
+                youtube.GetPlaylistSongsKeysAsync(keys.playlistId).ToListAsync().AsTask()
             )
             : [];
 
@@ -36,7 +39,8 @@ public partial class DebugYoutubePlaylistTest
             - Song Key: {DiscordString.Code(keys.songId)}
             - Playlist Key: {DiscordString.Code(keys.playlistId)}
             
-            infos: {DiscordString.Code(infos.Count)}
+            keys: {DiscordString.Code(infos.Count)}
+            {DiscordString.CodeBlock(string.Join('\n', infos.Select(i => i.ToString())))}
             """
         );
     }

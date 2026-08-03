@@ -30,7 +30,16 @@ public class YoutubeInfoGetter : YtDlpInfoGetter
         $@"--ignore-errors",
         YoutubeSongPlatform.GetYoutubePlaylistUrl(playlistKey)
     );
-    
+
+    public override string GetPlaylistSongsKeysArguments(string playlistKey) => string.Join(' ',
+        $@"--extractor-args ""youtube:player_client=android""",
+        $@"--quiet",
+        $@"--no-warnings",
+        $@"--flat-playlist",
+        $@"--print ""%(id)s""",
+        YoutubeSongPlatform.GetYoutubePlaylistUrl(playlistKey)
+    );
+
     public async Task<YoutubeSongInfo> GetSongInfoAsync(string key) {
         var info = await GetInfo(key);
         

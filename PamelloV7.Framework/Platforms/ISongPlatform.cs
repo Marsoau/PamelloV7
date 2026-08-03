@@ -33,6 +33,7 @@ public interface ISongPlatform
     
     public Task<ISongInfo?> GetSongInfoAsync(string songKey);
     public IAsyncEnumerable<ISongInfo> GetPlaylistSongsInfoAsync(string playlistKey);
+    public IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey);
     
     public string GetSongUrl(string songKey);
     public string GetPlaylistUrl(string playlistKey);

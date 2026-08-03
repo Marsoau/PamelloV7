@@ -24,6 +24,10 @@ public class SoundCloudInfoGetter : YtDlpInfoGetter
         throw new NotImplementedException();
     }
 
+    public override string GetPlaylistSongsKeysArguments(string playlistKey) {
+        throw new NotImplementedException();
+    }
+
     public async Task<SoundCloudSongInfo> GetSongInfo(string key) {
         var info = await GetInfo(key);
         
