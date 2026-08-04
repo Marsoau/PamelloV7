@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Data.Entities.Base;
 using PamelloV7.Framework.Dto;
 using PamelloV7.Framework.Entities.Base;
@@ -28,6 +29,7 @@ public abstract class PamelloDatabaseEntity<TDatabaseEntity> : PamelloDynamicEnt
 
     public abstract void SaveInternal();
     public void Save() {
+        if (ServerConfig.Root.DoNotSaveChanges) return;
         if (!IsChangesGoing) SaveInternal();
     }
 

@@ -10,5 +10,6 @@ public partial class ServerNode
     public string HostName { get; set; } = "";
     public bool AllowUserCreation { get; set; } = true;
     public bool FullResetHistory { get; set; } = false;
+    public bool DoNotSaveChanges { get; set; } = false;
     public int MaximumQueryComplexity { get; set; } = 100;
 }
