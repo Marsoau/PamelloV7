@@ -29,7 +29,6 @@ public abstract class PamelloDatabaseEntity<TDatabaseEntity> : PamelloDynamicEnt
 
     public abstract void SaveInternal();
     public void Save() {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         if (!IsChangesGoing) SaveInternal();
     }
 
