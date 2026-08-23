@@ -51,26 +51,27 @@ public abstract class PamelloBasicActions
     public async Task<object?> Command(string commandPath)
         => await Commands.ExecutePathAsync(commandPath, ScopeUser);
     
-    public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser), respond);
+    public Task<TPamelloEntity> GetSingleRequiredAsync<TPamelloEntity>(string query) 
+        => PEQL.GetSingleRequiredAsync<TPamelloEntity>(query, ScopeUser);
 
-    public Task<TPamelloEntity?> GetSingleAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync<TPamelloEntity>(query, ScopeUser), respond);
+    public Task<TPamelloEntity?> GetSingleAsync<TPamelloEntity>(string query) 
+        => PEQL.GetSingleAsync<TPamelloEntity>(query, ScopeUser);
 
-    public Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync<TPamelloEntity>(query, ScopeUser), respond);
+    public Task<List<TPamelloEntity>> GetAsync<TPamelloEntity>(string query) 
+        => PEQL.GetAsync<TPamelloEntity>(query, ScopeUser);
 
-    public Task<IPamelloEntity> GetSingleRequiredAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleRequiredAsync(query, ScopeUser), respond);
+    public Task<IPamelloEntity> GetSingleRequiredAsync(string query) 
+        => PEQL.GetSingleRequiredAsync(query, ScopeUser);
 
-    public Task<IPamelloEntity?> GetSingleAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetSingleAsync(query, ScopeUser), respond);
+    public Task<IPamelloEntity?> GetSingleAsync(string query) 
+        => PEQL.GetSingleAsync(query, ScopeUser);
 
-    public Task<List<IPamelloEntity>> GetAsync(string query, bool respond = true) 
-        => WithLoadingAsync(PEQL.GetAsync(query, ScopeUser), respond);
+    public Task<List<IPamelloEntity>> GetAsync(string query) 
+        => PEQL.GetAsync(query, ScopeUser);
     
     public async Task WithLoadingAsync(Task task, bool respondWithLoading = true) {
         if (!task.IsCompleted && !RespondedWithLoading && respondWithLoading) {
+            RespondedWithLoading = true;
             await StartLoading();
         }
         
@@ -78,6 +79,7 @@ public abstract class PamelloBasicActions
     }
     public async Task<TResult> WithLoadingAsync<TResult>(Task<TResult> task, bool respondWithLoading = true) {
         if (!task.IsCompleted && !RespondedWithLoading && respondWithLoading) {
+            RespondedWithLoading = true;
             await StartLoading();
         }
     

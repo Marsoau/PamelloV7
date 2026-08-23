@@ -60,6 +60,8 @@ public class DiscordInteractionsHandler : IPamelloService
     
     private async ValueTask MainOnInteractionCreate(Interaction interaction) {
         TokenizedInteraction tokenizedInteraction;
+
+        Task? action = null;
         
         switch (interaction) {
             case SlashCommandInteraction slashCommand:
@@ -70,7 +72,7 @@ public class DiscordInteractionsHandler : IPamelloService
                 tokenizedInteraction = _tokenizer.GetRequired(buttonInteraction.Data.CustomId);
 
                 _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
-                await tokenizedInteraction.Action(interaction);
+                action = tokenizedInteraction.Action(interaction);
                 
                 break;
             case ModalInteraction modalInteraction:
@@ -78,7 +80,7 @@ public class DiscordInteractionsHandler : IPamelloService
                 tokenizedInteraction = _tokenizer.GetRequired(modalInteraction.Data.CustomId);
                 
                 _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
-                await tokenizedInteraction.Action(interaction);
+                action = tokenizedInteraction.Action(interaction);
                 
                 break;
             case StringMenuInteraction stringMenuInteraction:
@@ -86,13 +88,14 @@ public class DiscordInteractionsHandler : IPamelloService
                 tokenizedInteraction = _tokenizer.GetRequired(stringMenuInteraction.Data.CustomId);
                 
                 _messages.Get(tokenizedInteraction.CallSite.Differentiator)?.Touch();
-                await tokenizedInteraction.Action(interaction);
+                action = tokenizedInteraction.Action(interaction);
                 
                 break;
         }
 
         try {
             await interaction.SendResponseAsync(InteractionCallback.DeferredModifyMessage);
+            if (action is not null) await action;
         }
         catch { /*ignored*/ }
     }

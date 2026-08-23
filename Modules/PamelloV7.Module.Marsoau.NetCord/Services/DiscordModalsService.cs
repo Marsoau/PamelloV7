@@ -86,7 +86,7 @@ public class DiscordModalsService : IPamelloService
         if (Activator.CreateInstance(descriptor.ModalType) is not DiscordModal modal)
             throw new PamelloException($"Could not create modal {modalType.FullName}");
         
-        modal.InitializeModal(callSite, interaction, _services, scopeUser);
+        await modal.InitializeModal(callSite, interaction, _services, scopeUser);
         
         return modal;   
     }

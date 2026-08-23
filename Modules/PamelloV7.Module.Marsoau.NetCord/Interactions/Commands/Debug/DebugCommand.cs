@@ -12,7 +12,7 @@ public partial class DebugCommand
     public async Task Execute(
         [Description("path", "Command path to execute")] string path
     ) {
-        var result = await WithLoadingAsync(Command(path));
+        var result = Command(path);
         var json = JsonSerializer.Serialize(result, JsonEntitiesFactory.Options);
         
         await RespondAsync(path, DiscordString.CodeBlock(json, "json"));

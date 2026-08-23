@@ -146,15 +146,19 @@ public partial class DiscordCommandsService : IPamelloService
             return value;
         }).ToArray();
 
+        Output.Write("Before command execution !!!");
+
         try {
             await command.WithLoadingAsync(Task.WhenAll(argumentsTasks));
 
             var arguments = argumentsTasks.Select(task => task.Result).ToArray();
 
             if (typeof(Task).IsAssignableFrom(executeMethod.ReturnType)) {
-                await (dynamic)executeMethod.Invoke(command, arguments)!;
+                Output.Write("Executing ASync command");
+                await command.WithLoadingAsync((dynamic)executeMethod.Invoke(command, arguments)!);
             }
             else {
+                Output.Write("Executing Sync command");
                 executeMethod.Invoke(command, arguments);
             }
         }

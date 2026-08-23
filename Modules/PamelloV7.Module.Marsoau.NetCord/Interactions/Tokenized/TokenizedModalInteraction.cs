@@ -48,6 +48,17 @@ public class TokenizedModalInteraction : TokenizedInteraction
     public async Task OnModalSubmit(ModalInteraction interaction) {
         var modal = await CreateModal(interaction);
         
-        await SubmitModal(modal);
+        var task = SubmitModal(modal);
+        Console.WriteLine($"Modal submit task: {task.IsCompleted}");
+        if (!task.IsCompleted) {
+            _ = Task.Run(async () => {
+                try {
+                    await task;
+                }
+                catch (Exception x) {
+                    Output.Write($"Exception in modal submit: {x}", ELogLevel.Error);
+                }
+            });
+        }
     }
 }

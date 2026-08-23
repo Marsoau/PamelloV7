@@ -20,7 +20,7 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
         _builderType = GetType().GetNestedTypes().FirstOrDefault(t => t.IsAssignableTo(typeof(DiscordModalBuilder)));
     }
 
-    public virtual void InitializeModal(InteractionCallSite callSite, Interaction interaction, IServiceProvider services, IPamelloUser scopeUser) {
+    public virtual async Task InitializeModal(InteractionCallSite callSite, Interaction interaction, IServiceProvider services, IPamelloUser scopeUser) {
         base.InitializeInteraction(interaction, services, scopeUser);
         
         CallSite = callSite;
@@ -38,8 +38,8 @@ public abstract class DiscordModal : DiscordInteraction<ModalInteraction>
         var tasks = modalInteraction.Data.Components
             .OfType<Label>()
             .Select(label => SetValueForComponent(label.Component));
-        
-        Task.WhenAll(tasks).Wait();
+
+        await Task.WhenAll(tasks);
         
         return;
 

@@ -33,9 +33,7 @@ public partial class PlayerQueueSongAdd
                 var speakers = Services.GetRequiredService<IPamelloSpeakerRepository>();
 
                 if (!speakers.GetCurrent(ScopeUser).Any()) {
-                    await WithLoadingAsync(
-                        Command<SpeakerDiscordConnect>().Execute(Interaction.User.Id)
-                    );
+                    await Command<SpeakerDiscordConnect>().Execute(Interaction.User.Id);
                 }
             }
         }
