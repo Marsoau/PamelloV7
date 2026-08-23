@@ -27,26 +27,21 @@ public class DatabaseCollection<TDatabaseEntity> : IDatabaseCollection<TDatabase
     }
 
     public void Add(TDatabaseEntity entity) {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         _collection.Insert(entity);
     }
 
     public void Save(TDatabaseEntity entity) {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         _collection.Update(entity);
     }
 
     public void Delete(object key) {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         _collection.Delete((int)key);
     }
     public void DeleteMany(Expression<Func<TDatabaseEntity, bool>> predicate) {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         _collection.DeleteMany(predicate);
     }
 
     public void Drop() {
-        if (ServerConfig.Root.DoNotSaveChanges) return;
         _collection.DeleteAll();
     }
 }

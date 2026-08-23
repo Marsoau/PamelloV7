@@ -85,9 +85,22 @@ public class FileAccessService : IFileAccessService
     }
 
     public FileInfo GetDatabaseFile() {
-        return new FileInfo(
-            Path.Combine(RootDirectory.FullName, "lite-old70.db")
-        );
+        if (ServerConfig.Root.DoNotSaveChanges) {
+            var tempDatabaseFile = new FileInfo(Path.Combine(RootDirectory.FullName, "TEMP-data.db"));
+            if (tempDatabaseFile.Exists) tempDatabaseFile.Delete();
+            
+            return tempDatabaseFile;
+        }
+        
+        //
+        //"lite-old70.db" is an outdated database file name from 2.0.1, later should be handled by migrations properly, for now it is how it is
+        //
+        
+        var outdatedFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70.db"));
+        if (!outdatedFile.Exists) return new FileInfo(Path.Combine(RootDirectory.FullName, "data.db"));
+            
+        outdatedFile.MoveTo(Path.Combine(RootDirectory.FullName, "data.db"));
+        return outdatedFile;
     }
 
     public DirectoryInfo GetDependencyDirectory(Dependency dependency) {
