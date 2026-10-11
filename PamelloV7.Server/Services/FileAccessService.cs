@@ -85,22 +85,32 @@ public class FileAccessService : IFileAccessService
     }
 
     public FileInfo GetDatabaseFile() {
-        if (ServerConfig.Root.DoNotSaveChanges) {
-            var tempDatabaseFile = new FileInfo(Path.Combine(RootDirectory.FullName, "TEMP-data.db"));
-            if (tempDatabaseFile.Exists) tempDatabaseFile.Delete();
-            
-            return tempDatabaseFile;
-        }
-        
         //
-        //"lite-old70.db" is an outdated database file name from 2.0.1, later should be handled by migrations properly, for now it is how it is
+        //"lite-old70.db" is an outdated database file name from 2.0.1, later should be handled by migrations properly, but for now it is how it is
         //
         
-        var outdatedFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70.db"));
-        if (!outdatedFile.Exists) return new FileInfo(Path.Combine(RootDirectory.FullName, "data.db"));
+        var outdatedDataFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70.db"));
+        var outdatedLogFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70-log.db"));
+        
+        var dataFile = new FileInfo(Path.Combine(RootDirectory.FullName, "data.db"));
+        var logFile = new FileInfo(Path.Combine(RootDirectory.FullName, "data-log.db"));
+
+        dataFile = outdatedDataFile.Exists && !dataFile.Exists
+            ? outdatedDataFile.CopyTo(Path.Combine(RootDirectory.FullName, "data.db"), true)
+            : dataFile;
+        logFile = outdatedLogFile.Exists && !logFile.Exists
+            ? outdatedLogFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-log.db"), true)
+            : logFile;
+
+        if (!ServerConfig.Root.DoNotSaveChanges) return dataFile;
+        
+        var tempDatabaseFile = dataFile.Exists
+            ? dataFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-TEMP.db"), true)
+            : new FileInfo(Path.Combine(RootDirectory.FullName, "data-TEMP.db"));
+        
+        if (!logFile.Exists) logFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-TEMP-log.db"), true);
             
-        outdatedFile.MoveTo(Path.Combine(RootDirectory.FullName, "data.db"));
-        return outdatedFile;
+        return tempDatabaseFile;
     }
 
     public DirectoryInfo GetDependencyDirectory(Dependency dependency) {
