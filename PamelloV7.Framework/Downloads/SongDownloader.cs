@@ -65,9 +65,8 @@ public abstract class SongDownloader
     
     public Task<EDownloadResult> DownloadAsync(bool forceDownload = false) {
         lock (_taskLock) {
-            if (DownloadTask is null) {
-                DownloadTask = RunDownloadAsync(forceDownload);
-            }
+            DownloadTask ??= RunDownloadAsync(forceDownload);
+            
             return DownloadTask;
         }
     }

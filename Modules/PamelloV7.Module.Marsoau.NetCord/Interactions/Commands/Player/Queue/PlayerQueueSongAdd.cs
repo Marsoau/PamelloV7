@@ -6,6 +6,7 @@ using PamelloV7.Core.Exceptions;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
+using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Repositories;
@@ -49,15 +50,22 @@ public partial class PlayerQueueSongAdd
     
     public class Builder : DiscordComponentBuilder
     {
+        SongDownloader? Downloader;
+        
         public IMessageComponentProperties?[] Build(IPamelloSong song) {
             var container = new ComponentContainerProperties();
             
             var downloads = Services.GetRequiredService<IDownloadService>();
             
-            var downloader = song.SelectedSource is not null && downloads.IsDownloading(song.SelectedSource)
+            Downloader ??= song.SelectedSource is not null && downloads.IsDownloading(song.SelectedSource)
                 ? downloads.GetSongDownloader(song.SelectedSource)
                 : null;
-            if (downloader is { Progress: 1 }) downloader = null;
+
+            var failedResult = Downloader?.Result is { } and not EDownloadResult.Success
+                ? Downloader.Result
+                : null;
+            
+            if (Downloader is { Progress: 1 }) Downloader = null;
            
             container.AddComponents(
                 new ComponentSectionProperties(
@@ -72,11 +80,19 @@ public partial class PlayerQueueSongAdd
                 )
             );
 
-            if (downloader is not null) {
+            if (failedResult is not null) {
                 container.AddComponents(
                     new ComponentSeparatorProperties(),
                     new TextDisplayProperties(
-                        $"{DiscordString.Code("Downloading...")} {DiscordString.Progress(downloader.Progress, 10, true)}"
+                        $"{failedResult}"
+                    )
+                );
+            }
+            else if (Downloader is not null) {
+                container.AddComponents(
+                    new ComponentSeparatorProperties(),
+                    new TextDisplayProperties(
+                        $"{DiscordString.Code("Downloading...")} {DiscordString.Progress(Downloader.Progress, 10, true)}"
                     )
                 );
             }

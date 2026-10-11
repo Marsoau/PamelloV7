@@ -33,6 +33,7 @@ public class FileAccessService : IFileAccessService
 
     public FileInfo GetFileRequired(string requestedPath)
         => GetFile(requestedPath) ?? throw new PamelloException("Unreacheable file");
+
     public FileInfo? GetFile(string requestedPath) {
         if (requestedPath.Split('/').Any(part => part == "..")) {
             return null;
@@ -84,35 +85,18 @@ public class FileAccessService : IFileAccessService
         );
     }
 
-    public FileInfo GetDatabaseFile() {
-        //
-        //"lite-old70.db" is an outdated database file name from 2.0.1, later should be handled by migrations properly, but for now it is how it is
-        //
-        
-        var outdatedDataFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70.db"));
-        var outdatedLogFile = new FileInfo(Path.Combine(RootDirectory.FullName, "lite-old70-log.db"));
-        
-        var dataFile = new FileInfo(Path.Combine(RootDirectory.FullName, "data.db"));
-        var logFile = new FileInfo(Path.Combine(RootDirectory.FullName, "data-log.db"));
-
-        dataFile = outdatedDataFile.Exists && !dataFile.Exists
-            ? outdatedDataFile.CopyTo(Path.Combine(RootDirectory.FullName, "data.db"), true)
-            : dataFile;
-        logFile = outdatedLogFile.Exists && !logFile.Exists
-            ? outdatedLogFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-log.db"), true)
-            : logFile;
-
-        if (!ServerConfig.Root.DoNotSaveChanges) return dataFile;
-        
-        var tempDatabaseFile = dataFile.Exists
-            ? dataFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-TEMP.db"), true)
-            : new FileInfo(Path.Combine(RootDirectory.FullName, "data-TEMP.db"));
-        
-        if (!logFile.Exists) logFile.CopyTo(Path.Combine(RootDirectory.FullName, "data-TEMP-log.db"), true);
-            
-        return tempDatabaseFile;
-    }
-
+    public string GetDatabaseFile() => Path.Combine(RootDirectory.FullName, "data.db");
+    public string GetDatabaseLogFile() => Path.Combine(RootDirectory.FullName, "data-log.db");
+    
+    //
+    //"lite-old70.db" is an outdated database file name from 2.0.1, later should be handled by migrations properly, but for now it is how it is
+    //
+    public string GetOutdatedDatabaseFile() => Path.Combine(RootDirectory.FullName, "lite-old70.db");
+    public string GetOutdatedDatabaseLogFile() => Path.Combine(RootDirectory.FullName, "lite-old70-log.db");
+    
+    public string GetTempDatabaseFile() => Path.Combine(RootDirectory.FullName, "data-TEMP.db");
+    public string GetTempDatabaseLogFile() => Path.Combine(RootDirectory.FullName, "data-TEMP-log.db");
+    
     public DirectoryInfo GetDependencyDirectory(Dependency dependency) {
         var dependenciesDirectory = new DirectoryInfo(
             Path.Combine(AppContext.BaseDirectory, "Dependencies")

@@ -1,17 +1,15 @@
 using System.Reflection;
 using LiteDB;
+using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Containers;
 using PamelloV7.Framework.Data;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
-using PamelloV7.Framework.Events.Base;
-using PamelloV7.Framework.Events.InfoUpdate;
 using PamelloV7.Framework.Logging;
-using PamelloV7.Framework.Repositories;
 using PamelloV7.Framework.Services;
-using PamelloV7.Server.Services;
+using PamelloV7.Server.Database;
 
-namespace PamelloV7.Server.Database;
+namespace PamelloV7.Server.Services;
 
 public class DatabaseAccessService : IDatabaseAccessService
 {
@@ -24,7 +22,48 @@ public class DatabaseAccessService : IDatabaseAccessService
         _typeResolver = services.GetRequiredService<IAssemblyTypeResolver>();
         _files = services.GetRequiredService<IFileAccessService>();
         
-        _db = new LiteDatabase(_files.GetDatabaseFile().FullName, GetMapper());
+        _db = LoadDatabase();
+    }
+
+    private LiteDatabase LoadDatabase() {
+        var outdatedDataFile = new FileInfo(_files.GetOutdatedDatabaseFile());
+        var outdatedLogFile = new FileInfo(_files.GetOutdatedDatabaseLogFile());
+        
+        var dataFile = new FileInfo(_files.GetDatabaseFile());
+        var logFile = new FileInfo(_files.GetDatabaseLogFile());
+
+        dataFile = outdatedDataFile.Exists && !dataFile.Exists
+            ? outdatedDataFile.CopyTo(_files.GetDatabaseFile(), true)
+            : dataFile;
+        logFile = outdatedLogFile.Exists && !logFile.Exists
+            ? outdatedLogFile.CopyTo(_files.GetDatabaseLogFile(), true)
+            : logFile;
+
+        if (!ServerConfig.Root.DoNotSaveChanges) {
+            Output.Write("Loading normal database");
+            return new LiteDatabase(dataFile.FullName, GetMapper());
+        }
+        
+        Output.Write("Loading temporary database");
+
+        Console.WriteLine($"data: {dataFile.Length}");
+        Console.WriteLine($"data-log: {logFile.Length}");
+        
+        Console.WriteLine($"data-TEMP: {new FileInfo(_files.GetTempDatabaseFile()).Length}");
+        Console.WriteLine($"data-TEMP-log: {new FileInfo(_files.GetTempDatabaseLogFile()).Length}");
+        
+        var tempDatabaseFile = dataFile.Exists
+            ? dataFile.CopyTo(_files.GetTempDatabaseFile(), true)
+            : new FileInfo(_files.GetTempDatabaseFile());
+        
+        if (logFile.Exists) logFile.CopyTo(_files.GetTempDatabaseLogFile(), true);
+
+        Console.WriteLine("After");
+        
+        Console.WriteLine($"data-TEMP: {new FileInfo(_files.GetTempDatabaseFile()).Length}");
+        Console.WriteLine($"data-TEMP-log: {new FileInfo(_files.GetTempDatabaseLogFile()).Length}");
+        
+        return new LiteDatabase(tempDatabaseFile.FullName, GetMapper());
     }
 
     private BsonMapper GetMapper() {

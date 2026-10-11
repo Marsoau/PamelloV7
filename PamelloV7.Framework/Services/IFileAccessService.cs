@@ -6,10 +6,18 @@ namespace PamelloV7.Framework.Services;
 
 public interface IFileAccessService : IPamelloService
 {
+    public string GetDatabaseFile();
+    public string GetDatabaseLogFile();
+    
+    public string GetOutdatedDatabaseFile();
+    public string GetOutdatedDatabaseLogFile();
+    
+    public string GetTempDatabaseFile();
+    public string GetTempDatabaseLogFile();
+    
     public FileInfo? GetFile(string path);
     public FileInfo GetSourceFile(SongSource source);
     public FileInfo GetDependencyFile(Dependency dependency);
-    public FileInfo GetDatabaseFile();
     public DirectoryInfo GetDependencyDirectory(Dependency dependency);
     public string GetPublicUrl(string path);
 }
