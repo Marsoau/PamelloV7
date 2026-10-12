@@ -7,6 +7,7 @@ using PamelloV7.Framework.Downloads;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Enumerators;
 using PamelloV7.Framework.Events;
+using PamelloV7.Framework.Exceptions;
 using PamelloV7.Framework.History.Services;
 using PamelloV7.Framework.Logging;
 using PamelloV7.Framework.Modules;
@@ -30,12 +31,21 @@ public class Base : IPamelloModule
         var dependencies = services.GetRequiredService<IDependenciesService>().GetAll();
 
         foreach (var dependency in dependencies) {
-            Output.Write($"--- {dependency} ---");
-            Output.Write($"Is installed: {dependency.IsInstalled}");
+            var installedVersion = await dependency.GetInstalledVersionAsync();
+            var latestVersion = await dependency.GetLatestVersionAsync();
             
-            if (dependency.IsInstalled) continue;
+            Output.Write($"""
+            --- {dependency} ---
+            Is installed: {dependency.IsInstalled}
+            - - -
+            Installed Version: {installedVersion}
+            Latest Version: {latestVersion}
             
-            Output.Write("Downloading...");
+            """);
+            
+            if (!dependency.IsInstalled) Output.Write("Installing...");
+            else if (installedVersion != latestVersion) Output.Write("Updating...");
+            else continue;
             
             Console.CursorVisible = false;
             await dependency.DownloadOrUpdateAsync((downloaded, from) => {
@@ -51,7 +61,7 @@ public class Base : IPamelloModule
             Console.WriteLine();
             Console.CursorVisible = true;
             
-            Output.Write($"Done, Now installed: {dependency.IsInstalled}");
+            Output.Write($"Done, Now installed: {dependency.IsInstalled}; Version: {await dependency.GetInstalledVersionAsync()}\n");
         }
     }
 }

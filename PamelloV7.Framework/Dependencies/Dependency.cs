@@ -54,6 +54,13 @@ public abstract class Dependency
     }
     public abstract Task<string?> GetLatestVersionAsync();
 
+    public async Task<bool> CheckForUpdatesAsync() {
+        var installedVersion = await GetInstalledVersionAsync();
+        var latestVersion = await GetLatestVersionAsync();
+        
+        return installedVersion != latestVersion;
+    }
+
     protected abstract Task DownloadOrUpdateInternalAsync(DirectoryInfo directory, Action<int, int>? progressCallback);
 
     public async Task DownloadOrUpdateAsync(Action<int, int>? progressCallback = null) {
