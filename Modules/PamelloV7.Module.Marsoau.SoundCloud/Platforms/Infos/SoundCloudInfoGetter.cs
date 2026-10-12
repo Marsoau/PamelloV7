@@ -20,17 +20,35 @@ public class SoundCloudInfoGetter : YtDlpInfoGetter
         SoundCloudSongPlatform.GetSoundCloudUrl(songKey)
     );
 
-    public override string GetPlaylistSongsArguments(string playlistKey) {
-        throw new NotImplementedException();
-    }
+    public override string GetPlaylistSongsArguments(string playlistKey) => string.Join(' ',
+        $@"--quiet",
+        $@"--no-warnings",
+        $@"--skip-download",
+        $@"--dump-json",
+        $@"--yes-playlist",
+        $@"--ignore-errors",
+        SoundCloudSongPlatform.GetSoundCloudPlaylistUrl(playlistKey)
+    );
 
-    public override string GetPlaylistSongsKeysArguments(string playlistKey) {
-        throw new NotImplementedException();
-    }
+    public override string GetPlaylistSongsKeysArguments(string playlistKey) => string.Join(' ',
+        $@"--quiet",
+        $@"--no-warnings",
+        $@"--skip-download",
+        $@"--yes-playlist",
+        $@"--ignore-errors",
+        $@"--print ""%(webpage_url)s""",
+        SoundCloudSongPlatform.GetSoundCloudPlaylistUrl(playlistKey)
+    );
 
     public async Task<SoundCloudSongInfo> GetSongInfo(string key) {
         var info = await GetInfo(key);
         
         return new SoundCloudSongInfo(_platform, info);
+    }
+
+    public async IAsyncEnumerable<SoundCloudSongInfo> GetPlaylistSongsInfoAsync(string playlistKey) {
+        await foreach (var info in GetPlaylistSongsInfos(playlistKey)) {
+            yield return new SoundCloudSongInfo(_platform, info);
+        }
     }
 }

@@ -72,12 +72,6 @@ public partial class YoutubeSongPlatform : ISongPlatform
         return await _infoGetter.GetSongInfoAsync(key);
     }
 
-    public async IAsyncEnumerable<ISongInfo> GetPlaylistSongsInfoAsync(string playlistKey) {
-        await foreach (var info in _infoGetter.GetPlaylistSongsInfoAsync(playlistKey)) {
-            yield return info;
-        }
-    }
-
     public async IAsyncEnumerable<string> ValueToManyKeysAsync(string value) {
         string playlistKey;
         
