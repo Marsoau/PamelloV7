@@ -6,6 +6,9 @@ using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Extensions;
 using PamelloV7.Framework.Logging;
+using PamelloV7.Framework.Platforms;
+using PamelloV7.Framework.Repositories;
+using PamelloV7.Framework.Services;
 using PamelloV7.Framework.Services.PEQL;
 
 namespace PamelloV7.Module.Marsoau.PEQL.Model;
@@ -15,6 +18,8 @@ public class EntityProviderContainer
     private readonly IServiceProvider _services;
     
     private readonly IEntityQueryService _peql;
+    
+    private readonly IPlatformService _platforms;
     
     public string Name { get; }
     public Type Type { get; }
@@ -27,6 +32,8 @@ public class EntityProviderContainer
         _services = services;
         
         _peql = services.GetRequiredService<IEntityQueryService>();
+        
+        _platforms = services.GetRequiredService<IPlatformService>();
         
         Name = name;
         Type = type;
@@ -57,12 +64,39 @@ public class EntityProviderContainer
     public async Task<IEnumerable<IPamelloEntity>> GetFromPointAsync(string pointName, string stringArgs, IPamelloUser scopeUser) {
         var method = Methods.FirstOrDefault(method => method.GetCustomAttribute<ValuePointAttribute>()?.Is(pointName) ?? false);
         if (method is null) {
-            IPamelloEntity? nameResult;
-            if (stringArgs.Length == 0) nameResult = await GetByNameAsync(pointName, scopeUser);
-            else nameResult = await GetByNameAsync($"{pointName}({stringArgs})", scopeUser);
+            var query = stringArgs.Length == 0 ? pointName : $"{pointName}({stringArgs})";
             
-            if (nameResult is null) return [];
-            return [nameResult];
+            var nameResult = await GetByNameAsync(query, scopeUser);
+            if (nameResult is not null) return [nameResult];
+            
+            if (Provider is not IPamelloSongRepository songs) return [];
+
+            var vtkTimeStart = DateTime.Now;
+            var singleSongKey = _platforms.GetSongPlatformKey(query);
+            var manySongsKeys = await _platforms.GetSongPlatformManyKeys(query).ToListAsync();
+            
+            Output.Write($"s: {singleSongKey}, p: {manySongsKeys.Count} [{DateTime.Now - vtkTimeStart}]");
+
+            if (manySongsKeys.Count == 0) {
+                if (singleSongKey is null) return [];
+                
+                if (await songs.GetByPlatformKeyAsync(scopeUser, singleSongKey, true) is { } song)
+                    return [song];
+                
+                return [];
+            }
+            
+            var psiTimeStart = DateTime.Now;
+            
+            Console.WriteLine($"before tasks: {DateTime.Now - psiTimeStart}");
+            var songsTasks = manySongsKeys.Select(key => songs.GetByPlatformKeyAsync(scopeUser, key, true)).ToList();
+            Console.WriteLine($"after tasks: {DateTime.Now - psiTimeStart}");
+            
+            var newSongs = (await Task.WhenAll(songsTasks)).OfType<IPamelloSong>();
+            
+            Console.WriteLine($"after await: {DateTime.Now - psiTimeStart}");
+            
+            return newSongs;
         }
 
         var argumentsInfos = method.GetParameters();

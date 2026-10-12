@@ -78,7 +78,14 @@ public partial class YoutubeSongPlatform : ISongPlatform
         }
     }
 
-    public async IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey) {
+    public async IAsyncEnumerable<string> ValueToManyKeysAsync(string value) {
+        string playlistKey;
+        
+        try {
+            playlistKey = ValueToPlaylistKeyRequired(value);
+        }
+        catch { yield break; }
+        
         await foreach (var info in _infoGetter.GetPlaylistSongsKeysAsync(playlistKey)) {
             yield return info;
         }

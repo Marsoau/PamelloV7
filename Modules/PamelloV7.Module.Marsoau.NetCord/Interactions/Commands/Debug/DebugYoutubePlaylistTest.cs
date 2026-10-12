@@ -13,6 +13,7 @@ public partial class DebugYoutubePlaylistTest
     public async Task Execute(
         [Description("playlist-value", "Youtube playlist url")] string playlistValue
     ) {
+        /*
         var platforms = Services.GetRequiredService<IPlatformService>();
         var youtube = platforms.GetSongPlatform(
             platforms.GetSongPlatformKey(playlistValue)?.Platform ?? throw new PamelloException("Platform not found")
@@ -27,7 +28,7 @@ public partial class DebugYoutubePlaylistTest
 
         var infos = keys.playlistId is not null
             ? await WithLoadingAsync(
-                youtube.GetPlaylistSongsKeysAsync(keys.playlistId).ToListAsync().AsTask()
+                youtube.ValueToManyKeysAsync(keys.playlistId).ToListAsync().AsTask()
             )
             : [];
 
@@ -43,5 +44,6 @@ public partial class DebugYoutubePlaylistTest
             {DiscordString.CodeBlock(string.Join('\n', infos.Select(i => i.ToString())))}
             """
         );
+        */
     }
 }

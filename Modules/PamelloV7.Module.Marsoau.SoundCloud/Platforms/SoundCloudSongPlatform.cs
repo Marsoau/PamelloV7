@@ -58,8 +58,8 @@ public class SoundCloudSongPlatform : ISongPlatform
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey) {
-        throw new NotImplementedException();
+    public async IAsyncEnumerable<string> ValueToManyKeysAsync(string value) {
+        yield break;
     }
 
     public string GetSongUrl(string key)

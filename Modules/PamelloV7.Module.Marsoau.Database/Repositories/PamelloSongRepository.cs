@@ -61,23 +61,18 @@ public class PamelloSongRepository : PamelloDatabaseRepository<IPamelloSong, Dat
         return Get(id);
     }
 
-    public async Task<IPamelloSong?> GetByNameAsync(IPamelloUser scopeUser, string query) {
+    public IPamelloSong? GetByNameAsync(IPamelloUser scopeUser, string query) {
         if (query.Length == 0) return null;
         
         Output.Write($"Get by name requested: {query}");
-        
-        //actual search by name here
         
         var song = _loaded.FirstOrDefault(s => s.Associations.Contains(query));
         if (song is not null) return song;
         
         song = _loaded.FirstOrDefault(s => s.Name == query);
-        if (song is not null) return song;
+        Output.Write($"Song by name \"{query}\" {(song is null ? "not found" : "found")}");
         
-        var pk = _platforms.GetSongPlatformKey(query);
-        if (pk is null) return null;
-
-        return await GetByPlatformKeyAsync(scopeUser, pk, true);
+        return song;
     }
 
     public async Task<IPamelloSong?> GetByPlatformKeyAsync(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false) {

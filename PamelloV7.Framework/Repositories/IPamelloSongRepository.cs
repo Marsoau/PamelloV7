@@ -16,11 +16,15 @@ public interface IPamelloSongRepository : IPamelloDatabaseRepository<IPamelloSon
     public IPamelloSong? Get(IPamelloUser scopeUser, int id);
     
     [NamePoint]
-    public Task<IPamelloSong?> GetByNameAsync(IPamelloUser scopeUser, string query);
+    public IPamelloSong? GetByNameAsync(IPamelloUser scopeUser, string query);
     
     [PlatformKeyPoint]
-    public Task<IPamelloSong?> GetByPlatformKeyAsync(IPamelloUser scopeUser, PlatformKey pk, bool allowCreation = false);
-        
+    public Task<IPamelloSong?> GetByPlatformKeyAsync(
+        IPamelloUser scopeUser,
+        PlatformKey pk,
+        bool allowCreation = false
+    );
+    
     [ValuePoint("current")]
     public IEnumerable<IPamelloSong> GetCurrent(IPamelloUser scopeUser);
         

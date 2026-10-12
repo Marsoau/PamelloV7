@@ -30,10 +30,6 @@ public class OsuSongPlatform : ISongPlatform
         return id;
     }
 
-    public string ValueToPlaylistKeyRequired(string value) {
-        throw new NotImplementedException();
-    }
-
     public async Task<ISongInfo?> GetSongInfoAsync(string key) {
         if (!int.TryParse(key, out var id)) return null;
         
@@ -47,15 +43,11 @@ public class OsuSongPlatform : ISongPlatform
         throw new NotImplementedException();
     }
 
-    public IAsyncEnumerable<string> GetPlaylistSongsKeysAsync(string playlistKey) {
-        throw new NotImplementedException();
+    public async IAsyncEnumerable<string> ValueToManyKeysAsync(string value) {
+        yield break;
     }
 
     public string GetSongUrl(string key) {
         return $"https://osu.ppy.sh/beatmapsets/{key}";
-    }
-
-    public string GetPlaylistUrl(string playlistKey) {
-        throw new NotImplementedException();
     }
 }

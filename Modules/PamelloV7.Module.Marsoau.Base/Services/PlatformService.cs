@@ -66,6 +66,20 @@ public class PlatformService : IPlatformService
         
         return null;
     }
+    
+    public async IAsyncEnumerable<PlatformKey> GetSongPlatformManyKeys(string value) {
+        var anyKeysFound = false;
+        
+        foreach (var platform in _songPlatforms) {
+            await foreach (var key in platform.ValueToManyKeysAsync(value)) {
+                yield return new PlatformKey(platform.Name, key);
+                
+                anyKeysFound = true;
+            }
+            
+            if (anyKeysFound) break;
+        }
+    }
 
     public IUserPlatform? GetUserPlatform(string name) {
         return _userPlatforms.FirstOrDefault(x => x.Name == name);

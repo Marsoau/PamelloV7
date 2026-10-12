@@ -9,7 +9,9 @@ public interface IPlatformService : IPamelloService
 {
     public ISongPlatform? GetSongPlatform(string name);
     public Task<ISongInfo?> GetSongInfoAsync(string key);
+    
     public PlatformKey? GetSongPlatformKey(string value);
+    public IAsyncEnumerable<PlatformKey> GetSongPlatformManyKeys(string value);
     
     public IUserPlatform? GetUserPlatform(string name);
     public Task<IUserInfo?> GetUserInfoAsync(string value);
