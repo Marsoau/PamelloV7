@@ -8,6 +8,7 @@ using PamelloV7.Framework.Config;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Base;
 using PamelloV7.Framework.Entities.Other;
+using PamelloV7.Framework.Logging;
 
 namespace PamelloV7.Server.Speakers;
 
@@ -80,22 +81,30 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
         
         Player.AddSpeaker(this);
     }
-
-    public async Task<IPamelloListener> CreateListener(HttpResponse response, CancellationToken requestAbortedToken, IPamelloUser? user) {
-        var listener = _audio.RegisterDependant(
-            new PamelloInternetSpeakerListener(response, requestAbortedToken, this, user, _services)
-        );
+    
+    public async Task<IPamelloListener> CreateListener(HttpResponse response, CancellationToken ct, IPamelloUser? user) {
+        var listener = _audio.RegisterDependant(new PamelloInternetSpeakerListener(response, ct, this, user, _services));
         
-        await listener.Sink.InitializeConnection();
-        listener.Sink.Input.ConnectedPoint = Copy.AddOutput();
-        
-        _listeners.Add(listener);
-        
-        return listener;
+        try {
+            listener.CopyOutput = Copy.AddOutput();
+            listener.Sink.Input.ConnectedPoint = listener.CopyOutput;
+            
+            lock (_listeners) _listeners.Add(listener);
+            
+            await listener.Sink.InitializeConnection();
+            
+            return listener;
+        }
+        catch {
+            DeleteListener(listener);
+            throw;
+        }
     }
-
+    
     public bool DeleteListener(PamelloInternetSpeakerListener listener) {
-        if (!_listeners.Remove(listener)) return true;
+        if (listener.CopyOutput is not null) Copy.RemoveOutput(listener.CopyOutput);
+        
+        lock (_listeners) _listeners.Remove(listener);
         
         _audio.DeleteDependant(listener);
         

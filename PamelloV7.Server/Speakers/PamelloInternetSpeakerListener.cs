@@ -1,5 +1,6 @@
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
+using PamelloV7.Framework.Audio.Points;
 using PamelloV7.Framework.Audio.Services;
 using PamelloV7.Framework.Entities;
 using PamelloV7.Framework.Entities.Other;
@@ -17,6 +18,8 @@ public class PamelloInternetSpeakerListener : IPamelloListener, IAudioDependant
     public TaskCompletionSource Lifetime { get; }
     
     public bool IsListening => true;
+    
+    public AudioPoint? CopyOutput { get; set; }
 
     public PamelloInternetSpeakerListener(HttpResponse response, CancellationToken requestAbortedToken, IPamelloSpeaker speaker, IPamelloUser? user, IServiceProvider services) {
         Speaker = speaker;
