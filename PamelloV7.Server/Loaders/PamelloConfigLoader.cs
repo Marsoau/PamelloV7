@@ -41,20 +41,23 @@ public class PamelloConfigLoader : IPamelloConfigLoader
         
         if (!(configFile.Directory?.Exists ?? true)) configFile.Directory.Create();
 
-        if (!configFile.Exists) {
-            if (!exampleFile.Exists) {
-                var exampleConfigStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("PamelloV7.Server.Config.configEXAMPLE.jsonc");
-                if (exampleConfigStream is null) throw new PamelloLoadingException("Example config resource not found");
-
-                using var fileStream = exampleFile.OpenWrite();
-                exampleConfigStream.CopyTo(fileStream);
+        if (!configFile.Exists && exampleFile.Exists) {
+            Output.Write($"Please go to \"{exampleFile.FullName}\", read its IMPORTANT section, edit it accordingly, and restart the app");
             
-                Output.Write($"Created config file example at \"{exampleFile.FullName}\", please read its IMPORTANT section, edit it accordingly, and restart the app");
-            }
-            else {
-                Output.Write($"Please go to \"{exampleFile.FullName}\", read its IMPORTANT section, edit it accordingly, and restart the app");
-            }
+            throw new PamelloExampleConfigException();
+        }
+        
+        var exampleConfigStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("PamelloV7.Server.Config.configEXAMPLE.jsonc");
+        if (exampleConfigStream is null) throw new PamelloLoadingException("Example config resource not found");
+        
+        exampleFile.Delete();
 
+        using var fileStream = exampleFile.OpenWrite();
+        exampleConfigStream.CopyTo(fileStream);
+
+        if (!configFile.Exists) {
+            Output.Write($"Created config file example at \"{exampleFile.FullName}\", please read its IMPORTANT section, edit it accordingly, and restart the app");
+            
             throw new PamelloExampleConfigException();
         }
 

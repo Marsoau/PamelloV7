@@ -14,7 +14,7 @@ After you've done that, you can rename this file to "config.jsonc" (without the 
 {
     "Server": {
         "Host": "http://*:41630", // the API host, you can leave it as is or change it if you know what you're doing
-        "HostName": "", // used in links, you can leave it as is or replace it with your public ip / domain
+        "HostName": "localhost:41630", // used in links, you can leave it localhost or replace with your domain, or even leave empty so the bot resolves your public IP by itself
         "AllowUserCreation": true, // if false, no new users can be created. only existing users can continue using the bot
         "MaximumQueryComplexity": 100, // the maximum number of sub-queries that can be caused by one query
         "DoNotSaveChanges": false // if true, the bot will not save changes to the database, useful for debugging
