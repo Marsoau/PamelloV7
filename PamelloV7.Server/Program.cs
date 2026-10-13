@@ -75,7 +75,21 @@ public class Program
         _configLoader.FinishForServer();
 
         if (string.IsNullOrWhiteSpace(ServerConfig.Root.HostName)) {
-            ServerConfig.Root.HostName = $"localhost:{ServerConfig.Root.Host.Split(':').Last()}";
+            Output.Write("No host name specified, trying to get ip address from ipify.org...");
+            
+            using var http = new HttpClient();
+            
+            try {
+                var ip = await http.GetStringAsync("https://api.ipify.org");
+                ServerConfig.Root.HostName = $"{ip}:{ServerConfig.Root.Host.Split(':').Last()}";
+            }
+            catch {
+                Output.Write("Failed to get ip address from ipify.org");
+                
+                ServerConfig.Root.HostName = $"localhost:{ServerConfig.Root.Host.Split(':').Last()}";
+            }
+            
+            Output.Write($"using {ServerConfig.Root.HostName} as a host name");
         }
 
         var aspBuilder = WebApplication.CreateBuilder(args);
