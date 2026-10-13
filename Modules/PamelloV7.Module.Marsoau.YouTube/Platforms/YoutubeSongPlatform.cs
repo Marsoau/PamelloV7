@@ -95,6 +95,6 @@ public partial class YoutubeSongPlatform : ISongPlatform
     public static string GetYoutubePlaylistUrl(string key)
         => $"https://www.youtube.com/playlist?list={key}";
     
-    [GeneratedRegex("^(PL([0-9A-Fa-f]{16}|[A-Za-z0-9_-]{32})|UU(LV|MO|SH)?[A-Za-z0-9_-]{22}|SP([0-9A-Fa-f]{16}|[A-Za-z0-9_-]{32})|OLAK5uy_[klmn][A-Za-z0-9_-]{32})$")]
+    [GeneratedRegex("^[A-Za-z0-9_-]+$")]
     private static partial Regex YoutubeValidPlaylistIdRegex();
 }
