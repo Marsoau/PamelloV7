@@ -1,15 +1,16 @@
-using System.Diagnostics;
+using System.Threading.Channels;
 using PamelloV7.Framework.Audio.Modules.Base;
 using PamelloV7.Framework.Audio.Points;
-using PamelloV7.Framework.Logging;
-using PamelloV7.Server.Services;
 
 namespace PamelloV7.Server.Audio;
 
 public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
 {
     private readonly HttpResponse _response;
-    
+
+    private readonly Channel<byte[]> _queue = Channel.CreateBounded<byte[]>(
+        new BoundedChannelOptions(256) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true });
+
     public bool IsInitialized { get; set; }
     
     public CancellationToken RequestAbortedToken { get; set; }
@@ -35,31 +36,24 @@ public partial class InternetSpeakerSink : AudioModule, IAudioModuleWithInput
     }
     
     private bool ProcessAudio(byte[] audio, bool wait, CancellationToken token) {
-        Debug.WriteLine($"IsInitialized: {IsInitialized}");
-        Debug.WriteLine($"token.IsCancellationRequested: {token.IsCancellationRequested}");
-        Debug.WriteLine($"RequestAbortedToken.IsCancellationRequested: {RequestAbortedToken.IsCancellationRequested}");
-        
-        var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, RequestAbortedToken).Token;
-        
-        if (!IsInitialized || linkedToken.IsCancellationRequested) return false;
-
-        try {
-            _response.Body.WriteAsync(audio, 0, audio.Length, linkedToken).Wait(linkedToken);
-            _response.Body.FlushAsync(linkedToken).Wait(linkedToken);
-        }
-        catch (OperationCanceledException) {
-            Framework.Logging.Output.Write("ISL canceled");
-            return false;
-        }
-        catch (Exception x) {
-            Framework.Logging.Output.Write($"Exception in internat listener: {x}");
-            return false;
-        }
-        
+        if (!IsInitialized || RequestAbortedToken.IsCancellationRequested) return false;
+        _queue.Writer.TryWrite(audio);
         return true;
     }
 
+    public async Task RunAsync() {
+        try {
+            await foreach (var chunk in _queue.Reader.ReadAllAsync(RequestAbortedToken)) {
+                await _response.Body.WriteAsync(chunk, RequestAbortedToken);
+                await _response.Body.FlushAsync(RequestAbortedToken);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (IOException) { }
+    }
+
     protected override void Dispose(bool isDisposing) {
+        _queue.Writer.TryComplete();
         base.Dispose(isDisposing);
     }
 }

@@ -47,10 +47,7 @@ namespace PamelloV7.Server.Controllers
             Output.Write($"{(User is null ? "Unknown ISL connection" : $"User {User} connects ISL")} to <{speaker.Name}>");
 
             try {
-                await listener.Lifetime.Task.WaitAsync(HttpContext.RequestAborted);
-            }
-            catch (OperationCanceledException) {
-                // ignored
+                await listener.Sink.RunAsync();
             }
             finally {
                 internetSpeaker.DeleteListener(listener);
