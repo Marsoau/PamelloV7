@@ -1,3 +1,4 @@
+using System.Net;
 using PamelloV7.Audio.Modules;
 using PamelloV7.Framework.Audio.Attributes;
 using PamelloV7.Framework.Audio.Modules.Base;
@@ -45,7 +46,7 @@ public class PamelloInternetSpeaker : PamelloDynamicEntity, IPamelloInternetSpea
     public bool IsAvailableFor(IPamelloUser user) => true;
     
     public string GetUrl() {
-        return $"{(ServerConfig.Root.HostName.Split(":").FirstOrDefault() is "localhost" or "127.0.0.1"
+        return $"{(ServerConfig.Root.HostName.Split(":").FirstOrDefault() == "localhost" || IPAddress.TryParse(ServerConfig.Root.HostName.Split(":").FirstOrDefault(), out _)
             ? "http"
             : "https"
         )}://{ServerConfig.Root.HostName}/Audio/Out/{Name}";
