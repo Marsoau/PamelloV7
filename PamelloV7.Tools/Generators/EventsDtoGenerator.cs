@@ -31,7 +31,7 @@ public static class EventsDtoGenerator
             sb.AppendLine($"    public {CommandExtensionsGenerator.GetReturnTypeInfo(property.PropertyType, false, isNullable)} {property.Name} {{ get; set; }}");
         }
         
-        var baseTypeName = "IRemoteEvent";
+        var baseTypeName = "RemoteEvent";
         if (eventType.BaseType is not null && eventType.BaseType.IsAssignableTo(typeof(IPamelloEvent))) {
             baseTypeName = eventType.BaseType.Name;
         }

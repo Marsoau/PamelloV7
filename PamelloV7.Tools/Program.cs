@@ -13,6 +13,7 @@ class Program
 {
     public static void Main(string[] args) {
         GenerateEventsDto();
+        GenerateEventsDto();
     }
     
     public static void GenerateEventsDto() {

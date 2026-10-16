@@ -18,7 +18,7 @@ public class WrapperDtoTests : WrapperTest
 
         await _client.User.FavoriteSongs.LoadAsync();
 
-        _testOutputHelper.WriteLine(_client.User.FavoriteSongs.Count().ToString());
+        _testOutputHelper.WriteLine($"Favorite songs: {_client.User.FavoriteSongs.Count().ToString()}");
     }
     
     [Fact]
