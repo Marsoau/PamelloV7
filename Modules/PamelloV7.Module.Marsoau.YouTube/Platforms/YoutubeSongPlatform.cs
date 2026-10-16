@@ -60,6 +60,8 @@ public partial class YoutubeSongPlatform : ISongPlatform
             _ => null
         };
         
+        if (id.StartsWith("RD")) throw new PamelloException("Cannot use a user specific radio playlist");
+        
         if (id is null || !YoutubeValidPlaylistIdRegex().IsMatch(id)) {
             throw new PamelloException($"Cant find a valid youtube playlist id in value \"{value}\"");
         }
